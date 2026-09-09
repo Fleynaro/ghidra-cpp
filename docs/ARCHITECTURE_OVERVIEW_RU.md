@@ -53,6 +53,11 @@ Ghidra Server используйте
 архивов и связи вложенных файлов с обычными загрузчиками используйте
 [`FILE_FORMATS_OVERVIEW_RU.md`](FILE_FORMATS_OVERVIEW_RU.md).
 
+Для полного учебного маршрута на примере Windows PE `GTA5.exe`, от импорта и
+Auto Analyze до двух CFG, call graph, p-code и восстановления локальных
+переменных, используйте
+[`GTA5_EXE_GHIDRA_PIPELINE_RU.md`](GTA5_EXE_GHIDRA_PIPELINE_RU.md).
+
 ## 1. Что такое Ghidra
 
 Ghidra получает бинарный файл и строит из него модель программы: память,
