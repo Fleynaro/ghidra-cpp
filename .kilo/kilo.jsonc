@@ -15,25 +15,16 @@
     "dimension": 1536,
     "enabled": true,
     "fileExtensions": [
-      ".bat",
       ".c",
       ".cc",
       ".cpp",
-      ".cspec",
-      ".g",
-      ".gradle",
       ".h",
       ".hpp",
+      ".html",
       ".java",
-      ".ldefs",
       ".md",
-      ".opinion",
-      ".pspec",
       ".py",
-      ".sh",
-      ".sinc",
-      ".slaspec",
       ".xml"
     ]
-  },
+  }
 }
