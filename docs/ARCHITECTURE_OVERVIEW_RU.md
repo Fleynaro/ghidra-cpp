@@ -38,6 +38,11 @@ Ghidra Server используйте
 связывает оболочки `Ghidra/RuntimeScripts` с реальными Java-точками входа и
 показывает практические команды.
 
+Для точного сопоставления публичных функций PyGhidra с Java-вызовами и
+реализациями используйте
+[`PYGHIDRA_API_JAVA_MAPPING_RU.md`](PYGHIDRA_API_JAVA_MAPPING_RU.md). Документ
+разделяет Python convenience API, JPype-мосты, Java API Ghidra и GUI interpreter.
+
 Для понимания конфигурации публичной поставки используйте
 [`PUBLIC_RELEASE_CONFIGURATION_RU.md`](PUBLIC_RELEASE_CONFIGURATION_RU.md): там
 разобраны ресурсы `Ghidra/Configurations/Public_Release`, их упаковка Gradle и
