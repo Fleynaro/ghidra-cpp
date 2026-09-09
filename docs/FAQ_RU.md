@@ -186,6 +186,90 @@ Calling convention и `.cspec` помогают определить парам�
 [`GHIDRA_DECOMPILER_FLOW_RU.md`](GHIDRA_DECOMPILER_FLOW_RU.md#1-короткая-карта-пути)
 и [`FRAMEWORK_OVERVIEW_RU.md`](FRAMEWORK_OVERVIEW_RU.md#8-функции-символы-и-ссылки).
 
+## 5. Что делает `Features/Base`, а что `Features/Decompiler`?
+
+### Короткий ответ
+
+`Features/Base` -- это не первая половина одного монолитного декомпилятора, а
+набор Java-анализаторов, которые строят и уточняют **сохраняемую модель
+`Program`**: `Instruction`, функции, flow references, данные, глобальные и
+программные символы, типы и метаданные. Конкретный состав и порядок analyzer-ов
+задаются auto-analysis scheduler-ом; общий маршрут описан в
+[`FEATURES_BASE_OVERVIEW_RU.md`](FEATURES_BASE_OVERVIEW_RU.md#шаг-6-что-делают-следующие-анализаторы)
+и реализован через [`AnalysisScheduler.java`](../Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/analysis/AnalysisScheduler.java)
+и [`AnalysisTaskList.java`](../Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/analysis/AnalysisTaskList.java).
+
+`Features/Decompiler` -- это нативный анализ **одной функции**, запускаемый по
+запросу декомпиляции. Он получает p-code лениво через Java callback, строит
+временные `Funcdata`/`FlowBlock`/`Varnode`, SSA, типы, высокоуровневые переменные,
+структуру управления и C-подобный вывод. Стандартная последовательность
+действий собрана в [`coreaction.cc`](../Ghidra/Features/Decompiler/src/decompile/cpp/coreaction.cc#L5791-L5805)
+и [`coreaction.cc`](../Ghidra/Features/Decompiler/src/decompile/cpp/coreaction.cc#L5847-L6065).
+
+Это разделение удобно запоминать так:
+
+```text
+Base/Framework: что существует в Program и где находятся инструкции/адреса
+Decompiler:     что эти инструкции означают как выражения и переменные функции
+```
+
+### Что происходит с примерами из вопроса
+
+| Задача | `Features/Base` | `Features/Decompiler` |
+|---|---|---|
+| Восстановление `switch` | Может найти адреса таблицы переходов, разметить найденные инструкции и flow references через Java-анализаторы. Это уточняет `Program` и Listing. | Анализирует `BRANCHIND`, восстанавливает/проверяет jump table, нормализует switch и структурирует граф в `BlockSwitch`/`case`. См. [`flow.cc`](../Ghidra/Features/Decompiler/src/decompile/cpp/flow.cc#L786-L789), [`coreaction.cc`](../Ghidra/Features/Decompiler/src/decompile/cpp/coreaction.cc#L6052-L6058) и [`blockaction.cc`](../Ghidra/Features/Decompiler/src/decompile/cpp/blockaction.cc#L1654-L1720). Поэтому видимый C-`switch` -- результат в первую очередь Decompiler, даже если цели переходов были предварительно найдены Base. |
+| Constant propagation | [`ConstantPropagationAnalyzer.java`](../Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/analysis/ConstantPropagationAnalyzer.java#L38-L44) выполняет Java symbolic propagation, прежде всего чтобы найти вычисленные адресные ссылки, pointer references и данные в `Program`. Это не общий optimizer p-code и не «свёртка C-выражений». | В `analysis`-правилах упрощает p-code и проталкивает значения по SSA/data flow: например, `RuleCollapseConstants`, `RulePropagateCopy`, `ActionConditionalConst` и связанные правила зарегистрированы в [`coreaction.cc`](../Ghidra/Features/Decompiler/src/decompile/cpp/coreaction.cc#L5884-L5949). Именно этот слой обычно называют constant folding в декомпиляторе. |
+| Сопоставление символа с storage | Хранит явные `Parameter`/`LocalVariable` и их `VariableStorage`, если они пришли из debug-информации, были созданы пользователем или выведены Java-анализаторами. См. [`FunctionVariables.java`](../Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/database/function/FunctionVariables.java). | Для неизвестных локальных переменных сопоставляет физические `Varnode` с одной логической `HighVariable`: сначала heritage строит SSA и cover, затем merge проверяет допустимость объединения, а `linkSymbol()` создаёт/привязывает локальный Symbol к representative. См. [`heritage.hh`](../Ghidra/Features/Decompiler/src/decompile/cpp/heritage.hh), [`merge.cc`](../Ghidra/Features/Decompiler/src/decompile/cpp/merge.cc#L91-L102) и [`funcdata_varnode.cc`](../Ghidra/Features/Decompiler/src/decompile/cpp/funcdata_varnode.cc#L1218-L1254). |
+
+### Когда появляются локальные переменные и символы
+
+Здесь важно не смешивать три объекта:
+
+1. **Физический storage / Varnode.** Как только декомпилятор получил raw
+   p-code, у него есть Varnode для регистра, участка памяти, константы или
+   временного значения. Это ещё не обязательно локальная переменная с именем.
+
+2. **`HighVariable`.** В процессе decompiler analysis Varnode получает
+   `HighVariable`; при включённом high-level режиме для нового Varnode может быть
+   создана отдельная HighVariable уже в [`Funcdata::assignHigh()`](../Ghidra/Features/Decompiler/src/decompile/cpp/funcdata_varnode.cc#L44-L60).
+   Затем heritage/SSA и последующие merge-правила решают, какие определения и
+   storage принадлежат одной логической переменной. Поэтому одна переменная
+   действительно может иметь несколько Varnode/storage в разные моменты.
+
+3. **Decompiler `Symbol`/`HighSymbol` и имя.** Это более поздняя связь. На
+   стадии `ActionNameVars` декомпилятор проходит HighVariables, пытается найти
+   существующий символ, а если подходящего локального нет, `linkSymbol()` создаёт
+   его в `ScopeLocal`; затем выдаётся имя вида `local_...` или имя параметра.
+   См. комментарий и код [`ActionNameVars::linkSymbols()`](../Ghidra/Features/Decompiler/src/decompile/cpp/coreaction.cc#L3071-L3145)
+   и [`Funcdata::linkSymbol()`](../Ghidra/Features/Decompiler/src/decompile/cpp/funcdata_varnode.cc#L1223-L1254).
+
+На практике первый вызов декомпилятора действительно запускает этот процесс для
+функции, но не обязательно начинает с нуля: Program может уже содержать debug
+symbols, параметры или локальные переменные, а декомпилятор может получить их
+через callback. Кроме того, часть входных символов добавляется ещё во время
+восстановления прототипа: [`ActionInputPrototype::addRefOnlySymbols()`](../Ghidra/Features/Decompiler/src/decompile/cpp/coreaction.cc#L5024-L5058)
+создаёт локальные symbols для ссылок на возможные параметры.
+
+Следовательно, точная формулировка такова: **при первом вызове декомпилятора
+создаётся/заполняется временная высокоуровневая модель функции и при необходимости
+динамические локальные symbols, но `Program`-локальные переменные и их storage не
+обязаны появиться в database как побочный эффект обычного просмотра C-кода**.
+Специальные dynamic symbols также являются внутренними объектами декомпилятора:
+[`Funcdata::buildDynamicSymbol()`](../Ghidra/Features/Decompiler/src/decompile/cpp/funcdata_varnode.cc#L1351-L1375)
+связывает их с Varnode через hash data flow, а не через один физический адрес.
+
+### Итоговая граница ответственности
+
+- Если ошибка в том, что не создалась инструкция, функция, ссылка, цель
+  косвенного перехода или объект `Program`, сначала проверяется `Base`/Framework.
+- Если Listing уже корректен, но C-код плохо сворачивает арифметику, неверно
+  объединяет регистр и stack slot, не узнаёт `switch` или плохо структурирует
+  `if`/циклы, это обычно стадия `Features/Decompiler`.
+- Граница не абсолютно жёсткая: Base может подготовить switch targets и
+  constant-derived references, а Decompiler повторно анализирует тот же flow в
+  собственной p-code/SSA-модели. Подробная трасса вызова находится в
+  [`GHIDRA_DECOMPILER_FLOW_RU.md`](GHIDRA_DECOMPILER_FLOW_RU.md#1-короткая-карта-пути).
+
 ## Правило обновления FAQ
 
 Если пользователь задает вопрос по архитектуре, зависимостям модулей или
