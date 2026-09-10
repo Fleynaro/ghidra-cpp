@@ -1,0 +1,38 @@
+# Generated output and local tooling state
+/build/
+/.gradle/
+/.kilo/agent-manager.json
+**/build/
+**/bin/
+**/dist/
+
+# Generated and packaged documentation, not implementation code
+/GhidraDocs/
+
+# Optional or auxiliary top-level Ghidra areas
+/Ghidra/Configurations/
+/Ghidra/Extensions/
+/Ghidra/RuntimeScripts/
+/Ghidra/Test/
+/GhidraBuild/
+
+# Live debugging is outside the static analysis scope
+/Ghidra/Debug/
+
+# Keep only the documented analysis and binary-format features
+/Ghidra/Features/*/
+!/Ghidra/Features/Base/
+!/Ghidra/Features/Decompiler/
+!/Ghidra/Features/DecompilerDependent/
+!/Ghidra/Features/FileFormats/
+!/Ghidra/Features/FunctionID/
+!/Ghidra/Features/PyGhidra/
+!/Ghidra/Features/Recognizers/
+!/Ghidra/Features/MicrosoftCodeAnalyzer/
+!/Ghidra/Features/MicrosoftDemangler/
+
+
+# Keep only the processor descriptions needed for this project
+/Ghidra/Processors/*/
+!/Ghidra/Processors/ARM/
+!/Ghidra/Processors/x86/
