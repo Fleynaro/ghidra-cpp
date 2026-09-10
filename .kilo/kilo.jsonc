@@ -7,6 +7,11 @@
         "bridge-mcp-ghidra"
       ],
       "enabled": true
+    },
+    "vscode": {
+      "type": "remote",
+      "url": "http://localhost:3000/mcp",
+      "enabled": true
     }
   },
   "indexing": {
