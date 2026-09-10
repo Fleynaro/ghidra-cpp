@@ -13,4 +13,4 @@ enable_testing()
 add_subdirectory(features)
 
 add_executable(new_ghidra_app src/main.cpp)
-target_link_libraries(new_ghidra_app PRIVATE hello_feature)
+target_link_libraries(new_ghidra_app PRIVATE hello_feature NewGhidra::SleighRuntime)
