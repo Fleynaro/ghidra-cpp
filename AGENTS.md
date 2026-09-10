@@ -38,6 +38,7 @@ The project uses environment variables. Keep this table up to date.
 - Use the MSVC compiler unless the task explicitly requires another compiler.
 - Compile with C++23 enabled and use modern C++23 features where they improve correctness, clarity, or maintainability.
 - Prefer the C++ module system for imports over legacy `#include` directives whenever practical.
+- Use the `.cppm` extension for C++ module interface files; do not use `.ixx`.
 - Format C++ code with `clang-format` and validate it with `clang-tidy`.
 
 ## Code Quality
