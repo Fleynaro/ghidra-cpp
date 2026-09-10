@@ -1,7 +1,11 @@
 {
     "cmake.sourceDirectory": "${workspaceFolder}/NEW",
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.intelliSenseEngine": "disabled",
     "files.associations": {
         "*.cppm": "cpp"
-    }
+    },
+    "clangd.arguments": [
+        "--experimental-modules-support",
+    ]
 }
