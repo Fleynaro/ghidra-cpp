@@ -21,7 +21,8 @@
     "enabled": true,
     "fileExtensions": [
       ".cpp",
-      ".cppm"
+      ".cppm",
+      ".md"
     ],
     "embeddingBatchSize": 60
   }
