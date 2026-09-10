@@ -21,11 +21,8 @@
     "enabled": true,
     "fileExtensions": [
       ".cpp",
-      ".cppm",
-      ".h",
-      ".md",
-      ".py"
+      ".cppm"
     ],
-    "embeddingBatchSize": 100
+    "embeddingBatchSize": 60
   }
 }
