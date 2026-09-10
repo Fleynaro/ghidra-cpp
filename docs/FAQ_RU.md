@@ -104,6 +104,34 @@ Ghidra обычно читает именно `.sla`, а не каждый ра�
 [`X86_SLEIGH_PCODE_RU.md`](X86_SLEIGH_PCODE_RU.md), а взаимодействие Java и
 нативного декомпилятора -- в [`GHIDRA_DECOMPILER_FLOW_RU.md`](GHIDRA_DECOMPILER_FLOW_RU.md#3-sleigh-из-x86-инструкции-в-raw-p-code).
 
+### Выдает ли Sleigh x86-инструкции или только P-Code?
+
+Sleigh делает **оба шага**, но важно различать их результат:
+
+1. По байтам и контексту процессора он распознает машинную инструкцию и создает
+   `InstructionPrototype`. Из прототипа доступны длина инструкции, mnemonic,
+   операнды и тип потока (`CALL`, `JMP`, `RETURN` и т. п.). Это видно в контракте
+   [`Language.parse()`](../Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/model/lang/Language.java#L135-L150),
+   а Sleigh-реализация находится в
+   [`SleighLanguage.parse()`](../Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighLanguage.java#L377-L418)
+   и [`SleighInstructionPrototype`](../Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighInstructionPrototype.java#L38-L44).
+2. Для того же распознанного прототипа он исполняет semantic template и выдает
+   P-Code -- формальное описание воздействия инструкции на регистры, память и
+   флаги. Например, x86 `mov` может быть представлен операцией записи в
+   регистр или память, а не строкой `mov`.
+
+Поэтому Sleigh можно считать **частью дизассемблера**: он декодирует байты в
+инструкции и предоставляет mnemonic/операнды через API. Однако Sleigh сам по
+себе не является оконным дизассемблером и не выполняет обратное преобразование
+`P-Code -> x86`. В Ghidra общий [`Disassembler`](../Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/disassemble/Disassembler.java)
+использует язык процессора для разбора байтов, а затем сохраняет полученные
+`Instruction` и ссылки в модели `Program`. Нативный Decompiler, напротив,
+использует raw P-Code как вход для SSA, типов и C-подобного вывода.
+
+Итог: для входа **машинные байты -> x86-инструкция + P-Code** Sleigh является
+декодером и семантическим генератором; для входа **P-Code -> x86-инструкция**
+он не предназначен.
+
 ## 3. Почему CFG декомпилятора отличается от CFG самой Ghidra?
 
 ### Короткий ответ
