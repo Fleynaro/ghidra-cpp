@@ -11,7 +11,7 @@
     "vscode": {
       "type": "remote",
       "url": "http://localhost:3000/mcp",
-      "enabled": true
+      "enabled": false
     }
   },
   "indexing": {
