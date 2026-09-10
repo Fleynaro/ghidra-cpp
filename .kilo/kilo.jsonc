@@ -20,13 +20,9 @@
     "dimension": 1536,
     "enabled": true,
     "fileExtensions": [
-      ".c",
-      ".cc",
       ".cpp",
       ".cppm",
       ".h",
-      ".hh",
-      ".html",
       ".md",
       ".py"
     ],
