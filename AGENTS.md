@@ -48,10 +48,20 @@ The project uses environment variables. Keep this table up to date.
 - Use thorough error handling. Handle every realistic failure point and present users with clear English diagnostics, including recommended remediation steps when applicable.
 - Use strong typing and express intent through appropriate types, interfaces, and names.
 - Keep code readable and understandable. Avoid unnecessary complexity, unclear abbreviations, and duplication.
-- Add comments where they improve understanding of the code.
-- Source-code comments and descriptions must be written in English and explain purpose, constraints, invariants, or non-obvious decisions rather than merely restating the implementation.
 - Preserve existing architecture and conventions unless the task explicitly requires changing them.
 - Keep changes focused and avoid unrelated refactoring.
+
+## Code Comments and Test Documentation
+
+- Comments are mandatory, not optional. Do not consider an implementation complete until the required comments have been added and reviewed.
+- Every function, method, constructor, destructor, class, struct, and test fixture must have an English documentation comment immediately before its declaration or definition. This includes private and otherwise apparently self-explanatory code.
+- Each function or method comment must state its purpose and, where applicable, document parameters, return values, thrown errors, side effects, ownership or lifetime rules, preconditions, postconditions, and important invariants.
+- Each class or struct comment must explain its responsibility, lifecycle or ownership model, important invariants, and intended usage.
+- Every test case and test helper must have an English comment explaining the behavior or contract being verified, the relevant setup, and why the assertions matter. Comments must describe the scenario and expected outcome, not merely repeat the test name or assertion.
+- Add comments to non-obvious algorithms, synchronization, platform-specific workarounds, serialization formats, protocol details, and security-sensitive code. Explain the reason, constraint, or invariant rather than paraphrasing the code.
+- Place documentation comments where the reader encounters them before the related declaration or definition. Keep comments synchronized with the implementation whenever behavior changes.
+- Before finalizing a change, explicitly inspect every new or modified function, method, class, struct, test fixture, test case, and test helper for a corresponding meaningful comment. Missing required comments are a validation failure.
+- Source-code comments and descriptions must be written in English and explain purpose, constraints, invariants, or non-obvious decisions rather than merely restating the implementation.
 
 ## Validation
 
