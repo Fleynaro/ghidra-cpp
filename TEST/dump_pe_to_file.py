@@ -6,13 +6,13 @@ Dump the result of Ghidra's PE loader into a deterministic Markdown file.
 This script is intended to generate golden/reference data for porting
 Ghidra's PE loader to an autonomous C++23 implementation.
 
-Usage:
+    Usage:
 
-    python dump_pe_loader.py <input.exe> [output.md]
+        python dump_pe_to_file.py <input.exe> [output.md] [--verbose]
 
-Example:
+    Example:
 
-    python dump_pe_loader.py GTA5.exe GTA5_PE_LOADER.md
+        python dump_pe_to_file.py GTA5.exe GTA5_PE_LOADER.md --verbose
 
 The script uses the current PyGhidra + ProgramLoader API and explicitly
 requests Ghidra's PeLoader.
@@ -438,7 +438,8 @@ def dump_functions(program, out: list[str]) -> None:
         )
 
 
-def generate_markdown(program, input_path: Path) -> str:
+def generate_markdown(program, input_path: Path, verbose: bool = False) -> str:
+    """Build the Markdown report, optionally including verbose listing data."""
     out: list[str] = []
 
     out.append("# Ghidra PE Loader Reference Data")
@@ -461,32 +462,46 @@ def generate_markdown(program, input_path: Path) -> str:
     dump_memory(program, out)
     dump_sections_from_memory(program, out)
     dump_listing_summary(program, out)
-    dump_symbols(program, out)
     dump_external_symbols(program, out)
     dump_entry_points(program, out)
-    dump_references(program, out)
-    dump_functions(program, out)
     dump_properties(program, out)
+
+    if verbose:
+        dump_symbols(program, out)
+        dump_references(program, out)
+        dump_functions(program, out)
 
     return "\n".join(out) + "\n"
 
 
 def main() -> int:
+    """Load a PE file with Ghidra and write its loader report to Markdown."""
     if len(sys.argv) < 2:
         print(
-            "Usage: python dump_pe_loader.py <input.exe> [output.md]",
+            "Usage: python dump_pe_to_file.py <input.exe> [output.md] [--verbose]",
             file=sys.stderr,
         )
         return 2
 
-    input_path = Path(sys.argv[1]).resolve()
+    arguments = sys.argv[1:]
+    verbose = "--verbose" in arguments
+    arguments = [argument for argument in arguments if argument != "--verbose"]
+
+    if not arguments:
+        print(
+            "Usage: python dump_pe_to_file.py <input.exe> [output.md] [--verbose]",
+            file=sys.stderr,
+        )
+        return 2
+
+    input_path = Path(arguments[0]).resolve()
 
     if not input_path.is_file():
         print(f"Input file does not exist: {input_path}", file=sys.stderr)
         return 2
 
-    if len(sys.argv) >= 3:
-        output_path = Path(sys.argv[2]).resolve()
+    if len(arguments) >= 2:
+        output_path = Path(arguments[1]).resolve()
     else:
         output_path = input_path.with_suffix(input_path.suffix + ".pe-loader.md")
 
@@ -522,7 +537,7 @@ def main() -> int:
         print(f"[+] Language: {program.getLanguage().getLanguageID()}")
         print("[+] Dumping loader result...")
 
-        markdown = generate_markdown(program, input_path)
+        markdown = generate_markdown(program, input_path, verbose=verbose)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(markdown, encoding="utf-8")
