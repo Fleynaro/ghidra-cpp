@@ -229,6 +229,83 @@ TEST(SleighRuntime, DecodesAvxVaddps) {
     expect_materialized_pcode(*result);
 }
 
+/// Verifies AVX unaligned vector move materializes the expected zero-extension.
+TEST(SleighRuntime, DecodesAvxVmovdqu) {
+    auto decoder = make_decoder();
+    // c5 fe 6f c1 - VMOVDQU YMM0,YMM1
+    const std::array<std::uint8_t, 4> bytes{0xc5, 0xfe, 0x6f, 0xc1};
+    const auto result = decoder.decode(0x140000004ULL, bytes, x86_64_context());
+
+    ASSERT_TRUE(result.has_value()) << result.error().message;
+    EXPECT_EQ(result->length, 4U);
+    EXPECT_EQ(result->mnemonic, "VMOVDQU");
+    ASSERT_EQ(result->operands.size(), 2U);
+    EXPECT_EQ(result->operands[0].kind, sleigh_runtime::OperandKind::register_value);
+    EXPECT_EQ(result->operands[1].kind, sleigh_runtime::OperandKind::register_value);
+    EXPECT_EQ(result->flow.kind, sleigh_runtime::FlowKind::none);
+    ASSERT_EQ(result->pcode.size(), 1U);
+    EXPECT_EQ(result->pcode[0].opcode, sleigh_runtime::PcodeOpcode::int_zext);
+    ASSERT_TRUE(result->pcode[0].output.has_value());
+    expect_varnode(*result->pcode[0].output, "register", 0x1200U, 64U);
+    ASSERT_EQ(result->pcode[0].inputs.size(), 1U);
+    expect_varnode(result->pcode[0].inputs[0], "register", 0x1240U, 32U);
+    expect_materialized_pcode(*result);
+}
+
+/// Verifies AVX vector xor and the resulting zero-extension into the architectural YMM value.
+TEST(SleighRuntime, DecodesAvxVpxor) {
+    auto decoder = make_decoder();
+    // c5 fd ef c0 - VPXOR YMM0,YMM0,YMM0
+    const std::array<std::uint8_t, 4> bytes{0xc5, 0xfd, 0xef, 0xc0};
+    const auto result = decoder.decode(0x140000008ULL, bytes, x86_64_context());
+
+    ASSERT_TRUE(result.has_value()) << result.error().message;
+    EXPECT_EQ(result->length, 4U);
+    EXPECT_EQ(result->mnemonic, "VPXOR");
+    ASSERT_EQ(result->operands.size(), 3U);
+    EXPECT_EQ(result->operands[0].kind, sleigh_runtime::OperandKind::register_value);
+    EXPECT_EQ(result->operands[1].kind, sleigh_runtime::OperandKind::register_value);
+    EXPECT_EQ(result->operands[2].kind, sleigh_runtime::OperandKind::register_value);
+    EXPECT_EQ(result->flow.kind, sleigh_runtime::FlowKind::none);
+    ASSERT_EQ(result->pcode.size(), 2U);
+    EXPECT_EQ(result->pcode[0].opcode, sleigh_runtime::PcodeOpcode::int_xor);
+    ASSERT_TRUE(result->pcode[0].output.has_value());
+    expect_varnode(*result->pcode[0].output, "unique", 0x20ee00U, 32U);
+    ASSERT_EQ(result->pcode[0].inputs.size(), 2U);
+    expect_varnode(result->pcode[0].inputs[0], "register", 0x1200U, 32U);
+    expect_varnode(result->pcode[0].inputs[1], "register", 0x1200U, 32U);
+    EXPECT_EQ(result->pcode[1].opcode, sleigh_runtime::PcodeOpcode::int_zext);
+    ASSERT_TRUE(result->pcode[1].output.has_value());
+    expect_varnode(*result->pcode[1].output, "register", 0x1200U, 64U);
+    ASSERT_EQ(result->pcode[1].inputs.size(), 1U);
+    expect_varnode(result->pcode[1].inputs[0], "unique", 0x20ee00U, 32U);
+    expect_materialized_pcode(*result);
+}
+
+/// Verifies VZEROUPPER clears all 16 YMM register halves represented by 96 p-code operations.
+TEST(SleighRuntime, DecodesVzeroupper) {
+    auto decoder = make_decoder();
+    // c5 f8 77 - VZEROUPPER
+    const std::array<std::uint8_t, 3> bytes{0xc5, 0xf8, 0x77};
+    const auto result = decoder.decode(0x14000000cULL, bytes, x86_64_context());
+
+    ASSERT_TRUE(result.has_value()) << result.error().message;
+    EXPECT_EQ(result->length, 3U);
+    EXPECT_EQ(result->mnemonic, "VZEROUPPER");
+    EXPECT_TRUE(result->operands.empty());
+    EXPECT_EQ(result->flow.kind, sleigh_runtime::FlowKind::none);
+    ASSERT_EQ(result->pcode.size(), 96U);
+    for (std::size_t operation = 0; operation < result->pcode.size(); ++operation) {
+        const std::uint64_t expected_offset = 0x1210U + (operation / 6U) * 0x40U + (operation % 6U) * 8U;
+        EXPECT_EQ(result->pcode[operation].opcode, sleigh_runtime::PcodeOpcode::copy);
+        ASSERT_TRUE(result->pcode[operation].output.has_value());
+        expect_varnode(*result->pcode[operation].output, "register", expected_offset, 8U);
+        ASSERT_EQ(result->pcode[operation].inputs.size(), 1U);
+        expect_varnode(result->pcode[operation].inputs[0], "const", 0U, 8U);
+    }
+    expect_materialized_pcode(*result);
+}
+
 /// Verifies the full XMM6 load from the local stack slot and all four lane copies.
 TEST(SleighRuntime, DecodesMovapsXmm6LocalLoad) {
     auto decoder = make_decoder();
