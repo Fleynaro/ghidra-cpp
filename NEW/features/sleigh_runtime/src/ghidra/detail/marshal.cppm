@@ -334,178 +334,32 @@ public:
     }
 };
 
-/// \brief A class for writing structured data to a stream
-///
-/// The resulting encoded data is structured similarly to an XML document. The document contains a nested set
-/// of \b elements, with labels corresponding to the ElementId class. A single element can hold
-/// zero or more attributes and zero or more child elements.  An \b attribute holds a primitive
-/// data element (bool, integer, string) and is labeled by an AttributeId. The document is written
-/// using a sequence of openElement() and closeElement() calls, intermixed with write*() calls to encode
-/// the data primitives.  All primitives written using a write*() call are associated with current open element,
-/// and all write*() calls for one element must come before opening any child element.
-/// The traditional XML element text content can be written using the special ATTRIB_CONTENT AttributeId, which
-/// must be the last write*() call associated with the specific element.
+/// Abstract interface for serialization methods retained by legacy data structures.
 class Encoder {
 public:
-    virtual ~Encoder(void) {} ///< Destructor
-
-    /// \brief Begin a new element in the encoding
-    ///
-    /// The element will have the given ElementId annotation and becomes the \e current element.
-    /// \param elemId is the given ElementId annotation
+    /// Destroy the encoder through its interface.
+    virtual ~Encoder(void) {}
+    /// Begin an element in the encoded stream.
     virtual void openElement(const ElementId& elemId) = 0;
-
-    /// \brief End the current element in the encoding
-    ///
-    /// The current element must match the given annotation or an exception is thrown.
-    /// \param elemId is the given (expected) annotation for the current element
+    /// End the current element in the encoded stream.
     virtual void closeElement(const ElementId& elemId) = 0;
-
-    /// \brief Write an annotated boolean value into the encoding
-    ///
-    /// The boolean data is associated with the given AttributeId annotation and the current open element.
-    /// \param attribId is the given AttributeId annotation
-    /// \param val is boolean value to encode
+    /// Write a boolean attribute.
     virtual void writeBool(const AttributeId& attribId, bool val) = 0;
-
-    /// \brief Write an annotated signed integer value into the encoding
-    ///
-    /// The integer is associated with the given AttributeId annotation and the current open element.
-    /// \param attribId is the given AttributeId annotation
-    /// \param val is the signed integer value to encode
+    /// Write a signed integer attribute.
     virtual void writeSignedInteger(const AttributeId& attribId, intb val) = 0;
-
-    /// \brief Write an annotated unsigned integer value into the encoding
-    ///
-    /// The integer is associated with the given AttributeId annotation and the current open element.
-    /// \param attribId is the given AttributeId annotation
-    /// \param val is the unsigned integer value to encode
+    /// Write an unsigned integer attribute.
     virtual void writeUnsignedInteger(const AttributeId& attribId, uintb val) = 0;
-
-    /// \brief Write an annotated string into the encoding
-    ///
-    /// The string is associated with the given AttributeId annotation and the current open element.
-    /// \param attribId is the given AttributeId annotation
-    /// \param val is the string to encode
+    /// Write a string attribute.
     virtual void writeString(const AttributeId& attribId, const string& val) = 0;
-
-    /// \brief Write an annotated string, using an indexed attribute, into the encoding
-    ///
-    /// Multiple attributes with a shared name can be written to the same element by calling this method
-    /// multiple times with a different \b index value. The encoding will use attribute ids up to the base id
-    /// plus the maximum index passed in.  Implementors must be careful to not use other attributes with ids
-    /// bigger than the base id within the element taking the indexed attribute.
-    /// \param attribId is the shared AttributeId
-    /// \param index is the unique index to associated with the string
-    /// \param val is the string to encode
+    /// Write an indexed string attribute.
     virtual void writeStringIndexed(const AttributeId& attribId, uint4 index, const string& val) = 0;
-
-    /// \brief Write an address space reference into the encoding
-    ///
-    /// The address space is associated with the given AttributeId annotation and the current open element.
-    /// \param attribId is the given AttributeId annotation
-    /// \param spc is the address space to encode
+    /// Write an address-space attribute.
     virtual void writeSpace(const AttributeId& attribId, const AddrSpace* spc) = 0;
-
-    /// \brief Write a p-code operation opcode into the encoding, associating it with the given annotation
-    ///
-    /// \param attribId is the given annotation
-    /// \param opc is the opcode
+    /// Write an opcode attribute.
     virtual void writeOpcode(const AttributeId& attribId, OpCode opc) = 0;
 };
 
-/// \brief An XML based decoder
-///
-/// The underlying transfer encoding is an XML document.  The decoder can either be initialized with an
-/// existing Element as the root of the data to transfer, or the ingestStream() method can be invoked
-/// to read the XML document from an input stream, in which case the decoder manages the Document object.
-class XmlDecode : public Decoder {
-    std::unique_ptr<Document> document;     ///< An ingested XML document owned by this decoder
-    const Element* rootElement;             ///< The root XML element to be decoded
-    vector<const Element*> elStack;         ///< Stack of currently \e open elements
-    vector<List::const_iterator> iterStack; ///< Index of next child for each \e open element
-    int4 attributeIndex;                    ///< Position of \e current attribute to parse (in \e current element)
-    int4 scope;                             ///< Scope of element/attribute tags to look up
-    int4 findMatchingAttribute(const Element* el, const string& attribName);
-
-public:
-    XmlDecode(const AddrSpaceManager* spc, const Element* root, int4 sc = 0) : Decoder(spc) {
-        document = nullptr;
-        rootElement = root;
-        attributeIndex = -1;
-        scope = sc;
-    } ///< Constructor with preparsed root
-    XmlDecode(const AddrSpaceManager* spc, int4 sc = 0) : Decoder(spc) {
-        document = nullptr;
-        rootElement = (const Element*)0;
-        attributeIndex = -1;
-        scope = sc;
-    } ///< Constructor for use with ingestStream
-    const Element* getCurrentXmlElement(void) const {
-        return elStack.back();
-    } ///< Get pointer to underlying XML element object
-    virtual ~XmlDecode(void) = default;
-    virtual void ingestStream(istream& s);
-    virtual uint4 peekElement(void);
-    virtual uint4 openElement(void);
-    virtual uint4 openElement(const ElementId& elemId);
-    virtual void closeElement(uint4 id);
-    virtual void closeElementSkipping(uint4 id);
-    virtual void rewindAttributes(void);
-    virtual uint4 getNextAttributeId(void);
-    virtual uint4 getIndexedAttributeId(const AttributeId& attribId);
-    virtual bool readBool(void);
-    virtual bool readBool(const AttributeId& attribId);
-    virtual intb readSignedInteger(void);
-    virtual intb readSignedInteger(const AttributeId& attribId);
-    virtual intb readSignedIntegerExpectString(const string& expect, intb expectval);
-    virtual intb readSignedIntegerExpectString(const AttributeId& attribId, const string& expect, intb expectval);
-    virtual uintb readUnsignedInteger(void);
-    virtual uintb readUnsignedInteger(const AttributeId& attribId);
-    virtual string readString(void);
-    virtual string readString(const AttributeId& attribId);
-    virtual AddrSpace* readSpace(void);
-    virtual AddrSpace* readSpace(const AttributeId& attribId);
-    virtual OpCode readOpcode(void);
-    virtual OpCode readOpcode(AttributeId& attribId);
-};
-
-/// \brief An XML based encoder
-///
-/// The underlying transfer encoding is an XML document.  The encoder is initialized with a stream which will
-/// receive the XML document as calls are made on the encoder.
-class XmlEncode : public Encoder {
-    friend class XmlDecode;
-    enum {
-        tag_start = 0,   ///< Tag has been opened, attributes can be written
-        tag_content = 1, ///< Opening tag and content have been written
-        tag_stop = 2     ///< No tag is currently being written
-    };
-    static const char spaces[];   ///< Array of ' ' characters for emitting indents
-    static const int4 MAX_SPACES; ///< Maximum number of leading spaces when indenting XML
-    ostream& outStream;           ///< The stream receiving the encoded data
-    int4 tagStatus;               ///< Stage of writing an element tag
-    int4 depth;                   ///< Depth of open elements
-    bool doFormatting;            ///< \b true if encoder should indent and emit newlines
-    void newLine(void);           ///< Emit a newline and proper indenting for the next tag
-public:
-    XmlEncode(ostream& s, bool doFormat = true) : outStream(s) {
-        depth = 0;
-        tagStatus = tag_stop;
-        doFormatting = doFormat;
-    } ///< Construct from a stream
-    virtual void openElement(const ElementId& elemId);
-    virtual void closeElement(const ElementId& elemId);
-    virtual void writeBool(const AttributeId& attribId, bool val);
-    virtual void writeSignedInteger(const AttributeId& attribId, intb val);
-    virtual void writeUnsignedInteger(const AttributeId& attribId, uintb val);
-    virtual void writeString(const AttributeId& attribId, const string& val);
-    virtual void writeStringIndexed(const AttributeId& attribId, uint4 index, const string& val);
-    virtual void writeSpace(const AttributeId& attribId, const AddrSpace* spc);
-    virtual void writeOpcode(const AttributeId& attribId, OpCode opc);
-};
-
-/// \brief Protocol format for PackedEncode and PackedDecode classes
+/// \brief Protocol format for PackedDecode
 ///
 /// All bytes in the encoding are expected to be non-zero.  Element encoding looks like
 ///   - 01xiiiii is an element start
@@ -653,26 +507,6 @@ public:
     virtual OpCode readOpcode(AttributeId& attribId);
 };
 
-/// \brief A byte-based encoder designed to marshal from the decompiler efficiently
-///
-/// See PackedDecode for details of the encoding format.
-class PackedEncode : public Encoder {
-    ostream& outStream;                           ///< The stream receiving the encoded data
-    void writeHeader(uint1 header, uint4 id);     ///< Write a header, element or attribute, to stream
-    void writeInteger(uint1 typeByte, uint8 val); ///< Write an integer value to the stream
-public:
-    PackedEncode(ostream& s) : outStream(s) {} ///< Construct from a stream
-    virtual void openElement(const ElementId& elemId);
-    virtual void closeElement(const ElementId& elemId);
-    virtual void writeBool(const AttributeId& attribId, bool val);
-    virtual void writeSignedInteger(const AttributeId& attribId, intb val);
-    virtual void writeUnsignedInteger(const AttributeId& attribId, uintb val);
-    virtual void writeString(const AttributeId& attribId, const string& val);
-    virtual void writeStringIndexed(const AttributeId& attribId, uint4 index, const string& val);
-    virtual void writeSpace(const AttributeId& attribId, const AddrSpace* spc);
-    virtual void writeOpcode(const AttributeId& attribId, OpCode opc);
-};
-
 /// An exception is thrown if the position currently points to the last byte in the stream
 /// \param pos is the position in the stream to look ahead from
 /// \return the next byte
@@ -731,23 +565,6 @@ inline void PackedDecode::advancePosition(Position& pos, uint4 skip)
 inline uint1* PackedDecode::allocateNextInputBuffer(int4 pad) {
     inStream.emplace_back(BUFFER_SIZE + pad);
     return inStream.back().start;
-}
-
-/// \param header is the type of header
-/// \param id is the id associated with the element or attribute
-inline void PackedEncode::writeHeader(uint1 header, uint4 id)
-
-{
-    if (id > 0x1f) {
-        header |= PackedFormat::HEADEREXTEND_MASK;
-        header |= (id >> PackedFormat::RAWDATA_BITSPERBYTE);
-        uint1 extendByte = (id & PackedFormat::RAWDATA_MASK) | PackedFormat::RAWDATA_MARKER;
-        outStream.put(header);
-        outStream.put(extendByte);
-    } else {
-        header |= id;
-        outStream.put(header);
-    }
 }
 
 extern ElementId ELEM_UNKNOWN;     ///< Special element to represent an element with an unrecognized name

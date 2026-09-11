@@ -34,8 +34,6 @@ export import :types;
 export namespace ghidra {
 
 using std::dec;
-using std::hex;
-using std::ifstream;
 using std::istream;
 using std::map;
 using std::ostream;
@@ -312,7 +310,7 @@ public:
 ///
 /// This holds multiple XML documents that have already been parsed. Documents
 /// can be put in this container, either by handing it a stream via parseDocument()
-/// or a filename via openDocument().  If they are explicitly registered, specific
+/// from a stream via parseDocument().  If they are explicitly registered, specific
 /// XML Elements can be looked up by name via getTag().
 class DocumentStorage {
     vector<std::unique_ptr<Document>> doclist; ///< Documents owned by this container
@@ -335,8 +333,6 @@ public:
     /// its contents into an in-memory DOM tree. An XmlException is thrown for any parsing error.
     /// \param filename is the name of the XML document file
     /// \return the in-memory DOM tree
-    Document* openDocument(const string& filename);
-
     /// \brief Register the given XML Element object under its tag name
     ///
     /// Only one Element can be stored on \b this object per tag name.
@@ -377,93 +373,6 @@ extern int4 xml_parse(istream& i, ContentHandler* hand, int4 dbg = 0);
 /// \param i is the given stream
 /// \return the in-memory XML document
 extern Document* xml_tree(istream& i);
-
-/// \brief Send the given character array to a stream, escaping characters with special XML meaning
-///
-/// This makes the following character substitutions:
-///   - '<' =>  "&lt;"
-///   - '>' =>  "&gt;"
-///   - '&' =>  "&amp;"
-///   - '"' =>  "&quot;"
-///   - '\'' => "&apos;"
-///
-/// \param s is the stream to write to
-/// \param str is the given character array to escape
-extern void xml_escape(ostream& s, const char* str);
-
-// Some helper functions for writing XML documents directly to a stream
-
-/// \brief Output an XML attribute name/value pair to stream
-///
-/// \param s is the output stream
-/// \param attr is the name of the attribute
-/// \param val is the attribute value
-inline void a_v(ostream& s, const string& attr, const string& val)
-
-{
-    s << ' ' << attr << "=\"";
-    xml_escape(s, val.c_str());
-    s << "\"";
-}
-
-/// \brief Output the given signed integer as an XML attribute value
-///
-/// \param s is the output stream
-/// \param attr is the name of the attribute
-/// \param val is the given integer value
-inline void a_v_i(ostream& s, const string& attr, intb val)
-
-{
-    s << ' ' << attr << "=\"" << dec << val << "\"";
-}
-
-/// \brief Output the given unsigned integer as an XML attribute value
-///
-/// \param s is the output stream
-/// \param attr is the name of the attribute
-/// \param val is the given unsigned integer value
-inline void a_v_u(ostream& s, const string& attr, uintb val)
-
-{
-    s << ' ' << attr << "=\"0x" << hex << val << "\"";
-}
-
-/// \brief Output the given boolean value as an XML attribute
-///
-/// \param s is the output stream
-/// \param attr is the name of the attribute
-/// \param val is the given boolean value
-inline void a_v_b(ostream& s, const string& attr, bool val)
-
-{
-    s << ' ' << attr << "=\"";
-    if (val)
-        s << "true";
-    else
-        s << "false";
-    s << "\"";
-}
-
-/// \brief Read an XML attribute value as a boolean
-///
-/// This method is intended to recognize the strings, "true", "yes", and "1"
-/// as a \b true value.  Anything else is returned as \b false.
-/// \param attr is the given XML attribute value (as a string)
-/// \return either \b true or \b false
-inline bool xml_readbool(const string& attr)
-
-{
-    if (attr.size() == 0)
-        return false;
-    char firstc = attr[0];
-    if (firstc == 't')
-        return true;
-    if (firstc == '1')
-        return true;
-    if (firstc == 'y')
-        return true; // For backward compatibility
-    return false;
-}
 
 } // End namespace ghidra
 #endif

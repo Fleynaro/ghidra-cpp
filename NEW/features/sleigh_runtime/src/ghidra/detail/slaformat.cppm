@@ -178,19 +178,7 @@ extern ElementId ELEM_CONST_FLOWREF_SIZE;  ///< SLA format element "const_flowre
 extern ElementId ELEM_CONST_FLOWDEST;      ///< SLA format element "const_flowdest"
 extern ElementId ELEM_CONST_FLOWDEST_SIZE; ///< SLA format element "const_flowdest_size"
 
-extern bool isSlaFormat(istream& s);    ///< Verify a .sla file header at the current point of the given stream
-extern void writeSlaHeader(ostream& s); ///< Write a .sla file header to the given stream
-
-/// \brief The encoder for the .sla file format
-///
-/// This provides the format header, does compression, and encodes the raw data elements/attributes.
-class FormatEncode : public PackedEncode {
-    CompressBuffer compBuffer; ///< The compression stream filter
-    ostream compStream;        ///< The front-end stream receiving uncompressed bytes
-public:
-    FormatEncode(ostream& s, int4 level); ///< Initialize an encoder at a specific compression level
-    void flush(void);                     ///< Flush any buffered bytes in the encoder to the backing stream
-};
+extern bool isSlaFormat(istream& s); ///< Verify a .sla file header at the current point of the given stream
 
 /// \brief The decoder for the .sla file format
 ///

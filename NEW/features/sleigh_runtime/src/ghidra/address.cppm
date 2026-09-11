@@ -23,22 +23,12 @@ namespace ghidra {
 
 AttributeId ATTRIB_FIRST = AttributeId("first", 27);
 AttributeId ATTRIB_LAST = AttributeId("last", 28);
-AttributeId ATTRIB_UNIQ = AttributeId("uniq", 29);
 
 ElementId ELEM_ADDR = ElementId("addr", 11);
 ElementId ELEM_RANGE = ElementId("range", 12);
 ElementId ELEM_RANGELIST = ElementId("rangelist", 13);
 ElementId ELEM_REGISTER = ElementId("register", 14);
-ElementId ELEM_SEQNUM = ElementId("seqnum", 15);
 ElementId ELEM_VARNODE = ElementId("varnode", 16);
-
-ostream& operator<<(ostream& s, const SeqNum& sq)
-
-{
-    sq.pc.printRaw(s);
-    s << ':' << sq.uniq;
-    return s;
-}
 
 /// This allows an Address to be written to a stream using
 /// the standard '<<' operator.  This is a wrapper for the
@@ -52,39 +42,6 @@ ostream& operator<<(ostream& s, const Address& addr)
 {
     addr.printRaw(s);
     return s;
-}
-
-SeqNum::SeqNum(Address::mach_extreme ex)
-    : pc(ex)
-
-{
-    uniq = (ex == Address::m_minimal) ? 0 : ~((uintm)0);
-}
-
-void SeqNum::encode(Encoder& encoder) const {
-    encoder.openElement(ELEM_SEQNUM);
-    pc.getSpace()->encodeAttributes(encoder, pc.getOffset());
-    encoder.writeUnsignedInteger(ATTRIB_UNIQ, uniq);
-    encoder.closeElement(ELEM_SEQNUM);
-}
-
-SeqNum SeqNum::decode(Decoder& decoder)
-
-{
-    uintm uniq = ~((uintm)0);
-    uint4 elemId = decoder.openElement(ELEM_SEQNUM);
-    Address pc = Address::decode(decoder); // Recover address
-    for (;;) {
-        uint4 attribId = decoder.getNextAttributeId();
-        if (attribId == 0)
-            break;
-        if (attribId == ATTRIB_UNIQ) {
-            uniq = decoder.readUnsignedInteger();
-            break;
-        }
-    }
-    decoder.closeElement(elemId);
-    return SeqNum(pc, uniq);
 }
 
 /// Some data structures sort on an Address, and it is convenient

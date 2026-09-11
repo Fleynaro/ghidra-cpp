@@ -142,29 +142,19 @@ public:
     const Translate* getTrans(void) const;                            ///< Get the processor translator
     spacetype getType(void) const;                                    ///< Get the type of space
     int4 getDelay(void) const;                                        ///< Get number of heritage passes being delayed
-    int4 getDeadcodeDelay(void) const;      ///< Get number of passes before deadcode removal is allowed
-    int4 getIndex(void) const;              ///< Get the integer identifier
-    uint4 getWordSize(void) const;          ///< Get the addressable unit size
-    uint4 getAddrSize(void) const;          ///< Get the size of the space
-    uintb getHighest(void) const;           ///< Get the highest byte-scaled address
-    uintb getPointerLowerBound(void) const; ///< Get lower bound for assuming an offset is a pointer
-    uintb getPointerUpperBound(void) const; ///< Get upper bound for assuming an offset is a pointer
-    int4 getMinimumPtrSize(void) const;     ///< Get the minimum pointer size for \b this space
-    uintb wrapOffset(uintb off) const;      ///< Wrap -off- to the offset that fits into this space
-    char getShortcut(void) const;           ///< Get the shortcut character
-    bool isHeritaged(void) const;           ///< Return \b true if dataflow has been traced
-    bool doesDeadcode(void) const;          ///< Return \b true if dead code analysis should be done on this space
-    bool hasPhysical(void) const;           ///< Return \b true if data is physically stored in this
-    bool isBigEndian(void) const;           ///< Return \b true if values in this space are big endian
-    bool isReverseJustified(void) const;    ///< Return \b true if alignment justification does not match endianness
-    bool isFormalStackSpace(void) const;    ///< Return \b true if \b this is attached to the formal \b stack \b pointer
-    bool isOverlay(void) const;             ///< Return \b true if this is an overlay space
-    bool isOverlayBase(void) const;         ///< Return \b true if other spaces overlay this space
-    bool isOtherSpace(void) const;          ///< Return \b true if \b this is the \e other address space
-    bool isTruncated(void) const;           ///< Return \b true if this space is truncated from its original size
-    bool noHighPtrPossible(void) const;     ///< Return \b true if there can be pointers into \b this space
-    bool
-    hasNearPointers(void) const; ///< Return \b true if \e near (truncated) pointers into \b this space are possible
+    int4 getDeadcodeDelay(void) const;   ///< Get number of passes before deadcode removal is allowed
+    int4 getIndex(void) const;           ///< Get the integer identifier
+    uint4 getWordSize(void) const;       ///< Get the addressable unit size
+    uint4 getAddrSize(void) const;       ///< Get the size of the space
+    uintb getHighest(void) const;        ///< Get the highest byte-scaled address
+    uintb wrapOffset(uintb off) const;   ///< Wrap -off- to the offset that fits into this space
+    char getShortcut(void) const;        ///< Get the shortcut character
+    bool isHeritaged(void) const;        ///< Return \b true if dataflow has been traced
+    bool hasPhysical(void) const;        ///< Return \b true if data is physically stored in this
+    bool isBigEndian(void) const;        ///< Return \b true if values in this space are big endian
+    bool isFormalStackSpace(void) const; ///< Return \b true if \b this is attached to the formal \b stack \b pointer
+    bool isOverlay(void) const;          ///< Return \b true if this is an overlay space
+    bool isOtherSpace(void) const;       ///< Return \b true if \b this is the \e other address space
     bool
     allowsWrappedRange(void) const; ///< Return \b true if memory range can span high to low addresses in \b this space
     void printOffset(ostream& s, uintb offset) const; ///< Write an address offset to a stream
@@ -369,26 +359,6 @@ inline uintb AddrSpace::getHighest(void) const {
     return highest;
 }
 
-/// Constant offsets are tested against \b this lower bound as a quick filter before
-/// attempting to lookup symbols.
-/// \return the minimum offset that will be inferred as a pointer
-inline uintb AddrSpace::getPointerLowerBound(void) const {
-    return pointerLowerBound;
-}
-
-/// Constant offsets are tested against \b this upper bound as a quick filter before
-/// attempting to lookup symbols.
-/// \return the maximum offset that will be inferred as a pointer
-inline uintb AddrSpace::getPointerUpperBound(void) const {
-    return pointerUpperBound;
-}
-
-/// A value of 0 means the size must match exactly. If the space is truncated, or
-/// if there exists near pointers, this value may be non-zero.
-inline int4 AddrSpace::getMinimumPtrSize(void) const {
-    return minimumPointerSize;
-}
-
 /// Calculate \e off modulo the size of this address space in
 /// order to construct the offset "equivalent" to \e off that
 /// fits properly into this space
@@ -423,13 +393,6 @@ inline bool AddrSpace::isHeritaged(void) const {
 }
 
 /// Most memory locations should have dead-code analysis performed,
-/// and this routine will return \b true.
-/// For certain special spaces like the \e constant space, dead-code
-/// analysis doesn't make sense, and this routine returns \b false.
-inline bool AddrSpace::doesDeadcode(void) const {
-    return ((flags & does_deadcode) != 0);
-}
-
 /// This routine returns \b true, if, like most spaces, the space
 /// has actual read/writeable bytes associated with it.
 /// Some spaces, like the \e constant space, do not.
@@ -447,13 +410,6 @@ inline bool AddrSpace::isBigEndian(void) const {
 
 /// Certain architectures or compilers specify an alignment for accessing words within the space
 /// The space required for a variable must be rounded up to the alignment. For variables smaller
-/// than the alignment, there is the issue of how the variable is "justified" within the aligned
-/// word. Usually the justification depends on the endianness of the space, for certain weird
-/// cases the justification may be the opposite of the endianness.
-inline bool AddrSpace::isReverseJustified(void) const {
-    return ((flags & reverse_justification) != 0);
-}
-
 /// Currently an architecture can declare only one formal stack pointer.
 inline bool AddrSpace::isFormalStackSpace(void) const {
     return ((flags & formal_stackspace) != 0);
@@ -463,26 +419,8 @@ inline bool AddrSpace::isOverlay(void) const {
     return ((flags & overlay) != 0);
 }
 
-inline bool AddrSpace::isOverlayBase(void) const {
-    return ((flags & overlaybase) != 0);
-}
-
 inline bool AddrSpace::isOtherSpace(void) const {
     return ((flags & is_otherspace) != 0);
-}
-
-/// If this method returns \b true, the logical form of this space is truncated from its actual size
-/// Pointers may refer to this original size put the most significant bytes are ignored
-inline bool AddrSpace::isTruncated(void) const {
-    return ((flags & truncated) != 0);
-}
-
-inline bool AddrSpace::noHighPtrPossible(void) const {
-    return ((flags & addressable_none) != 0);
-}
-
-inline bool AddrSpace::hasNearPointers(void) const {
-    return ((flags & has_nearpointers) != 0);
 }
 
 inline bool AddrSpace::allowsWrappedRange(void) const {

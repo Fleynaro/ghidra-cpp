@@ -2412,17 +2412,6 @@ Document* DocumentStorage::parseDocument(istream& s) {
     return document_view;
 }
 
-Document* DocumentStorage::openDocument(const string& filename)
-
-{
-    ifstream s(filename.c_str());
-    if (!s)
-        throw DecoderError("Unable to open xml document " + filename);
-    Document* res = parseDocument(s);
-    s.close();
-    return res;
-}
-
 void DocumentStorage::registerTag(const Element* el)
 
 {
@@ -2449,29 +2438,6 @@ Document* xml_tree(istream& i)
         throw DecoderError(handle.getError());
     }
     return document.release();
-}
-
-void xml_escape(ostream& s, const char* str)
-
-{
-    while (*str != '\0') {
-        if (*str < '?') {
-            if (*str == '<')
-                s << "&lt;";
-            else if (*str == '>')
-                s << "&gt;";
-            else if (*str == '&')
-                s << "&amp;";
-            else if (*str == '"')
-                s << "&quot;";
-            else if (*str == '\'')
-                s << "&apos;";
-            else
-                s << *str;
-        } else
-            s << *str;
-        str++;
-    }
 }
 
 } // End namespace ghidra

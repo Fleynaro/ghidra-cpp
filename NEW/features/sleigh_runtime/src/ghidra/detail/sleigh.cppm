@@ -358,7 +358,7 @@ public:
  \code
  string sleighfilename = "specfiles/x86.sla";
  DocumentStorage docstorage;
- Element *sleighroot = docstorage.openDocument(sleighfilename)->getRoot();
+  Element *sleighroot = docstorage.parseDocument(sleighStream)->getRoot();
  docstorage.registerTag(sleighroot);
  trans->initialize(docstorage);  // Initialize the translator
  \endcode
@@ -434,7 +434,7 @@ public:
      print_vardata(cout,*outvar);
      cout << " = ";
    }
-   cout << get_opname(opc);
+   cout << opcode_name[opc];
    // Possibly check for a code reference or a space reference
    for(int4 i=0;i<isize;++i) {
      cout << ' ';
@@ -444,10 +444,10 @@ public:
  }
  \endcode
 
- Notice that the \e dump routine uses the built-in function
- \e get_opname to find a string version of the opcode.  Each
- varnode is defined in terms of the VarnodeData object, which
- is defined simply:
+  Notice that the \e dump routine uses the opcode name table
+  to find a string version of the opcode.  Each
+ varnode is
+ defined in terms of the VarnodeData object, which is defined simply:
 
  \code
  struct VarnodeData {
@@ -523,7 +523,7 @@ public:
    context = new ContextInternal();
    trans = new Sleigh(loader,context);
    DocumentStorage docstorage;
-   Element *root = docstorage.openDocument("specfiles/x86.sla")->getRoot();
+   Element *root = docstorage.parseDocument(sleighStream)->getRoot();
    docstorage.registerTag(root);
    trans->initialize(docstorage);
 

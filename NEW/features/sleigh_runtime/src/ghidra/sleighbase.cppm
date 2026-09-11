@@ -21,26 +21,6 @@ module sleigh_runtime.ghidra;
 
 namespace ghidra {
 
-const uint4 SleighBase::MAX_UNIQUE_SIZE = 256;
-
-int4 SourceFileIndexer::index(const string filename) {
-    auto it = fileToIndex.find(filename);
-    if (fileToIndex.end() != it) {
-        return it->second;
-    }
-    fileToIndex[filename] = leastUnusedIndex;
-    indexToFile[leastUnusedIndex] = filename;
-    return leastUnusedIndex++;
-}
-
-int4 SourceFileIndexer::getIndex(string filename) {
-    return fileToIndex[filename];
-}
-
-string SourceFileIndexer::getFilename(int4 index) {
-    return indexToFile[index];
-}
-
 void SourceFileIndexer::decode(Decoder& decoder)
 
 {
@@ -54,19 +34,6 @@ void SourceFileIndexer::decode(Decoder& decoder)
         indexToFile[index] = filename;
     }
     decoder.closeElement(el);
-}
-
-void SourceFileIndexer::encode(Encoder& encoder) const
-
-{
-    encoder.openElement(sla::ELEM_SOURCEFILES);
-    for (int4 i = 0; i < leastUnusedIndex; ++i) {
-        encoder.openElement(sla::ELEM_SOURCEFILE);
-        encoder.writeString(sla::ATTRIB_NAME, indexToFile.at(i));
-        encoder.writeSignedInteger(sla::ATTRIB_INDEX, i);
-        encoder.closeElement(sla::ELEM_SOURCEFILE);
-    }
-    encoder.closeElement(sla::ELEM_SOURCEFILES);
 }
 
 SleighBase::SleighBase(void)
@@ -243,7 +210,6 @@ void SleighBase::encode(Encoder& encoder) const
         encoder.writeUnsignedInteger(sla::ATTRIB_UNIQMASK, unique_allocatemask);
     if (numSections != 0)
         encoder.writeUnsignedInteger(sla::ATTRIB_NUMSECTIONS, numSections);
-    indexer.encode(encoder);
     encoder.openElement(sla::ELEM_SPACES);
     encoder.writeString(sla::ATTRIB_DEFAULTSPACE, getDefaultCodeSpace()->getName());
     for (int4 i = 0; i < numSpaces(); ++i) {

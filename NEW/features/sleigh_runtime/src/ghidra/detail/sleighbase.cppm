@@ -39,19 +39,12 @@ export namespace ghidra {
 /// the source file index.
 class SourceFileIndexer {
 public:
-    SourceFileIndexer() {
-        leastUnusedIndex = 0;
-    }
+    SourceFileIndexer() = default;
     ~SourceFileIndexer(void) {}
     /// Returns the index of the file.  If the file is not in the index it is added.
-    int4 index(const string filename);
-    int4 getIndex(const string);         ///< get the index of a file.  Error if the file is not in the index.
-    string getFilename(int4);            ///< get the filename corresponding to an index
-    void decode(Decoder& decoder);       ///< decode a stored index mapping from a stream
-    void encode(Encoder& encoder) const; ///< Encode the index mapping to stream
+    void decode(Decoder& decoder); ///< decode a stored index mapping from a stream
 
 private:
-    int4 leastUnusedIndex;         ///< one-up count for assigning indices to files
     map<int4, string> indexToFile; ///< map from indices to files
     map<string, int4> fileToIndex; ///< map from files to indices
 };
@@ -78,9 +71,7 @@ protected:
     void decodeSlaSpaces(Decoder& decoder, const Translate* trans);      ///< Restore address spaces from a .sla file
     void decode(Decoder& decoder);                                       /// Decode a SELIGH specification from a stream
 public:
-    static const uint4
-        MAX_UNIQUE_SIZE; ///< Maximum size of a varnode in the unique space (should match value in SleighBase.java)
-    SleighBase(void);    ///< Construct an uninitialized translator
+    SleighBase(void); ///< Construct an uninitialized translator
     bool isInitialized(void) const {
         return (root != (SubtableSymbol*)0);
     } ///< Return \b true if \b this is initialized

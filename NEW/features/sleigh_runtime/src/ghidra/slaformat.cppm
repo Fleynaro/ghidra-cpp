@@ -188,32 +188,6 @@ bool isSlaFormat(istream& s)
     return true;
 }
 
-/// A valid header, including the format version number, is written to the stream.
-/// \param s is the given stream
-void writeSlaHeader(ostream& s)
-
-{
-    char header[4];
-    header[0] = 's';
-    header[1] = 'l';
-    header[2] = 'a';
-    header[3] = FORMAT_VERSION;
-    s.write(header, 4);
-}
-
-/// \param s is the backing stream that will receive the final bytes of the .sla file
-/// \param level is the compression level
-FormatEncode::FormatEncode(ostream& s, int4 level)
-    : PackedEncode(compStream), compBuffer(s, level), compStream(&compBuffer) {
-    writeSlaHeader(s);
-}
-
-void FormatEncode::flush(void)
-
-{
-    compStream.flush();
-}
-
 const int4 FormatDecode::IN_BUFFER_SIZE = 4096;
 
 /// \param spcManager is the (uninitialized) manager that will hold decoded address spaces

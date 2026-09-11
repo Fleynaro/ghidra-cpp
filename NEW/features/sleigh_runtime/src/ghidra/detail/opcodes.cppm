@@ -21,13 +21,9 @@ module;
 #ifndef __OPCODES_HH__
 #define __OPCODES_HH__
 
-#include <string>
-
 export module sleigh_runtime.ghidra:opcodes;
 
 export namespace ghidra {
-
-using std::string;
 
 /// \brief The op-code defining a specific p-code operation (PcodeOp)
 ///
@@ -134,9 +130,6 @@ enum OpCode {
 
     CPUI_MAX = 75 ///< Value indicating the end of the op-code values
 };
-
-extern const char* get_opname(OpCode opc);  ///< Convert an OpCode to the name as a string
-extern OpCode get_opcode(const string& nm); ///< Convert a name string to the matching OpCode
 
 } // End namespace ghidra
 #endif
