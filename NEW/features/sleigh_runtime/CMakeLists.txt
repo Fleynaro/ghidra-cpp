@@ -29,4 +29,14 @@ else()
     target_compile_options(sleigh_runtime PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
+add_executable(sleigh_runtime_decode cli/sleigh_runtime_decode.cpp)
+target_link_libraries(sleigh_runtime_decode PRIVATE NewGhidra::SleighRuntime)
+target_compile_features(sleigh_runtime_decode PRIVATE cxx_std_23)
+
+if(MSVC)
+    target_compile_options(sleigh_runtime_decode PRIVATE /W3)
+else()
+    target_compile_options(sleigh_runtime_decode PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
 add_subdirectory(tests)
