@@ -306,6 +306,177 @@ TEST(SleighRuntime, DecodesVzeroupper) {
     expect_materialized_pcode(*result);
 }
 
+/// Verifies the syscall system instruction and its architecture-specific CALLOTHER emission.
+TEST(SleighRuntime, DecodesSyscall) {
+    auto decoder = make_decoder();
+    // 0f 05 - SYSCALL
+    const std::array<std::uint8_t, 2> bytes{0x0f, 0x05};
+    const auto result = decoder.decode(0x140100000ULL, bytes, x86_64_context());
+
+    ASSERT_TRUE(result.has_value()) << result.error().message;
+    EXPECT_EQ(result->length, 2U);
+    EXPECT_EQ(result->mnemonic, "SYSCALL");
+    EXPECT_TRUE(result->operands.empty());
+    EXPECT_EQ(result->flow.kind, sleigh_runtime::FlowKind::none);
+    ASSERT_EQ(result->pcode.size(), 3U);
+    EXPECT_EQ(result->pcode[0].opcode, sleigh_runtime::PcodeOpcode::copy);
+    ASSERT_TRUE(result->pcode[0].output.has_value());
+    expect_varnode(*result->pcode[0].output, "register", 0x8U, 8U);
+    ASSERT_EQ(result->pcode[0].inputs.size(), 1U);
+    expect_varnode(result->pcode[0].inputs[0], "const", 0x140100002ULL, 8U);
+    EXPECT_EQ(result->pcode[1].opcode, sleigh_runtime::PcodeOpcode::copy);
+    ASSERT_TRUE(result->pcode[1].output.has_value());
+    expect_varnode(*result->pcode[1].output, "register", 0x98U, 8U);
+    ASSERT_EQ(result->pcode[1].inputs.size(), 1U);
+    expect_varnode(result->pcode[1].inputs[0], "register", 0x280U, 8U);
+    EXPECT_EQ(result->pcode[2].opcode, sleigh_runtime::PcodeOpcode::call_other);
+    ASSERT_EQ(result->pcode[2].inputs.size(), 1U);
+    expect_varnode(result->pcode[2].inputs[0], "const", 5U, 4U);
+    expect_materialized_pcode(*result);
+}
+
+/// Verifies a privileged register-exchange instruction represented only by CALLOTHER.
+TEST(SleighRuntime, DecodesSwapgs) {
+    auto decoder = make_decoder();
+    // 0f 01 f8 - SWAPGS
+    const std::array<std::uint8_t, 3> bytes{0x0f, 0x01, 0xf8};
+    const auto result = decoder.decode(0x140100000ULL, bytes, x86_64_context());
+
+    ASSERT_TRUE(result.has_value()) << result.error().message;
+    EXPECT_EQ(result->length, 3U);
+    EXPECT_EQ(result->mnemonic, "SWAPGS");
+    EXPECT_TRUE(result->operands.empty());
+    ASSERT_EQ(result->pcode.size(), 1U);
+    EXPECT_EQ(result->pcode[0].opcode, sleigh_runtime::PcodeOpcode::call_other);
+    ASSERT_EQ(result->pcode[0].inputs.size(), 1U);
+    expect_varnode(result->pcode[0].inputs[0], "const", 7U, 4U);
+    expect_materialized_pcode(*result);
+}
+
+/// Verifies RDRAND emits both the value-producing and status-producing CALLOTHER operations.
+TEST(SleighRuntime, DecodesRdrand) {
+    auto decoder = make_decoder();
+    // 0f c7 f0 - RDRAND EAX
+    const std::array<std::uint8_t, 3> bytes{0x0f, 0xc7, 0xf0};
+    const auto result = decoder.decode(0x140100000ULL, bytes, x86_64_context());
+
+    ASSERT_TRUE(result.has_value()) << result.error().message;
+    EXPECT_EQ(result->length, 3U);
+    EXPECT_EQ(result->mnemonic, "RDRAND");
+    ASSERT_EQ(result->operands.size(), 1U);
+    EXPECT_EQ(result->operands[0].kind, sleigh_runtime::OperandKind::register_value);
+    ASSERT_EQ(result->pcode.size(), 7U);
+    EXPECT_EQ(result->pcode[0].opcode, sleigh_runtime::PcodeOpcode::call_other);
+    ASSERT_TRUE(result->pcode[0].output.has_value());
+    expect_varnode(*result->pcode[0].output, "register", 0U, 4U);
+    ASSERT_EQ(result->pcode[0].inputs.size(), 1U);
+    expect_varnode(result->pcode[0].inputs[0], "const", 0x680U, 4U);
+    EXPECT_EQ(result->pcode[1].opcode, sleigh_runtime::PcodeOpcode::call_other);
+    ASSERT_TRUE(result->pcode[1].output.has_value());
+    expect_varnode(*result->pcode[1].output, "register", 0x200U, 1U);
+    ASSERT_EQ(result->pcode[1].inputs.size(), 1U);
+    expect_varnode(result->pcode[1].inputs[0], "const", 0x681U, 4U);
+    constexpr std::array<std::uint64_t, 5> cleared_flags{0x20bU, 0x207U, 0x206U, 0x204U, 0x202U};
+    for (std::size_t operation = 0; operation < cleared_flags.size(); ++operation) {
+        const auto& pcode = result->pcode[operation + 2];
+        EXPECT_EQ(pcode.opcode, sleigh_runtime::PcodeOpcode::copy);
+        ASSERT_TRUE(pcode.output.has_value());
+        expect_varnode(*pcode.output, "register", cleared_flags[operation], 1U);
+        ASSERT_EQ(pcode.inputs.size(), 1U);
+        expect_varnode(pcode.inputs[0], "const", 0U, 1U);
+    }
+    expect_materialized_pcode(*result);
+}
+
+/// Verifies LOCK CMPXCHG combines CALLOTHER, memory access, flags, and conditional flow.
+TEST(SleighRuntime, DecodesLockedCmpxchg) {
+    auto decoder = make_decoder();
+    // f0 48 0f b1 0b - CMPXCHG.LOCK qword ptr [RBX],RCX
+    const std::array<std::uint8_t, 5> bytes{0xf0, 0x48, 0x0f, 0xb1, 0x0b};
+    const auto result = decoder.decode(0x140100000ULL, bytes, x86_64_context());
+
+    ASSERT_TRUE(result.has_value()) << result.error().message;
+    EXPECT_EQ(result->length, 5U);
+    EXPECT_EQ(result->mnemonic, "CMPXCHG.LOCK");
+    ASSERT_EQ(result->operands.size(), 2U);
+    EXPECT_EQ(result->operands[0].kind, sleigh_runtime::OperandKind::memory);
+    EXPECT_EQ(result->operands[1].kind, sleigh_runtime::OperandKind::register_value);
+    EXPECT_EQ(result->flow.kind, sleigh_runtime::FlowKind::conditional_branch);
+    ASSERT_EQ(result->pcode.size(), 18U);
+    constexpr std::array<sleigh_runtime::PcodeOpcode, 18> opcodes{
+        sleigh_runtime::PcodeOpcode::call_other,  sleigh_runtime::PcodeOpcode::load,
+        sleigh_runtime::PcodeOpcode::copy,        sleigh_runtime::PcodeOpcode::int_less,
+        sleigh_runtime::PcodeOpcode::int_sborrow, sleigh_runtime::PcodeOpcode::int_sub,
+        sleigh_runtime::PcodeOpcode::int_sless,   sleigh_runtime::PcodeOpcode::int_equal,
+        sleigh_runtime::PcodeOpcode::int_and,     sleigh_runtime::PcodeOpcode::popcount,
+        sleigh_runtime::PcodeOpcode::int_and,     sleigh_runtime::PcodeOpcode::int_equal,
+        sleigh_runtime::PcodeOpcode::cbranch,     sleigh_runtime::PcodeOpcode::copy,
+        sleigh_runtime::PcodeOpcode::branch,      sleigh_runtime::PcodeOpcode::copy,
+        sleigh_runtime::PcodeOpcode::store,       sleigh_runtime::PcodeOpcode::call_other};
+    for (std::size_t operation = 0; operation < opcodes.size(); ++operation) {
+        EXPECT_EQ(result->pcode[operation].opcode, opcodes[operation]);
+    }
+    ASSERT_TRUE(result->pcode[1].output.has_value());
+    expect_varnode(*result->pcode[1].output, "unique", 0xd500U, 8U);
+    ASSERT_EQ(result->pcode[1].inputs.size(), 2U);
+    EXPECT_EQ(result->pcode[1].inputs[0].space, "const");
+    EXPECT_NE(result->pcode[1].inputs[0].offset, 0U);
+    expect_varnode(result->pcode[1].inputs[1], "register", 0x18U, 8U);
+    ASSERT_TRUE(result->pcode[5].output.has_value());
+    expect_varnode(*result->pcode[5].output, "unique", 0x198700U, 8U);
+    expect_materialized_pcode(*result);
+}
+
+/// Verifies FS segment addressing remains materialized as a segment-base plus displacement.
+TEST(SleighRuntime, DecodesFsSegmentLoad) {
+    auto decoder = make_decoder();
+    // 64 48 8b 04 25 60 00 00 00 - MOV RAX,qword ptr FS:[0x60]
+    const std::array<std::uint8_t, 9> bytes{0x64, 0x48, 0x8b, 0x04, 0x25, 0x60, 0x00, 0x00, 0x00};
+    const auto result = decoder.decode(0x140100000ULL, bytes, x86_64_context());
+
+    ASSERT_TRUE(result.has_value()) << result.error().message;
+    EXPECT_EQ(result->length, 9U);
+    EXPECT_EQ(result->mnemonic, "MOV");
+    ASSERT_EQ(result->operands.size(), 2U);
+    EXPECT_EQ(result->operands[0].kind, sleigh_runtime::OperandKind::register_value);
+    EXPECT_EQ(result->operands[1].kind, sleigh_runtime::OperandKind::memory);
+    ASSERT_EQ(result->pcode.size(), 3U);
+    EXPECT_EQ(result->pcode[0].opcode, sleigh_runtime::PcodeOpcode::int_add);
+    ASSERT_TRUE(result->pcode[0].output.has_value());
+    expect_varnode(*result->pcode[0].output, "unique", 0xc900U, 8U);
+    ASSERT_EQ(result->pcode[0].inputs.size(), 2U);
+    expect_varnode(result->pcode[0].inputs[0], "register", 0x110U, 8U);
+    expect_varnode(result->pcode[0].inputs[1], "const", 0x60U, 8U);
+    EXPECT_EQ(result->pcode[1].opcode, sleigh_runtime::PcodeOpcode::load);
+    ASSERT_TRUE(result->pcode[1].output.has_value());
+    expect_varnode(*result->pcode[1].output, "unique", 0x23e00U, 8U);
+    ASSERT_EQ(result->pcode[1].inputs.size(), 2U);
+    EXPECT_EQ(result->pcode[1].inputs[0].space, "const");
+    EXPECT_NE(result->pcode[1].inputs[0].offset, 0U);
+    expect_varnode(result->pcode[1].inputs[1], "unique", 0xc900U, 8U);
+    EXPECT_EQ(result->pcode[2].opcode, sleigh_runtime::PcodeOpcode::copy);
+    ASSERT_TRUE(result->pcode[2].output.has_value());
+    expect_varnode(*result->pcode[2].output, "register", 0U, 8U);
+    ASSERT_EQ(result->pcode[2].inputs.size(), 1U);
+    expect_varnode(result->pcode[2].inputs[0], "unique", 0x23e00U, 8U);
+    expect_materialized_pcode(*result);
+}
+
+/// Verifies a legal CET landing-pad instruction whose compiled semantics intentionally emit no p-code.
+TEST(SleighRuntime, DecodesEndbr64WithoutPcode) {
+    auto decoder = make_decoder();
+    // f3 0f 1e fa - ENDBR64
+    const std::array<std::uint8_t, 4> bytes{0xf3, 0x0f, 0x1e, 0xfa};
+    const auto result = decoder.decode(0x140100000ULL, bytes, x86_64_context());
+
+    ASSERT_TRUE(result.has_value()) << result.error().message;
+    EXPECT_EQ(result->length, 4U);
+    EXPECT_EQ(result->mnemonic, "ENDBR64");
+    EXPECT_TRUE(result->operands.empty());
+    EXPECT_EQ(result->flow.kind, sleigh_runtime::FlowKind::none);
+    EXPECT_TRUE(result->pcode.empty());
+}
+
 /// Verifies the full XMM6 load from the local stack slot and all four lane copies.
 TEST(SleighRuntime, DecodesMovapsXmm6LocalLoad) {
     auto decoder = make_decoder();
