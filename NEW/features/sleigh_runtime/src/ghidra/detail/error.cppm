@@ -81,5 +81,12 @@ struct LowlevelError {
     }
 };
 
+/// Error thrown when a binary decoder encounters malformed encoded data.
+struct DecoderError {
+    string explain; ///< Explanatory string
+    /// Construct an error with an explanatory message.
+    DecoderError(const string& s) : explain(s) {}
+};
+
 } // End namespace ghidra
 #endif

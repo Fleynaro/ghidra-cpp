@@ -27,8 +27,9 @@ module;
 
 export module sleigh_runtime.ghidra:marshal;
 
+export import :types;
+export import :error;
 export import :opcodes;
-export import :xml;
 
 export namespace ghidra {
 

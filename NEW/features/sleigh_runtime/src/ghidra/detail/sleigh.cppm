@@ -183,7 +183,7 @@ public:
     Sleigh(LoadImage* ld, ContextDatabase* c_db);     ///< Constructor
     virtual ~Sleigh(void);                            ///< Destructor
     void reset(LoadImage* ld, ContextDatabase* c_db); ///< Reset the engine for a new program
-    virtual void initialize(DocumentStorage& store);
+    virtual void initialize(const string& slaFilename);
     virtual void registerContext(const string& name, int4 sbit, int4 ebit);
     virtual void setContextDefault(const string& nm, uintm val);
     virtual void allowContextSet(bool val) const;
@@ -349,19 +349,8 @@ public:
  trans = new Sleigh(loader,context);  // Instantiate the translator
  \endcode
 
- Once the Sleigh object is in hand, the only required
- initialization step left is to inform it of the ".sla" file.
- The file is in XML format and needs to be read in using
- SLEIGH's built-in XML parser. The following code accomplishes
- this.
-
- \code
- string sleighfilename = "specfiles/x86.sla";
- DocumentStorage docstorage;
-  Element *sleighroot = docstorage.parseDocument(sleighStream)->getRoot();
- docstorage.registerTag(sleighroot);
- trans->initialize(docstorage);  // Initialize the translator
- \endcode
+  Once the Sleigh object is in hand, initialize it with the path
+  to the compiled binary ".sla" specification.
 
  \section sleighassememit AssemblyEmit
 
@@ -522,10 +511,7 @@ public:
    ...
    context = new ContextInternal();
    trans = new Sleigh(loader,context);
-   DocumentStorage docstorage;
-   Element *root = docstorage.parseDocument(sleighStream)->getRoot();
-   docstorage.registerTag(root);
-   trans->initialize(docstorage);
+    trans->initialize("specfiles/x86.sla");
 
    context->setVariableDefault("addrsize",1);  // Address size is 32-bits
    context->setVariableDefault("opsize",1);    // Operand size is 32-bits

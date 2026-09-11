@@ -10,7 +10,6 @@ module;
 #include <memory>
 #include <optional>
 #include <span>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -126,35 +125,6 @@ private:
     std::array<std::uint8_t, 16> window_{};
     std::uint64_t address_ = 0;
 };
-
-/// Escapes a filesystem path before placing it in the tiny XML document expected by Sleigh.
-[[nodiscard]] std::string escape_xml(std::string_view value) {
-    std::string escaped;
-    escaped.reserve(value.size());
-    for (const char character : value) {
-        switch (character) {
-            case '&':
-                escaped += "&amp;";
-                break;
-            case '<':
-                escaped += "&lt;";
-                break;
-            case '>':
-                escaped += "&gt;";
-                break;
-            case '"':
-                escaped += "&quot;";
-                break;
-            case '\'':
-                escaped += "&apos;";
-                break;
-            default:
-                escaped += character;
-                break;
-        }
-    }
-    return escaped;
-}
 
 /// Removes surrounding whitespace from a printable operand.
 [[nodiscard]] std::string trim(std::string value) {
@@ -427,22 +397,9 @@ public:
 private:
     /// Initializes or refreshes the legacy parser cache from the binary SLA file.
     void initialize_translator() {
-        ghidra::DocumentStorage storage;
-        make_document_storage(storage);
         // Ghidra reference: Ghidra/Features/Decompiler/src/decompile/cpp/sleigh.cc
         // Sleigh::initialize() owns FormatDecode and calls SleighBase::decode().
-        translator_->initialize(storage);
-    }
-
-    /// Creates the document-store shim accepted by the original Sleigh API.
-    void make_document_storage(ghidra::DocumentStorage& storage) const {
-        const std::string xml = "<sleigh>" + escape_xml(sla_path_.string()) + "</sleigh>";
-        std::istringstream stream(xml);
-        ghidra::Document* document = storage.parseDocument(stream);
-        if (document == nullptr || document->getRoot() == nullptr) {
-            throw std::runtime_error("Unable to construct the SLA document-store shim");
-        }
-        storage.registerTag(document->getRoot());
+        translator_->initialize(sla_path_.string());
     }
 
     std::filesystem::path sla_path_;

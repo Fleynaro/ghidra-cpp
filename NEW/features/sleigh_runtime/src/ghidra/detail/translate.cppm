@@ -356,12 +356,9 @@ public:
     uint4 getUniqueBase(void) const;                 ///< Get the base offset for new temporary registers
     uint4 getUniqueStart(UniqueLayout layout) const; ///< Get a tagged address within the \e unique space
 
-    /// \brief Initialize the translator given XML configuration documents
-    ///
-    /// A translator gets initialized once, possibly using XML documents
-    /// to configure it.
-    /// \param store is a set of configuration documents
-    virtual void initialize(DocumentStorage& store) = 0;
+    /// Initialize the translator from a compiled binary SLA file.
+    /// \param slaFilename is the path to the compiled SLA specification
+    virtual void initialize(const string& slaFilename) = 0;
 
     /// \brief Add a new context variable to the model for this processor
     ///

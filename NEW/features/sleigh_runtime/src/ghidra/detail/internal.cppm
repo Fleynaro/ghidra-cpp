@@ -6,7 +6,6 @@ export module sleigh_runtime.ghidra;
 export import :types;
 export import :error;
 export import :partmap;
-export import :xml;
 export import :opcodes;
 export import :marshal;
 export import :compression;
