@@ -1,4 +1,3 @@
-module;
 
 /* ###
  * IP: GHIDRA
@@ -18,10 +17,7 @@ module;
 /// \file varnode.cppm
 /// \brief The raw storage triple shared by the runtime's address model.
 
-#ifndef __VARNODE_HH__
-#define __VARNODE_HH__
-
-export module sleigh_runtime.ghidra:varnode;
+export module sleigh_runtime:varnode;
 export import :address;
 
 export namespace ghidra {
@@ -136,4 +132,3 @@ void decodeVarnodeData(Decoder& decoder, AddrSpace*& space, uintb& offset, uint4
 }
 
 } // namespace ghidra
-#endif

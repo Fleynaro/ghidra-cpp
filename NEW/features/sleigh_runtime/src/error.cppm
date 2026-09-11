@@ -20,23 +20,8 @@ module;
 ///
 /// This is also doubles as a place to list the common include files
 
-#ifndef __ERROR_HH__
-#define __ERROR_HH__
-
-#include <algorithm>
-#include <cctype>
-#include <cstring>
-#include <deque>
-#include <fstream>
-#include <iomanip>
-#include <list>
-#include <map>
-#include <memory>
-#include <set>
-#include <sstream>
-#include <vector>
-
-export module sleigh_runtime.ghidra:error;
+export module sleigh_runtime:error;
+import std;
 
 export import :types;
 
@@ -89,4 +74,3 @@ struct DecoderError {
 };
 
 } // End namespace ghidra
-#endif

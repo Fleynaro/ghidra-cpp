@@ -1,4 +1,3 @@
-module;
 
 /* ###
  * IP: GHIDRA
@@ -18,12 +17,9 @@ module;
  */
 /// \file partmap.cppm
 /// \brief The partmap<> template mapping a linear space to value objects
-#ifndef __PARTMAP_HH__
-#define __PARTMAP_HH__
 
-#include <map>
-
-export module sleigh_runtime.ghidra:partmap;
+export module sleigh_runtime:partmap;
+import std;
 
 export namespace ghidra {
 
@@ -192,4 +188,3 @@ public:
 };
 
 } // End namespace ghidra
-#endif

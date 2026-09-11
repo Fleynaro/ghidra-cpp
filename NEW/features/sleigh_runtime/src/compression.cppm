@@ -1,5 +1,4 @@
 module;
-#include <memory>
 #include <zlib.h>
 
 /* ###
@@ -19,10 +18,9 @@ module;
  */
 /// \file compression.cppm
 /// \brief The Compress and Decompress classes wrapping the deflate and inflate algorithms
-#ifndef __COMPRESSION__
-#define __COMPRESSION__
 
-export module sleigh_runtime.ghidra:compression;
+export module sleigh_runtime:compression;
+import std;
 
 export import :error;
 
@@ -95,5 +93,3 @@ public:
 };
 
 } // namespace ghidra
-
-#endif

@@ -18,7 +18,7 @@ The implementation intentionally does not parse `.slaspec`. All instruction patt
 - [`sleigh_runtime.cppm`](sleigh_runtime.cppm) exports the public C++23 module named `sleigh_runtime` and its owning result model.
 - [`sleigh_runtime_adapter.cppm`](sleigh_runtime_adapter.cppm) adapts the reference runtime to in-memory instruction bytes and owns decode state.
 - [`src/README.md`](src/README.md) documents the runtime implementation sources.
-- [`src/ghidra/README.md`](src/ghidra/README.md) documents the private runtime module implementation.
+- [`src/README.md`](src/README.md) documents the private runtime module implementation.
 - [`cli/sleigh_runtime_decode.cppm`](cli/sleigh_runtime_decode.cppm) implements the console decoder executable.
 - [`cli/README.md`](cli/README.md) documents the CLI in detail.
 - [`tests/sleigh_runtime_tests.cppm`](tests/sleigh_runtime_tests.cppm) contains end-to-end runtime tests.

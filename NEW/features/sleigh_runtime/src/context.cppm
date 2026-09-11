@@ -1,6 +1,3 @@
-module;
-#include <string>
-
 /* ###
  * IP: GHIDRA
  *
@@ -18,10 +15,9 @@ module;
  */
 /// \file context.cppm
 /// \brief Objects for describing the context around the parsing of an instruction by the SLEIGH engine
-#ifndef __CONTEXT_HH__
-#define __CONTEXT_HH__
 
-export module sleigh_runtime.ghidra:context;
+export module sleigh_runtime:context;
+import std;
 export import :globalcontext;
 export import :opcodes;
 export import :translate;
@@ -76,12 +72,12 @@ class Constructor;
 /// This knows its position in the tree (parent node, child nodes) and the underlying SLEIGH constructor that was
 /// matched. Child nodes correspond to the operands for the specific constructor.
 struct ConstructState {
-    Constructor* ct;        ///< The matched Constructor
-    FixedHandle hand;       ///< Resolved Varnode associated with the Constructor
+    Constructor* ct;          ///< The matched Constructor
+    FixedHandle hand;         ///< Resolved Varnode associated with the Constructor
     ConstructState** resolve; ///< An array of pointers to child nodes
-    ConstructState* parent; ///< Pointer to parent node
-    int4 length;            ///< Length of this instantiation of the constructor
-    uint4 offset;           ///< Absolute offset (from start of instruction)
+    ConstructState* parent;   ///< Pointer to parent node
+    int4 length;              ///< Length of this instantiation of the constructor
+    uint4 offset;             ///< Absolute offset (from start of instruction)
 
     ConstructState(void) {
         ct = (Constructor*)0;
@@ -174,7 +170,7 @@ private:
     vector<ContextSet> contextcommit; ///< Changes to SLEIGH context slated by this instruction
     Address addr;                     ///< Address of start of instruction
     Address naddr;                    ///< Address of next instruction
-    mutable Address n2addr;            ///< Address of instruction after the next
+    mutable Address n2addr;           ///< Address of instruction after the next
     Address calladdr;                 ///< For injections, this is the address of the call being overridden
     vector<ConstructState*> state;    ///< Available nodes for the constructor tree
     ConstructState* base_state;       ///< Root node of the constructor tree
@@ -415,6 +411,7 @@ public:
 /// \brief A class for walking the constructor tree (ParserContext)
 class ParserWalker {
     friend void parserWalkerSetOutOfBandState(ParserWalker&, Constructor*, int4, ConstructState*, const ParserWalker&);
+
 private:
     const ParserContext* const_context; ///< Context for the main instruction parse
     const ParserContext*
@@ -441,8 +438,8 @@ public:
         breadcrumb[0] = 0;
     } ///< Initialize for a new walk
 
-    /// \brief Initialize \b this from another walker assuming a given constructor and operand is the current position in
-    /// the walk
+    /// \brief Initialize \b this from another walker assuming a given constructor and operand is the current position
+    /// in the walk
     ///
     /// The constructor tree state is simulated using only a single provided node.
     /// This allows TokenField to behave as if it were just parsed so its getValue() will return the correct value.
@@ -450,8 +447,7 @@ public:
     /// \param index is the index of the operand
     /// \param tempstate is provided storage used to simulate the mid-walk tree node
     /// \param otherwalker is the walker with the complete parse state
-    void setOutOfBandState(Constructor* ct, int4 index, ConstructState* tempstate,
-                           const ParserWalker& otherwalker) {
+    void setOutOfBandState(Constructor* ct, int4 index, ConstructState* tempstate, const ParserWalker& otherwalker) {
         parserWalkerSetOutOfBandState(*this, ct, index, tempstate, otherwalker);
     }
 
@@ -653,4 +649,3 @@ struct SleighError : public LowlevelError {
 };
 
 } // End namespace ghidra
-#endif

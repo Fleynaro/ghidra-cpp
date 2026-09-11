@@ -1,7 +1,7 @@
 /// Primary private module interface. Each runtime concern is kept in its own
 /// self-contained partition while this interface re-exports the complete
 /// implementation to the adapter.
-export module sleigh_runtime.ghidra;
+export module sleigh_runtime:internal;
 
 export import :types;
 export import :error;

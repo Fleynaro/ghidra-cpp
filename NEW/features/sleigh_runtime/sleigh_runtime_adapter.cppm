@@ -1,24 +1,7 @@
-module;
-
-#include <algorithm>
-#include <array>
-#include <cctype>
-#include <charconv>
-#include <cstdint>
-#include <expected>
-#include <filesystem>
-#include <memory>
-#include <optional>
-#include <span>
-#include <stdexcept>
-#include <string>
-#include <string_view>
-#include <utility>
-#include <vector>
-
 module sleigh_runtime;
 
-import sleigh_runtime.ghidra;
+import std;
+import :internal;
 
 namespace sleigh_runtime {
 namespace {

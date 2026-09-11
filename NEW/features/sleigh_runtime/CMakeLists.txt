@@ -1,9 +1,20 @@
 find_package(GTest CONFIG REQUIRED)
 find_package(ZLIB REQUIRED)
 
-file(GLOB SLEIGH_GHIDRA_MODULES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/ghidra/*.cppm"
+file(GLOB SLEIGH_RUNTIME_MODULES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cppm"
 )
+
+if(MSVC)
+    get_filename_component(SLEIGH_MSVC_ARCH_BIN "${CMAKE_CXX_COMPILER}" DIRECTORY)
+    get_filename_component(SLEIGH_MSVC_HOST_BIN "${SLEIGH_MSVC_ARCH_BIN}" DIRECTORY)
+    get_filename_component(SLEIGH_MSVC_BIN "${SLEIGH_MSVC_HOST_BIN}" DIRECTORY)
+    get_filename_component(SLEIGH_MSVC_TOOLSET "${SLEIGH_MSVC_BIN}" DIRECTORY)
+    set(SLEIGH_STD_MODULE "${SLEIGH_MSVC_TOOLSET}/modules/std.ixx")
+    if(NOT EXISTS "${SLEIGH_STD_MODULE}")
+        message(FATAL_ERROR "MSVC std module was not found at ${SLEIGH_STD_MODULE}")
+    endif()
+endif()
 
 add_library(sleigh_runtime STATIC)
 target_sources(sleigh_runtime
@@ -12,10 +23,19 @@ target_sources(sleigh_runtime
     PRIVATE
         sleigh_runtime_adapter.cppm
     PRIVATE
-        FILE_SET ghidra_modules TYPE CXX_MODULES
-        BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/ghidra"
-        FILES ${SLEIGH_GHIDRA_MODULES}
+        FILE_SET runtime_modules TYPE CXX_MODULES
+        BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        FILES ${SLEIGH_RUNTIME_MODULES}
 )
+
+if(MSVC)
+    target_sources(sleigh_runtime
+        PUBLIC
+            FILE_SET msvc_std_modules TYPE CXX_MODULES
+            BASE_DIRS "${SLEIGH_MSVC_TOOLSET}/modules"
+            FILES "${SLEIGH_STD_MODULE}"
+    )
+endif()
 
 add_library(NewGhidra::SleighRuntime ALIAS sleigh_runtime)
 

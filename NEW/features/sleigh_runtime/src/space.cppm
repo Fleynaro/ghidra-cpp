@@ -1,9 +1,3 @@
-module;
-#include <cstdlib>
-#include <ostream>
-#include <sstream>
-#include <string>
-
 /* ###
  * IP: GHIDRA
  *
@@ -22,12 +16,8 @@ module;
 /// \file space.cppm
 /// \brief Classes for describing address spaces
 
-#ifndef __SPACE_HH__
-#define __SPACE_HH__
-
-#include <string>
-
-export module sleigh_runtime.ghidra:space;
+export module sleigh_runtime:space;
+import std;
 export import :error;
 export import :marshal;
 export import :varnode;
@@ -96,10 +86,10 @@ public:
         formal_stackspace = 0x20,   ///< Space attached to the formal \b stack \b pointer
         overlay = 0x40,             ///< This space is an overlay of another space
         overlaybase = 0x80,         ///< This is the base space for overlay space(s)
-        truncated = 0x100,          ///< Space is truncated from its original size, expect pointers larger than this size
-        hasphysical = 0x200,        ///< Has physical memory associated with it
-        is_otherspace = 0x400,      ///< Quick check for the OtherSpace derived class
-        has_nearpointers = 0x800,   ///< Does there exist near pointers into this space
+        truncated = 0x100,        ///< Space is truncated from its original size, expect pointers larger than this size
+        hasphysical = 0x200,      ///< Has physical memory associated with it
+        is_otherspace = 0x400,    ///< Quick check for the OtherSpace derived class
+        has_nearpointers = 0x800, ///< Does there exist near pointers into this space
         allows_wrapped_range = 0x1000, ///< A memory range for \b this space can wrap from high addresses to low
         addressable_all = 0x2000,      ///< Pointers can address the entire space
         addressable_none = 0x4000      ///< Pointers do not exist into \b this space
@@ -111,7 +101,7 @@ private:
     int4 refcount;           ///< Number of managers using this space
     uint4 flags;             ///< Attributes of the space
     char shortcut;           ///< Shortcut character for printing
-    uintb highest;            ///< Highest (byte) offset into this space
+    uintb highest;           ///< Highest (byte) offset into this space
     uintb pointerLowerBound; ///< Offset below which we don't search for pointers
     uintb pointerUpperBound; ///< Offset above which we don't search for pointers
 protected:
@@ -318,7 +308,8 @@ public:
         return (AddrSpace*)0;
     } ///< Return this space's containing space (if any)
 
-    inline virtual int4 overlapJoin(uintb offset, int4 size, AddrSpace* pointSpace, uintb pointOff, int4 pointSkip) const {
+    inline virtual int4 overlapJoin(uintb offset, int4 size, AddrSpace* pointSpace, uintb pointOff,
+                                    int4 pointSkip) const {
         if (this != pointSpace)
             return -1;
         uintb dist = wrapOffset(pointOff + pointSkip - offset);
@@ -394,7 +385,7 @@ public:
                 size = registerSize;
             }
         } catch (LowlevelError&) {
-            offset = strtoul(s.c_str(), &tmpdata, 0);
+            offset = std::strtoul(s.c_str(), &tmpdata, 0);
             offset = addressToByte(offset, wordsize);
             enddata = (const char*)tmpdata;
             if (enddata - s.c_str() == s.size()) {
@@ -444,12 +435,12 @@ inline int4 get_offset_size(const char* ptr, uintb& offset) { // Get optional si
     val = 0;
     size = -1;
     if (*ptr == ':') {
-        size = strtoul(ptr + 1, &ptr2, 0);
+        size = std::strtoul(ptr + 1, &ptr2, 0);
         if (*ptr2 == '+')
-            val = strtoul(ptr2 + 1, &ptr2, 0);
+            val = std::strtoul(ptr2 + 1, &ptr2, 0);
     }
     if (*ptr == '+')
-        val = strtoul(ptr + 1, &ptr2, 0);
+        val = std::strtoul(ptr + 1, &ptr2, 0);
     offset += val;
     return size;
 }
@@ -463,7 +454,8 @@ public:
         if (HOST_ENDIAN == 1)
             setFlags(big_endian);
     }
-    inline int4 overlapJoin(uintb offset, int4 size, AddrSpace* pointSpace, uintb pointOff, int4 pointSkip) const override {
+    inline int4 overlapJoin(uintb offset, int4 size, AddrSpace* pointSpace, uintb pointOff,
+                            int4 pointSkip) const override {
         return -1;
     }
     inline void printRaw(ostream& s, uintb offset) const override {
@@ -506,7 +498,7 @@ public:
         setFlags(hasphysical);
     }
     static const string NAME; ///< Reserved name for the unique space
-    static const uint4 SIZE; ///< Fixed size for unique space offsets
+    static const uint4 SIZE;  ///< Fixed size for unique space offsets
 };
 
 /// \brief The pool of logically joined variables
@@ -518,7 +510,8 @@ public:
         clearFlags(heritaged); // This space is never heritaged, but does dead-code analysis
     }
 
-    inline int4 overlapJoin(uintb offset, int4 size, AddrSpace* pointSpace, uintb pointOffset, int4 pointSkip) const override {
+    inline int4 overlapJoin(uintb offset, int4 size, AddrSpace* pointSpace, uintb pointOffset,
+                            int4 pointSkip) const override {
         if (this == pointSpace) {
             JoinRecord* pieceRecord = addrSpaceManagerFindJoin(manage, pointOffset);
             int4 pos;
@@ -738,20 +731,42 @@ public:
 
 /// Exposes the concrete address-space operations required by the address
 /// partition without importing this partition back into it.
-int4 addrSpaceGetAddrSize(const AddrSpace* space) { return space->getAddrSize(); }
-bool addrSpaceIsBigEndian(const AddrSpace* space) { return space->isBigEndian(); }
-void addrSpacePrintRaw(const AddrSpace* space, ostream& stream, uintb offset) { space->printRaw(stream, offset); }
-uintb addrSpaceRead(const AddrSpace* space, const string& text, int4& size) { return space->read(text, size); }
-char addrSpaceGetShortcut(const AddrSpace* space) { return space->getShortcut(); }
-const string& addrSpaceGetName(const AddrSpace* space) { return space->getName(); }
-int4 addrSpaceGetIndex(const AddrSpace* space) { return space->getIndex(); }
-uintb addrSpaceWrapOffset(const AddrSpace* space, uintb offset) { return space->wrapOffset(offset); }
-uintb addrSpaceGetHighest(const AddrSpace* space) { return space->getHighest(); }
+int4 addrSpaceGetAddrSize(const AddrSpace* space) {
+    return space->getAddrSize();
+}
+bool addrSpaceIsBigEndian(const AddrSpace* space) {
+    return space->isBigEndian();
+}
+void addrSpacePrintRaw(const AddrSpace* space, ostream& stream, uintb offset) {
+    space->printRaw(stream, offset);
+}
+uintb addrSpaceRead(const AddrSpace* space, const string& text, int4& size) {
+    return space->read(text, size);
+}
+char addrSpaceGetShortcut(const AddrSpace* space) {
+    return space->getShortcut();
+}
+const string& addrSpaceGetName(const AddrSpace* space) {
+    return space->getName();
+}
+int4 addrSpaceGetIndex(const AddrSpace* space) {
+    return space->getIndex();
+}
+uintb addrSpaceWrapOffset(const AddrSpace* space, uintb offset) {
+    return space->wrapOffset(offset);
+}
+uintb addrSpaceGetHighest(const AddrSpace* space) {
+    return space->getHighest();
+}
 uintb addrSpaceDecodeAttributes(const AddrSpace* space, Decoder& decoder, uint4& size) {
     return space->decodeAttributes(decoder, size);
 }
-bool addrSpaceIsConstant(const AddrSpace* space) { return space->getType() == IPTR_CONSTANT; }
-bool addrSpaceIsJoin(const AddrSpace* space) { return space->getType() == IPTR_JOIN; }
+bool addrSpaceIsConstant(const AddrSpace* space) {
+    return space->getType() == IPTR_CONSTANT;
+}
+bool addrSpaceIsJoin(const AddrSpace* space) {
+    return space->getType() == IPTR_JOIN;
+}
 int4 addrSpaceOverlapJoin(const AddrSpace* space, uintb offset, int4 size, AddrSpace* pointSpace, uintb pointOffset,
                           int4 pointSkip) {
     return space->overlapJoin(offset, size, pointSpace, pointOffset, pointSkip);
@@ -778,4 +793,3 @@ AttributeId ATTRIB_LOGICALSIZE = AttributeId("logicalsize", 92);
 AttributeId ATTRIB_PHYSICAL = AttributeId("physical", 93);
 
 } // End namespace ghidra
-#endif

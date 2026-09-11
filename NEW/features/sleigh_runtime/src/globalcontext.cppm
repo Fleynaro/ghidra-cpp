@@ -1,9 +1,3 @@
-module;
-#include <algorithm>
-#include <memory>
-#include <string>
-#include <utility>
-
 /* ###
  * IP: GHIDRA
  *
@@ -21,10 +15,9 @@ module;
  */
 /// \file globalcontext.cppm
 /// \brief Utilities for getting address-based context to the disassembler and decompiler
-#ifndef __GLOBALCONTEXT_HH__
-#define __GLOBALCONTEXT_HH__
 
-export module sleigh_runtime.ghidra:globalcontext;
+export module sleigh_runtime:globalcontext;
+import std;
 export import :partmap;
 export import :varnode;
 export import :space;
@@ -883,4 +876,3 @@ public:
 };
 
 } // End namespace ghidra
-#endif

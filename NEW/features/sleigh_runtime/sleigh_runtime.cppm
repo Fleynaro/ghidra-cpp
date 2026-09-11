@@ -1,20 +1,7 @@
-module;
-
-// MSVC 19.51 does not ship a discoverable `std` module for CMake's module
-// dependency scanner yet. Keep standard-library declarations in the global
-// module fragment until the toolchain provides that module reliably.
-#include <cstddef>
-#include <cstdint>
-#include <expected>
-#include <filesystem>
-#include <memory>
-#include <optional>
-#include <span>
-#include <string>
-#include <string_view>
-#include <vector>
-
+// The standard library is imported through the C++23 module interface so this
+// public API does not depend on textual standard-header inclusion.
 export module sleigh_runtime;
+import std;
 
 export namespace sleigh_runtime {
 

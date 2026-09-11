@@ -1,6 +1,3 @@
-module;
-#include <memory>
-
 /* ###
  * IP: GHIDRA
  *
@@ -18,12 +15,9 @@ module;
  */
 /// \file slaformat.cppm
 /// \brief Encoding values for the SLA file format
-#ifndef __SLAFORMAT__
-#define __SLAFORMAT__
 
-#include <memory>
-
-export module sleigh_runtime.ghidra:slaformat;
+export module sleigh_runtime:slaformat;
+import std;
 export import :compression;
 export import :marshal;
 
@@ -191,8 +185,7 @@ public:
     FormatDecode(const AddrSpaceManager* spcManager)
         : PackedDecode(spcManager), inBuffer(std::make_unique<uint1[]>(IN_BUFFER_SIZE)) {} ///< Initialize the decoder
     virtual ~FormatDecode(void) = default;
-    virtual void ingestStream(istream& s)
-    {
+    virtual void ingestStream(istream& s) {
         if (!isSlaFormat(s))
             throw LowlevelError("Missing SLA format header");
         Decompress decompressor;
@@ -388,5 +381,3 @@ bool isSlaFormat(istream& s)
 const int4 FormatDecode::IN_BUFFER_SIZE = 4096;
 } // End namespace sla
 } // End namespace ghidra
-
-#endif

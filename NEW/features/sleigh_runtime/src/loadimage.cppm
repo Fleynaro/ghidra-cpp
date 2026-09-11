@@ -1,4 +1,3 @@
-module;
 
 /* ###
  * IP: GHIDRA
@@ -18,10 +17,8 @@ module;
 /// \file loadimage.cppm
 /// \brief The byte-loading contract used by the standalone SLEIGH runtime.
 
-#ifndef __LOADIMAGE_HH__
-#define __LOADIMAGE_HH__
-
-export module sleigh_runtime.ghidra:loadimage;
+export module sleigh_runtime:loadimage;
+import std;
 export import :address;
 
 export namespace ghidra {
@@ -57,4 +54,3 @@ public:
 };
 
 } // namespace ghidra
-#endif

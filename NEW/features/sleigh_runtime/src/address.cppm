@@ -1,7 +1,3 @@
-module;
-#include <ostream>
-#include <string>
-
 /* ###
  * IP: GHIDRA
  *
@@ -27,10 +23,8 @@ module;
 ///  by placing them in their own space, separate from RAM. Indirection
 ///  (i.e. pointers) must be simulated through the LOAD and STORE ops.
 
-#ifndef __ADDRESS_HH__
-#define __ADDRESS_HH__
-
-export module sleigh_runtime.ghidra:address;
+export module sleigh_runtime:address;
+import std;
 export import :marshal;
 
 export namespace ghidra {
@@ -649,8 +643,7 @@ public:
                 last = decoder.readUnsignedInteger();
                 seenLast = true;
             } else if (attribId == ATTRIB_NAME) {
-                const Translate* translator =
-                    addrSpaceManagerDefaultCodeTranslator(decoder.getAddrSpaceManager());
+                const Translate* translator = addrSpaceManagerDefaultCodeTranslator(decoder.getAddrSpaceManager());
                 uint4 size;
                 translateGetRegister(translator, decoder.readString(), spc, first, size);
                 last = (first - 1) + size;
@@ -717,7 +710,8 @@ public:
     inline const Range* getLastSignedRange(AddrSpace* spaceid) const {
         uintb midway = addrSpaceGetHighest(spaceid) / 2; // Maximal signed value
         Range range(spaceid, midway, midway);
-        set<Range>::const_iterator iter = tree.upper_bound(range); // First element greater than -range- (should be MOST negative)
+        set<Range>::const_iterator iter =
+            tree.upper_bound(range); // First element greater than -range- (should be MOST negative)
         if (iter != tree.begin()) {
             --iter;
             if ((*iter).getSpace() == spaceid)
@@ -808,7 +802,8 @@ public:
         insertRange(rng.getSpace(), rng.getFirst(), rng.getLast());
     } ///< Insert a range
 
-    /// Remove/narrow/split existing Range objects to eliminate the indicated addresses while still maintaining a disjoint cover.
+    /// Remove/narrow/split existing Range objects to eliminate the indicated addresses while still maintaining a
+    /// disjoint cover.
     /// \param spc is the address space of the address range to remove
     /// \param first is the offset of the first byte of the range
     /// \param last is the offset of the last byte of the range
@@ -889,7 +884,8 @@ public:
         return ((*iter).last >= rng.last);
     }
 
-    /// Return the size of the biggest contiguous sequence of addresses in this RangeList which contain the given address.
+    /// Return the size of the biggest contiguous sequence of addresses in this RangeList which contain the given
+    /// address.
     /// \param addr is the given address
     /// \param maxsize is the large range to consider before giving up
     /// \return the size (in bytes) of the biggest range
@@ -1473,4 +1469,3 @@ AttributeId ATTRIB_FIRST = AttributeId("first", 27);
 AttributeId ATTRIB_LAST = AttributeId("last", 28);
 
 } // End namespace ghidra
-#endif

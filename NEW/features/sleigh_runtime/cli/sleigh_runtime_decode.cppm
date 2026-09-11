@@ -1,17 +1,4 @@
-#include <algorithm>
-#include <charconv>
-#include <cstdint>
-#include <cstdlib>
-#include <filesystem>
-#include <format>
-#include <iostream>
-#include <optional>
-#include <span>
-#include <sstream>
-#include <stdexcept>
-#include <string>
-#include <string_view>
-#include <vector>
+import std;
 
 import sleigh_runtime;
 

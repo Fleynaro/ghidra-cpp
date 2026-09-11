@@ -1,15 +1,3 @@
-module;
-#include <iostream>
-#include <istream>
-#include <list>
-#include <memory>
-#include <ostream>
-#include <sstream>
-#include <string>
-#include <unordered_map>
-#include <utility>
-#include <vector>
-
 /* ###
  * IP: GHIDRA
  *
@@ -27,10 +15,8 @@ module;
  */
 /// \file marshal.cppm
 /// \brief Stream marshalling interfaces and the packed decoder
-#ifndef __MARSHAL_HH__
-#define __MARSHAL_HH__
-
-export module sleigh_runtime.ghidra:marshal;
+export module sleigh_runtime:marshal;
+import std;
 
 export import :types;
 export import :error;
@@ -113,10 +99,8 @@ public:
         vector<AttributeId*>& thelist(getList());
         for (int4 i = 0; i < thelist.size(); ++i) {
             AttributeId* attrib = thelist[i];
-#ifdef CPUI_DEBUG
             if (lookupAttributeId.find(attrib->name) != lookupAttributeId.end())
                 throw DecoderError(attrib->name + " attribute registered more than once");
-#endif
             lookupAttributeId[attrib->name] = attrib->id;
         }
         thelist.clear();
@@ -193,10 +177,8 @@ public:
         vector<ElementId*>& thelist(getList());
         for (int4 i = 0; i < thelist.size(); ++i) {
             ElementId* elem = thelist[i];
-#ifdef CPUI_DEBUG
             if (lookupElementId.find(elem->name) != lookupElementId.end())
                 throw DecoderError(elem->name + " element registered more than once");
-#endif
             lookupElementId[elem->name] = elem->id;
         }
         thelist.clear();
@@ -1089,4 +1071,3 @@ ElementId ELEM_VOID = ElementId("void", 10);
 ElementId ELEM_UNKNOWN = ElementId("XMLunknown", 291); // Number serves as next open index
 
 } // End namespace ghidra
-#endif

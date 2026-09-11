@@ -1,13 +1,3 @@
-module;
-#include <algorithm>
-#include <cstdint>
-#include <memory>
-#include <optional>
-#include <sstream>
-#include <string>
-#include <utility>
-#include <vector>
-
 /* ###
  * IP: GHIDRA
  *
@@ -28,10 +18,8 @@ module;
 ///
 /// Classes for keeping track of spaces and registers (for a single architecture).
 
-#ifndef __TRANSLATE_HH__
-#define __TRANSLATE_HH__
-
-export module sleigh_runtime.ghidra:translate;
+export module sleigh_runtime:translate;
+import std;
 export import :varnode;
 export import :space;
 
@@ -377,14 +365,30 @@ protected:
         }
         char shortcut;
         switch (spc->getType()) {
-            case IPTR_CONSTANT: shortcut = '#'; break;
-            case IPTR_PROCESSOR: shortcut = (spc->getName() == "register") ? '%' : spc->getName()[0]; break;
-            case IPTR_SPACEBASE: shortcut = 's'; break;
-            case IPTR_INTERNAL: shortcut = 'u'; break;
-            case IPTR_FSPEC: shortcut = 'f'; break;
-            case IPTR_JOIN: shortcut = 'j'; break;
-            case IPTR_IOP: shortcut = 'i'; break;
-            default: shortcut = 'x'; break;
+            case IPTR_CONSTANT:
+                shortcut = '#';
+                break;
+            case IPTR_PROCESSOR:
+                shortcut = (spc->getName() == "register") ? '%' : spc->getName()[0];
+                break;
+            case IPTR_SPACEBASE:
+                shortcut = 's';
+                break;
+            case IPTR_INTERNAL:
+                shortcut = 'u';
+                break;
+            case IPTR_FSPEC:
+                shortcut = 'f';
+                break;
+            case IPTR_JOIN:
+                shortcut = 'j';
+                break;
+            case IPTR_IOP:
+                shortcut = 'i';
+                break;
+            default:
+                shortcut = 'x';
+                break;
         }
         if (shortcut >= 'A' && shortcut <= 'Z')
             shortcut += 0x20;
@@ -465,7 +469,8 @@ protected:
         if (baselist.size() <= spc->index)
             baselist.resize(spc->index + 1, (AddrSpace*)0);
         if (baselist[spc->index] != (AddrSpace*)0)
-            throw LowlevelError("Space " + spc->getName() + " was assigned id duplicating: " + baselist[spc->index]->getName());
+            throw LowlevelError("Space " + spc->getName() +
+                                " was assigned id duplicating: " + baselist[spc->index]->getName());
         if (!name2Space.insert(pair<string, AddrSpace*>(spc->getName(), spc)).second)
             throw LowlevelError("Space " + spc->getName() + " was initialized more than once");
         baselist[spc->index] = spc;
@@ -582,15 +587,33 @@ public:
             return (AddrSpace*)0;
         return (*iter).second;
     }
-    inline AddrSpace* getIopSpace(void) const { return iopspace; }
-    inline AddrSpace* getFspecSpace(void) const { return fspecspace; }
-    inline AddrSpace* getJoinSpace(void) const { return joinspace; }
-    inline AddrSpace* getStackSpace(void) const { return stackspace; }
-    inline AddrSpace* getUniqueSpace(void) const { return uniqspace; }
-    inline AddrSpace* getDefaultCodeSpace(void) const { return defaultcodespace; }
-    inline AddrSpace* getDefaultDataSpace(void) const { return defaultdataspace; }
-    inline AddrSpace* getConstantSpace(void) const { return constantspace; }
-    inline Address getConstant(uintb val) const { return Address(constantspace, val); }
+    inline AddrSpace* getIopSpace(void) const {
+        return iopspace;
+    }
+    inline AddrSpace* getFspecSpace(void) const {
+        return fspecspace;
+    }
+    inline AddrSpace* getJoinSpace(void) const {
+        return joinspace;
+    }
+    inline AddrSpace* getStackSpace(void) const {
+        return stackspace;
+    }
+    inline AddrSpace* getUniqueSpace(void) const {
+        return uniqspace;
+    }
+    inline AddrSpace* getDefaultCodeSpace(void) const {
+        return defaultcodespace;
+    }
+    inline AddrSpace* getDefaultDataSpace(void) const {
+        return defaultdataspace;
+    }
+    inline AddrSpace* getConstantSpace(void) const {
+        return constantspace;
+    }
+    inline Address getConstant(uintb val) const {
+        return Address(constantspace, val);
+    }
 
     inline bool highPtrPossible(const Address& loc, int4 size) const {
         uint4 fl = loc.getSpace()->flags & (AddrSpace::addressable_all | AddrSpace::addressable_none);
@@ -602,8 +625,12 @@ public:
     inline Address createConstFromSpace(AddrSpace* spc) const {
         return Address(constantspace, (uintb)(uintp)spc);
     }
-    inline int4 numSpaces(void) const { return baselist.size(); }
-    inline AddrSpace* getSpace(int4 i) const { return baselist[i]; }
+    inline int4 numSpaces(void) const {
+        return baselist.size();
+    }
+    inline AddrSpace* getSpace(int4 i) const {
+        return baselist[i];
+    }
 
     inline Address resolveConstant(AddrSpace* spc, uintb val, int4 sz, const Address& point,
                                    uintb& fullEncoding) const {
@@ -727,9 +754,11 @@ public:
                 return loaddr;
             } else {
                 if (hiaddr.isBigEndian()) {
-                    if (translateGetRegisterName(translate, hiaddr.getSpace(), hiaddr.getOffset(), (hisz + losz)).size() != 0)
+                    if (translateGetRegisterName(translate, hiaddr.getSpace(), hiaddr.getOffset(), (hisz + losz))
+                            .size() != 0)
                         return hiaddr;
-                } else if (translateGetRegisterName(translate, loaddr.getSpace(), loaddr.getOffset(), (hisz + losz)).size() != 0)
+                } else if (translateGetRegisterName(translate, loaddr.getSpace(), loaddr.getOffset(), (hisz + losz))
+                               .size() != 0)
                     return loaddr;
             }
         }
@@ -789,7 +818,8 @@ public:
         }
         vector<VarnodeData> newPieces;
         int4 sizeTrunc1 = (int4)(addr1.getOffset() - joinRecord->pieces[pos1].offset);
-        int4 sizeTrunc2 = joinRecord->pieces[pos2].size - (int4)(addr2.getOffset() - joinRecord->pieces[pos2].offset) - 1;
+        int4 sizeTrunc2 =
+            joinRecord->pieces[pos2].size - (int4)(addr2.getOffset() - joinRecord->pieces[pos2].offset) - 1;
         if (pos2 < pos1) {
             newPieces.push_back(joinRecord->pieces[pos2]);
             pos2 += 1;
@@ -870,6 +900,7 @@ public:
 private:
     bool target_isbigendian;
     uint4 unique_base;
+
 protected:
     int4 alignment;
     inline void setBigEndian(bool val) {
@@ -879,15 +910,22 @@ protected:
         if (val > unique_base)
             unique_base = val;
     }
+
 public:
     inline Translate(void) {
         target_isbigendian = false;
         unique_base = 0;
         alignment = 1;
     }
-    inline bool isBigEndian(void) const { return target_isbigendian; }
-    inline int4 getAlignment(void) const { return alignment; }
-    inline uint4 getUniqueBase(void) const { return unique_base; }
+    inline bool isBigEndian(void) const {
+        return target_isbigendian;
+    }
+    inline int4 getAlignment(void) const {
+        return alignment;
+    }
+    inline uint4 getUniqueBase(void) const {
+        return unique_base;
+    }
     inline uint4 getUniqueStart(UniqueLayout layout) const {
         return (layout != ANALYSIS) ? layout + unique_base : layout;
     }
@@ -945,7 +983,7 @@ AddrSpace* addrSpaceManagerGetNextSpaceInOrder(const AddrSpaceManager* manager, 
 /// Resolves a register through the translator while keeping VarnodeData
 /// construction out of partitions that only need its individual fields.
 void translateGetRegister(const Translate* translator, const string& name, AddrSpace*& space, uintb& offset,
-                                uint4& size) {
+                          uint4& size) {
     const VarnodeData& registerLocation = translator->getRegister(name);
     space = registerLocation.space;
     offset = registerLocation.offset;
@@ -969,7 +1007,7 @@ JoinRecord* addrSpaceManagerFindJoin(const AddrSpaceManager* manager, uintb offs
 
 /// Creates or reuses a join record for the space partition.
 JoinRecord* addrSpaceManagerFindAddJoin(const AddrSpaceManager* manager, const vector<VarnodeData>& pieces,
-                                               int4 logicalSize) {
+                                        int4 logicalSize) {
     return manager->findAddJoin(pieces, logicalSize);
 }
 
@@ -1037,4 +1075,3 @@ ElementId ELEM_SPACE_UNIQUE = ElementId("space_unique", 35);
 ElementId ELEM_TRUNCATE_SPACE = ElementId("truncate_space", 36);
 
 } // End namespace ghidra
-#endif

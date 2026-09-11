@@ -1,4 +1,3 @@
-module;
 
 /* ###
  * IP: GHIDRA
@@ -18,10 +17,8 @@ module;
 /// \file opcodes.cppm
 /// \brief All the individual p-code operations
 
-#ifndef __OPCODES_HH__
-#define __OPCODES_HH__
-
-export module sleigh_runtime.ghidra:opcodes;
+export module sleigh_runtime:opcodes;
+import std;
 
 export namespace ghidra {
 
@@ -132,4 +129,3 @@ enum OpCode {
 };
 
 } // End namespace ghidra
-#endif

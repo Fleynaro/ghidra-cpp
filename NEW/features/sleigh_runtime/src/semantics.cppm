@@ -16,7 +16,7 @@
 /// \file semantics.cppm
 /// \brief Classes describing p-code operations as parsed from a SLEIGH specification
 
-export module sleigh_runtime.ghidra:semantics;
+export module sleigh_runtime:semantics;
 export import :context;
 export import :slaformat;
 
@@ -46,6 +46,7 @@ bool handleTplSizeIsZero(const HandleTpl* handle);
 /// about how to calculate the final constant from the SLEIGH context for the instruction.
 class ConstTpl {
     friend void constTplTransfer(ConstTpl&, const vector<HandleTpl*>&);
+
 public:
     /// Types of constant values encountered during SLEIGH parsing.
     enum const_type {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export module sleigh_runtime.ghidra:slghpattern;
+export module sleigh_runtime:slghpattern;
 export import :context;
 export import :slaformat;
 
