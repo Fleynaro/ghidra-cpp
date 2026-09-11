@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Dump the result of Ghidra's PE loader into a deterministic Markdown file.
+Dump the result of Ghidra's PE loader into a Markdown reference file.
 
 This script is intended to generate golden/reference data for porting
 Ghidra's PE loader to an autonomous C++23 implementation.
@@ -20,12 +20,16 @@ requests Ghidra's PeLoader.
 Important:
     Analysis is disabled. We want to capture the loader result itself,
     not artifacts produced later by Ghidra analyzers.
+
+    Compact mode randomly samples large tables to keep the report readable.
+    Use --verbose to emit every row.
 """
 
 from __future__ import annotations
 
-import sys
+import random
 import struct
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -82,6 +86,22 @@ def table_header(out: list[str], columns: list[str]) -> None:
 
 def table_row(out: list[str], values: list[Any]) -> None:
     out.append("| " + " | ".join(md_escape(v) for v in values) + " |")
+
+
+def sample_rows(
+    out: list[str], rows: list[list[Any]], verbose: bool, label: str, limit: int = 20
+) -> list[list[Any]]:
+    """Return all rows in verbose mode or a random compact-mode sample with a note."""
+    if verbose or len(rows) <= limit:
+        return rows
+
+    selected = random.sample(rows, limit)
+    out.append(
+        f"> Random sample: showing {limit} of {len(rows)} rows from `{label}`. "
+        "Use `--verbose` to include every row."
+    )
+    out.append("")
+    return selected
 
 
 def dump_program(program, out: list[str]) -> None:
@@ -237,11 +257,25 @@ def dump_symbols(program, out: list[str]) -> None:
         )
 
 
-def dump_external_symbols(program, out: list[str]) -> None:
+def dump_external_symbols(program, out: list[str], verbose: bool = False) -> None:
     section(out, "External Symbols")
 
     symbol_table = program.getSymbolTable()
 
+    rows = []
+    for symbol in symbol_table.getExternalSymbols():
+        library = safe(lambda: symbol.getParentSymbol().getName())
+
+        rows.append(
+            [
+                symbol.getAddress(),
+                symbol.getName(),
+                symbol.getSymbolType(),
+                library,
+            ]
+        )
+
+    selected_rows = sample_rows(out, rows, verbose, "External Symbols")
     table_header(
         out,
         [
@@ -251,19 +285,8 @@ def dump_external_symbols(program, out: list[str]) -> None:
             "Library",
         ],
     )
-
-    for symbol in symbol_table.getExternalSymbols():
-        library = safe(lambda: symbol.getParentSymbol().getName())
-
-        table_row(
-            out,
-            [
-                symbol.getAddress(),
-                symbol.getName(),
-                symbol.getSymbolType(),
-                library,
-            ],
-        )
+    for row in selected_rows:
+        table_row(out, row)
 
 
 def dump_entry_points(program, out: list[str]) -> None:
@@ -702,7 +725,7 @@ def directory_at(optional_header, index: int):
     return directories[index]
 
 
-def dump_import_directory(nt_header, out: list[str]) -> None:
+def dump_import_directory(nt_header, out: list[str], verbose: bool = False) -> None:
     """Dump import descriptors, INT/IAT slots, hints, ordinals, RVAs, VAs, and file offsets."""
     optional = nt_header.getOptionalHeader()
     directory = directory_at(optional, 1)
@@ -738,6 +761,36 @@ def dump_import_directory(nt_header, out: list[str]) -> None:
         )
 
     section(out, "Imported Functions / IAT Addresses")
+    rows = []
+    for descriptor in descriptors:
+        int_thunks = descriptor.getImportNameTableThunkData()
+        iat_thunks = descriptor.getImportAddressTableThunkData()
+        int_rva = u32(descriptor.getOriginalFirstThunk() or descriptor.getFirstThunk())
+        iat_rva = u32(descriptor.getFirstThunk())
+        slot_size = 8 if optional.is64bit() else 4
+
+        for index, thunk in enumerate(int_thunks):
+            import_by_name = thunk.getImportByName()
+            ordinal = thunk.getOrdinal() if thunk.isOrdinal() else ""
+            name = f"Ordinal #{ordinal}" if thunk.isOrdinal() else import_by_name.getName()
+            hint = "" if thunk.isOrdinal() else u16(import_by_name.getHint())
+            iat_thunk = iat_thunks[index] if index < len(iat_thunks) else None
+            rows.append(
+                [
+                    descriptor.getDLL(),
+                    name,
+                    hint,
+                    hx(int_rva + index * slot_size),
+                    hx(iat_rva + index * slot_size),
+                    rva_to_va(optional, iat_rva + index * slot_size),
+                    rva_to_file_offset(nt_header, iat_rva + index * slot_size),
+                    "N/A" if iat_thunk is None else hx(u64(iat_thunk.getFunction())),
+                    "" if thunk.isOrdinal() else hx(u32(thunk.getAddressOfData())),
+                    "" if thunk.isOrdinal() else rva_to_file_offset(nt_header, thunk.getAddressOfData()),
+                ]
+            )
+
+    selected_rows = sample_rows(out, rows, verbose, "Imported Functions / IAT Addresses")
     table_header(
         out,
         [
@@ -753,37 +806,11 @@ def dump_import_directory(nt_header, out: list[str]) -> None:
             "ImportByName raw offset",
         ],
     )
-    for descriptor in descriptors:
-        int_thunks = descriptor.getImportNameTableThunkData()
-        iat_thunks = descriptor.getImportAddressTableThunkData()
-        int_rva = u32(descriptor.getOriginalFirstThunk() or descriptor.getFirstThunk())
-        iat_rva = u32(descriptor.getFirstThunk())
-        slot_size = 8 if optional.is64bit() else 4
-
-        for index, thunk in enumerate(int_thunks):
-            import_by_name = thunk.getImportByName()
-            ordinal = thunk.getOrdinal() if thunk.isOrdinal() else ""
-            name = f"Ordinal #{ordinal}" if thunk.isOrdinal() else import_by_name.getName()
-            hint = "" if thunk.isOrdinal() else u16(import_by_name.getHint())
-            iat_thunk = iat_thunks[index] if index < len(iat_thunks) else None
-            table_row(
-                out,
-                [
-                    descriptor.getDLL(),
-                    name,
-                    hint,
-                    hx(int_rva + index * slot_size),
-                    hx(iat_rva + index * slot_size),
-                    rva_to_va(optional, iat_rva + index * slot_size),
-                    rva_to_file_offset(nt_header, iat_rva + index * slot_size),
-                    "N/A" if iat_thunk is None else hx(u64(iat_thunk.getFunction())),
-                    "" if thunk.isOrdinal() else hx(u32(thunk.getAddressOfData())),
-                    "" if thunk.isOrdinal() else rva_to_file_offset(nt_header, thunk.getAddressOfData()),
-                ],
-            )
+    for row in selected_rows:
+        table_row(out, row)
 
 
-def dump_export_directory(nt_header, out: list[str]) -> None:
+def dump_export_directory(nt_header, out: list[str], verbose: bool = False) -> None:
     """Dump the export directory arrays and every named or ordinal export address."""
     optional = nt_header.getOptionalHeader()
     directory = directory_at(optional, 0)
@@ -811,12 +838,11 @@ def dump_export_directory(nt_header, out: list[str]) -> None:
         kv(out, name, safe(getter))
 
     section(out, "Exported Functions")
-    table_header(out, ["Ordinal", "Name", "Address VA", "Address RVA", "Raw offset", "Forwarded", "Comment"])
+    rows = []
     for export in directory.getExports():
         address = u64(export.getAddress())
         rva = address - u64(optional.getImageBase())
-        table_row(
-            out,
+        rows.append(
             [
                 export.getOrdinal(),
                 export.getName(),
@@ -825,25 +851,29 @@ def dump_export_directory(nt_header, out: list[str]) -> None:
                 rva_to_file_offset(nt_header, rva),
                 export.isForwarded(),
                 export.getComment(),
-            ],
+            ]
         )
 
+    selected_rows = sample_rows(out, rows, verbose, "Exported Functions")
+    table_header(out, ["Ordinal", "Name", "Address VA", "Address RVA", "Raw offset", "Forwarded", "Comment"])
+    for row in selected_rows:
+        table_row(out, row)
 
-def dump_relocation_directory(nt_header, out: list[str]) -> None:
+
+def dump_relocation_directory(nt_header, out: list[str], verbose: bool = False) -> None:
     """Dump base-relocation blocks and each relocation type/offset/target RVA."""
     directory = directory_at(nt_header.getOptionalHeader(), 5)
     if directory is None:
         kv(out, "Present", False)
         return
 
-    table_header(out, ["Block RVA", "Block VA", "Block size", "Entry index", "Type", "Type name", "Offset", "Target RVA", "Target VA"])
+    rows = []
     for block in directory.getBaseRelocations():
         block_rva = u32(block.getVirtualAddress())
         for index in range(block.getCount()):
             relocation_type = block.getType(index)
             target_rva = block_rva + u32(block.getOffset(index))
-            table_row(
-                out,
+            rows.append(
                 [
                     hx(block_rva),
                     rva_to_va(nt_header.getOptionalHeader(), block_rva),
@@ -854,8 +884,13 @@ def dump_relocation_directory(nt_header, out: list[str]) -> None:
                     hx(u32(block.getOffset(index))),
                     hx(target_rva),
                     rva_to_va(nt_header.getOptionalHeader(), target_rva),
-                ],
+                ]
             )
+
+    selected_rows = sample_rows(out, rows, verbose, "PE Base Relocation Directory")
+    table_header(out, ["Block RVA", "Block VA", "Block size", "Entry index", "Type", "Type name", "Offset", "Target RVA", "Target VA"])
+    for row in selected_rows:
+        table_row(out, row)
 
 
 def dump_tls_directory(nt_header, out: list[str]) -> None:
@@ -917,7 +952,7 @@ def dump_load_config_directory(nt_header, out: list[str]) -> None:
     kv(out, "Dynamic relocation table object", "null" if dynamic is None else dynamic)
 
 
-def dump_delay_import_directory(nt_header, out: list[str]) -> None:
+def dump_delay_import_directory(nt_header, out: list[str], verbose: bool = False) -> None:
     """Dump delay-load DLL descriptors, thunk addresses, and imported symbols."""
     directory = directory_at(nt_header.getOptionalHeader(), 13)
     if directory is None:
@@ -958,43 +993,49 @@ def dump_delay_import_directory(nt_header, out: list[str]) -> None:
         )
 
     section(out, "Delay Imported Functions")
-    table_header(out, ["DLL", "Name", "Address RVA/VA", "Bound", "Comment"])
+    rows = []
     for descriptor in descriptors:
         for info in descriptor.getImportList():
             address = u32(info.getAddress())
-            table_row(
-                out,
+            rows.append(
                 [
                     info.getDLL(),
                     info.getName(),
                     f"{hx(address)} / {rva_to_va(nt_header.getOptionalHeader(), address)}",
                     info.isBound(),
                     info.getComment(),
-                ],
+                ]
             )
+    selected_rows = sample_rows(out, rows, verbose, "Delay Imported Functions")
+    table_header(out, ["DLL", "Name", "Address RVA/VA", "Bound", "Comment"])
+    for row in selected_rows:
+        table_row(out, row)
 
 
-def dump_bound_import_directory(nt_header, out: list[str]) -> None:
+def dump_bound_import_directory(nt_header, out: list[str], verbose: bool = False) -> None:
     """Dump bound-import DLL names, timestamps, and forwarder-reference counts."""
     directory = directory_at(nt_header.getOptionalHeader(), 11)
     if directory is None:
         kv(out, "Present", False)
         return
 
-    table_header(out, ["Module", "TimeDateStamp", "Name offset", "Forwarder refs"])
+    rows = []
     for descriptor in directory.getBoundImportDescriptors():
-        table_row(
-            out,
+        rows.append(
             [
                 descriptor.getModuleName(),
                 hx(u32(descriptor.getTimeDateStamp())),
                 hx(u16(descriptor.getOffsetModuleName())),
                 descriptor.getNumberOfModuleForwarderRefs(),
-            ],
+            ]
         )
+    selected_rows = sample_rows(out, rows, verbose, "PE Bound Import Directory")
+    table_header(out, ["Module", "TimeDateStamp", "Name offset", "Forwarder refs"])
+    for row in selected_rows:
+        table_row(out, row)
 
 
-def dump_resource_directory(nt_header, out: list[str]) -> None:
+def dump_resource_directory(nt_header, out: list[str], verbose: bool = False) -> None:
     """Dump resource directory metadata and every resource leaf RVA/size/type."""
     directory = directory_at(nt_header.getOptionalHeader(), 2)
     if directory is None or directory.getRootDirectory() is None:
@@ -1013,11 +1054,10 @@ def dump_resource_directory(nt_header, out: list[str]) -> None:
         kv(out, name, safe(getter))
 
     section(out, "Resource Leaves")
-    table_header(out, ["Type ID", "Type", "ID", "Name", "RVA/VA", "Raw offset", "Size"])
+    rows = []
     for resource in directory.getResources():
         address = u32(resource.getAddress())
-        table_row(
-            out,
+        rows.append(
             [
                 resource.getTypeID(),
                 resource.getName(),
@@ -1026,11 +1066,15 @@ def dump_resource_directory(nt_header, out: list[str]) -> None:
                 f"{hx(address)} / {rva_to_va(nt_header.getOptionalHeader(), address)}",
                 rva_to_file_offset(nt_header, address),
                 hx(u32(resource.getSize())),
-            ],
+            ]
         )
+    selected_rows = sample_rows(out, rows, verbose, "Resource Leaves")
+    table_header(out, ["Type ID", "Type", "ID", "Name", "RVA/VA", "Raw offset", "Size"])
+    for row in selected_rows:
+        table_row(out, row)
 
 
-def dump_security_directory(nt_header, out: list[str]) -> None:
+def dump_security_directory(nt_header, out: list[str], verbose: bool = False) -> None:
     """Dump Authenticode certificate table offsets, sizes, revisions, and certificate types."""
     directory = directory_at(nt_header.getOptionalHeader(), 4)
     if directory is None:
@@ -1038,19 +1082,21 @@ def dump_security_directory(nt_header, out: list[str]) -> None:
         return
 
     certificates = directory.getCertificate()
+    rows = [
+        [
+            index,
+            hx(u32(certificate.getLength())),
+            hx(u16(certificate.getRevision())),
+            hx(u16(certificate.getType())),
+            certificate.getTypeAsString(),
+            len(certificate.getData()),
+        ]
+        for index, certificate in enumerate(certificates)
+    ]
+    selected_rows = sample_rows(out, rows, verbose, "PE Security / Authenticode Directory")
     table_header(out, ["Index", "Length", "Revision", "Type", "Type name", "Certificate bytes"])
-    for index, certificate in enumerate(certificates):
-        table_row(
-            out,
-            [
-                index,
-                hx(u32(certificate.getLength())),
-                hx(u16(certificate.getRevision())),
-                hx(u16(certificate.getType())),
-                certificate.getTypeAsString(),
-                len(certificate.getData()),
-            ],
-        )
+    for row in selected_rows:
+        table_row(out, row)
 
 
 def dump_com_descriptor(nt_header, out: list[str]) -> None:
@@ -1136,7 +1182,9 @@ def dump_debug_directory(nt_header, out: list[str]) -> None:
         kv(out, ".NET PDB valid", safe(dotnet_pdb_info.isValid) if dotnet_pdb_info is not None else False)
 
 
-def dump_exception_directory(nt_header, provider, out: list[str]) -> None:
+def dump_exception_directory(
+    nt_header, provider, out: list[str], verbose: bool = False
+) -> None:
     """Dump .pdata runtime-function ranges and unwind-info RVAs from the exception directory."""
     directory = directory_at(nt_header.getOptionalHeader(), 3)
     if directory is None or u32(directory.getSize()) == 0:
@@ -1151,11 +1199,10 @@ def dump_exception_directory(nt_header, provider, out: list[str]) -> None:
     entry_size = 12
     count = u32(directory.getSize()) // entry_size
     data = bytes(provider.readBytes(raw_offset, count * entry_size))
-    table_header(out, ["Entry", "Begin RVA", "Begin VA", "End RVA", "End VA", "Unwind RVA", "Unwind VA", "Unwind raw offset"])
+    rows = []
     for index in range(count):
         begin_rva, end_rva, unwind_rva = struct.unpack_from("<III", data, index * entry_size)
-        table_row(
-            out,
+        rows.append(
             [
                 index,
                 hx(begin_rva),
@@ -1165,11 +1212,16 @@ def dump_exception_directory(nt_header, provider, out: list[str]) -> None:
                 hx(unwind_rva),
                 rva_to_va(nt_header.getOptionalHeader(), unwind_rva),
                 rva_to_file_offset(nt_header, unwind_rva),
-            ],
+            ]
         )
 
+    selected_rows = sample_rows(out, rows, verbose, "PE Exception / Runtime Function Directory")
+    table_header(out, ["Entry", "Begin RVA", "Begin VA", "End RVA", "End VA", "Unwind RVA", "Unwind VA", "Unwind raw offset"])
+    for row in selected_rows:
+        table_row(out, row)
 
-def dump_pe_parser_info(input_path: Path, out: list[str]) -> None:
+
+def dump_pe_parser_info(input_path: Path, out: list[str], verbose: bool = False) -> None:
     """Parse the source file with Ghidra's PE model and dump all exposed PE structures."""
     provider = None
     try:
@@ -1191,17 +1243,17 @@ def dump_pe_parser_info(input_path: Path, out: list[str]) -> None:
         parser_section(out, "NT Optional Header", lambda: dump_optional_header(nt_header, out))
         parser_section(out, "PE Data Directories", lambda: dump_data_directories(nt_header, out))
         parser_section(out, "PE Section Headers", lambda: dump_pe_sections(nt_header, out))
-        parser_section(out, "PE Export Directory", lambda: dump_export_directory(nt_header, out))
-        parser_section(out, "PE Import Directory", lambda: dump_import_directory(nt_header, out))
+        parser_section(out, "PE Export Directory", lambda: dump_export_directory(nt_header, out, verbose))
+        parser_section(out, "PE Import Directory", lambda: dump_import_directory(nt_header, out, verbose))
         parser_section(out, "PE Debug Directory", lambda: dump_debug_directory(nt_header, out))
-        parser_section(out, "PE Exception / Runtime Function Directory", lambda: dump_exception_directory(nt_header, provider, out))
-        parser_section(out, "PE Base Relocation Directory", lambda: dump_relocation_directory(nt_header, out))
-        parser_section(out, "PE Resource Directory", lambda: dump_resource_directory(nt_header, out))
-        parser_section(out, "PE Security / Authenticode Directory", lambda: dump_security_directory(nt_header, out))
+        parser_section(out, "PE Exception / Runtime Function Directory", lambda: dump_exception_directory(nt_header, provider, out, verbose))
+        parser_section(out, "PE Base Relocation Directory", lambda: dump_relocation_directory(nt_header, out, verbose))
+        parser_section(out, "PE Resource Directory", lambda: dump_resource_directory(nt_header, out, verbose))
+        parser_section(out, "PE Security / Authenticode Directory", lambda: dump_security_directory(nt_header, out, verbose))
         parser_section(out, "PE TLS Directory", lambda: dump_tls_directory(nt_header, out))
         parser_section(out, "PE Load Config Directory", lambda: dump_load_config_directory(nt_header, out))
-        parser_section(out, "PE Bound Import Directory", lambda: dump_bound_import_directory(nt_header, out))
-        parser_section(out, "PE Delay Import Directory", lambda: dump_delay_import_directory(nt_header, out))
+        parser_section(out, "PE Bound Import Directory", lambda: dump_bound_import_directory(nt_header, out, verbose))
+        parser_section(out, "PE Delay Import Directory", lambda: dump_delay_import_directory(nt_header, out, verbose))
         parser_section(out, "PE COM/.NET Descriptor", lambda: dump_com_descriptor(nt_header, out))
     except Exception as exc:
         out.append(f"`Unable to initialize direct PE parser: {type(exc).__name__}: {exc}`")
@@ -1278,11 +1330,11 @@ def generate_markdown(program, input_path: Path, verbose: bool = False) -> str:
 
     dump_program(program, out)
     dump_pe_header_objects(program, out)
-    dump_pe_parser_info(input_path, out)
+    dump_pe_parser_info(input_path, out, verbose=verbose)
     dump_memory(program, out)
     dump_sections_from_memory(program, out)
     dump_listing_summary(program, out)
-    dump_external_symbols(program, out)
+    dump_external_symbols(program, out, verbose=verbose)
     dump_entry_points(program, out)
     dump_properties(program, out)
 
