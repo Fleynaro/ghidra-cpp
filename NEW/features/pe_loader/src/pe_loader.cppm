@@ -1,17 +1,6 @@
-module;
-
-#include <cstddef>
-#include <cstdint>
-#include <expected>
-#include <filesystem>
-#include <memory>
-#include <optional>
-#include <span>
-#include <string>
-#include <string_view>
-#include <vector>
-
 export module pe_loader;
+
+import std;
 
 // Ported/adapted from Ghidra:
 // ../../../Ghidra/Features/Base/src/main/java/ghidra/app/util/opinion/PeLoader.java

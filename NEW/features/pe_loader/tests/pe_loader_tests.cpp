@@ -1,16 +1,6 @@
-#include <algorithm>
-#include <array>
-#include <cstddef>
-#include <cstring>
-#include <filesystem>
 #include <gtest/gtest.h>
-#include <limits>
-#include <string>
-#include <string_view>
-#include <tuple>
-#include <utility>
-#include <vector>
 
+import std;
 import pe_loader;
 
 namespace {

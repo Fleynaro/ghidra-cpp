@@ -7,8 +7,8 @@ decompile.
 
 ## Navigation
 
-- [`pe_loader.cppm`](pe_loader.cppm) exports the public value types, error model, address API, and loader.
-- [`pe_loader.cpp`](pe_loader.cpp) implements checked PE32/PE32+ parsing and image mapping.
+- [`src/pe_loader.cppm`](src/pe_loader.cppm) exports the public value types, error model, address API, and loader.
+- [`src/pe_loader.cpp`](src/pe_loader.cpp) implements checked PE32/PE32+ parsing and image mapping.
 - [`CMakeLists.txt`](CMakeLists.txt) builds the module library and its test target.
 - [`tests/README.md`](tests/README.md) describes fixture and malformed-input coverage.
 - [`tests/pe_loader_tests.cpp`](tests/pe_loader_tests.cpp) contains GoogleTest integration and edge-case tests.

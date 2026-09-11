@@ -1,18 +1,6 @@
-module;
-
-#include <algorithm>
-#include <array>
-#include <cstring>
-#include <expected>
-#include <fstream>
-#include <functional>
-#include <limits>
-#include <string>
-#include <string_view>
-#include <unordered_set>
-#include <utility>
-
 module pe_loader;
+
+import std;
 
 // Ported/adapted from Ghidra:
 // ../../../Ghidra/Features/Base/src/main/java/ghidra/app/util/opinion/PeLoader.java
