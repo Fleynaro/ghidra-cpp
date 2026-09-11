@@ -15,14 +15,13 @@ The implementation intentionally does not parse `.slaspec`. All instruction patt
 ## Directory Layout
 
 - [`CMakeLists.txt`](CMakeLists.txt) builds the static runtime library, CLI, and tests.
-- [`sleigh_runtime.cppm`](sleigh_runtime.cppm) exports the public C++23 module named `sleigh_runtime`.
-- [`include/sleigh_runtime.hpp`](include/sleigh_runtime.hpp) defines the public result types and `Decoder` API.
-- [`src/sleigh_runtime.cpp`](src/sleigh_runtime.cpp) adapts the reference runtime to in-memory instruction bytes and owns decode state.
+- [`sleigh_runtime.cppm`](sleigh_runtime.cppm) exports the public C++23 module named `sleigh_runtime` and its owning result model.
+- [`sleigh_runtime_adapter.cppm`](sleigh_runtime_adapter.cppm) adapts the reference runtime to in-memory instruction bytes and owns decode state.
 - [`src/README.md`](src/README.md) documents the runtime implementation sources.
 - [`src/ghidra/README.md`](src/ghidra/README.md) documents the imported Ghidra reference sources.
-- [`cli/sleigh_runtime_decode.cpp`](cli/sleigh_runtime_decode.cpp) implements the console decoder executable.
+- [`cli/sleigh_runtime_decode.cppm`](cli/sleigh_runtime_decode.cppm) implements the console decoder executable.
 - [`cli/README.md`](cli/README.md) documents the CLI in detail.
-- [`tests/sleigh_runtime_tests.cpp`](tests/sleigh_runtime_tests.cpp) contains end-to-end runtime tests.
+- [`tests/sleigh_runtime_tests.cppm`](tests/sleigh_runtime_tests.cppm) contains end-to-end runtime tests.
 - [`tests/README.md`](tests/README.md) documents the test target and fixtures.
 - [`test_data/x86-64.sla`](test_data/x86-64.sla) is the module-local compiled x86-64 processor specification.
 - [`test_data/README.md`](test_data/README.md) documents the processor fixture.
@@ -32,6 +31,9 @@ The implementation intentionally does not parse `.slaspec`. All instruction patt
 Create a `sleigh_runtime::Decoder` with a compiled `.sla` path and call `decode` with an instruction address, a byte span, and optional processor context values:
 
 ```cpp
+#include <array>
+#include <cstdint>
+
 import sleigh_runtime;
 
 const sleigh_runtime::ProcessorContext context{

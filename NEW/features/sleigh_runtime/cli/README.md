@@ -1,6 +1,6 @@
 # Sleigh Runtime CLI
 
-`sleigh_runtime_decode.cpp` builds `sleigh_runtime_decode.exe`, a diagnostic console frontend for the static [`sleigh_runtime`](../CMakeLists.txt) library. It accepts raw machine-code bytes and a compiled Ghidra `.sla` processor specification, then prints assembly and materialized p-code.
+`sleigh_runtime_decode.cppm` builds `sleigh_runtime_decode.exe`, a diagnostic console frontend for the static [`sleigh_runtime`](../CMakeLists.txt) library. It accepts raw machine-code bytes and a compiled Ghidra `.sla` processor specification, then prints assembly and materialized p-code.
 
 ## Basic Usage
 

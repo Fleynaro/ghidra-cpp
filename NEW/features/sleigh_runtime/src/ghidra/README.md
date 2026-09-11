@@ -4,4 +4,4 @@ This directory contains the standalone C++ Sleigh runtime sources copied from [`
 
 The runtime source set is listed by the CMake file in [`../../CMakeLists.txt`](../../CMakeLists.txt). It is deliberately limited to the Sleigh decoder and its low-level dependencies; it does not include the `.slaspec` parser/compiler, ProgramDB, Listing, GUI, or decompiler analysis code.
 
-The public adapter is [`../sleigh_runtime.cpp`](../sleigh_runtime.cpp), and the module overview is [`../../README.md`](../../README.md).
+The public adapter is [`../../sleigh_runtime_adapter.cppm`](../../sleigh_runtime_adapter.cppm), and the module overview is [`../../README.md`](../../README.md). Internal declaration units are grouped under [`detail/README.md`](detail/README.md); the runtime-specific raw storage value is [`detail/varnode.cppm`](detail/varnode.cppm).
