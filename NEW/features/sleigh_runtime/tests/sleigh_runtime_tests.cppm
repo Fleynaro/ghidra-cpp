@@ -195,6 +195,44 @@ TEST(SleighRuntime, DecodesScalarMultiply) {
     expect_materialized_pcode(*result);
 }
 
+/// Verifies SHUFPS loads a packed single-precision vector from memory and emits all four selected lanes.
+TEST(SleighRuntime, DecodesShufflePackedSingles) {
+    auto decoder = make_decoder();
+    // 0f c6 00 0a - SHUFPS XMM0,xmmword ptr [RAX],0xa
+    const std::array<std::uint8_t, 4> bytes{0x0f, 0xc6, 0x00, 0x0a};
+    const auto result = decoder.decode(0x140001240ULL, bytes, x86_64_context());
+
+    ASSERT_TRUE(result.has_value()) << result.error().message;
+    EXPECT_EQ(result->length, 4U);
+    EXPECT_EQ(result->mnemonic, "SHUFPS");
+    ASSERT_EQ(result->operands.size(), 3U);
+    EXPECT_EQ(result->operands[0].kind, sleigh_runtime::OperandKind::register_value);
+    EXPECT_EQ(result->operands[1].kind, sleigh_runtime::OperandKind::memory);
+    EXPECT_NE(result->operands[1].text.find("["), std::string::npos);
+    EXPECT_EQ(result->operands[2].kind, sleigh_runtime::OperandKind::immediate);
+    ASSERT_TRUE(result->operands[2].value.has_value());
+    EXPECT_EQ(*result->operands[2].value, 0x0aU);
+    EXPECT_EQ(result->flow.kind, sleigh_runtime::FlowKind::none);
+
+    // The source vector is read as four 32-bit lanes before the shuffle selects outputs.
+    ASSERT_EQ(result->pcode.size(), 75U);
+    EXPECT_EQ(result->pcode[0].opcode, sleigh_runtime::PcodeOpcode::load);
+    EXPECT_EQ(result->pcode[3].opcode, sleigh_runtime::PcodeOpcode::load);
+    EXPECT_EQ(result->pcode[6].opcode, sleigh_runtime::PcodeOpcode::load);
+    EXPECT_EQ(result->pcode[9].opcode, sleigh_runtime::PcodeOpcode::load);
+    for (const std::size_t operation : {1U, 4U, 7U, 10U}) {
+        EXPECT_EQ(result->pcode[operation].opcode, sleigh_runtime::PcodeOpcode::copy);
+    }
+
+    // The immediate 0x0a selects two source lanes and two destination lanes.
+    for (const std::size_t operation : {29U, 44U, 59U, 74U}) {
+        EXPECT_EQ(result->pcode[operation].opcode, sleigh_runtime::PcodeOpcode::int_add);
+        ASSERT_TRUE(result->pcode[operation].output.has_value());
+        expect_varnode(*result->pcode[operation].output, "register", 0x1200U + ((operation - 29U) / 15U) * 4U, 4U);
+    }
+    expect_materialized_pcode(*result);
+}
+
 /// Verifies AVX vector addition expands into eight lane operations and a final zero-extension.
 TEST(SleighRuntime, DecodesAvxVaddps) {
     auto decoder = make_decoder();
