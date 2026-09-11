@@ -1,11 +1,7 @@
 find_package(GTest CONFIG REQUIRED)
 find_package(ZLIB REQUIRED)
 
-file(GLOB SLEIGH_DETAIL_MODULES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/ghidra/detail/*.cppm"
-)
-
-file(GLOB SLEIGH_IMPLEMENTATION_UNITS CONFIGURE_DEPENDS
+file(GLOB SLEIGH_GHIDRA_MODULES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/ghidra/*.cppm"
 )
 
@@ -15,11 +11,10 @@ target_sources(sleigh_runtime
         FILE_SET cxx_modules TYPE CXX_MODULES FILES sleigh_runtime.cppm
     PRIVATE
         sleigh_runtime_adapter.cppm
-        ${SLEIGH_IMPLEMENTATION_UNITS}
     PRIVATE
         FILE_SET ghidra_modules TYPE CXX_MODULES
-        BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/ghidra/detail"
-        FILES ${SLEIGH_DETAIL_MODULES}
+        BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/ghidra"
+        FILES ${SLEIGH_GHIDRA_MODULES}
 )
 
 add_library(NewGhidra::SleighRuntime ALIAS sleigh_runtime)

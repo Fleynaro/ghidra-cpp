@@ -1,6 +1,6 @@
-/// Primary private module interface. Every runtime implementation unit is
-/// attached to this module so cross-cutting legacy forward declarations retain
-/// one module ownership while each concern remains a named partition.
+/// Primary private module interface. Each runtime concern is kept in its own
+/// self-contained partition while this interface re-exports the complete
+/// implementation to the adapter.
 export module sleigh_runtime.ghidra;
 
 export import :types;

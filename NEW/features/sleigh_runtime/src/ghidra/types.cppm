@@ -16,7 +16,7 @@ module;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* typedefs for getting specific word sizes */
+ /* typedefs for getting specific word sizes */
 
 #ifndef __TYPES_H__
 #define __TYPES_H__
@@ -65,11 +65,11 @@ inline constexpr int HOST_ENDIAN = Endian::host.part[3];
 #pragma warning(disable : 4244)
 
 /*
- The windows standard template library list implementation seems to have a philosophical difference with
- the standard regarding the validity of iterators pointing to objects that are moved between containers
- (via the splice method) These defines turn off the validity checks
- (These have been moved to the VC project spec)
- */
+  The windows standard template library list implementation seems to have a philosophical difference with
+  the standard regarding the validity of iterators pointing to objects that are moved between containers
+  (via the splice method) These defines turn off the validity checks
+  (These have been moved to the VC project spec)
+  */
 // #define _SECURE_SCL 0
 // #define _HAS_ITERATOR_DEBUGGING 0
 #endif
@@ -83,6 +83,19 @@ inline constexpr int HOST_ENDIAN = Endian::host.part[3];
 
 typedef int8 intb;   /* This is a signed big integer */
 typedef uint8 uintb; /* This is an unsigned big integer */
+
+#ifdef UINTB4
+uintb uintbmasks[9] = {0, 0xff, 0xffff, 0xffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff};
+#else
+uintb uintbmasks[9] = {
+    0, 0xff, 0xffff, 0xffffff, 0xffffffff, 0xffffffffffLL, 0xffffffffffffLL, 0xffffffffffffffLL, 0xffffffffffffffffLL};
+#endif
+
+/// \param size is the desired size in bytes
+/// \return a value appropriate for masking off the first \e size bytes
+inline uintb calc_mask(int4 size) {
+    return uintbmasks[((uint4)size) < 8 ? size : 8];
+}
 
 /*
 
