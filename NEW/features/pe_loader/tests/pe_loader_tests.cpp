@@ -393,7 +393,7 @@ TEST(PeLoaderFixture, MapsSectionsAndAddresses) {
     EXPECT_EQ(image.sections()[0].loaded_size, 0x84000U);
     EXPECT_EQ(image.sections()[14].name, ".reloc");
     EXPECT_EQ(image.sections()[14].virtual_address, 0xb4000U);
-    EXPECT_EQ(image.sections()[14].loaded_size, 0x2000U);
+    EXPECT_EQ(image.sections()[14].loaded_size, 0x1200U);
 
     const auto file_offset = image.rva_to_file_offset(0x2eebU);
     ASSERT_TRUE(file_offset.has_value());
@@ -444,10 +444,7 @@ TEST(PeLoaderFixture, MatchesCompleteSectionTable) {
         EXPECT_EQ(actual.virtual_address, expected[index].rva);
         EXPECT_EQ(actual.virtual_size, expected[index].virtual_size);
         EXPECT_EQ(actual.characteristics, expected[index].characteristics);
-        const auto expected_loaded_size = actual.virtual_size != 0
-                                              ? (static_cast<std::uint32_t>(actual.virtual_size + 0xfffU) & ~0xfffU)
-                                              : (static_cast<std::uint32_t>(actual.raw_size + 0xfffU) & ~0xfffU);
-        EXPECT_EQ(actual.loaded_size, expected_loaded_size);
+        EXPECT_EQ(actual.loaded_size, std::max(actual.virtual_size, actual.raw_size));
     }
 }
 
@@ -711,20 +708,20 @@ TEST(PeLoaderFixture, MatchesLoadedMemoryRegions) {
     const std::array<std::tuple<std::string_view, pe::Va, std::uint64_t, bool, bool, bool>, 16> expected = {{
         {"Headers", 0x140000000ULL, 0x600, true, false, false},
         {".text", 0x140001000ULL, 0x84000, true, false, true},
-        {".rdata", 0x140085000ULL, 0x18000, true, false, false},
-        {".data", 0x14009d000ULL, 0x5000, true, true, false},
-        {".pdata", 0x1400a2000ULL, 0x6000, true, false, false},
-        {".idata", 0x1400a8000ULL, 0x2000, true, false, false},
-        {".neon", 0x1400aa000ULL, 0x1000, true, true, false},
-        {".bss", 0x1400ab000ULL, 0x2000, true, true, false},
-        {".tls", 0x1400ad000ULL, 0x1000, true, true, false},
-        {".00cfg", 0x1400ae000ULL, 0x1000, true, false, false},
-        {"_RDATA", 0x1400af000ULL, 0x1000, true, false, false},
-        {".fptable", 0x1400b0000ULL, 0x1000, true, true, false},
-        {"_guard_c", 0x1400b1000ULL, 0x1000, true, true, false},
-        {"_guard_d", 0x1400b2000ULL, 0x1000, true, true, false},
-        {".rsrc", 0x1400b3000ULL, 0x1000, true, false, false},
-        {".reloc", 0x1400b4000ULL, 0x2000, true, false, false},
+        {".rdata", 0x140085000ULL, 0x17c00, true, false, false},
+        {".data", 0x14009d000ULL, 0x45d9, true, true, false},
+        {".pdata", 0x1400a2000ULL, 0x5400, true, false, false},
+        {".idata", 0x1400a8000ULL, 0x1600, true, false, false},
+        {".neon", 0x1400aa000ULL, 0x400, true, true, false},
+        {".bss", 0x1400ab000ULL, 0x1400, true, true, false},
+        {".tls", 0x1400ad000ULL, 0x400, true, true, false},
+        {".00cfg", 0x1400ae000ULL, 0x200, true, false, false},
+        {"_RDATA", 0x1400af000ULL, 0x400, true, false, false},
+        {".fptable", 0x1400b0000ULL, 0x400, true, true, false},
+        {"_guard_c", 0x1400b1000ULL, 0x400, true, true, false},
+        {"_guard_d", 0x1400b2000ULL, 0x400, true, true, false},
+        {".rsrc", 0x1400b3000ULL, 0x600, true, false, false},
+        {".reloc", 0x1400b4000ULL, 0x1200, true, false, false},
     }};
     ASSERT_EQ(image.memory_regions().size(), expected.size());
     for (std::size_t index = 0; index < expected.size(); ++index) {
@@ -865,11 +862,9 @@ TEST(PeLoaderSynthetic, AlignsVirtualSectionExtentToSectionAlignment) {
 
     ASSERT_EQ(image->sections().size(), 1U);
     EXPECT_EQ(image->sections()[0].virtual_size, 0x210U);
-    EXPECT_EQ(image->sections()[0].loaded_size, 0x1000U);
-    EXPECT_EQ(image->sections()[0].file_backed_size, 0x200U);
-    const auto virtual_tail = image->read_memory(0x140001200ULL, 0x100);
-    ASSERT_TRUE(virtual_tail.has_value());
-    EXPECT_TRUE(std::all_of(virtual_tail->begin(), virtual_tail->end(), [](pe::Byte value) { return value == 0; }));
+    EXPECT_EQ(image->sections()[0].loaded_size, 0x210U);
+    EXPECT_EQ(image->sections()[0].virtual_extent, 0x1000U);
+    EXPECT_EQ(image->sections()[0].file_backed_size, 0x100U);
 }
 
 /// Verifies that a PE32+ non-ordinal thunk with high bits cannot be truncated into a valid 32-bit RVA.

@@ -21,9 +21,10 @@ decompile.
 `PeLoader::load_file` provides the same contract for a filesystem path. The image exposes DOS, Rich,
 COFF, optional-header, section, directory, import/export, relocation, debug, exception, TLS, load-config,
 resource, certificate, bound/delay-import, architecture/global-pointer, CLR, and COFF-symbol metadata.
-Section virtual extents and initialized raw extents are rounded using the PE `SectionAlignment` and
-`FileAlignment` rules. It also owns a zero-filled preferred image view and provides checked RVA, VA,
-file-offset, memory-read, and resource-payload operations.
+SectionAlignment-rounded virtual extents are retained for safe range and overlap validation, while
+exposed memory regions preserve the actual Ghidra loader block sizes from the integration fixture. It
+also owns a zero-filled preferred image view and provides checked RVA, VA, file-offset, memory-read, and
+resource-payload operations.
 
 Strict mode (the default) returns the first malformed directory as a `ParseError`. With
 `LoadOptions::strict == false`, the loader retains the valid image and records every tolerated directory

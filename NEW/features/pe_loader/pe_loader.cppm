@@ -280,7 +280,7 @@ inline constexpr std::uint32_t memory_read = 0x40000000;
 inline constexpr std::uint32_t memory_write = 0x80000000;
 } // namespace section_characteristics
 
-/// Represents one IMAGE_SECTION_HEADER and its loaded virtual extent.
+/// Represents one IMAGE_SECTION_HEADER and both its memory-block and aligned virtual extents.
 struct Section {
     std::string name;
     std::uint32_t virtual_size{};
@@ -293,7 +293,10 @@ struct Section {
     std::uint16_t number_of_relocations{};
     std::uint16_t number_of_line_numbers{};
     std::uint32_t characteristics{};
+    /// Size exposed by Ghidra's loaded memory block and used for mapped reads.
     std::uint32_t loaded_size{};
+    /// SectionAlignment-rounded extent used for image-range validation.
+    std::uint32_t virtual_extent{};
     std::size_t index{};
 };
 

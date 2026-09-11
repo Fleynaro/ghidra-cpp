@@ -1104,25 +1104,26 @@ std::expected<void, ParseError> Parser::parse_headers() {
         section.characteristics = *characteristics;
         const auto virtual_extent_source = section.virtual_size != 0 ? section.virtual_size : section.raw_size;
         const auto aligned_virtual_size = align_up_checked(virtual_extent_source, section_alignment_value);
-        const auto aligned_raw_size = align_up_checked(section.raw_size, file_alignment_value);
-        if (!aligned_virtual_size || !aligned_raw_size ||
-            *aligned_virtual_size > std::numeric_limits<std::uint32_t>::max()) {
+        if (!aligned_virtual_size || *aligned_virtual_size > std::numeric_limits<std::uint32_t>::max()) {
             return parse_failure<void>(ParseErrorCode::invalid_section_range, section_offset + 8,
                                        "Section virtual extent cannot be represented safely");
         }
-        const auto effective_raw_size = std::min(*aligned_raw_size, *aligned_virtual_size);
-        section.loaded_size = static_cast<std::uint32_t>(*aligned_virtual_size);
+        section.virtual_extent = static_cast<std::uint32_t>(*aligned_virtual_size);
+        // The integration contract follows PeLoader's actual Ghidra memory blocks, which retain
+        // the unaligned section extent reported by the fixture generator. Keep the aligned extent
+        // separately for range validation instead of changing observable block sizes.
+        section.loaded_size = std::max(section.virtual_size, section.raw_size);
         if (section.raw_size != 0 && section.raw_offset < storage_.optional.size_of_headers) {
             return parse_failure<void>(ParseErrorCode::invalid_section_range, section_offset + 20,
                                        "Section raw bytes overlap the PE header area");
         }
         if (section.raw_size != 0 && section.raw_offset < reader_.bytes().size()) {
             section.file_backed_size = static_cast<std::uint32_t>(
-                std::min<std::uint64_t>(effective_raw_size, reader_.bytes().size() - section.raw_offset));
+                std::min<std::uint64_t>(section.raw_size, reader_.bytes().size() - section.raw_offset));
         }
-        if (section.loaded_size != 0 &&
+        if (section.virtual_extent != 0 &&
             (section.virtual_address > storage_.optional.size_of_image ||
-             section.loaded_size > storage_.optional.size_of_image - section.virtual_address)) {
+             section.virtual_extent > storage_.optional.size_of_image - section.virtual_address)) {
             return parse_failure<void>(ParseErrorCode::invalid_section_range, section_offset + 12,
                                        "Section virtual extent is outside SizeOfImage");
         }
@@ -1130,16 +1131,16 @@ std::expected<void, ParseError> Parser::parse_headers() {
     }
     for (std::size_t left = 0; left < storage_.sections.size(); ++left) {
         const auto& first = storage_.sections[left];
-        if (first.loaded_size != 0 && first.virtual_address < storage_.optional.size_of_headers &&
-            first.loaded_size > storage_.optional.size_of_headers - first.virtual_address) {
+        if (first.virtual_extent != 0 && first.virtual_address < storage_.optional.size_of_headers &&
+            first.virtual_extent > storage_.optional.size_of_headers - first.virtual_address) {
             return parse_failure<void>(ParseErrorCode::invalid_section_range, first.virtual_address,
                                        "Section virtual range overlaps PE headers");
         }
         for (std::size_t right = left + 1; right < storage_.sections.size(); ++right) {
             const auto& second = storage_.sections[right];
-            const auto first_virtual_end = static_cast<std::uint64_t>(first.virtual_address) + first.loaded_size;
-            const auto second_virtual_end = static_cast<std::uint64_t>(second.virtual_address) + second.loaded_size;
-            const bool virtual_overlap = first.loaded_size != 0 && second.loaded_size != 0 &&
+            const auto first_virtual_end = static_cast<std::uint64_t>(first.virtual_address) + first.virtual_extent;
+            const auto second_virtual_end = static_cast<std::uint64_t>(second.virtual_address) + second.virtual_extent;
+            const bool virtual_overlap = first.virtual_extent != 0 && second.virtual_extent != 0 &&
                                          static_cast<std::uint64_t>(first.virtual_address) < second_virtual_end &&
                                          static_cast<std::uint64_t>(second.virtual_address) < first_virtual_end;
             const auto first_raw_end = first.raw_offset + first.raw_size;
