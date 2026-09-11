@@ -20,8 +20,15 @@ decompile.
 `PeLoader::load` copies its input span and returns `std::expected<LoadedPeImage, ParseError>`.
 `PeLoader::load_file` provides the same contract for a filesystem path. The image exposes DOS, Rich,
 COFF, optional-header, section, directory, import/export, relocation, debug, exception, TLS, load-config,
-resource, certificate, bound/delay-import, CLR, and COFF-symbol metadata. It also owns a zero-filled
-preferred image view and provides checked RVA, VA, file-offset, and memory-read operations.
+resource, certificate, bound/delay-import, architecture/global-pointer, CLR, and COFF-symbol metadata.
+Section virtual extents and initialized raw extents are rounded using the PE `SectionAlignment` and
+`FileAlignment` rules. It also owns a zero-filled preferred image view and provides checked RVA, VA,
+file-offset, memory-read, and resource-payload operations.
+
+Strict mode (the default) returns the first malformed directory as a `ParseError`. With
+`LoadOptions::strict == false`, the loader retains the valid image and records every tolerated directory
+failure in `parse_diagnostics()`; callers must inspect `parse_status()` or `is_partial()` before treating
+directory metadata as complete.
 
 The implementation is derived from the Ghidra PE loader and format classes listed in the source comments,
 but has no dependency on Ghidra Java classes, Program/DB types, AddressFactory, Memory, SymbolTable, or

@@ -8,6 +8,7 @@
 #include <string>
 #include <string_view>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 import pe_loader;
@@ -118,6 +119,206 @@ void put_u64(std::vector<pe::Byte>& bytes, std::size_t offset, std::uint64_t val
     return bytes;
 }
 
+/// Writes one optional-header data-directory slot in a synthetic PE image.
+void set_directory(std::vector<pe::Byte>& bytes, bool pe32_plus, std::uint32_t index, pe::Rva rva, std::uint32_t size,
+                   std::uint32_t count = 16) {
+    constexpr std::size_t optional_offset = 0x98;
+    const auto directory_offset = optional_offset + (pe32_plus ? 0x70U : 0x60U) + index * 8U;
+    put_u32(bytes, optional_offset + (pe32_plus ? 108U : 92U), count);
+    put_u32(bytes, directory_offset, rva);
+    put_u32(bytes, directory_offset + 4, size);
+}
+
+/// Returns the raw file location corresponding to an RVA in the synthetic section.
+[[nodiscard]] std::size_t section_raw_offset(pe::Rva rva) {
+    return 0x200U + static_cast<std::size_t>(rva - 0x1000U);
+}
+
+/// Creates a synthetic PE with enough section bytes for directory-level adversarial cases.
+[[nodiscard]] std::vector<pe::Byte> make_extended_pe(bool pe32_plus) {
+    auto bytes = make_minimal_pe(pe32_plus);
+    const auto section_offset = pe32_plus ? 0x188U : 0x178U;
+    put_u32(bytes, section_offset + 16, 0x400);
+    std::fill(bytes.begin() + 0x200, bytes.begin() + 0x600, pe::Byte{0xa5});
+    return bytes;
+}
+
+/// Builds a forwarded export whose forwarder terminator is either inside or outside the directory.
+[[nodiscard]] std::vector<pe::Byte> make_export_pe(bool terminator_inside_directory) {
+    auto bytes = make_extended_pe(true);
+    const auto directory_size = terminator_inside_directory ? 0x80U : 0x70U;
+    set_directory(bytes, true, 0, 0x1100, directory_size);
+    const auto export_offset = section_raw_offset(0x1100);
+    put_u32(bytes, export_offset + 12, 0x1140);
+    put_u32(bytes, export_offset + 16, 1);
+    put_u32(bytes, export_offset + 20, 1);
+    put_u32(bytes, export_offset + 24, 1);
+    put_u32(bytes, export_offset + 28, 0x1150);
+    put_u32(bytes, export_offset + 32, 0x1154);
+    put_u32(bytes, export_offset + 36, 0x1158);
+    const auto function_rva = terminator_inside_directory ? 0x1160U : 0x116fU;
+    put_u32(bytes, section_raw_offset(0x1150), function_rva);
+    put_u32(bytes, section_raw_offset(0x1154), 0x1168);
+    put_u16(bytes, section_raw_offset(0x1158), 0);
+    std::memcpy(bytes.data() + section_raw_offset(0x1140), "forwarded.dll", 14);
+    std::memcpy(bytes.data() + section_raw_offset(0x1168), "Forwarded", 10);
+    std::memcpy(bytes.data() + section_raw_offset(function_rva), "KERNEL32.Sleep", 14);
+    if (terminator_inside_directory) {
+        bytes[section_raw_offset(function_rva) + 14] = 0;
+    } else {
+        bytes[section_raw_offset(function_rva) + 1] = 0;
+    }
+    return bytes;
+}
+
+/// Builds one delay-import descriptor in either RVA or absolute-VA pointer mode.
+[[nodiscard]] std::vector<pe::Byte> make_delay_import_pe(bool uses_rva, bool malformed_thunk = false) {
+    auto bytes = make_extended_pe(uses_rva);
+    set_directory(bytes, uses_rva, 13, 0x1100, 0x40, 14);
+    constexpr pe::Rva name_rva = 0x1200;
+    constexpr pe::Rva iat_rva = 0x1220;
+    constexpr pe::Rva int_rva = 0x1240;
+    constexpr pe::Rva import_name_rva = 0x1260;
+    const std::uint32_t image_base = 0x400000;
+    const auto pointer_value = [uses_rva](pe::Rva rva) -> std::uint32_t { return uses_rva ? rva : 0x400000U + rva; };
+    const auto descriptor = section_raw_offset(0x1100);
+    std::fill(bytes.begin() + descriptor, bytes.begin() + descriptor + 64, pe::Byte{0});
+    put_u32(bytes, descriptor, uses_rva ? 1U : 0U);
+    put_u32(bytes, descriptor + 4, pointer_value(name_rva));
+    put_u32(bytes, descriptor + 12, pointer_value(iat_rva));
+    put_u32(bytes, descriptor + 16, pointer_value(int_rva));
+    std::memcpy(bytes.data() + section_raw_offset(name_rva), "delay.dll", 10);
+    if (uses_rva) {
+        put_u64(bytes, section_raw_offset(int_rva), malformed_thunk ? 0x0000000100001260ULL : import_name_rva);
+        put_u64(bytes, section_raw_offset(iat_rva), 0x1111222233334444ULL);
+        put_u64(bytes, section_raw_offset(int_rva) + 8, 0);
+    } else {
+        put_u32(bytes, section_raw_offset(int_rva),
+                malformed_thunk ? image_base + 0x100000U : image_base + import_name_rva);
+        put_u32(bytes, section_raw_offset(iat_rva), 0x12345678U);
+        put_u32(bytes, section_raw_offset(int_rva) + 4, 0);
+    }
+    put_u16(bytes, section_raw_offset(import_name_rva), 7);
+    std::memcpy(bytes.data() + section_raw_offset(import_name_rva) + 2, "DelayEntry", 11);
+    return bytes;
+}
+
+/// Builds a CLR directory with a caller-selected declared cb value.
+[[nodiscard]] std::vector<pe::Byte> make_clr_pe(std::uint32_t cb) {
+    auto bytes = make_extended_pe(true);
+    set_directory(bytes, true, 14, 0x1100, 72, 15);
+    const auto offset = section_raw_offset(0x1100);
+    put_u32(bytes, offset, cb);
+    put_u16(bytes, offset + 4, 2);
+    put_u16(bytes, offset + 6, 5);
+    put_u32(bytes, offset + 8, 0x1300);
+    put_u32(bytes, offset + 12, 0x20);
+    put_u32(bytes, offset + 16, 1);
+    return bytes;
+}
+
+/// Builds a file-offset security directory containing two aligned WIN_CERTIFICATE records.
+[[nodiscard]] std::vector<pe::Byte> make_certificate_pe(bool malformed) {
+    auto bytes = make_extended_pe(true);
+    bytes.resize(0x640, 0);
+    set_directory(bytes, true, 4, 0x600, 0x20, 5);
+    if (malformed) {
+        put_u32(bytes, 0x600, 4);
+    } else {
+        put_u32(bytes, 0x600, 0x10);
+        put_u16(bytes, 0x604, 0x0200);
+        put_u16(bytes, 0x606, 2);
+        std::fill(bytes.begin() + 0x608, bytes.begin() + 0x610, pe::Byte{0x5a});
+        put_u32(bytes, 0x610, 0x10);
+        put_u16(bytes, 0x614, 0x0100);
+        put_u16(bytes, 0x616, 1);
+        std::fill(bytes.begin() + 0x618, bytes.begin() + 0x620, pe::Byte{0xa5});
+    }
+    return bytes;
+}
+
+/// Builds a three-level resource tree and a file-backed payload outside the directory itself.
+[[nodiscard]] std::vector<pe::Byte> make_resource_pe() {
+    auto bytes = make_extended_pe(true);
+    set_directory(bytes, true, 2, 0x1100, 0x100, 3);
+    const auto base = section_raw_offset(0x1100);
+    std::fill(bytes.begin() + base, bytes.begin() + base + 0x100, pe::Byte{0});
+    put_u16(bytes, base + 14, 1);
+    put_u32(bytes, base + 16, 10);
+    put_u32(bytes, base + 20, 0x80000030U);
+    put_u16(bytes, base + 0x30 + 14, 1);
+    put_u32(bytes, base + 0x30 + 16, 101);
+    put_u32(bytes, base + 0x30 + 20, 0x80000050U);
+    put_u16(bytes, base + 0x50 + 14, 1);
+    put_u32(bytes, base + 0x50 + 16, 1033);
+    put_u32(bytes, base + 0x50 + 20, 0x70);
+    put_u32(bytes, base + 0x70, 0x1200);
+    put_u32(bytes, base + 0x74, 4);
+    put_u32(bytes, base + 0x78, 1200);
+    std::memcpy(bytes.data() + section_raw_offset(0x1200), "DATA", 4);
+    return bytes;
+}
+
+/// Builds architecture and global-pointer directories with valid in-image RVAs.
+[[nodiscard]] std::vector<pe::Byte> make_architecture_global_pointer_pe() {
+    auto bytes = make_extended_pe(true);
+    set_directory(bytes, true, 7, 0x1100, 0x20, 9);
+    set_directory(bytes, true, 8, 0x1200, 0, 9);
+    std::memcpy(bytes.data() + section_raw_offset(0x1100), "Architecture payload", 21);
+    return bytes;
+}
+
+/// Builds a debug directory entry using the reserved type value that Ghidra names explicitly.
+[[nodiscard]] std::vector<pe::Byte> make_reserved_debug_pe() {
+    auto bytes = make_extended_pe(true);
+    set_directory(bytes, true, 6, 0x1100, 28, 7);
+    const auto entry = section_raw_offset(0x1100);
+    std::fill(bytes.begin() + entry, bytes.begin() + entry + 28, pe::Byte{0});
+    put_u32(bytes, entry + 12, 10);
+    return bytes;
+}
+
+/// Builds a Rich header with selectable padding and record-area alignment faults.
+[[nodiscard]] std::vector<pe::Byte> make_rich_edge_case_pe(bool invalid_padding, bool partial_record) {
+    auto bytes = make_minimal_pe(true);
+    constexpr std::size_t dans = 0x40;
+    constexpr std::uint32_t mask = 0x163115c6U;
+    const auto rich = partial_record ? 0x5aU : 0x58U;
+    put_u32(bytes, dans, 0x536e6144U ^ mask);
+    put_u32(bytes, dans + 4, invalid_padding ? 0U : mask);
+    put_u32(bytes, dans + 8, mask);
+    put_u32(bytes, dans + 12, mask);
+    put_u32(bytes, dans + 16, 0x010200c1U ^ mask);
+    put_u32(bytes, dans + 20, 3U ^ mask);
+    put_u32(bytes, rich, 0x68636952U);
+    put_u32(bytes, rich + 4, mask);
+    return bytes;
+}
+
+/// Builds a PE whose declared header block extends beyond the available file bytes.
+[[nodiscard]] std::vector<pe::Byte> make_truncated_headers_pe() {
+    auto bytes = make_minimal_pe(true);
+    put_u32(bytes, 0x98 + 60, 0x800);
+    constexpr std::size_t section_offset = 0x188;
+    put_u32(bytes, section_offset + 16, 0);
+    put_u32(bytes, section_offset + 20, 0);
+    return bytes;
+}
+
+/// Builds an x86 CHPE image whose exception directory uses the packed ARM record shape.
+[[nodiscard]] std::vector<pe::Byte> make_chpe_pe() {
+    auto bytes = make_extended_pe(true);
+    set_directory(bytes, true, 3, 0x1200, 8, 11);
+    set_directory(bytes, true, 10, 0x1100, 208, 11);
+    const auto load_config = section_raw_offset(0x1100);
+    put_u32(bytes, load_config, 208);
+    put_u64(bytes, load_config + 200, 0x140001800ULL);
+    const auto exception = section_raw_offset(0x1200);
+    put_u32(bytes, exception, 0x1001);
+    put_u32(bytes, exception + 4, 7);
+    return bytes;
+}
+
 /// Verifies that the primary fixture can be decoded as a PE32+ executable.
 TEST(PeLoaderFixture, LoadsHeaders) {
     const auto image = load_fixture();
@@ -192,7 +393,7 @@ TEST(PeLoaderFixture, MapsSectionsAndAddresses) {
     EXPECT_EQ(image.sections()[0].loaded_size, 0x84000U);
     EXPECT_EQ(image.sections()[14].name, ".reloc");
     EXPECT_EQ(image.sections()[14].virtual_address, 0xb4000U);
-    EXPECT_EQ(image.sections()[14].loaded_size, 0x1200U);
+    EXPECT_EQ(image.sections()[14].loaded_size, 0x2000U);
 
     const auto file_offset = image.rva_to_file_offset(0x2eebU);
     ASSERT_TRUE(file_offset.has_value());
@@ -243,7 +444,10 @@ TEST(PeLoaderFixture, MatchesCompleteSectionTable) {
         EXPECT_EQ(actual.virtual_address, expected[index].rva);
         EXPECT_EQ(actual.virtual_size, expected[index].virtual_size);
         EXPECT_EQ(actual.characteristics, expected[index].characteristics);
-        EXPECT_EQ(actual.loaded_size, std::max(actual.virtual_size, actual.raw_size));
+        const auto expected_loaded_size = actual.virtual_size != 0
+                                              ? (static_cast<std::uint32_t>(actual.virtual_size + 0xfffU) & ~0xfffU)
+                                              : (static_cast<std::uint32_t>(actual.raw_size + 0xfffU) & ~0xfffU);
+        EXPECT_EQ(actual.loaded_size, expected_loaded_size);
     }
 }
 
@@ -507,20 +711,20 @@ TEST(PeLoaderFixture, MatchesLoadedMemoryRegions) {
     const std::array<std::tuple<std::string_view, pe::Va, std::uint64_t, bool, bool, bool>, 16> expected = {{
         {"Headers", 0x140000000ULL, 0x600, true, false, false},
         {".text", 0x140001000ULL, 0x84000, true, false, true},
-        {".rdata", 0x140085000ULL, 0x17c00, true, false, false},
-        {".data", 0x14009d000ULL, 0x45d9, true, true, false},
-        {".pdata", 0x1400a2000ULL, 0x5400, true, false, false},
-        {".idata", 0x1400a8000ULL, 0x1600, true, false, false},
-        {".neon", 0x1400aa000ULL, 0x400, true, true, false},
-        {".bss", 0x1400ab000ULL, 0x1400, true, true, false},
-        {".tls", 0x1400ad000ULL, 0x400, true, true, false},
-        {".00cfg", 0x1400ae000ULL, 0x200, true, false, false},
-        {"_RDATA", 0x1400af000ULL, 0x400, true, false, false},
-        {".fptable", 0x1400b0000ULL, 0x400, true, true, false},
-        {"_guard_c", 0x1400b1000ULL, 0x400, true, true, false},
-        {"_guard_d", 0x1400b2000ULL, 0x400, true, true, false},
-        {".rsrc", 0x1400b3000ULL, 0x600, true, false, false},
-        {".reloc", 0x1400b4000ULL, 0x1200, true, false, false},
+        {".rdata", 0x140085000ULL, 0x18000, true, false, false},
+        {".data", 0x14009d000ULL, 0x5000, true, true, false},
+        {".pdata", 0x1400a2000ULL, 0x6000, true, false, false},
+        {".idata", 0x1400a8000ULL, 0x2000, true, false, false},
+        {".neon", 0x1400aa000ULL, 0x1000, true, true, false},
+        {".bss", 0x1400ab000ULL, 0x2000, true, true, false},
+        {".tls", 0x1400ad000ULL, 0x1000, true, true, false},
+        {".00cfg", 0x1400ae000ULL, 0x1000, true, false, false},
+        {"_RDATA", 0x1400af000ULL, 0x1000, true, false, false},
+        {".fptable", 0x1400b0000ULL, 0x1000, true, true, false},
+        {"_guard_c", 0x1400b1000ULL, 0x1000, true, true, false},
+        {"_guard_d", 0x1400b2000ULL, 0x1000, true, true, false},
+        {".rsrc", 0x1400b3000ULL, 0x1000, true, false, false},
+        {".reloc", 0x1400b4000ULL, 0x2000, true, false, false},
     }};
     ASSERT_EQ(image.memory_regions().size(), expected.size());
     for (std::size_t index = 0; index < expected.size(); ++index) {
@@ -648,6 +852,259 @@ TEST(PeLoaderSynthetic, ParsesOrdinalImport) {
     EXPECT_EQ(*symbol.ordinal, 0x123U);
     EXPECT_TRUE(symbol.name.empty());
     EXPECT_EQ(symbol.iat_slot_rva, 0x11a0U);
+}
+
+/// Verifies that the mapped virtual section extent follows SectionHeader.alignUp semantics rather than raw sizes.
+TEST(PeLoaderSynthetic, AlignsVirtualSectionExtentToSectionAlignment) {
+    auto bytes = make_minimal_pe(true);
+    constexpr std::size_t section_offset = 0x188;
+    put_u32(bytes, section_offset + 8, 0x210);
+    put_u32(bytes, section_offset + 16, 0x100);
+    auto image = pe::PeLoader::load(bytes);
+    ASSERT_TRUE(image.has_value()) << (image ? "" : image.error().message);
+
+    ASSERT_EQ(image->sections().size(), 1U);
+    EXPECT_EQ(image->sections()[0].virtual_size, 0x210U);
+    EXPECT_EQ(image->sections()[0].loaded_size, 0x1000U);
+    EXPECT_EQ(image->sections()[0].file_backed_size, 0x200U);
+    const auto virtual_tail = image->read_memory(0x140001200ULL, 0x100);
+    ASSERT_TRUE(virtual_tail.has_value());
+    EXPECT_TRUE(std::all_of(virtual_tail->begin(), virtual_tail->end(), [](pe::Byte value) { return value == 0; }));
+}
+
+/// Verifies that a PE32+ non-ordinal thunk with high bits cannot be truncated into a valid 32-bit RVA.
+TEST(PeLoaderSynthetic, RejectsTruncatedPe32PlusImportRva) {
+    auto bytes = make_minimal_pe(true, true);
+    put_u64(bytes, 0x380, 0x0000000100001180ULL);
+    const auto result = pe::PeLoader::load(bytes);
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error().code, pe::ParseErrorCode::invalid_import);
+}
+
+/// Verifies that CLR parsing honors the declared cb bound and reports tolerated failures explicitly.
+TEST(PeLoaderSynthetic, ReportsPartialResultForTruncatedClrHeader) {
+    const auto bytes = make_clr_pe(4);
+    const auto strict_result = pe::PeLoader::load(bytes);
+    ASSERT_FALSE(strict_result.has_value());
+    EXPECT_EQ(strict_result.error().code, pe::ParseErrorCode::invalid_directory);
+
+    pe::LoadOptions options;
+    options.strict = false;
+    const auto non_strict_result = pe::PeLoader::load(bytes, options);
+    ASSERT_TRUE(non_strict_result.has_value()) << (non_strict_result ? "" : non_strict_result.error().message);
+    EXPECT_TRUE(non_strict_result->is_partial());
+    EXPECT_EQ(non_strict_result->parse_status(), pe::ParseStatus::partial);
+    ASSERT_FALSE(non_strict_result->parse_diagnostics().empty());
+    EXPECT_EQ(non_strict_result->parse_diagnostics().front().code, pe::ParseErrorCode::invalid_directory);
+    EXPECT_FALSE(non_strict_result->clr_header().has_value());
+}
+
+/// Verifies that section extents near the 32-bit RVA boundary are rejected without wrapped arithmetic.
+TEST(PeLoaderSynthetic, RejectsSectionExtentAtRvaLimit) {
+    auto bytes = make_minimal_pe(true);
+    constexpr std::size_t section_offset = 0x188;
+    put_u32(bytes, 0x98 + 56, 0xffffffffU);
+    put_u32(bytes, section_offset + 8, 0x10);
+    put_u32(bytes, section_offset + 12, 0xfffffff0U);
+    put_u32(bytes, section_offset + 16, 0);
+    pe::LoadOptions options;
+    options.maximum_image_size = std::numeric_limits<std::uint32_t>::max();
+    const auto result = pe::PeLoader::load(bytes, options);
+    ASSERT_FALSE(result.has_value());
+    EXPECT_EQ(result.error().code, pe::ParseErrorCode::invalid_section_range);
+}
+
+/// Verifies forwarded exports and ensures their strings are bounded by the export directory.
+TEST(PeLoaderSynthetic, ParsesAndBoundsForwardedExports) {
+    const auto valid = pe::PeLoader::load(make_export_pe(true));
+    ASSERT_TRUE(valid.has_value()) << (valid ? "" : valid.error().message);
+    ASSERT_EQ(valid->exported_symbols().size(), 1U);
+    EXPECT_TRUE(valid->exported_symbols()[0].forwarded);
+    ASSERT_TRUE(valid->exported_symbols()[0].forwarder.has_value());
+    EXPECT_EQ(*valid->exported_symbols()[0].forwarder, "KERNEL32.Sleep");
+
+    const auto invalid = pe::PeLoader::load(make_export_pe(false));
+    ASSERT_FALSE(invalid.has_value());
+    EXPECT_EQ(invalid.error().code, pe::ParseErrorCode::invalid_export);
+}
+
+/// Verifies both RVA-mode and VA-mode delay imports and rejects an invalid VA thunk.
+TEST(PeLoaderSynthetic, ParsesDelayImportsInBothAddressModes) {
+    const auto rva_result = pe::PeLoader::load(make_delay_import_pe(true));
+    ASSERT_TRUE(rva_result.has_value()) << (rva_result ? "" : rva_result.error().message);
+    ASSERT_EQ(rva_result->delay_imports().size(), 1U);
+    EXPECT_TRUE(rva_result->delay_imports()[0].uses_rva);
+    ASSERT_EQ(rva_result->delay_imports()[0].symbols.size(), 1U);
+    EXPECT_EQ(rva_result->delay_imports()[0].symbols[0].name, "DelayEntry");
+
+    const auto va_result = pe::PeLoader::load(make_delay_import_pe(false));
+    ASSERT_TRUE(va_result.has_value()) << (va_result ? "" : va_result.error().message);
+    ASSERT_EQ(va_result->delay_imports().size(), 1U);
+    EXPECT_FALSE(va_result->delay_imports()[0].uses_rva);
+    ASSERT_EQ(va_result->delay_imports()[0].symbols.size(), 1U);
+    EXPECT_EQ(va_result->delay_imports()[0].symbols[0].name, "DelayEntry");
+
+    const auto malformed = pe::PeLoader::load(make_delay_import_pe(false, true));
+    ASSERT_FALSE(malformed.has_value());
+    EXPECT_EQ(malformed.error().code, pe::ParseErrorCode::invalid_import);
+}
+
+/// Verifies valid aligned certificates and rejection of a certificate length smaller than WIN_CERTIFICATE.
+TEST(PeLoaderSynthetic, ParsesAndValidatesSecurityCertificates) {
+    const auto valid = pe::PeLoader::load(make_certificate_pe(false));
+    ASSERT_TRUE(valid.has_value()) << (valid ? "" : valid.error().message);
+    ASSERT_EQ(valid->certificates().size(), 2U);
+    EXPECT_EQ(valid->certificates()[0].length, 0x10U);
+    EXPECT_EQ(valid->certificates()[0].revision, 0x0200U);
+    EXPECT_EQ(valid->certificates()[0].certificate_bytes.size(), 8U);
+    EXPECT_EQ(valid->certificates()[1].file_offset, 0x610U);
+
+    const auto invalid = pe::PeLoader::load(make_certificate_pe(true));
+    ASSERT_FALSE(invalid.has_value());
+    EXPECT_EQ(invalid.error().code, pe::ParseErrorCode::invalid_certificate);
+}
+
+/// Verifies ARM, ARMNT, Thumb, ARM64, ARM64EC, and ARM64X exception row decoding.
+TEST(PeLoaderSynthetic, ParsesArmArchitectureVariants) {
+    const std::array<std::uint16_t, 6> machines = {0x1c0, 0x1c4, 0x1c2, 0xaa64, 0xa641, 0xa64e};
+    for (const auto machine : machines) {
+        const auto result = pe::PeLoader::load(make_minimal_pe(true, false, machine));
+        ASSERT_TRUE(result.has_value()) << "machine 0x" << std::hex << machine << ": "
+                                        << (result ? "" : result.error().message);
+        ASSERT_EQ(result->exception_functions().size(), 1U);
+        EXPECT_EQ(result->exception_functions()[0].begin_rva, 0x1000U);
+        EXPECT_EQ(result->exception_functions()[0].end_rva, 0x1000U);
+        ASSERT_TRUE(result->exception_functions()[0].packed_unwind_data.has_value());
+        EXPECT_EQ(*result->exception_functions()[0].packed_unwind_data, 7U);
+    }
+}
+
+/// Verifies that x86 CHPE metadata selects the packed ARM exception-record layout before decoding exceptions.
+TEST(PeLoaderSynthetic, ParsesChpePackedExceptions) {
+    const auto result = pe::PeLoader::load(make_chpe_pe());
+    ASSERT_TRUE(result.has_value()) << (result ? "" : result.error().message);
+    ASSERT_TRUE(result->load_config().has_value());
+    EXPECT_NE(result->load_config()->chpe_metadata_pointer, 0U);
+    ASSERT_EQ(result->exception_functions().size(), 1U);
+    EXPECT_EQ(result->exception_functions()[0].begin_rva, 0x1000U);
+    ASSERT_TRUE(result->exception_functions()[0].packed_unwind_data.has_value());
+    EXPECT_EQ(*result->exception_functions()[0].packed_unwind_data, 7U);
+}
+
+/// Verifies that load-config fields after CodeIntegrity use the architecture-specific offsets from Ghidra.
+TEST(PeLoaderSynthetic, ParsesPostCodeIntegrityLoadConfigFields) {
+    for (const bool pe32_plus : {false, true}) {
+        auto bytes = make_extended_pe(pe32_plus);
+        const std::uint32_t directory_size = pe32_plus ? 240U : 152U;
+        set_directory(bytes, pe32_plus, 10, 0x1100, directory_size, 11);
+        const auto config = section_raw_offset(0x1100);
+        put_u32(bytes, config, directory_size);
+        if (pe32_plus) {
+            put_u64(bytes, config + 160, 0x140001234ULL);
+            put_u64(bytes, config + 168, 0x140005678ULL);
+            put_u64(bytes, config + 176, 0x140009abcULL);
+            put_u64(bytes, config + 184, 0x14000def0ULL);
+            put_u64(bytes, config + 192, 0x140001111ULL);
+            put_u64(bytes, config + 200, 0x140001222ULL);
+            put_u64(bytes, config + 208, 0x140001333ULL);
+            put_u64(bytes, config + 216, 0x140001444ULL);
+            put_u32(bytes, config + 224, 0x55667788U);
+            put_u16(bytes, config + 228, 9);
+            put_u64(bytes, config + 232, 0x140001555ULL);
+        } else {
+            put_u32(bytes, config + 104, 0x1234U);
+            put_u32(bytes, config + 108, 0x5678U);
+            put_u32(bytes, config + 112, 0x9abcU);
+            put_u32(bytes, config + 116, 0xdef0U);
+            put_u32(bytes, config + 120, 0x1111U);
+            put_u32(bytes, config + 124, 0x2222U);
+            put_u32(bytes, config + 128, 0x3333U);
+            put_u32(bytes, config + 132, 0x4444U);
+            put_u32(bytes, config + 136, 0x55667788U);
+            put_u16(bytes, config + 140, 9);
+            put_u32(bytes, config + 144, 0x5555U);
+        }
+        const auto result = pe::PeLoader::load(bytes);
+        ASSERT_TRUE(result.has_value()) << (result ? "" : result.error().message);
+        ASSERT_TRUE(result->load_config().has_value());
+        const auto& load_config = *result->load_config();
+        EXPECT_EQ(load_config.guard_address_taken_iat_entry_table, pe32_plus ? 0x140001234ULL : 0x1234ULL);
+        EXPECT_EQ(load_config.guard_address_taken_iat_entry_count, pe32_plus ? 0x140005678ULL : 0x5678ULL);
+        EXPECT_EQ(load_config.guard_long_jump_target_table, pe32_plus ? 0x140009abcULL : 0x9abcULL);
+        EXPECT_EQ(load_config.guard_long_jump_target_count, pe32_plus ? 0x14000def0ULL : 0xdef0ULL);
+        EXPECT_EQ(load_config.dynamic_value_reloc_table, pe32_plus ? 0x140001111ULL : 0x1111ULL);
+        EXPECT_EQ(load_config.chpe_metadata_pointer, pe32_plus ? 0x140001222ULL : 0x2222ULL);
+        EXPECT_EQ(load_config.guard_rf_failure_routine, pe32_plus ? 0x140001333ULL : 0x3333ULL);
+        EXPECT_EQ(load_config.guard_rf_failure_routine_function_pointer, pe32_plus ? 0x140001444ULL : 0x4444ULL);
+        EXPECT_EQ(load_config.dynamic_value_reloc_table_offset, 0x55667788U);
+        EXPECT_EQ(load_config.dynamic_value_reloc_table_section, 9U);
+        EXPECT_EQ(load_config.guard_rf_verify_stack_pointer_function_pointer, pe32_plus ? 0x140001555ULL : 0x5555ULL);
+    }
+}
+
+/// Verifies architecture/global-pointer directory parsing and resource payload extraction APIs.
+TEST(PeLoaderSynthetic, ExposesArchitectureGlobalPointerAndResourcePayloads) {
+    const auto directories = pe::PeLoader::load(make_architecture_global_pointer_pe());
+    ASSERT_TRUE(directories.has_value()) << (directories ? "" : directories.error().message);
+    ASSERT_TRUE(directories->architecture_directory().has_value());
+    EXPECT_EQ(directories->architecture_directory()->copyright, "Architecture payload");
+    ASSERT_TRUE(directories->global_pointer_directory().has_value());
+    EXPECT_EQ(directories->global_pointer_directory()->rva, 0x1200U);
+    EXPECT_EQ(directories->global_pointer_directory()->global_pointer_va, 0x140001200ULL);
+
+    const auto resources = pe::PeLoader::load(make_resource_pe());
+    ASSERT_TRUE(resources.has_value()) << (resources ? "" : resources.error().message);
+    ASSERT_TRUE(resources->resources().has_value());
+    ASSERT_EQ(resources->resources()->leaves.size(), 1U);
+    const auto payload = resources->read_resource_payload(0U);
+    ASSERT_TRUE(payload.has_value());
+    EXPECT_EQ(std::string(payload->begin(), payload->end()), "DATA");
+}
+
+/// Verifies that reserved debug type 10 remains a named typed value instead of an invalid enum cast.
+TEST(PeLoaderSynthetic, PreservesReservedDebugType) {
+    const auto result = pe::PeLoader::load(make_reserved_debug_pe());
+    ASSERT_TRUE(result.has_value()) << (result ? "" : result.error().message);
+    ASSERT_EQ(result->debug_entries().size(), 1U);
+    EXPECT_EQ(result->debug_entries()[0].type_raw, 10U);
+    EXPECT_EQ(result->debug_entries()[0].type, pe::DebugType::reserved10);
+}
+
+/// Verifies RichTable padding and record alignment validation, plus the optional Rich-header switch.
+TEST(PeLoaderSynthetic, ValidatesRichHeaderBounds) {
+    const auto invalid_padding = pe::PeLoader::load(make_rich_edge_case_pe(true, false));
+    ASSERT_TRUE(invalid_padding.has_value());
+    EXPECT_FALSE(invalid_padding->rich_header().has_value());
+
+    const auto partial_record = pe::PeLoader::load(make_rich_edge_case_pe(false, true));
+    ASSERT_TRUE(partial_record.has_value());
+    EXPECT_FALSE(partial_record->rich_header().has_value());
+
+    pe::LoadOptions options;
+    options.parse_rich_header = false;
+    const auto disabled = pe::PeLoader::load(make_rich_edge_case_pe(false, false), options);
+    ASSERT_TRUE(disabled.has_value());
+    EXPECT_FALSE(disabled->rich_header().has_value());
+}
+
+/// Verifies that a header block larger than EOF is zero-filled rather than read past the input span.
+TEST(PeLoaderSynthetic, BoundsHeaderCopyAtEndOfFile) {
+    const auto result = pe::PeLoader::load(make_truncated_headers_pe());
+    ASSERT_TRUE(result.has_value()) << (result ? "" : result.error().message);
+    const auto missing_header_byte = result->read_byte(0x140000700ULL);
+    ASSERT_TRUE(missing_header_byte.has_value());
+    EXPECT_EQ(*missing_header_byte, 0);
+}
+
+/// Verifies that moving an image leaves the source object in a safe empty state for accessor calls.
+TEST(PeLoaderSynthetic, KeepsMovedFromImageSafe) {
+    auto result = pe::PeLoader::load(make_minimal_pe(true));
+    ASSERT_TRUE(result.has_value()) << (result ? "" : result.error().message);
+    pe::LoadedPeImage moved = std::move(*result);
+    EXPECT_FALSE(moved.sections().empty());
+    EXPECT_EQ(result->parse_status(), pe::ParseStatus::complete);
+    EXPECT_TRUE(result->sections().empty());
+    EXPECT_TRUE(result->file_bytes().empty());
 }
 
 /// Verifies invalid signatures, truncated headers, out-of-file sections, and image-size limits.

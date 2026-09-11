@@ -32,6 +32,8 @@ struct LoadedPeImage::Storage {
     OptionalHeader optional;
     std::vector<Section> sections;
     std::vector<DataDirectory> directories;
+    std::optional<ArchitectureDirectory> architecture_directory;
+    std::optional<GlobalPointerDirectory> global_pointer_directory;
     std::vector<MemoryRegion> memory_regions;
     std::vector<Byte> mapped_image;
     std::vector<ImportDescriptor> imports;
@@ -49,6 +51,8 @@ struct LoadedPeImage::Storage {
     std::vector<DelayImportDescriptor> delay_imports;
     std::optional<ClrHeader> clr_header;
     std::vector<CoffSymbol> coff_symbols;
+    ParseStatus parse_status{ParseStatus::complete};
+    std::vector<ParseError> parse_diagnostics;
 };
 
 namespace {
@@ -67,6 +71,16 @@ template <typename T>
 /// Returns true when multiplying two unsigned values would overflow.
 [[nodiscard]] bool multiply_overflow(std::uint64_t left, std::uint64_t right) noexcept {
     return left != 0 && right > std::numeric_limits<std::uint64_t>::max() / left;
+}
+
+/// Rounds a PE size or RVA upward without allowing the alignment calculation to wrap.
+// Related source: ../../../Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/SectionHeader.java
+[[nodiscard]] std::optional<std::uint64_t> align_up_checked(std::uint64_t value, std::uint32_t alignment) noexcept {
+    if (alignment == 0 || value > std::numeric_limits<std::uint64_t>::max() - (alignment - 1U)) {
+        return std::nullopt;
+    }
+    const auto rounded = value + alignment - 1U;
+    return rounded - (rounded % alignment);
 }
 
 /// Converts a bounded file offset to size_t after a range check.
@@ -293,6 +307,16 @@ private:
     [[nodiscard]] std::expected<void, ParseError> parse_directories();
 
     // Related source:
+    // ../../../Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/ArchitectureDataDirectory.java
+    /// Parses the bounded architecture-specific ASCII directory payload.
+    [[nodiscard]] std::expected<void, ParseError> parse_architecture(const DataDirectory& directory);
+
+    // Related source:
+    // ../../../Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/GlobalPointerDataDirectory.java
+    /// Validates and records the global-pointer directory RVA.
+    [[nodiscard]] std::expected<void, ParseError> parse_global_pointer(const DataDirectory& directory);
+
+    // Related source:
     // ../../../Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/ExportDataDirectory.java
     /// Parses the export directory and its name/function tables.
     [[nodiscard]] std::expected<void, ParseError> parse_exports(const DataDirectory& directory);
@@ -307,7 +331,8 @@ private:
 
     /// Parses one INT/IAT pair and appends decoded imported symbols.
     [[nodiscard]] std::expected<void, ParseError> parse_thunks(std::vector<ImportedSymbol>& symbols, Rva int_rva,
-                                                               Rva iat_rva, std::uint32_t maximum_entries);
+                                                               Rva iat_rva, std::uint32_t maximum_entries,
+                                                               bool thunk_values_are_va = false);
 
     /// Parses the raw import-address-table directory slots.
     [[nodiscard]] std::expected<void, ParseError> parse_iat(const DataDirectory& directory);
@@ -396,6 +421,9 @@ private:
 
     /// Gets a directory by index when the optional header declares it.
     [[nodiscard]] const DataDirectory* directory(DirectoryIndex index) const noexcept;
+
+    /// Records a tolerated parsing error and marks the result as partial.
+    void record_partial(ParseError error);
 
     Reader reader_;
     LoadOptions options_;
@@ -499,10 +527,22 @@ std::string_view directory_name(DirectoryIndex index) noexcept {
 LoadedPeImage::LoadedPeImage() : storage_(std::make_unique<Storage>()) {}
 
 /// Transfers parsed image storage from another image.
-LoadedPeImage::LoadedPeImage(LoadedPeImage&& other) noexcept = default;
+LoadedPeImage::LoadedPeImage(LoadedPeImage&& other) noexcept : storage_(std::move(other.storage_)) {
+    if (!other.storage_) {
+        other.storage_ = std::make_unique<Storage>();
+    }
+}
 
 /// Transfers parsed image storage from another image.
-LoadedPeImage& LoadedPeImage::operator=(LoadedPeImage&& other) noexcept = default;
+LoadedPeImage& LoadedPeImage::operator=(LoadedPeImage&& other) noexcept {
+    if (this != &other) {
+        storage_ = std::move(other.storage_);
+        if (!other.storage_) {
+            other.storage_ = std::make_unique<Storage>();
+        }
+    }
+    return *this;
+}
 
 /// Releases parsed image storage.
 LoadedPeImage::~LoadedPeImage() = default;
@@ -539,6 +579,16 @@ const std::vector<Section>& LoadedPeImage::sections() const noexcept {
 /// Returns optional-header data directories.
 const std::vector<DataDirectory>& LoadedPeImage::data_directories() const noexcept {
     return storage_->directories;
+}
+
+/// Returns the parsed architecture-specific directory payload when present.
+const std::optional<ArchitectureDirectory>& LoadedPeImage::architecture_directory() const noexcept {
+    return storage_->architecture_directory;
+}
+
+/// Returns the validated global-pointer directory when present.
+const std::optional<GlobalPointerDirectory>& LoadedPeImage::global_pointer_directory() const noexcept {
+    return storage_->global_pointer_directory;
 }
 
 /// Returns mapped memory regions.
@@ -619,6 +669,21 @@ const std::optional<ClrHeader>& LoadedPeImage::clr_header() const noexcept {
 /// Returns COFF symbols.
 const std::vector<CoffSymbol>& LoadedPeImage::coff_symbols() const noexcept {
     return storage_->coff_symbols;
+}
+
+/// Returns the completeness status of the parsed image.
+ParseStatus LoadedPeImage::parse_status() const noexcept {
+    return storage_->parse_status;
+}
+
+/// Returns whether non-strict parsing tolerated one or more errors.
+bool LoadedPeImage::is_partial() const noexcept {
+    return storage_->parse_status == ParseStatus::partial;
+}
+
+/// Returns errors recorded while non-strict parsing continued.
+const std::vector<ParseError>& LoadedPeImage::parse_diagnostics() const noexcept {
+    return storage_->parse_diagnostics;
 }
 
 /// Returns the owned source file bytes.
@@ -945,8 +1010,7 @@ std::expected<void, ParseError> Parser::parse_headers() {
                                    "PE alignments must be powers of two and mutually compatible");
     }
     if (storage_.optional.size_of_image == 0 || storage_.optional.size_of_image > options_.maximum_image_size ||
-        storage_.optional.size_of_headers > storage_.optional.size_of_image ||
-        storage_.optional.size_of_headers > reader_.bytes().size()) {
+        storage_.optional.size_of_headers > storage_.optional.size_of_image || storage_.optional.size_of_headers == 0) {
         return parse_failure<void>(ParseErrorCode::invalid_image_size, optional_offset + 56,
                                    "PE image or header size is outside configured limits");
     }
@@ -1038,14 +1102,23 @@ std::expected<void, ParseError> Parser::parse_headers() {
         section.number_of_relocations = *relocation_count;
         section.number_of_line_numbers = *line_count;
         section.characteristics = *characteristics;
-        section.loaded_size = std::max(section.virtual_size, section.raw_size);
+        const auto virtual_extent_source = section.virtual_size != 0 ? section.virtual_size : section.raw_size;
+        const auto aligned_virtual_size = align_up_checked(virtual_extent_source, section_alignment_value);
+        const auto aligned_raw_size = align_up_checked(section.raw_size, file_alignment_value);
+        if (!aligned_virtual_size || !aligned_raw_size ||
+            *aligned_virtual_size > std::numeric_limits<std::uint32_t>::max()) {
+            return parse_failure<void>(ParseErrorCode::invalid_section_range, section_offset + 8,
+                                       "Section virtual extent cannot be represented safely");
+        }
+        const auto effective_raw_size = std::min(*aligned_raw_size, *aligned_virtual_size);
+        section.loaded_size = static_cast<std::uint32_t>(*aligned_virtual_size);
         if (section.raw_size != 0 && section.raw_offset < storage_.optional.size_of_headers) {
             return parse_failure<void>(ParseErrorCode::invalid_section_range, section_offset + 20,
                                        "Section raw bytes overlap the PE header area");
         }
         if (section.raw_size != 0 && section.raw_offset < reader_.bytes().size()) {
             section.file_backed_size = static_cast<std::uint32_t>(
-                std::min<std::uint64_t>(section.raw_size, reader_.bytes().size() - section.raw_offset));
+                std::min<std::uint64_t>(effective_raw_size, reader_.bytes().size() - section.raw_offset));
         }
         if (section.loaded_size != 0 &&
             (section.virtual_address > storage_.optional.size_of_image ||
@@ -1064,12 +1137,15 @@ std::expected<void, ParseError> Parser::parse_headers() {
         }
         for (std::size_t right = left + 1; right < storage_.sections.size(); ++right) {
             const auto& second = storage_.sections[right];
+            const auto first_virtual_end = static_cast<std::uint64_t>(first.virtual_address) + first.loaded_size;
+            const auto second_virtual_end = static_cast<std::uint64_t>(second.virtual_address) + second.loaded_size;
             const bool virtual_overlap = first.loaded_size != 0 && second.loaded_size != 0 &&
-                                         first.virtual_address < second.virtual_address + second.loaded_size &&
-                                         second.virtual_address < first.virtual_address + first.loaded_size;
-            const bool raw_overlap = first.raw_size != 0 && second.raw_size != 0 &&
-                                     first.raw_offset < second.raw_offset + second.raw_size &&
-                                     second.raw_offset < first.raw_offset + first.raw_size;
+                                         static_cast<std::uint64_t>(first.virtual_address) < second_virtual_end &&
+                                         static_cast<std::uint64_t>(second.virtual_address) < first_virtual_end;
+            const auto first_raw_end = first.raw_offset + first.raw_size;
+            const auto second_raw_end = second.raw_offset + second.raw_size;
+            const bool raw_overlap = first.raw_size != 0 && second.raw_size != 0 && first.raw_offset < second_raw_end &&
+                                     second.raw_offset < first_raw_end;
             if (virtual_overlap || raw_overlap) {
                 return parse_failure<void>(ParseErrorCode::invalid_section_range, first.virtual_address,
                                            "PE sections overlap in virtual or raw file space");
@@ -1121,6 +1197,17 @@ std::expected<void, ParseError> Parser::parse_rich_header() {
     if (!found_dans || rich_end + 8 > nt_offset_ || rich_end < dans + 16) {
         return {};
     }
+    // Related source: ../../../Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/RichTable.java
+    // RichTable.java requires DanS followed by three mask-encoded zero DWORDs.
+    for (FileOffset padding_offset = dans + 4; padding_offset < dans + 16; padding_offset += 4) {
+        auto padding = reader_.u32(padding_offset, "Rich padding");
+        if (!padding || (*padding ^ *mask) != 0) {
+            return {};
+        }
+    }
+    if ((rich_end - (dans + 16)) % 8 != 0) {
+        return {};
+    }
     RichHeader rich;
     rich.offset = dans;
     rich.size = static_cast<std::uint32_t>(rich_end + 8 - dans);
@@ -1149,7 +1236,8 @@ std::expected<void, ParseError> Parser::map_image() {
                                    "Unable to allocate the declared PE image size");
     }
     const auto header_size = static_cast<std::size_t>(storage_.optional.size_of_headers);
-    std::copy_n(reader_.bytes().begin(), header_size, storage_.mapped_image.begin());
+    const auto copied_header_size = std::min<std::size_t>(header_size, reader_.bytes().size());
+    std::copy_n(reader_.bytes().begin(), copied_header_size, storage_.mapped_image.begin());
     storage_.memory_regions.push_back(MemoryRegion{"Headers", storage_.optional.image_base,
                                                    storage_.optional.size_of_headers, true, false, false, true, true,
                                                    std::nullopt});
@@ -1285,38 +1373,103 @@ std::expected<void, ParseError> Parser::parse_directories() {
             {DirectoryIndex::export_table, &Parser::parse_exports},
             {DirectoryIndex::import_table, &Parser::parse_imports},
             {DirectoryIndex::resource_table, &Parser::parse_resources},
+            // Ghidra parses load-config before exceptions so x86 CHPE metadata can select ARM rows.
+            {DirectoryIndex::load_config, &Parser::parse_load_config},
             {DirectoryIndex::exception_table, &Parser::parse_exceptions},
             {DirectoryIndex::security, &Parser::parse_security},
             {DirectoryIndex::base_relocation_table, &Parser::parse_relocations},
             {DirectoryIndex::debug, &Parser::parse_debug},
             {DirectoryIndex::tls_table, &Parser::parse_tls},
-            {DirectoryIndex::load_config, &Parser::parse_load_config},
             {DirectoryIndex::bound_import, &Parser::parse_bound_imports},
             {DirectoryIndex::delay_import, &Parser::parse_delay_imports},
             {DirectoryIndex::clr_runtime_header, &Parser::parse_clr},
-            {DirectoryIndex::architecture, nullptr},
-            {DirectoryIndex::global_pointer, nullptr},
+            {DirectoryIndex::architecture, &Parser::parse_architecture},
+            {DirectoryIndex::global_pointer, &Parser::parse_global_pointer},
             {DirectoryIndex::import_address_table, &Parser::parse_iat},
         }};
     for (const auto& [index, parser] : parsers) {
         const auto* data_directory = directory(index);
-        if (data_directory == nullptr || data_directory->size == 0 || parser == nullptr) {
+        const bool global_pointer_without_payload =
+            index == DirectoryIndex::global_pointer && data_directory != nullptr && data_directory->rva != 0;
+        if (data_directory == nullptr || (data_directory->size == 0 && !global_pointer_without_payload) ||
+            data_directory->rva == 0 || parser == nullptr) {
             continue;
         }
         if (index != DirectoryIndex::security &&
-            (data_directory->rva > storage_.optional.size_of_image ||
+            (data_directory->rva >= storage_.optional.size_of_image ||
              data_directory->size > storage_.optional.size_of_image - data_directory->rva)) {
+            ParseError error{ParseErrorCode::invalid_directory, data_directory->rva,
+                             std::string(directory_name(index)) + " exceeds SizeOfImage"};
             if (options_.strict) {
-                return parse_failure<void>(ParseErrorCode::invalid_directory, data_directory->rva,
-                                           std::string(directory_name(index)) + " exceeds SizeOfImage");
+                return std::unexpected(std::move(error));
             }
+            record_partial(std::move(error));
             continue;
         }
         auto result = (this->*parser)(*data_directory);
-        if (!result && options_.strict) {
-            return std::unexpected(result.error());
+        if (!result) {
+            if (options_.strict) {
+                return std::unexpected(result.error());
+            }
+            record_partial(result.error());
         }
     }
+    return {};
+}
+
+/// Records a non-fatal parser diagnostic and marks the image as incomplete.
+void Parser::record_partial(ParseError error) {
+    storage_.parse_status = ParseStatus::partial;
+    storage_.parse_diagnostics.push_back(std::move(error));
+}
+
+// Related source:
+// ../../../Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/ArchitectureDataDirectory.java
+/// Parses the bounded ASCII payload of IMAGE_DIRECTORY_ENTRY_ARCHITECTURE.
+std::expected<void, ParseError> Parser::parse_architecture(const DataDirectory& directory_value) {
+    constexpr std::uint32_t maximum_copyright_size = 1000;
+    if (directory_value.size > maximum_copyright_size) {
+        return parse_failure<void>(ParseErrorCode::limit_exceeded, directory_value.rva,
+                                   "Architecture directory exceeds the Ghidra size limit");
+    }
+    const auto file_offset = raw_offset_for_rva(directory_value.rva);
+    if (!file_offset || !valid_range(*file_offset, directory_value.size, reader_.bytes().size())) {
+        return parse_failure<void>(ParseErrorCode::invalid_directory, directory_value.rva,
+                                   "Architecture directory is not file-backed");
+    }
+    auto bytes = reader_.span(*file_offset, directory_value.size, "architecture directory");
+    if (!bytes) {
+        return std::unexpected(bytes.error());
+    }
+    ArchitectureDirectory architecture;
+    architecture.rva = directory_value.rva;
+    architecture.size = directory_value.size;
+    architecture.file_offset = *file_offset;
+    const auto nul = std::find(bytes->begin(), bytes->end(), Byte{0});
+    architecture.copyright.assign(reinterpret_cast<const char*>(bytes->data()),
+                                  static_cast<std::size_t>(std::distance(bytes->begin(), nul)));
+    while (!architecture.copyright.empty() && static_cast<unsigned char>(architecture.copyright.back()) <= 0x20U) {
+        architecture.copyright.pop_back();
+    }
+    storage_.architecture_directory = std::move(architecture);
+    return {};
+}
+
+// Related source:
+// ../../../Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/GlobalPointerDataDirectory.java
+/// Validates and records the RVA represented by IMAGE_DIRECTORY_ENTRY_GLOBALPTR.
+std::expected<void, ParseError> Parser::parse_global_pointer(const DataDirectory& directory_value) {
+    auto global_pointer_va = rva_for_va(storage_.optional.image_base + directory_value.rva);
+    if (!global_pointer_va) {
+        return parse_failure<void>(ParseErrorCode::invalid_directory, directory_value.rva,
+                                   "Global-pointer directory RVA is outside the image");
+    }
+    GlobalPointerDirectory global_pointer;
+    global_pointer.rva = directory_value.rva;
+    global_pointer.size = directory_value.size;
+    global_pointer.global_pointer_va = storage_.optional.image_base + directory_value.rva;
+    global_pointer.file_offset = raw_offset_for_rva(directory_value.rva);
+    storage_.global_pointer_directory = std::move(global_pointer);
     return {};
 }
 
@@ -1420,17 +1573,20 @@ std::expected<void, ParseError> Parser::parse_exports(const DataDirectory& direc
         symbol.address_rva = *function_rva;
         symbol.address_va = storage_.optional.image_base + *function_rva;
         symbol.file_offset = raw_offset_for_rva(*function_rva);
-        const bool forwarded =
-            *function_rva >= directory_value.rva && *function_rva < directory_value.rva + directory_value.size;
+        const auto function_rva_u64 = static_cast<std::uint64_t>(*function_rva);
+        const auto export_end_rva = static_cast<std::uint64_t>(directory_value.rva) + directory_value.size;
+        const bool forwarded = function_rva_u64 >= directory_value.rva && function_rva_u64 < export_end_rva;
         if (!forwarded && *function_rva != 0 && *function_rva >= storage_.optional.size_of_image) {
             return parse_failure<void>(ParseErrorCode::invalid_export, function_slot,
                                        "Export function RVA is outside SizeOfImage");
         }
         symbol.forwarded = forwarded;
         if (forwarded) {
-            auto forwarder = mapped_string(*function_rva, directory_value.size, "export forwarder");
+            const auto remaining = export_end_rva - function_rva_u64;
+            auto forwarder = mapped_string(*function_rva, remaining, "export forwarder");
             if (!forwarder) {
-                return std::unexpected(forwarder.error());
+                return parse_failure<void>(ParseErrorCode::invalid_export, *function_rva,
+                                           "Export forwarder is not terminated within the export directory");
             }
             symbol.forwarder = std::move(*forwarder);
             symbol.file_offset = raw_offset_for_rva(*function_rva);
@@ -1443,7 +1599,7 @@ std::expected<void, ParseError> Parser::parse_exports(const DataDirectory& direc
 
 /// Parses one thunk array and appends its named or ordinal imports.
 std::expected<void, ParseError> Parser::parse_thunks(std::vector<ImportedSymbol>& symbols, Rva int_rva, Rva iat_rva,
-                                                     std::uint32_t maximum_entries) {
+                                                     std::uint32_t maximum_entries, bool thunk_values_are_va) {
     const std::uint64_t width = storage_.optional.pe32_plus ? 8 : 4;
     const std::uint64_t ordinal_flag = storage_.optional.pe32_plus ? 0x8000000000000000ULL : 0x80000000ULL;
     const std::uint64_t value_mask = storage_.optional.pe32_plus ? 0x7fffffffffffffffULL : 0x7fffffffULL;
@@ -1487,20 +1643,30 @@ std::expected<void, ParseError> Parser::parse_thunks(std::vector<ImportedSymbol>
         if (symbol.imported_by_ordinal) {
             symbol.ordinal = static_cast<std::uint16_t>(*thunk & 0xffffU);
         } else {
-            const auto name_rva = static_cast<Rva>(*thunk & value_mask);
-            if (name_rva > std::numeric_limits<Rva>::max() - 2U) {
-                return parse_failure<void>(ParseErrorCode::invalid_import, name_rva, "Import-by-name RVA overflows");
+            const auto address_of_data = *thunk & value_mask;
+            std::optional<Rva> name_rva;
+            if (thunk_values_are_va) {
+                name_rva = rva_for_va(address_of_data);
+            } else if (address_of_data <= std::numeric_limits<Rva>::max()) {
+                name_rva = static_cast<Rva>(address_of_data);
             }
-            auto hint = mapped_u16(name_rva);
-            auto name = mapped_string(name_rva + 2, 1U << 16, "import name");
+            if (!name_rva) {
+                return parse_failure<void>(ParseErrorCode::invalid_import, int_slot,
+                                           "Import-by-name pointer is not a valid image RVA");
+            }
+            if (*name_rva > std::numeric_limits<Rva>::max() - 2U) {
+                return parse_failure<void>(ParseErrorCode::invalid_import, *name_rva, "Import-by-name RVA overflows");
+            }
+            auto hint = mapped_u16(*name_rva);
+            auto name = mapped_string(*name_rva + 2, 1U << 16, "import name");
             if (!hint || !name) {
-                return parse_failure<void>(ParseErrorCode::invalid_import, name_rva,
+                return parse_failure<void>(ParseErrorCode::invalid_import, *name_rva,
                                            "Import-by-name record is malformed");
             }
             symbol.hint = *hint;
             symbol.name = std::move(*name);
-            symbol.import_by_name_rva = name_rva;
-            symbol.import_by_name_file_offset = raw_offset_for_rva(name_rva);
+            symbol.import_by_name_rva = *name_rva;
+            symbol.import_by_name_file_offset = raw_offset_for_rva(*name_rva);
         }
         symbols.push_back(std::move(symbol));
     }
@@ -1743,10 +1909,11 @@ std::expected<void, ParseError> Parser::parse_debug(const DataDirectory& directo
 
 /// Parses fixed-size runtime-function records from the exception directory.
 std::expected<void, ParseError> Parser::parse_exceptions(const DataDirectory& directory_value) {
+    const bool chpe_image = storage_.load_config.has_value() && storage_.load_config->chpe_metadata_pointer != 0;
     const bool packed_arm_records =
         storage_.coff.machine == Machine::arm || storage_.coff.machine == Machine::armnt ||
         storage_.coff.machine == Machine::thumb || storage_.coff.machine == Machine::arm64 ||
-        storage_.coff.machine == Machine::arm64ec || storage_.coff.machine == Machine::arm64x;
+        storage_.coff.machine == Machine::arm64ec || storage_.coff.machine == Machine::arm64x || chpe_image;
     const std::uint32_t record_size = packed_arm_records ? 8 : 12;
     if (directory_value.size % record_size != 0) {
         return parse_failure<void>(ParseErrorCode::invalid_directory, directory_value.rva,
@@ -1765,8 +1932,7 @@ std::expected<void, ParseError> Parser::parse_exceptions(const DataDirectory& di
             return parse_failure<void>(ParseErrorCode::invalid_directory, rva,
                                        "Exception runtime-function begin address is unmapped");
         }
-        if (packed_arm_records && (storage_.coff.machine == Machine::arm || storage_.coff.machine == Machine::armnt ||
-                                   storage_.coff.machine == Machine::thumb)) {
+        if (packed_arm_records) {
             *begin &= ~1U;
         }
         auto end = packed_arm_records ? std::optional<std::uint32_t>(*begin) : mapped_u32(rva + 4);
@@ -1926,17 +2092,20 @@ std::expected<void, ParseError> Parser::parse_load_config(const DataDirectory& d
     const std::uint32_t guard_table_offset = storage_.optional.pe32_plus ? 128 : 80;
     const std::uint32_t guard_count_offset = storage_.optional.pe32_plus ? 136 : 84;
     const std::uint32_t guard_flags_offset = storage_.optional.pe32_plus ? 144 : 88;
-    const std::uint32_t address_taken_table_offset = storage_.optional.pe32_plus ? 156 : 100;
-    const std::uint32_t address_taken_count_offset = storage_.optional.pe32_plus ? 164 : 104;
-    const std::uint32_t long_jump_table_offset = storage_.optional.pe32_plus ? 172 : 108;
-    const std::uint32_t long_jump_count_offset = storage_.optional.pe32_plus ? 180 : 112;
-    const std::uint32_t dynamic_reloc_offset = storage_.optional.pe32_plus ? 188 : 116;
-    const std::uint32_t chpe_offset = storage_.optional.pe32_plus ? 196 : 120;
-    const std::uint32_t guard_rf_failure_offset = storage_.optional.pe32_plus ? 204 : 124;
-    const std::uint32_t guard_rf_pointer_offset = storage_.optional.pe32_plus ? 212 : 128;
-    const std::uint32_t dynamic_reloc_table_offset = storage_.optional.pe32_plus ? 220 : 132;
-    const std::uint32_t dynamic_reloc_section_offset = storage_.optional.pe32_plus ? 224 : 136;
-    const std::uint32_t guard_rf_verify_offset = storage_.optional.pe32_plus ? 228 : 140;
+    // CodeIntegrity is a 12-byte field between GuardFlags and the fields below.
+    // Related source:
+    // ../../../Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/LoadConfigDirectory.java
+    const std::uint32_t address_taken_table_offset = storage_.optional.pe32_plus ? 160 : 104;
+    const std::uint32_t address_taken_count_offset = storage_.optional.pe32_plus ? 168 : 108;
+    const std::uint32_t long_jump_table_offset = storage_.optional.pe32_plus ? 176 : 112;
+    const std::uint32_t long_jump_count_offset = storage_.optional.pe32_plus ? 184 : 116;
+    const std::uint32_t dynamic_reloc_offset = storage_.optional.pe32_plus ? 192 : 120;
+    const std::uint32_t chpe_offset = storage_.optional.pe32_plus ? 200 : 124;
+    const std::uint32_t guard_rf_failure_offset = storage_.optional.pe32_plus ? 208 : 128;
+    const std::uint32_t guard_rf_pointer_offset = storage_.optional.pe32_plus ? 216 : 132;
+    const std::uint32_t dynamic_reloc_table_offset = storage_.optional.pe32_plus ? 224 : 136;
+    const std::uint32_t dynamic_reloc_section_offset = storage_.optional.pe32_plus ? 228 : 140;
+    const std::uint32_t guard_rf_verify_offset = storage_.optional.pe32_plus ? 232 : 144;
     if (auto value = pointer(security_cookie_offset)) {
         config.security_cookie = *value;
     }
@@ -2301,7 +2470,8 @@ std::expected<void, ParseError> Parser::parse_delay_imports(const DataDirectory&
         descriptor.unload_information_table_rva = *unload_iat_rva;
         descriptor.time_date_stamp = *timestamp;
         descriptor.uses_rva = uses_rva;
-        auto thunks = parse_thunks(descriptor.symbols, *int_rva, *iat_rva, options_.maximum_directory_entries);
+        auto thunks =
+            parse_thunks(descriptor.symbols, *int_rva, *iat_rva, options_.maximum_directory_entries, !uses_rva);
         if (!thunks) {
             return std::unexpected(thunks.error());
         }
@@ -2316,30 +2486,52 @@ std::expected<void, ParseError> Parser::parse_delay_imports(const DataDirectory&
 
 /// Parses the fixed IMAGE_COR20_HEADER used to identify managed PE files.
 std::expected<void, ParseError> Parser::parse_clr(const DataDirectory& directory_value) {
-    if (directory_value.size < 72) {
+    // Related source: ../../../Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/ImageCor20Header.java
+    // The Java model exposes the fixed 72-byte IMAGE_COR20_HEADER, while the cb field is the
+    // authoritative bound for newer or malformed headers. Never decode fields past either bound.
+    if (directory_value.size < 4) {
         return parse_failure<void>(ParseErrorCode::invalid_directory, directory_value.rva,
-                                   "CLR directory is shorter than IMAGE_COR20_HEADER");
+                                   "CLR directory lacks its cb field");
     }
     auto size = mapped_u32(directory_value.rva);
-    auto major = mapped_u16(directory_value.rva + 4);
-    auto minor = mapped_u16(directory_value.rva + 6);
-    auto metadata_rva = mapped_u32(directory_value.rva + 8);
-    auto metadata_size = mapped_u32(directory_value.rva + 12);
-    auto flags = mapped_u32(directory_value.rva + 16);
-    auto entry_point = mapped_u32(directory_value.rva + 20);
-    auto resources_rva = mapped_u32(directory_value.rva + 24);
-    auto resources_size = mapped_u32(directory_value.rva + 28);
-    auto strong_name_rva = mapped_u32(directory_value.rva + 32);
-    auto strong_name_size = mapped_u32(directory_value.rva + 36);
-    auto code_manager_rva = mapped_u32(directory_value.rva + 40);
-    auto code_manager_size = mapped_u32(directory_value.rva + 44);
-    auto vtable_rva = mapped_u32(directory_value.rva + 48);
-    auto vtable_size = mapped_u32(directory_value.rva + 52);
-    auto export_jumps_rva = mapped_u32(directory_value.rva + 56);
-    auto export_jumps_size = mapped_u32(directory_value.rva + 60);
-    auto native_header_rva = mapped_u32(directory_value.rva + 64);
-    auto native_header_size = mapped_u32(directory_value.rva + 68);
-    if (!size || !major || !minor || !metadata_rva || !metadata_size || !flags || !entry_point || !resources_rva ||
+    if (!size || *size < 72 || directory_value.size < 72) {
+        return parse_failure<void>(ParseErrorCode::invalid_directory, directory_value.rva,
+                                   "CLR cb does not declare the complete IMAGE_COR20_HEADER");
+    }
+    const auto available = std::min(*size, directory_value.size);
+    auto bounded_u16 = [&](std::uint32_t offset) -> std::optional<std::uint16_t> {
+        if (offset > available || 2 > available - offset ||
+            directory_value.rva > std::numeric_limits<Rva>::max() - offset) {
+            return std::nullopt;
+        }
+        return mapped_u16(directory_value.rva + offset);
+    };
+    auto bounded_u32 = [&](std::uint32_t offset) -> std::optional<std::uint32_t> {
+        if (offset > available || 4 > available - offset ||
+            directory_value.rva > std::numeric_limits<Rva>::max() - offset) {
+            return std::nullopt;
+        }
+        return mapped_u32(directory_value.rva + offset);
+    };
+    auto major = bounded_u16(4);
+    auto minor = bounded_u16(6);
+    auto metadata_rva = bounded_u32(8);
+    auto metadata_size = bounded_u32(12);
+    auto flags = bounded_u32(16);
+    auto entry_point = bounded_u32(20);
+    auto resources_rva = bounded_u32(24);
+    auto resources_size = bounded_u32(28);
+    auto strong_name_rva = bounded_u32(32);
+    auto strong_name_size = bounded_u32(36);
+    auto code_manager_rva = bounded_u32(40);
+    auto code_manager_size = bounded_u32(44);
+    auto vtable_rva = bounded_u32(48);
+    auto vtable_size = bounded_u32(52);
+    auto export_jumps_rva = bounded_u32(56);
+    auto export_jumps_size = bounded_u32(60);
+    auto native_header_rva = bounded_u32(64);
+    auto native_header_size = bounded_u32(68);
+    if (!major || !minor || !metadata_rva || !metadata_size || !flags || !entry_point || !resources_rva ||
         !resources_size || !strong_name_rva || !strong_name_size || !code_manager_rva || !code_manager_size ||
         !vtable_rva || !vtable_size || !export_jumps_rva || !export_jumps_size || !native_header_rva ||
         !native_header_size) {
@@ -2471,8 +2663,11 @@ std::expected<LoadedPeImage, ParseError> Parser::run() {
         return std::unexpected(headers.error());
     }
     auto symbols = parse_coff_symbols();
-    if (!symbols && options_.strict) {
-        return std::unexpected(symbols.error());
+    if (!symbols) {
+        if (options_.strict) {
+            return std::unexpected(symbols.error());
+        }
+        record_partial(symbols.error());
     }
     auto mapping = map_image();
     if (!mapping) {
@@ -2586,6 +2781,28 @@ std::expected<Byte, MemoryError> LoadedPeImage::read_byte(Va address) const {
         return std::unexpected(bytes.error());
     }
     return bytes->front();
+}
+
+/// Reads the exact bytes described by a parsed resource data entry.
+std::expected<std::vector<Byte>, MemoryError> LoadedPeImage::read_resource_payload(const ResourceLeaf& leaf) const {
+    if (leaf.size == 0) {
+        return std::vector<Byte>{};
+    }
+    auto address = rva_to_va(leaf.data_rva);
+    if (!address) {
+        return std::unexpected(MemoryError{MemoryErrorCode::outside_image, leaf.data_rva, leaf.size,
+                                           "Resource payload RVA is outside the loaded image"});
+    }
+    return read_memory(*address, leaf.size);
+}
+
+/// Reads the exact bytes described by one leaf in the parsed resource tree.
+std::expected<std::vector<Byte>, MemoryError> LoadedPeImage::read_resource_payload(std::size_t leaf_index) const {
+    if (!storage_->resources || leaf_index >= storage_->resources->leaves.size()) {
+        return std::unexpected(MemoryError{MemoryErrorCode::outside_image, 0, 0,
+                                           "Resource leaf index is outside the parsed resource tree"});
+    }
+    return read_resource_payload(storage_->resources->leaves[leaf_index]);
 }
 
 /// Parses a byte span into an owned loaded PE image.

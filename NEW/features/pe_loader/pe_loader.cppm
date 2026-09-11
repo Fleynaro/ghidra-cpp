@@ -52,6 +52,12 @@ enum class ParseErrorCode {
     limit_exceeded,
 };
 
+/// Describes whether a successfully returned image contains every requested parse result.
+enum class ParseStatus {
+    complete,
+    partial,
+};
+
 /// Carries a stable error category, source offset, and actionable diagnostic.
 struct ParseError {
     ParseErrorCode code{};
@@ -202,6 +208,22 @@ struct DataDirectory {
     Rva rva{};
     std::uint32_t size{};
     bool address_is_file_offset{};
+    std::optional<FileOffset> file_offset;
+};
+
+/// Represents the ASCII payload of IMAGE_DIRECTORY_ENTRY_ARCHITECTURE.
+struct ArchitectureDirectory {
+    Rva rva{};
+    std::uint32_t size{};
+    std::string copyright;
+    std::optional<FileOffset> file_offset;
+};
+
+/// Represents the validated RVA stored by IMAGE_DIRECTORY_ENTRY_GLOBALPTR.
+struct GlobalPointerDirectory {
+    Rva rva{};
+    std::uint32_t size{};
+    Va global_pointer_va{};
     std::optional<FileOffset> file_offset;
 };
 
@@ -384,6 +406,7 @@ enum class DebugType : std::uint32_t {
     omap_to_src = 7,
     omap_from_src = 8,
     borland = 9,
+    reserved10 = 10,
     clsid = 11,
 };
 
@@ -615,6 +638,12 @@ public:
     /// Returns all directory slots represented by the optional header.
     [[nodiscard]] const std::vector<DataDirectory>& data_directories() const noexcept;
 
+    /// Returns the architecture-specific directory payload when present.
+    [[nodiscard]] const std::optional<ArchitectureDirectory>& architecture_directory() const noexcept;
+
+    /// Returns the validated global-pointer directory when present.
+    [[nodiscard]] const std::optional<GlobalPointerDirectory>& global_pointer_directory() const noexcept;
+
     /// Returns section/header memory ranges created by image mapping.
     [[nodiscard]] const std::vector<MemoryRegion>& memory_regions() const noexcept;
 
@@ -663,6 +692,15 @@ public:
     /// Returns decoded COFF symbols when the file has a symbol table.
     [[nodiscard]] const std::vector<CoffSymbol>& coff_symbols() const noexcept;
 
+    /// Returns the completeness status, including non-strict directory failures.
+    [[nodiscard]] ParseStatus parse_status() const noexcept;
+
+    /// Returns true when non-strict parsing skipped or incompletely decoded data.
+    [[nodiscard]] bool is_partial() const noexcept;
+
+    /// Returns diagnostics recorded for failures tolerated by non-strict parsing.
+    [[nodiscard]] const std::vector<ParseError>& parse_diagnostics() const noexcept;
+
     /// Returns an immutable view of the original file bytes.
     [[nodiscard]] std::span<const Byte> file_bytes() const noexcept;
 
@@ -686,6 +724,12 @@ public:
 
     /// Reads one byte from a mapped image region.
     [[nodiscard]] std::expected<Byte, MemoryError> read_byte(Va address) const;
+
+    /// Copies a resource leaf payload from the mapped image or reports a checked memory error.
+    [[nodiscard]] std::expected<std::vector<Byte>, MemoryError> read_resource_payload(const ResourceLeaf& leaf) const;
+
+    /// Copies the indexed resource leaf payload from the parsed resource tree.
+    [[nodiscard]] std::expected<std::vector<Byte>, MemoryError> read_resource_payload(std::size_t leaf_index) const;
 
 private:
     std::unique_ptr<Storage> storage_;
