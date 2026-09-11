@@ -11,6 +11,7 @@ This directory contains the initial C++23 rewrite workspace developed alongside 
 - [`src/main.cpp`](src/main.cpp) is the application entry point.
 - [`features/README.md`](features/README.md) documents the feature library collection.
 - [`features/hello/README.md`](features/hello/README.md) documents the sample feature module.
+- [`features/decompiler/README.md`](features/decompiler/README.md) documents the standalone native decompiler engine and provider boundary.
 
 ## Requirements
 
