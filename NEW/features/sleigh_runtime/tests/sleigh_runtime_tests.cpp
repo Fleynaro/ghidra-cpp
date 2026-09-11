@@ -477,6 +477,106 @@ TEST(SleighRuntime, DecodesEndbr64WithoutPcode) {
     EXPECT_TRUE(result->pcode.empty());
 }
 
+/// Verifies ARM indirect return flow through BX LR and its condition normalization.
+TEST(SleighRuntime, DecodesArmBxLr) {
+    sleigh_runtime::Decoder decoder(std::filesystem::path(SLEIGH_RUNTIME_TEST_DATA_DIR) / "ARM8_le.sla");
+    // 1e ff 2f e1 - BX LR
+    const std::array<std::uint8_t, 4> bytes{0x1e, 0xff, 0x2f, 0xe1};
+    const auto result = decoder.decode(0x400000ULL, bytes, {});
+
+    ASSERT_TRUE(result.has_value()) << result.error().message;
+    EXPECT_EQ(result->length, 4U);
+    EXPECT_EQ(result->mnemonic, "bx");
+    ASSERT_EQ(result->pcode.size(), 5U);
+    EXPECT_EQ(result->pcode[0].opcode, sleigh_runtime::PcodeOpcode::int_and);
+    ASSERT_TRUE(result->pcode[0].output.has_value());
+    expect_varnode(*result->pcode[0].output, "unique", 0U, 4U);
+    ASSERT_EQ(result->pcode[0].inputs.size(), 2U);
+    expect_varnode(result->pcode[0].inputs[0], "register", 0x58U, 4U);
+    expect_varnode(result->pcode[0].inputs[1], "const", 1U, 4U);
+    EXPECT_EQ(result->pcode[1].opcode, sleigh_runtime::PcodeOpcode::int_not_equal);
+    ASSERT_TRUE(result->pcode[1].output.has_value());
+    expect_varnode(*result->pcode[1].output, "register", 0x69U, 1U);
+    EXPECT_EQ(result->pcode[2].opcode, sleigh_runtime::PcodeOpcode::call_other);
+    EXPECT_EQ(result->pcode[3].opcode, sleigh_runtime::PcodeOpcode::int_and);
+    EXPECT_EQ(result->pcode[4].opcode, sleigh_runtime::PcodeOpcode::return_op);
+    ASSERT_EQ(result->pcode[4].inputs.size(), 1U);
+    expect_varnode(result->pcode[4].inputs[0], "register", 0x5cU, 4U);
+    EXPECT_EQ(result->flow.kind, sleigh_runtime::FlowKind::return_op);
+    ASSERT_TRUE(result->flow.target.has_value());
+    expect_varnode(*result->flow.target, "register", 0x5cU, 4U);
+    expect_materialized_pcode(*result);
+}
+
+/// Verifies ARM supervisor-call dispatch through a system CALLOTHER operation.
+TEST(SleighRuntime, DecodesArmSvc) {
+    sleigh_runtime::Decoder decoder(std::filesystem::path(SLEIGH_RUNTIME_TEST_DATA_DIR) / "ARM8_le.sla");
+    // 00 00 00 ef - SVC 0
+    const std::array<std::uint8_t, 4> bytes{0x00, 0x00, 0x00, 0xef};
+    const auto result = decoder.decode(0x400000ULL, bytes, {});
+
+    ASSERT_TRUE(result.has_value()) << result.error().message;
+    EXPECT_EQ(result->length, 4U);
+    EXPECT_EQ(result->mnemonic, "swi");
+    ASSERT_EQ(result->pcode.size(), 1U);
+    EXPECT_EQ(result->pcode[0].opcode, sleigh_runtime::PcodeOpcode::call_other);
+    ASSERT_EQ(result->pcode[0].inputs.size(), 2U);
+    expect_varnode(result->pcode[0].inputs[0], "const", 0xfU, 4U);
+    expect_varnode(result->pcode[0].inputs[1], "const", 0U, 4U);
+    expect_materialized_pcode(*result);
+}
+
+/// Verifies ARM PC-relative literal loading and the concrete instruction address calculation.
+TEST(SleighRuntime, DecodesArmPcRelativeLoad) {
+    sleigh_runtime::Decoder decoder(std::filesystem::path(SLEIGH_RUNTIME_TEST_DATA_DIR) / "ARM8_le.sla");
+    // 00 00 9f e5 - LDR R0,[PC,#0]
+    const std::array<std::uint8_t, 4> bytes{0x00, 0x00, 0x9f, 0xe5};
+    const auto result = decoder.decode(0x400000ULL, bytes, {});
+
+    ASSERT_TRUE(result.has_value()) << result.error().message;
+    EXPECT_EQ(result->length, 4U);
+    EXPECT_EQ(result->mnemonic, "ldr");
+    ASSERT_EQ(result->pcode.size(), 1U);
+    EXPECT_EQ(result->pcode[0].opcode, sleigh_runtime::PcodeOpcode::load);
+    ASSERT_TRUE(result->pcode[0].output.has_value());
+    expect_varnode(*result->pcode[0].output, "register", 0x20U, 4U);
+    ASSERT_EQ(result->pcode[0].inputs.size(), 2U);
+    EXPECT_EQ(result->pcode[0].inputs[0].space, "const");
+    EXPECT_NE(result->pcode[0].inputs[0].offset, 0U);
+    EXPECT_EQ(result->pcode[0].inputs[0].size, sizeof(void*));
+    expect_varnode(result->pcode[0].inputs[1], "const", 0x400008U, 4U);
+    expect_materialized_pcode(*result);
+}
+
+/// Verifies ARM multi-register stack save and writeback as repeated concrete stores.
+TEST(SleighRuntime, DecodesArmPushMultiple) {
+    sleigh_runtime::Decoder decoder(std::filesystem::path(SLEIGH_RUNTIME_TEST_DATA_DIR) / "ARM8_le.sla");
+    // 10 40 2d e9 - PUSH {R4,LR}
+    const std::array<std::uint8_t, 4> bytes{0x10, 0x40, 0x2d, 0xe9};
+    const auto result = decoder.decode(0x400000ULL, bytes, {});
+
+    ASSERT_TRUE(result.has_value()) << result.error().message;
+    EXPECT_EQ(result->length, 4U);
+    EXPECT_EQ(result->mnemonic, "stmdb");
+    ASSERT_EQ(result->pcode.size(), 6U);
+    EXPECT_EQ(result->pcode[0].opcode, sleigh_runtime::PcodeOpcode::int_sub);
+    EXPECT_EQ(result->pcode[1].opcode, sleigh_runtime::PcodeOpcode::store);
+    EXPECT_EQ(result->pcode[2].opcode, sleigh_runtime::PcodeOpcode::int_sub);
+    EXPECT_EQ(result->pcode[3].opcode, sleigh_runtime::PcodeOpcode::store);
+    EXPECT_EQ(result->pcode[4].opcode, sleigh_runtime::PcodeOpcode::int_sub);
+    EXPECT_EQ(result->pcode[5].opcode, sleigh_runtime::PcodeOpcode::int_add);
+    ASSERT_TRUE(result->pcode[0].output.has_value());
+    expect_varnode(*result->pcode[0].output, "register", 0x80U, 4U);
+    ASSERT_EQ(result->pcode[1].inputs.size(), 3U);
+    EXPECT_EQ(result->pcode[1].inputs[0].space, "const");
+    EXPECT_NE(result->pcode[1].inputs[0].offset, 0U);
+    expect_varnode(result->pcode[1].inputs[1], "register", 0x80U, 4U);
+    expect_varnode(result->pcode[1].inputs[2], "register", 0x58U, 4U);
+    ASSERT_TRUE(result->pcode[5].output.has_value());
+    expect_varnode(*result->pcode[5].output, "register", 0x54U, 4U);
+    expect_materialized_pcode(*result);
+}
+
 /// Verifies the full XMM6 load from the local stack slot and all four lane copies.
 TEST(SleighRuntime, DecodesMovapsXmm6LocalLoad) {
     auto decoder = make_decoder();

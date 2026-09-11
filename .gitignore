@@ -29,6 +29,7 @@ Thumbs.db
 
 # Ignore Sleigh generated files
 *.sla
+!NEW/features/sleigh_runtime/test_data/*.sla
 **/data/build.xml
 
 # Misc files
