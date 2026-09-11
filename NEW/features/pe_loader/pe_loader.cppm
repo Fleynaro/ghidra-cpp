@@ -285,6 +285,8 @@ struct Section {
     std::string name;
     std::uint32_t virtual_size{};
     Rva virtual_address{};
+    /// SectionAlignment-rounded RVA used for loaded-image placement.
+    Rva aligned_virtual_address{};
     std::uint32_t raw_size{};
     std::uint32_t file_backed_size{};
     FileOffset raw_offset{};

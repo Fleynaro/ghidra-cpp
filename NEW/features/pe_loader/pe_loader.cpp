@@ -1103,11 +1103,15 @@ std::expected<void, ParseError> Parser::parse_headers() {
         section.number_of_line_numbers = *line_count;
         section.characteristics = *characteristics;
         const auto virtual_extent_source = section.virtual_size != 0 ? section.virtual_size : section.raw_size;
+        const auto aligned_virtual_address = align_up_checked(section.virtual_address, section_alignment_value);
         const auto aligned_virtual_size = align_up_checked(virtual_extent_source, section_alignment_value);
-        if (!aligned_virtual_size || *aligned_virtual_size > std::numeric_limits<std::uint32_t>::max()) {
+        if (!aligned_virtual_address || !aligned_virtual_size ||
+            *aligned_virtual_address > std::numeric_limits<std::uint32_t>::max() ||
+            *aligned_virtual_size > std::numeric_limits<std::uint32_t>::max()) {
             return parse_failure<void>(ParseErrorCode::invalid_section_range, section_offset + 8,
                                        "Section virtual extent cannot be represented safely");
         }
+        section.aligned_virtual_address = static_cast<Rva>(*aligned_virtual_address);
         section.virtual_extent = static_cast<std::uint32_t>(*aligned_virtual_size);
         // The integration contract follows PeLoader's actual Ghidra memory blocks, which retain
         // the unaligned section extent reported by the fixture generator. Keep the aligned extent
@@ -1122,27 +1126,36 @@ std::expected<void, ParseError> Parser::parse_headers() {
                 std::min<std::uint64_t>(section.raw_size, reader_.bytes().size() - section.raw_offset));
         }
         if (section.virtual_extent != 0 &&
-            (section.virtual_address > storage_.optional.size_of_image ||
-             section.virtual_extent > storage_.optional.size_of_image - section.virtual_address)) {
+            (section.aligned_virtual_address > storage_.optional.size_of_image ||
+             section.virtual_extent > storage_.optional.size_of_image - section.aligned_virtual_address)) {
             return parse_failure<void>(ParseErrorCode::invalid_section_range, section_offset + 12,
                                        "Section virtual extent is outside SizeOfImage");
+        }
+        if (section.loaded_size != 0 &&
+            (section.aligned_virtual_address > storage_.optional.size_of_image ||
+             section.loaded_size > storage_.optional.size_of_image - section.aligned_virtual_address)) {
+            return parse_failure<void>(ParseErrorCode::invalid_section_range, section_offset + 16,
+                                       "Section memory block is outside SizeOfImage");
         }
         storage_.sections.push_back(std::move(section));
     }
     for (std::size_t left = 0; left < storage_.sections.size(); ++left) {
         const auto& first = storage_.sections[left];
-        if (first.virtual_extent != 0 && first.virtual_address < storage_.optional.size_of_headers &&
-            first.virtual_extent > storage_.optional.size_of_headers - first.virtual_address) {
+        if (first.virtual_extent != 0 && first.aligned_virtual_address < storage_.optional.size_of_headers &&
+            first.virtual_extent > storage_.optional.size_of_headers - first.aligned_virtual_address) {
             return parse_failure<void>(ParseErrorCode::invalid_section_range, first.virtual_address,
                                        "Section virtual range overlaps PE headers");
         }
         for (std::size_t right = left + 1; right < storage_.sections.size(); ++right) {
             const auto& second = storage_.sections[right];
-            const auto first_virtual_end = static_cast<std::uint64_t>(first.virtual_address) + first.virtual_extent;
-            const auto second_virtual_end = static_cast<std::uint64_t>(second.virtual_address) + second.virtual_extent;
-            const bool virtual_overlap = first.virtual_extent != 0 && second.virtual_extent != 0 &&
-                                         static_cast<std::uint64_t>(first.virtual_address) < second_virtual_end &&
-                                         static_cast<std::uint64_t>(second.virtual_address) < first_virtual_end;
+            const auto first_virtual_end =
+                static_cast<std::uint64_t>(first.aligned_virtual_address) + first.virtual_extent;
+            const auto second_virtual_end =
+                static_cast<std::uint64_t>(second.aligned_virtual_address) + second.virtual_extent;
+            const bool virtual_overlap =
+                first.virtual_extent != 0 && second.virtual_extent != 0 &&
+                static_cast<std::uint64_t>(first.aligned_virtual_address) < second_virtual_end &&
+                static_cast<std::uint64_t>(second.aligned_virtual_address) < first_virtual_end;
             const auto first_raw_end = first.raw_offset + first.raw_size;
             const auto second_raw_end = second.raw_offset + second.raw_size;
             const bool raw_overlap = first.raw_size != 0 && second.raw_size != 0 && first.raw_offset < second_raw_end &&
@@ -1246,13 +1259,13 @@ std::expected<void, ParseError> Parser::map_image() {
         if (section.loaded_size == 0) {
             continue;
         }
-        auto destination = storage_.mapped_image.begin() + section.virtual_address;
+        auto destination = storage_.mapped_image.begin() + section.aligned_virtual_address;
         if (section.file_backed_size != 0) {
             const auto source = reader_.bytes().begin() + static_cast<std::ptrdiff_t>(section.raw_offset);
             std::copy_n(source, section.file_backed_size, destination);
         }
         storage_.memory_regions.push_back(MemoryRegion{
-            section.name, storage_.optional.image_base + section.virtual_address, section.loaded_size,
+            section.name, storage_.optional.image_base + section.aligned_virtual_address, section.loaded_size,
             (section.characteristics & section_characteristics::memory_read) != 0,
             (section.characteristics & section_characteristics::memory_write) != 0,
             (section.characteristics & section_characteristics::memory_execute) != 0, true, false, section.index});
@@ -1292,8 +1305,8 @@ std::optional<Byte> Parser::mapped_byte(Rva rva) const {
                         std::any_of(
                             storage_.sections.begin(), storage_.sections.end(),
                             [rva](const Section& section) {
-                                return section.loaded_size != 0 && rva >= section.virtual_address &&
-                                       rva - section.virtual_address < section.loaded_size;
+                                return section.loaded_size != 0 && rva >= section.aligned_virtual_address &&
+                                       rva - section.aligned_virtual_address < section.loaded_size;
                             });
     return mapped ? std::optional<Byte>(storage_.mapped_image[rva]) : std::nullopt;
 }
@@ -1678,6 +1691,10 @@ std::expected<void, ParseError> Parser::parse_thunks(std::vector<ImportedSymbol>
 /// Parses import descriptors and the corresponding INT/IAT arrays.
 std::expected<void, ParseError> Parser::parse_imports(const DataDirectory& directory_value) {
     constexpr std::uint32_t descriptor_size = 20;
+    if (directory_value.rva > std::numeric_limits<Rva>::max() - directory_value.size) {
+        return parse_failure<void>(ParseErrorCode::invalid_import, directory_value.rva,
+                                   "Import descriptor directory overflows the RVA space");
+    }
     bool terminated = false;
     for (std::uint32_t offset = 0; directory_value.size - offset >= descriptor_size; offset += descriptor_size) {
         const auto rva = directory_value.rva + offset;
@@ -1717,7 +1734,7 @@ std::expected<void, ParseError> Parser::parse_imports(const DataDirectory& direc
         }
         storage_.imports.push_back(std::move(descriptor));
     }
-    if (!terminated && options_.strict) {
+    if (!terminated) {
         return parse_failure<void>(ParseErrorCode::invalid_import, directory_value.rva + directory_value.size,
                                    "Import descriptor array has no null terminator");
     }
@@ -1927,7 +1944,12 @@ std::expected<void, ParseError> Parser::parse_exceptions(const DataDirectory& di
     }
     storage_.exception_functions.reserve(count);
     for (std::uint32_t index = 0; index < count; ++index) {
-        const auto rva = directory_value.rva + index * record_size;
+        const auto delta = static_cast<std::uint64_t>(index) * record_size;
+        if (delta > std::numeric_limits<Rva>::max() || directory_value.rva > std::numeric_limits<Rva>::max() - delta) {
+            return parse_failure<void>(ParseErrorCode::invalid_directory, directory_value.rva,
+                                       "Exception record RVA overflows");
+        }
+        const auto rva = directory_value.rva + static_cast<Rva>(delta);
         auto begin = mapped_u32(rva);
         if (!begin) {
             return parse_failure<void>(ParseErrorCode::invalid_directory, rva,
@@ -1981,6 +2003,10 @@ std::expected<void, ParseError> Parser::parse_tls(const DataDirectory& directory
         return parse_failure<void>(ParseErrorCode::invalid_directory, directory_value.rva,
                                    "TLS directory is shorter than its architecture-specific header");
     }
+    if (directory_value.rva > std::numeric_limits<Rva>::max() - directory_value.size) {
+        return parse_failure<void>(ParseErrorCode::invalid_directory, directory_value.rva,
+                                   "TLS directory overflows the RVA space");
+    }
     auto read_pointer = [&](Rva rva) -> std::optional<Va> {
         return storage_.optional.pe32_plus
                    ? mapped_u64(rva)
@@ -2010,11 +2036,13 @@ std::expected<void, ParseError> Parser::parse_tls(const DataDirectory& directory
                                        "TLS callback array address is outside the image");
         }
         for (std::uint32_t callback_index = 0; callback_index < 4096; ++callback_index) {
-            const auto pointer_rva = *callback_rva + callback_index * (storage_.optional.pe32_plus ? 8U : 4U);
-            if (pointer_rva < *callback_rva) {
+            const auto delta = static_cast<std::uint64_t>(callback_index) * (storage_.optional.pe32_plus ? 8U : 4U);
+            if (delta > std::numeric_limits<Rva>::max() || *callback_rva > std::numeric_limits<Rva>::max() - delta) {
+                const auto pointer_rva = *callback_rva;
                 return parse_failure<void>(ParseErrorCode::invalid_directory, pointer_rva,
                                            "TLS callback array overflows");
             }
+            const auto pointer_rva = *callback_rva + static_cast<Rva>(delta);
             auto callback = read_pointer(pointer_rva);
             if (!callback) {
                 return parse_failure<void>(ParseErrorCode::invalid_directory, pointer_rva,
@@ -2173,6 +2201,10 @@ std::expected<void, ParseError> Parser::parse_resources(const DataDirectory& dir
     if (directory_value.size < 16) {
         return parse_failure<void>(ParseErrorCode::invalid_resource, directory_value.rva,
                                    "Resource directory is shorter than its root header");
+    }
+    if (directory_value.rva > std::numeric_limits<Rva>::max() - directory_value.size) {
+        return parse_failure<void>(ParseErrorCode::invalid_resource, directory_value.rva,
+                                   "Resource directory overflows the RVA space");
     }
     auto root_characteristics = mapped_u32(directory_value.rva);
     auto root_timestamp = mapped_u32(directory_value.rva + 4);
@@ -2419,6 +2451,10 @@ std::expected<void, ParseError> Parser::parse_bound_imports(const DataDirectory&
 /// Parses delay-import descriptors in RVA or absolute-VA mode.
 std::expected<void, ParseError> Parser::parse_delay_imports(const DataDirectory& directory_value) {
     constexpr std::uint32_t descriptor_size = 32;
+    if (directory_value.rva > std::numeric_limits<Rva>::max() - directory_value.size) {
+        return parse_failure<void>(ParseErrorCode::invalid_directory, directory_value.rva,
+                                   "Delay-import directory overflows the RVA space");
+    }
     bool terminated = false;
     auto resolve = [&](std::uint32_t value, bool uses_rva) -> std::optional<Rva> {
         return uses_rva ? (value < storage_.optional.size_of_image ? std::optional<Rva>(value) : std::nullopt)
@@ -2478,7 +2514,7 @@ std::expected<void, ParseError> Parser::parse_delay_imports(const DataDirectory&
         }
         storage_.delay_imports.push_back(std::move(descriptor));
     }
-    if (!terminated && options_.strict) {
+    if (!terminated) {
         return parse_failure<void>(ParseErrorCode::invalid_directory, directory_value.rva + directory_value.size,
                                    "Delay-import descriptor array has no null terminator");
     }
@@ -2495,7 +2531,7 @@ std::expected<void, ParseError> Parser::parse_clr(const DataDirectory& directory
                                    "CLR directory lacks its cb field");
     }
     auto size = mapped_u32(directory_value.rva);
-    if (!size || *size < 72 || directory_value.size < 72) {
+    if (!size || *size < 72 || directory_value.size < 72 || *size > directory_value.size) {
         return parse_failure<void>(ParseErrorCode::invalid_directory, directory_value.rva,
                                    "CLR cb does not declare the complete IMAGE_COR20_HEADER");
     }
@@ -2694,9 +2730,9 @@ std::expected<FileOffset, AddressError> LoadedPeImage::rva_to_file_offset(Rva rv
         return static_cast<FileOffset>(rva);
     }
     for (const auto& section : storage_->sections) {
-        if (section.file_backed_size != 0 && rva >= section.virtual_address &&
-            rva - section.virtual_address < section.loaded_size) {
-            const auto relative = rva - section.virtual_address;
+        if (section.file_backed_size != 0 && rva >= section.aligned_virtual_address &&
+            rva - section.aligned_virtual_address < section.loaded_size) {
+            const auto relative = rva - section.aligned_virtual_address;
             if (relative >= section.file_backed_size) {
                 return std::unexpected(
                     AddressError{AddressErrorCode::not_file_backed, rva, 1, "RVA is in a virtual-only section tail"});
@@ -2717,11 +2753,11 @@ std::expected<Rva, AddressError> LoadedPeImage::file_offset_to_rva(FileOffset of
         if (section.file_backed_size != 0 && offset >= section.raw_offset &&
             offset - section.raw_offset < section.file_backed_size) {
             const auto relative = offset - section.raw_offset;
-            if (relative > std::numeric_limits<Rva>::max() - section.virtual_address) {
+            if (relative > std::numeric_limits<Rva>::max() - section.aligned_virtual_address) {
                 return std::unexpected(
                     AddressError{AddressErrorCode::overflow, offset, 1, "File offset translation overflows an RVA"});
             }
-            return section.virtual_address + static_cast<Rva>(relative);
+            return section.aligned_virtual_address + static_cast<Rva>(relative);
         }
     }
     return std::unexpected(AddressError{AddressErrorCode::unmapped, offset, 1,
@@ -2786,6 +2822,22 @@ std::expected<Byte, MemoryError> LoadedPeImage::read_byte(Va address) const {
 
 /// Reads the exact bytes described by a parsed resource data entry.
 std::expected<std::vector<Byte>, MemoryError> LoadedPeImage::read_resource_payload(const ResourceLeaf& leaf) const {
+    const auto same_identifier = [](const ResourceIdentifier& left, const ResourceIdentifier& right) {
+        return left.named == right.named && left.id == right.id && left.name == right.name;
+    };
+    const bool is_parsed_leaf =
+        storage_->resources &&
+        std::any_of(storage_->resources->leaves.begin(), storage_->resources->leaves.end(),
+                    [&](const ResourceLeaf& parsed) {
+                        return same_identifier(parsed.type, leaf.type) && same_identifier(parsed.name, leaf.name) &&
+                               same_identifier(parsed.language, leaf.language) && parsed.data_rva == leaf.data_rva &&
+                               parsed.size == leaf.size && parsed.code_page == leaf.code_page &&
+                               parsed.reserved == leaf.reserved && parsed.file_offset == leaf.file_offset;
+                    });
+    if (!is_parsed_leaf) {
+        return std::unexpected(MemoryError{MemoryErrorCode::outside_image, leaf.data_rva, leaf.size,
+                                           "Resource leaf does not belong to the parsed resource tree"});
+    }
     if (leaf.size == 0) {
         return std::vector<Byte>{};
     }

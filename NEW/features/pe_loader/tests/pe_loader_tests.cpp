@@ -856,15 +856,20 @@ TEST(PeLoaderSynthetic, AlignsVirtualSectionExtentToSectionAlignment) {
     auto bytes = make_minimal_pe(true);
     constexpr std::size_t section_offset = 0x188;
     put_u32(bytes, section_offset + 8, 0x210);
+    put_u32(bytes, section_offset + 12, 0x1101);
     put_u32(bytes, section_offset + 16, 0x100);
     auto image = pe::PeLoader::load(bytes);
     ASSERT_TRUE(image.has_value()) << (image ? "" : image.error().message);
 
     ASSERT_EQ(image->sections().size(), 1U);
     EXPECT_EQ(image->sections()[0].virtual_size, 0x210U);
+    EXPECT_EQ(image->sections()[0].aligned_virtual_address, 0x2000U);
     EXPECT_EQ(image->sections()[0].loaded_size, 0x210U);
     EXPECT_EQ(image->sections()[0].virtual_extent, 0x1000U);
     EXPECT_EQ(image->sections()[0].file_backed_size, 0x100U);
+    const auto mapped_byte = image->read_byte(0x140002000ULL);
+    ASSERT_TRUE(mapped_byte.has_value());
+    EXPECT_EQ(*mapped_byte, 0xa5U);
 }
 
 /// Verifies that a PE32+ non-ordinal thunk with high bits cannot be truncated into a valid 32-bit RVA.
@@ -892,6 +897,31 @@ TEST(PeLoaderSynthetic, ReportsPartialResultForTruncatedClrHeader) {
     ASSERT_FALSE(non_strict_result->parse_diagnostics().empty());
     EXPECT_EQ(non_strict_result->parse_diagnostics().front().code, pe::ParseErrorCode::invalid_directory);
     EXPECT_FALSE(non_strict_result->clr_header().has_value());
+
+    const auto oversized_cb = pe::PeLoader::load(make_clr_pe(100));
+    ASSERT_FALSE(oversized_cb.has_value());
+    EXPECT_EQ(oversized_cb.error().code, pe::ParseErrorCode::invalid_directory);
+}
+
+/// Verifies that non-strict import and delay-import terminator failures are visible as partial results.
+TEST(PeLoaderSynthetic, ReportsPartialResultForUnterminatedImportArrays) {
+    auto import_bytes = make_minimal_pe(true, true);
+    set_directory(import_bytes, true, 1, 0x1100, 20, 2);
+    pe::LoadOptions options;
+    options.strict = false;
+    const auto imports = pe::PeLoader::load(import_bytes, options);
+    ASSERT_TRUE(imports.has_value()) << (imports ? "" : imports.error().message);
+    EXPECT_EQ(imports->parse_status(), pe::ParseStatus::partial);
+    ASSERT_FALSE(imports->parse_diagnostics().empty());
+    EXPECT_EQ(imports->parse_diagnostics().front().code, pe::ParseErrorCode::invalid_import);
+
+    auto delay_bytes = make_delay_import_pe(true);
+    set_directory(delay_bytes, true, 13, 0x1100, 32, 14);
+    const auto delays = pe::PeLoader::load(delay_bytes, options);
+    ASSERT_TRUE(delays.has_value()) << (delays ? "" : delays.error().message);
+    EXPECT_EQ(delays->parse_status(), pe::ParseStatus::partial);
+    ASSERT_FALSE(delays->parse_diagnostics().empty());
+    EXPECT_EQ(delays->parse_diagnostics().front().code, pe::ParseErrorCode::invalid_directory);
 }
 
 /// Verifies that section extents near the 32-bit RVA boundary are rejected without wrapped arithmetic.
@@ -957,6 +987,12 @@ TEST(PeLoaderSynthetic, ParsesAndValidatesSecurityCertificates) {
     const auto invalid = pe::PeLoader::load(make_certificate_pe(true));
     ASSERT_FALSE(invalid.has_value());
     EXPECT_EQ(invalid.error().code, pe::ParseErrorCode::invalid_certificate);
+
+    auto unaligned = make_certificate_pe(false);
+    put_u32(unaligned, 0x600, 0x11);
+    const auto unaligned_result = pe::PeLoader::load(unaligned);
+    ASSERT_FALSE(unaligned_result.has_value());
+    EXPECT_EQ(unaligned_result.error().code, pe::ParseErrorCode::invalid_certificate);
 }
 
 /// Verifies ARM, ARMNT, Thumb, ARM64, ARM64EC, and ARM64X exception row decoding.
@@ -1047,6 +1083,12 @@ TEST(PeLoaderSynthetic, ExposesArchitectureGlobalPointerAndResourcePayloads) {
     EXPECT_EQ(directories->global_pointer_directory()->rva, 0x1200U);
     EXPECT_EQ(directories->global_pointer_directory()->global_pointer_va, 0x140001200ULL);
 
+    auto invalid_directories = make_architecture_global_pointer_pe();
+    set_directory(invalid_directories, true, 8, 0x3000, 0, 9);
+    const auto invalid = pe::PeLoader::load(invalid_directories);
+    ASSERT_FALSE(invalid.has_value());
+    EXPECT_EQ(invalid.error().code, pe::ParseErrorCode::invalid_directory);
+
     const auto resources = pe::PeLoader::load(make_resource_pe());
     ASSERT_TRUE(resources.has_value()) << (resources ? "" : resources.error().message);
     ASSERT_TRUE(resources->resources().has_value());
@@ -1054,6 +1096,12 @@ TEST(PeLoaderSynthetic, ExposesArchitectureGlobalPointerAndResourcePayloads) {
     const auto payload = resources->read_resource_payload(0U);
     ASSERT_TRUE(payload.has_value());
     EXPECT_EQ(std::string(payload->begin(), payload->end()), "DATA");
+
+    auto forged_leaf = resources->resources()->leaves[0];
+    ++forged_leaf.data_rva;
+    const auto forged_payload = resources->read_resource_payload(forged_leaf);
+    ASSERT_FALSE(forged_payload.has_value());
+    EXPECT_EQ(forged_payload.error().code, pe::MemoryErrorCode::outside_image);
 }
 
 /// Verifies that reserved debug type 10 remains a named typed value instead of an invalid enum cast.
