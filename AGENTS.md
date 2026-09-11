@@ -1,5 +1,17 @@
 # Agent Rules
 
+## C++23 Ghidra Port
+
+- This repository is a fork of the original Ghidra source tree. The project goal is to study the original Ghidra Java and C sources and build an independent, end-to-end autonomous Ghidra implementation in modern C++23 under `{workdir}/NEW` (the repository's `NEW/` directory).
+- Port the implementation module by module, preserving the original functionality 1:1. Do not remove, simplify, stub, or otherwise cut original behavior merely to make a module easier to implement.
+- Every ported C++23 module must be as autonomous as practical, with explicit boundaries, minimal coupling, and all runtime behavior required for its own operation. A module must not depend on the original Java or C implementation at runtime unless this is explicitly documented as a temporary migration step.
+- The `NEW/framework` directory contains the core model. It is intentionally limited for now and currently focuses on p-code; it must not assume the original database or other Ghidra subsystems. The long-term core model is an RDF-like system of facts and hypotheses.
+- The `NEW/features` directory contains feature modules such as the Sleigh runtime p-code decoder, PE loader, decompiler, and future equivalents of other Ghidra capabilities.
+- Every feature module must contain a `tests` directory with thorough Google Test coverage. Tests must use one consistent format, include meaningful English comments, and verify behavior and edge cases against the original Ghidra contract.
+- Source files in every C++23 module must include comments with relative references to the corresponding original Ghidra source files, classes, methods, algorithms, or documentation. These references are mandatory and must make the origin of the ported behavior traceable.
+- Keep porting evidence and behavior mappings explicit: when the original implementation has non-obvious invariants, compatibility rules, serialization details, or error behavior, document them in the C++23 source comments and tests.
+- When creating or changing a module, keep its documentation, build configuration, dependencies, source-to-original references, and Google Test coverage synchronized with the implementation.
+
 ## Ghidra Documentation
 
 - The [`/docs`](docs/) directory is exclusively for the Ghidra Java project: its architecture, modules, dependencies, and runtime behavior. Do not use it to document the separate C++ project.
