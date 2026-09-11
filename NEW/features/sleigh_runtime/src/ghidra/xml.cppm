@@ -1,3 +1,12 @@
+module;
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
 /* ###
  * IP: GHIDRA
  *
@@ -87,7 +96,7 @@
 
 /* Copy the first part of user declarations.  */
 
-#include "detail/xml.cppm"
+module sleigh_runtime.ghidra;
 // CharData mode   look for '<' '&' or "]]>"
 // Name mode       look for non-name char
 // CData mode      looking for "]]>"
@@ -169,7 +178,7 @@ private:
     } ///< Peek at the next (i-th) byte without consuming
     bool isLetter(int4 val) {
         return (((val >= 0x41) && (val <= 0x5a)) || ((val >= 0x61) && (val <= 0x7a)));
-    }                                 ///< Is the given byte a \e letter
+    } ///< Is the given byte a \e letter
     bool isInitialNameChar(int4 val); ///< Is the given byte/character the valid start of an XML name
     bool isNameChar(int4 val);        ///< Is the given byte/character valid for an XML name
     bool isChar(int4 val);            ///< Is the given byte/character valid as an XML character
@@ -186,7 +195,7 @@ public:
     ~XmlScan(void);      ///< Destructor
     void setmode(mode m) {
         curmode = m;
-    }                     ///< Set the scanning mode
+    } ///< Set the scanning mode
     int4 nexttoken(void); ///< Get the next token
     string* lval(void) {
         string* ret = lvalue;
@@ -2396,8 +2405,7 @@ const string& Element::getAttributeValue(const string& nm) const
     throw DecoderError("Unknown attribute: " + nm);
 }
 
-Document* DocumentStorage::parseDocument(istream& s)
-{
+Document* DocumentStorage::parseDocument(istream& s) {
     std::unique_ptr<Document> document(xml_tree(s));
     Document* document_view = document.get();
     doclist.push_back(std::move(document));

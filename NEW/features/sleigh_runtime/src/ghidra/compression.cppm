@@ -1,3 +1,7 @@
+module;
+#include <memory>
+#include <zlib.h>
+
 /* ###
  * IP: GHIDRA
  *
@@ -13,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "detail/compression.cppm"
+module sleigh_runtime.ghidra;
 
 namespace ghidra {
 

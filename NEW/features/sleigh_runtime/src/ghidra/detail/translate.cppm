@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -21,10 +23,10 @@
 #ifndef __TRANSLATE_HH__
 #define __TRANSLATE_HH__
 
-#include "float.cppm"
-#include "varnode.cppm"
+export module sleigh_runtime.ghidra:translate;
+export import :varnode;
 
-namespace ghidra {
+export namespace ghidra {
 
 extern AttributeId ATTRIB_CODE;         ///< Marshaling attribute "code"
 extern AttributeId ATTRIB_CONTAIN;      ///< Marshaling attribute "contain"
@@ -114,7 +116,6 @@ public:
     ///             input varnode
     /// \param isize is the number of input varnodes
     virtual void dump(const Address& addr, OpCode opc, VarnodeData* outvar, VarnodeData* vars, int4 isize) = 0;
-
 };
 
 /// \brief Abstract class for emitting disassembly to an application
@@ -344,19 +345,16 @@ private:
     bool target_isbigendian; ///< \b true if the general endianness of the process is big endian
     uint4 unique_base;       ///< Starting offset into unique space
 protected:
-    int4 alignment;                   ///< Byte modulo on which instructions are aligned
-    vector<FloatFormat> floatformats; ///< Floating point formats utilized by the processor
+    int4 alignment; ///< Byte modulo on which instructions are aligned
 
     void setBigEndian(bool val);   ///< Set general endianness to \b big if val is \b true
     void setUniqueBase(uint4 val); ///< Set the base offset for new temporary registers
 public:
-    Translate(void);                                    ///< Constructor for the translator
-    void setDefaultFloatFormats(void);                  ///< If no explicit float formats, set up default formats
-    bool isBigEndian(void) const;                       ///< Is the processor big endian?
-    const FloatFormat* getFloatFormat(int4 size) const; ///< Get format for a particular floating point encoding
-    int4 getAlignment(void) const;                      ///< Get the instruction alignment for the processor
-    uint4 getUniqueBase(void) const;                    ///< Get the base offset for new temporary registers
-    uint4 getUniqueStart(UniqueLayout layout) const;    ///< Get a tagged address within the \e unique space
+    Translate(void);                                 ///< Constructor for the translator
+    bool isBigEndian(void) const;                    ///< Is the processor big endian?
+    int4 getAlignment(void) const;                   ///< Get the instruction alignment for the processor
+    uint4 getUniqueBase(void) const;                 ///< Get the base offset for new temporary registers
+    uint4 getUniqueStart(UniqueLayout layout) const; ///< Get a tagged address within the \e unique space
 
     /// \brief Initialize the translator given XML configuration documents
     ///

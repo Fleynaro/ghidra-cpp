@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -21,8 +23,6 @@
 #ifndef __ERROR_HH__
 #define __ERROR_HH__
 
-#include "types.cppm"
-
 #include <algorithm>
 #include <cctype>
 #include <cstring>
@@ -36,7 +36,11 @@
 #include <sstream>
 #include <vector>
 
-namespace ghidra {
+export module sleigh_runtime.ghidra:error;
+
+export import :types;
+
+export namespace ghidra {
 
 using std::dec;
 using std::deque;

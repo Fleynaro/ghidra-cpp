@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -19,27 +21,19 @@
 #ifndef __SEMANTICS_HH__
 #define __SEMANTICS_HH__
 
-#include "context.cppm"
-#include "slaformat.cppm"
+export module sleigh_runtime.ghidra:semantics;
+export import :context;
+export import :slaformat;
 
-namespace ghidra {
+export namespace ghidra {
 
-// We remap these opcodes for internal use during pcode generation
-
-/// \brief The \b build directive op-code, overlayed on CPUI_MULTIEQUAL
-#define BUILD CPUI_MULTIEQUAL
-
-/// \brief The \b delayslot directive op-code, overlayed on CPUI_INDIRECT
-#define DELAY_SLOT CPUI_INDIRECT
-
-/// \brief The \b crossbuild directive op-code, overlayed on CPUI_PTRSUB
-#define CROSSBUILD CPUI_PTRSUB
-
-/// \brief The \b macro directive op-code, overlayed on CPUI_CAST
-#define MACROBUILD CPUI_CAST
-
-/// \brief The SLEIGH label op-code, overlayed on CPUI_PTRADD
-#define LABELBUILD CPUI_PTRADD
+// These named constants preserve the legacy directive/opcode mapping without
+// relying on preprocessor state across module boundaries.
+inline constexpr OpCode BUILD = CPUI_MULTIEQUAL;
+inline constexpr OpCode DELAY_SLOT = CPUI_INDIRECT;
+inline constexpr OpCode CROSSBUILD = CPUI_PTRSUB;
+inline constexpr OpCode MACROBUILD = CPUI_CAST;
+inline constexpr OpCode LABELBUILD = CPUI_PTRADD;
 
 class Translate; // Forward declaration
 class HandleTpl; // Forward declaration
@@ -93,7 +87,7 @@ public:
         value = op2.value;
         value_real = op2.value_real;
         select = op2.select;
-    }                                             ///< Copy constructor
+    } ///< Copy constructor
     ConstTpl(const_type tp, uintb val);           ///< Constructor for real constants or relative offsets
     ConstTpl(const_type tp);                      ///< Constructor for special constants from context
     ConstTpl(AddrSpace* sid);                     ///< Constructor for a constant representing an address space
@@ -117,14 +111,14 @@ public:
     } ///< Get the constant type
     v_field getSelect(void) const {
         return select;
-    }                                            ///< Get the type of \b handle piece \b this is encoding
+    } ///< Get the type of \b handle piece \b this is encoding
     uintb fix(const ParserWalker& walker) const; ///< Get the final constant value of \b this in context
     AddrSpace*
     fixSpace(const ParserWalker& walker) const;      ///< Get the final address space \b this represents in context
     void transfer(const vector<HandleTpl*>& params); ///< Copy a \b handle into \b this based on the \b handle_index
     bool isZero(void) const {
         return ((type == real) && (value_real == 0));
-    }                                                    ///< Return \b true if \b this is a literal zero
+    } ///< Return \b true if \b this is a literal zero
     void changeHandleIndex(const vector<int4>& handmap); ///< Remap the \b handle index for \b this
     void
     fillinSpace(FixedHandle& hand,
@@ -151,7 +145,7 @@ public:
     VarnodeTpl(int4 hand, bool zerosize); ///< Construct a handle
     VarnodeTpl(void) : space(), offset(), size() {
         unnamed_flag = false;
-    }                                                                        ///< Construct an uninitialized VarnodeTpl
+    } ///< Construct an uninitialized VarnodeTpl
     VarnodeTpl(const ConstTpl& sp, const ConstTpl& off, const ConstTpl& sz); ///< Construct directly from ConstTpl
     VarnodeTpl(const VarnodeTpl& vn);                                        ///< Copy constructor
     const ConstTpl& getSpace(void) const {
@@ -162,12 +156,12 @@ public:
     } ///< Get the offset
     const ConstTpl& getSize(void) const {
         return size;
-    }                                                 ///< Get the size
+    } ///< Get the size
     bool isDynamic(const ParserWalker& walker) const; ///< Return \b true if \b this is a dynamically computed \b handle
     int4 transfer(const vector<HandleTpl*>& params);  ///< Copy a computed HandleTpl into \b this from the given array
     bool isZeroSize(void) const {
         return size.isZero();
-    }                                             ///< Return \b true if \b this currently has a size of zero
+    } ///< Return \b true if \b this currently has a size of zero
     bool operator==(const VarnodeTpl& op2) const; ///< Test if two VarnodeTpl are equal
     bool operator!=(const VarnodeTpl& op2) const; ///< Test if two VarnodeTpl are not equal
     bool operator<(const VarnodeTpl& op2) const;  ///< Order two VarnodeTpl
@@ -185,11 +179,11 @@ public:
     } ///< Return \b true if \b this is an unnamed temporary register
     void setUnnamed(bool val) {
         unnamed_flag = val;
-    }                             ///< Mark \b this as an unnamed temporary register
+    } ///< Mark \b this as an unnamed temporary register
     bool isLocalTemp(void) const; ///< Return \b true if \b this is a temporary register
     bool isRelative(void) const {
         return (offset.getType() == ConstTpl::j_relative);
-    }                                                    ///< Return \b true if \b this is a relative branch offset
+    } ///< Return \b true if \b this is a relative branch offset
     void changeHandleIndex(const vector<int4>& handmap); ///< Remap any handle indices for \b this
     bool adjustTruncation(int4 sz, bool isbigendian);    ///< Adjust truncation given final size of the Varnode
     void encode(Encoder& encoder) const;                 ///< Encode \b this VarnodeTpl to an output stream
@@ -248,7 +242,7 @@ public:
     } ///< Set the pointer offset
     void setTempOffset(uintb val) {
         temp_offset = ConstTpl(ConstTpl::real, val);
-    }                                                              ///< Set the temporary register offset
+    } ///< Set the temporary register offset
     void fix(FixedHandle& hand, const ParserWalker& walker) const; ///< Calculate final fixed values for \b this
     void changeHandleIndex(const vector<int4>& handmap);           ///< Remap any handle indices for \b this
     void encode(Encoder& encoder) const;                           ///< Encode \b this HandleTpl to an output stream
@@ -266,7 +260,7 @@ public:
     OpTpl(void) : output(nullptr) {} ///< Construct an uninitialized OpTpl
     OpTpl(OpCode oc) : output(nullptr) {
         opc = oc;
-    }             ///< Construct an OpTpl with not inputs or output
+    } ///< Construct an OpTpl with not inputs or output
     ~OpTpl(void); ///< Destructor
     VarnodeTpl* getOut(void) const {
         return output;
@@ -279,7 +273,7 @@ public:
     } ///< Get the i-th input VarnodeTpl
     OpCode getOpcode(void) const {
         return opc;
-    }                            ///< Get the operation code
+    } ///< Get the operation code
     bool isZeroSize(void) const; ///< Return \b true if any input or output has zero size
     void setOpcode(OpCode o) {
         opc = o;
@@ -296,7 +290,7 @@ public:
     } ///< Add an input VarnodeTpl
     void setInput(VarnodeTpl* vt, int4 slot) {
         input[slot] = vt;
-    }                                                    ///< Set the VarnodeTpl for a specific input slot
+    } ///< Set the VarnodeTpl for a specific input slot
     void removeInput(int4 index);                        ///< Remove the indicated input
     void changeHandleIndex(const vector<int4>& handmap); ///< Remap any handle indices for inputs and outputs to \b this
     void encode(Encoder& encoder) const;                 ///< Encode \b this OpTpl to an output stream
@@ -326,7 +320,7 @@ public:
         delayslot = 0;
         numlabels = 0;
         result = (HandleTpl*)0;
-    }                    ///< Construct an empty ConstructTpl
+    } ///< Construct an empty ConstructTpl
     ~ConstructTpl(void); ///< Destructor
     uint4 delaySlot(void) const {
         return delayslot;
@@ -339,7 +333,7 @@ public:
     } ///< Get the sequence of p-code operations
     HandleTpl* getResult(void) const {
         return result;
-    }                                             ///< Get the \e export result
+    } ///< Get the \e export result
     bool addOp(OpTpl* ot);                        ///< Add an operation to the end of the sequence
     bool addOpList(const vector<OpTpl*>& oplist); ///< Add a list of operations to the end of the sequence
     void setResult(HandleTpl* t) {
@@ -384,7 +378,7 @@ protected:
 public:
     PcodeBuilder(uint4 lbcnt) {
         labelbase = labelcount = lbcnt;
-    }                              ///< Construct with a starting label index
+    } ///< Construct with a starting label index
     virtual ~PcodeBuilder(void) {} ///< Destructor
 
     uint4 getLabelBase(void) const {
@@ -392,7 +386,7 @@ public:
     } ///< Get the starting label index for \b this builder
     ParserWalker* getCurrentWalker() const {
         return walker;
-    }                                                 ///< Get the current instruction context
+    } ///< Get the current instruction context
     void build(ConstructTpl* construct, int4 secnum); ///< Build the semantics for the given constructor
 
     /// \brief Execute or filter a \b build directive in sequence

@@ -18,7 +18,7 @@ The implementation intentionally does not parse `.slaspec`. All instruction patt
 - [`sleigh_runtime.cppm`](sleigh_runtime.cppm) exports the public C++23 module named `sleigh_runtime` and its owning result model.
 - [`sleigh_runtime_adapter.cppm`](sleigh_runtime_adapter.cppm) adapts the reference runtime to in-memory instruction bytes and owns decode state.
 - [`src/README.md`](src/README.md) documents the runtime implementation sources.
-- [`src/ghidra/README.md`](src/ghidra/README.md) documents the imported Ghidra reference sources.
+- [`src/ghidra/README.md`](src/ghidra/README.md) documents the private runtime module implementation.
 - [`cli/sleigh_runtime_decode.cppm`](cli/sleigh_runtime_decode.cppm) implements the console decoder executable.
 - [`cli/README.md`](cli/README.md) documents the CLI in detail.
 - [`tests/sleigh_runtime_tests.cppm`](tests/sleigh_runtime_tests.cppm) contains end-to-end runtime tests.
@@ -43,7 +43,7 @@ const std::array<std::uint8_t, 3> bytes{0x48, 0x8b, 0xd9};
 const auto result = decoder.decode(0x140000000ULL, bytes, context);
 ```
 
-`decode` processes one instruction and returns `std::expected<Instruction, DecodeError>`. The runtime requires at most 16 input bytes per call; callers decoding a stream should advance by `Instruction::length` and pass the remaining bytes in windows no larger than 16 bytes. The CLI performs this loop automatically.
+`ProcessorContext::values` contains named `ContextValue` objects and owns their strings. `decode` processes one instruction and returns `std::expected<Instruction, DecodeError>`. The runtime requires at most 16 input bytes per call; callers decoding a stream should advance by `Instruction::length` and pass the remaining bytes in windows no larger than 16 bytes. The CLI performs this loop automatically.
 
 For x86-64, the module-local SLA expects `addrsize=2`, `opsize=1`, `rexprefix=0`, and `longMode=1` for the default 64-bit mode. Other processor specifications can require different context field names and values.
 

@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -16,9 +18,10 @@
 #ifndef __SLGHPATTERN_HH__
 #define __SLGHPATTERN_HH__
 
-#include "context.cppm"
+export module sleigh_runtime.ghidra:slghpattern;
+export import :context;
 
-namespace ghidra {
+export namespace ghidra {
 
 // A mask/value pair viewed as two bitstreams
 class PatternBlock {

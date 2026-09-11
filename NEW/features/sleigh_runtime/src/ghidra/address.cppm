@@ -1,3 +1,7 @@
+module;
+#include <ostream>
+#include <string>
+
 /* ###
  * IP: GHIDRA
  *
@@ -13,9 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "detail/address.cppm"
-
-#include "detail/translate.cppm"
+module sleigh_runtime.ghidra;
 
 namespace ghidra {
 

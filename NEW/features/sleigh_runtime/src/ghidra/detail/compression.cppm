@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -18,12 +20,14 @@
 #ifndef __COMPRESSION__
 #define __COMPRESSION__
 
-#include "error.cppm"
-
 #include <memory>
 #include <zlib.h>
 
-namespace ghidra {
+export module sleigh_runtime.ghidra:compression;
+
+export import :error;
+
+export namespace ghidra {
 
 /// \brief Wrapper for the deflate algorithm
 ///
@@ -68,7 +72,7 @@ public:
 
     bool isFinished(void) const {
         return streamFinished;
-    }                                     ///< Return \b if end of compressed stream is reached
+    } ///< Return \b if end of compressed stream is reached
     int4 inflate(uint1* buffer, int4 sz); ///< Inflate as much as possible into given buffer
 };
 
@@ -80,12 +84,12 @@ public:
 /// After writing the full sequence of bytes to compressed to the front-end stream, make sure to
 /// call the stream's flush() method to emit the final compressed bytes to the backing stream.
 class CompressBuffer : public std::streambuf {
-    static const int4 IN_BUFFER_SIZE;  ///< Number of bytes in the \e input buffer
-    static const int4 OUT_BUFFER_SIZE; ///< Number of bytes in the \e output buffer
-    ostream& outStream;                ///< The backing stream receiving compressed bytes
-    std::unique_ptr<uint1[]> inBuffer; ///< Owned \e input buffer
+    static const int4 IN_BUFFER_SIZE;   ///< Number of bytes in the \e input buffer
+    static const int4 OUT_BUFFER_SIZE;  ///< Number of bytes in the \e output buffer
+    ostream& outStream;                 ///< The backing stream receiving compressed bytes
+    std::unique_ptr<uint1[]> inBuffer;  ///< Owned \e input buffer
     std::unique_ptr<uint1[]> outBuffer; ///< Owned \e output buffer
-    Compress compressor;               ///< Compressor state
+    Compress compressor;                ///< Compressor state
 protected:
     void flushInput(bool lastBuffer); ///< Compress the current set of bytes in the \e input buffer
     virtual int overflow(int c);      ///< Pass the filled input buffer to the compressor

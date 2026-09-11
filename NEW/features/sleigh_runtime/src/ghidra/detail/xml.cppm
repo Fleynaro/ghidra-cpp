@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -18,8 +20,6 @@
 #ifndef __XML_HH__
 #define __XML_HH__
 
-#include "types.cppm"
-
 #include <fstream>
 #include <iomanip>
 #include <map>
@@ -27,7 +27,11 @@
 #include <string>
 #include <vector>
 
-namespace ghidra {
+export module sleigh_runtime.ghidra:xml;
+
+export import :types;
+
+export namespace ghidra {
 
 using std::dec;
 using std::hex;
@@ -45,11 +49,11 @@ using std::vector;
 /// This also holds other properties of the element that are unused in this implementation,
 /// including the \e namespace URI.
 class Attributes {
-    static string bogus_uri; ///< A placeholder for the namespace URI that should be attached to the element
-                             //  static string prefix;
-    std::unique_ptr<string> elementname;     ///< Owned element name
-    vector<std::unique_ptr<string>> name;    ///< Owned formal attribute names
-    vector<std::unique_ptr<string>> value;   ///< Owned formal attribute values
+    static string bogus_uri;             ///< A placeholder for the namespace URI that should be attached to the element
+                                         //  static string prefix;
+    std::unique_ptr<string> elementname; ///< Owned element name
+    vector<std::unique_ptr<string>> name;  ///< Owned formal attribute names
+    vector<std::unique_ptr<string>> value; ///< Owned formal attribute values
 public:
     /// Takes ownership of the parser-created element name.
     explicit Attributes(string* el) : elementname(el) {}
@@ -182,8 +186,8 @@ class Element {
     vector<string> attr;  ///< A list of attribute names for \b this element
     vector<string> value; ///< a (corresponding) list of attribute values for \b this element
 protected:
-    Element* parent; ///< The parent Element (or null)
-    List children;   ///< Non-owning traversal view of child Element objects
+    Element* parent;                                ///< The parent Element (or null)
+    List children;                                  ///< Non-owning traversal view of child Element objects
     vector<std::unique_ptr<Element>> ownedChildren; ///< Owns the child DOM nodes
 public:
     /// Creates an element with a borrowed parent pointer.
@@ -312,7 +316,7 @@ public:
 /// XML Elements can be looked up by name via getTag().
 class DocumentStorage {
     vector<std::unique_ptr<Document>> doclist; ///< Documents owned by this container
-    map<string, const Element*> tagmap; ///< The map from name to registered XML elements
+    map<string, const Element*> tagmap;        ///< The map from name to registered XML elements
 public:
     /// Releases all parsed documents and their DOM trees.
     ~DocumentStorage(void) = default;

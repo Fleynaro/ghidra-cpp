@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -19,9 +21,10 @@
 #ifndef __LOADIMAGE_HH__
 #define __LOADIMAGE_HH__
 
-#include "address.cppm"
+export module sleigh_runtime.ghidra:loadimage;
+export import :address;
 
-namespace ghidra {
+export namespace ghidra {
 
 /// Exception indicating that an image cannot satisfy a byte request.
 struct DataUnavailError : public LowlevelError {

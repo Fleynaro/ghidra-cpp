@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -16,15 +18,19 @@
 #ifndef __MARSHAL_HH__
 #define __MARSHAL_HH__
 
-#include "opcodes.cppm"
-#include "xml.cppm"
-
-#include <memory>
 #include <list>
+#include <memory>
+#include <string>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
-namespace ghidra {
+export module sleigh_runtime.ghidra:marshal;
+
+export import :opcodes;
+export import :xml;
+
+export namespace ghidra {
 
 using std::list;
 using std::unordered_map;
@@ -57,7 +63,7 @@ public:
     } ///< Get the attribute's id
     bool operator==(const AttributeId& op2) const {
         return (id == op2.id);
-    }                                                ///< Test equality with another AttributeId
+    } ///< Test equality with another AttributeId
     static uint4 find(const string& nm, int4 scope); ///< Find the id associated with a specific attribute name
     static void initialize(void);                    ///< Populate a hashtable with all AttributeId objects
     friend bool operator==(uint4 id, const AttributeId& op2) {
@@ -91,7 +97,7 @@ public:
     } ///< Get the element's id
     bool operator==(const ElementId& op2) const {
         return (id == op2.id);
-    }                                                ///< Test equality with another ElementId
+    } ///< Test equality with another ElementId
     static uint4 find(const string& nm, int4 scope); ///< Find the id associated with a specific element name
     static void initialize(void);                    ///< Populate a hashtable with all ElementId objects
     friend bool operator==(uint4 id, const ElementId& op2) {
@@ -134,7 +140,7 @@ public:
 
     const AddrSpaceManager* getAddrSpaceManager(void) const {
         return spcManager;
-    }                         ///< Get the manager used for address space decoding
+    } ///< Get the manager used for address space decoding
     virtual ~Decoder(void) {} ///< Destructor
 
     /// \brief Prepare to decode a given stream
@@ -526,29 +532,29 @@ public:
 /// For strings, the integer encoded after the \e type byte, is the actual length of the string.  The
 /// string data itself is stored immediately after the length integer using UTF8 format.
 namespace PackedFormat {
-static const uint1 HEADER_MASK = 0xc0;              ///< Bits encoding the record type
-static const uint1 ELEMENT_START = 0x40;            ///< Header for an element start record
-static const uint1 ELEMENT_END = 0x80;              ///< Header for an element end record
-static const uint1 ATTRIBUTE = 0xc0;                ///< Header for an attribute record
-static const uint1 HEADEREXTEND_MASK = 0x20;        ///< Bit indicating the id extends into the next byte
-static const uint1 ELEMENTID_MASK = 0x1f;           ///< Bits encoding (part of) the id in the record header
-static const uint1 RAWDATA_MASK = 0x7f;             ///< Bits of raw data in follow-on bytes
-static const int4 RAWDATA_BITSPERBYTE = 7;          ///< Number of bits used in a follow-on byte
-static const uint1 RAWDATA_MARKER = 0x80;           ///< The unused bit in follow-on bytes. (Always set to 1)
-static const int4 TYPECODE_SHIFT = 4;               ///< Bit position of the type code in the type byte
-static const uint1 LENGTHCODE_MASK = 0xf;           ///< Bits in the type byte forming the length code
-static const uint1 TYPECODE_BOOLEAN = 1;            ///< Type code for the \e boolean type
-static const uint1 TYPECODE_SIGNEDINT_POSITIVE = 2; ///< Type code for the \e signed \e positive \e integer type
-static const uint1 TYPECODE_SIGNEDINT_NEGATIVE = 3; ///< Type code for the \e signed \e negative \e integer type
-static const uint1 TYPECODE_UNSIGNEDINT = 4;        ///< Type code for the \e unsigned \e integer type
-static const uint1 TYPECODE_ADDRESSSPACE = 5;       ///< Type code for the \e address \e space type
-static const uint1 TYPECODE_SPECIALSPACE = 6;       ///< Type code for the \e special \e address \e space type
-static const uint1 TYPECODE_STRING = 7;             ///< Type code for the \e string type
-static const uint4 SPECIALSPACE_STACK = 0;          ///< Special code for the \e stack space
-static const uint4 SPECIALSPACE_JOIN = 1;           ///< Special code for the \e join space
-static const uint4 SPECIALSPACE_FSPEC = 2;          ///< Special code for the \e fspec space
-static const uint4 SPECIALSPACE_IOP = 3;            ///< Special code for the \e iop space
-static const uint4 SPECIALSPACE_SPACEBASE = 4;      ///< Special code for a \e spacebase space
+inline constexpr uint1 HEADER_MASK = 0xc0;              ///< Bits encoding the record type
+inline constexpr uint1 ELEMENT_START = 0x40;            ///< Header for an element start record
+inline constexpr uint1 ELEMENT_END = 0x80;              ///< Header for an element end record
+inline constexpr uint1 ATTRIBUTE = 0xc0;                ///< Header for an attribute record
+inline constexpr uint1 HEADEREXTEND_MASK = 0x20;        ///< Bit indicating the id extends into the next byte
+inline constexpr uint1 ELEMENTID_MASK = 0x1f;           ///< Bits encoding (part of) the id in the record header
+inline constexpr uint1 RAWDATA_MASK = 0x7f;             ///< Bits of raw data in follow-on bytes
+inline constexpr int4 RAWDATA_BITSPERBYTE = 7;          ///< Number of bits used in a follow-on byte
+inline constexpr uint1 RAWDATA_MARKER = 0x80;           ///< The unused bit in follow-on bytes. (Always set to 1)
+inline constexpr int4 TYPECODE_SHIFT = 4;               ///< Bit position of the type code in the type byte
+inline constexpr uint1 LENGTHCODE_MASK = 0xf;           ///< Bits in the type byte forming the length code
+inline constexpr uint1 TYPECODE_BOOLEAN = 1;            ///< Type code for the \e boolean type
+inline constexpr uint1 TYPECODE_SIGNEDINT_POSITIVE = 2; ///< Type code for the \e signed \e positive \e integer type
+inline constexpr uint1 TYPECODE_SIGNEDINT_NEGATIVE = 3; ///< Type code for the \e signed \e negative \e integer type
+inline constexpr uint1 TYPECODE_UNSIGNEDINT = 4;        ///< Type code for the \e unsigned \e integer type
+inline constexpr uint1 TYPECODE_ADDRESSSPACE = 5;       ///< Type code for the \e address \e space type
+inline constexpr uint1 TYPECODE_SPECIALSPACE = 6;       ///< Type code for the \e special \e address \e space type
+inline constexpr uint1 TYPECODE_STRING = 7;             ///< Type code for the \e string type
+inline constexpr uint4 SPECIALSPACE_STACK = 0;          ///< Special code for the \e stack space
+inline constexpr uint4 SPECIALSPACE_JOIN = 1;           ///< Special code for the \e join space
+inline constexpr uint4 SPECIALSPACE_FSPEC = 2;          ///< Special code for the \e fspec space
+inline constexpr uint4 SPECIALSPACE_IOP = 3;            ///< Special code for the \e iop space
+inline constexpr uint4 SPECIALSPACE_SPACEBASE = 4;      ///< Special code for a \e spacebase space
 } // namespace PackedFormat
 
 /// \brief A byte-based decoder designed to marshal info to the decompiler efficiently
@@ -605,14 +611,14 @@ private:
     bool attributeRead;       ///< Has the last attribute returned by getNextAttributeId been read
     uint1 getByte(Position& pos) {
         return *pos.current;
-    }                                  ///< Get the byte at the current position, do not advance
+    } ///< Get the byte at the current position, do not advance
     uint1 getBytePlus1(Position& pos); ///< Get the byte following the current byte, do not advance position
     uint1 getNextByte(Position& pos);  ///< Get the byte at the current position and advance to the next byte
     void advancePosition(Position& pos, uint4 skip); ///< Advance the position by the given number of bytes
     uint8 readInteger(int4 len); ///< Read an integer from the \e current position given its length in bytes
     uint4 readLengthCode(uint1 typeByte) {
         return ((uint4)typeByte & PackedFormat::LENGTHCODE_MASK);
-    }                                                        ///< Extract length code from type byte
+    } ///< Extract length code from type byte
     void findMatchingAttribute(const AttributeId& attribId); ///< Find attribute matching the given id in open element
     void skipAttribute(void);                                ///< Skip over the attribute at the current position
     void skipAttributeRemaining(uint1 typeByte);             ///< Skip over remaining attribute data, after a mismatch

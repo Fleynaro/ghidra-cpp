@@ -1,3 +1,9 @@
+module;
+#include <cmath>
+#include <ostream>
+#include <sstream>
+#include <string>
+
 /* ###
  * IP: GHIDRA
  *
@@ -13,9 +19,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "detail/slghsymbol.cppm"
-
-#include "detail/sleighbase.cppm"
+module sleigh_runtime.ghidra;
 
 #include <cmath>
 

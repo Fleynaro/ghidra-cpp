@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  * NOTE: Decompiler specific flags, refers to sparc,linux,windows,i386,apple,alpha,powerpc
@@ -21,7 +23,9 @@
 
 #include <cstdint>
 
-namespace ghidra {
+export module sleigh_runtime.ghidra:types;
+
+export namespace ghidra {
 
 // Use of uintm and intm is deprecated.  They must currently be set to be 32-bit.
 typedef uint32_t uintm;
@@ -39,8 +43,8 @@ typedef int8_t int1;
 /* uintp is intended to be an unsigned integer that is the same size as a pointer */
 typedef uintptr_t uintp;
 
-#if defined(__x86_64__) || defined(__i386__)
-#define HOST_ENDIAN 0
+#if defined(__x86_64__) || defined(__i386__) || defined(_M_X64) || defined(_M_IX86)
+inline constexpr int HOST_ENDIAN = 0;
 
 #else // other platforms (not compatible with g++ 4.8.5)
 class Endian {
@@ -50,7 +54,7 @@ public:
         int1 part[4];
     } host = {1};
 };
-#define HOST_ENDIAN Endian::host.part[3]
+inline constexpr int HOST_ENDIAN = Endian::host.part[3];
 #endif
 
 #if defined(_WINDOWS)

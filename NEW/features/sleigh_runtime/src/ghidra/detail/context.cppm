@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -18,10 +20,11 @@
 #ifndef __CONTEXT_HH__
 #define __CONTEXT_HH__
 
-#include "globalcontext.cppm"
-#include "opcodes.cppm"
+export module sleigh_runtime.ghidra:context;
+export import :globalcontext;
+export import :opcodes;
 
-namespace ghidra {
+export namespace ghidra {
 
 /// \brief A multiple-byte sized chunk of pattern in the instruction byte stream
 class Token {
@@ -150,7 +153,7 @@ public:
     } ///< Get the overall state of the parse
     void setParserState(parse_state st) {
         parsestate = st;
-    }                                                         ///< Update the overall parse state
+    } ///< Update the overall parse state
     void deallocateState(ParserWalkerChange& walker);         ///< Clear any existing constructor tree
     void allocateOperand(int4 i, ParserWalkerChange& walker); ///< Allocate a new child node in the constructor tree
     void setAddr(const Address& ad) {
@@ -167,14 +170,14 @@ public:
                    ConstructState* point); ///< Add a formal SLEIGH context change command
     void clearCommits(void) {
         contextcommit.clear();
-    }                        ///< Clear all context commits
+    } ///< Clear all context commits
     void applyCommits(void); ///< Apply any pending commits to the context cache
     const Address& getAddr(void) const {
         return addr;
     } ///< Get the starting address of the current instruction
     const Address& getNaddr(void) const {
         return naddr;
-    }                                     ///< Get the address of the next instruction
+    } ///< Get the address of the next instruction
     const Address& getN2addr(void) const; ///< Get the address of the instruction after the next
     const Address& getDestAddr(void) const {
         return calladdr;
@@ -187,7 +190,7 @@ public:
     } ///< Get the address space of the current instruction
     AddrSpace* getConstSpace(void) const {
         return const_space;
-    }                                                                        ///< Get the address space for constants
+    } ///< Get the address space for constants
     uintm getInstructionBytes(int4 byteoff, int4 numbytes, uint4 off) const; ///< Get the specified instruction bytes
     uintm getContextBytes(int4 byteoff, int4 numbytes) const;                ///< Get bytes from the local context
     uintm getInstructionBits(int4 startbit, int4 size,
@@ -207,7 +210,7 @@ public:
     } ///< Set (the number of instruction bytes) in the delay slot
     int4 getDelaySlot(void) const {
         return delayslot;
-    }                              ///< Get the number of instruction bytes in the delay slot
+    } ///< Get the number of instruction bytes in the delay slot
     void expandState(int4 amount); ///< Expand the number of available nodes for the constructor tree
 };
 
@@ -241,7 +244,7 @@ public:
     void setOutOfBandState(Constructor* ct, int4 index, ConstructState* tempstate, const ParserWalker& otherwalker);
     bool isState(void) const {
         return (point != (ConstructState*)0);
-    }                         ///< Return \b true if there are more nodes to traverse
+    } ///< Return \b true if there are more nodes to traverse
     void pushOperand(int4 i); ///< Make the indicated child (operand) the current node
     void popOperand(void) {
         point = point->parent;
@@ -374,7 +377,7 @@ public:
     } ///< Set the underlying Constructor for the current node
     void setCurrentLength(int4 len) {
         point->length = len;
-    }                                                   ///< Set the length associated with the current constructor
+    } ///< Set the length associated with the current constructor
     void calcCurrentLength(int4 length, int4 numopers); ///< Calculate the length of the current constructor
 };
 

@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -19,12 +21,13 @@
 #ifndef __SLEIGH_HH__
 #define __SLEIGH_HH__
 
-#include "sleighbase.cppm"
-
 #include <memory>
 #include <vector>
 
-namespace ghidra {
+export module sleigh_runtime.ghidra:sleigh;
+export import :sleighbase;
+
+export namespace ghidra {
 
 class LoadImage;
 
@@ -60,15 +63,15 @@ struct PcodeData {
 /// that can be reused repeatedly to emit multiple instructions.
 class PcodeCacher {
     std::unique_ptr<VarnodeData[]> poolstorage; ///< Owned VarnodeData pool
-    VarnodeData* poolstart;              ///< Borrowed start view of the pool
-    VarnodeData* curpool;                ///< First unused VarnodeData
-    VarnodeData* endpool;                ///< End of the pool of VarnodeData objects
-    deque<PcodeData> issued;             ///< P-code ops issued for the current instruction
-    list<RelativeRecord> label_refs;     ///< References to labels
-    vector<uintb> labels;                ///< Locations of labels
-    VarnodeData* expandPool(uint4 size); ///< Expand the memory pool
+    VarnodeData* poolstart;                     ///< Borrowed start view of the pool
+    VarnodeData* curpool;                       ///< First unused VarnodeData
+    VarnodeData* endpool;                       ///< End of the pool of VarnodeData objects
+    deque<PcodeData> issued;                    ///< P-code ops issued for the current instruction
+    list<RelativeRecord> label_refs;            ///< References to labels
+    vector<uintb> labels;                       ///< Locations of labels
+    VarnodeData* expandPool(uint4 size);        ///< Expand the memory pool
 public:
-    PcodeCacher(void);  ///< Constructor
+    PcodeCacher(void); ///< Constructor
     ~PcodeCacher(void) = default;
 
     /// \brief Allocate data objects for a new set of Varnodes
@@ -115,9 +118,9 @@ class DisassemblyCache {
     int4 minimumreuse;          ///< Can call getParserContext this many times, before a ParserContext is reused
     uint4 mask;                 ///< Size of the hashtable in form 2^n-1
     vector<std::unique_ptr<ParserContext>> contexts; ///< Stable ownership of cached parser contexts
-    int4 nextfree;                                    ///< Current end/beginning of circular list
+    int4 nextfree;                                   ///< Current end/beginning of circular list
     vector<ParserContext*> hashtable;                ///< Non-owning lookup table keyed by address
-    void initialize(int4 min, int4 hashsize); ///< Initialize the hash-table of ParserContexts
+    void initialize(int4 min, int4 hashsize);        ///< Initialize the hash-table of ParserContexts
 public:
     DisassemblyCache(Translate* trans, ContextCache* ccache, AddrSpace* cspace, int4 cachesize,
                      int4 windowsize); ///< Constructor
@@ -166,12 +169,12 @@ public:
 /// P-code is produced via the oneInstruction() method, provided with a PcodeEmit
 /// object and an Address.
 class Sleigh : public SleighBase {
-    LoadImage* loader;                  ///< The mapped bytes in the program
-    ContextDatabase* context_db;        ///< Database of context values steering disassembly
-    std::unique_ptr<ContextCache> cache; ///< Owned cache of recently used context values
+    LoadImage* loader;                                  ///< The mapped bytes in the program
+    ContextDatabase* context_db;                        ///< Database of context values steering disassembly
+    std::unique_ptr<ContextCache> cache;                ///< Owned cache of recently used context values
     mutable std::unique_ptr<DisassemblyCache> discache; ///< Owned cache of recently parsed instructions
-    mutable PcodeCacher pcode_cache;    ///< Cache of p-code data just prior to emitting
-    void clearForDelete(void);          ///< Delete the context and disassembly caches
+    mutable PcodeCacher pcode_cache;                    ///< Cache of p-code data just prior to emitting
+    void clearForDelete(void);                          ///< Delete the context and disassembly caches
 protected:
     ParserContext* obtainContext(const Address& addr, ParserContext::parse_state state) const;
     void resolve(ParserContext& pos) const;        ///< Generate a parse tree suitable for disassembly
@@ -241,8 +244,8 @@ public:
   \endcode
 
   The source code file \e sleighexample.cppm has a complete example
-  of initializing the Translate engine and using it to generate
-  assembly and pcode.  The source has a hard-coded file name,
+  of initializing the Translate engine and using it
+  to generate assembly and pcode.  The source has a hard-coded file name,
   \e x86testcode, as the example binary executable it attempts
   to decode, but this can easily be changed.  It also needs
   a SLEIGH specification file (\e .sla) to be present.

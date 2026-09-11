@@ -1,3 +1,13 @@
+module;
+#include <algorithm>
+#include <cstdint>
+#include <memory>
+#include <optional>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
+
 /* ###
  * IP: GHIDRA
  *
@@ -13,7 +23,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "detail/translate.cppm"
+module sleigh_runtime.ghidra;
 
 namespace ghidra {
 
@@ -1021,36 +1031,6 @@ Translate::Translate(void)
     target_isbigendian = false;
     unique_base = 0;
     alignment = 1;
-}
-
-/// If no floating-point format objects were registered by the \b initialize method, this
-/// method will fill in some suitable default formats.  These defaults are based on
-/// the 4-byte and 8-byte encoding specified by the IEEE 754 standard.
-void Translate::setDefaultFloatFormats(void)
-
-{
-    if (floatformats.empty()) { // Default IEEE 754 float formats
-        floatformats.push_back(FloatFormat(4));
-        floatformats.push_back(FloatFormat(8));
-    }
-}
-
-/// The pcode model for floating point encoding assumes that a
-/// consistent encoding is used for all values of a given size.
-/// This routine fetches the FloatFormat object given the size,
-/// in bytes, of the desired encoding.
-/// \param size is the size of the floating-point value in bytes
-/// \return a pointer to the floating-point format
-const FloatFormat* Translate::getFloatFormat(int4 size) const
-
-{
-    vector<FloatFormat>::const_iterator iter;
-
-    for (iter = floatformats.begin(); iter != floatformats.end(); ++iter) {
-        if ((*iter).getSize() == size)
-            return &(*iter);
-    }
-    return (const FloatFormat*)0;
 }
 
 } // End namespace ghidra

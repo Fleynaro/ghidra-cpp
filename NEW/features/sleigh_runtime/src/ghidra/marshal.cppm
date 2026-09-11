@@ -1,3 +1,15 @@
+module;
+#include <iostream>
+#include <istream>
+#include <list>
+#include <memory>
+#include <ostream>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
 /* ###
  * IP: GHIDRA
  *
@@ -13,9 +25,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "detail/marshal.cppm"
-
-#include "detail/translate.cppm"
+module sleigh_runtime.ghidra;
 
 namespace ghidra {
 

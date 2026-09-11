@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -18,11 +20,12 @@
 #ifndef __SLEIGHBASE_HH__
 #define __SLEIGHBASE_HH__
 
-#include "slaformat.cppm"
-#include "slghsymbol.cppm"
-#include "translate.cppm"
+export module sleigh_runtime.ghidra:sleighbase;
+export import :slaformat;
+export import :slghsymbol;
+export import :translate;
 
-namespace ghidra {
+export namespace ghidra {
 
 /// \brief class for recording source file information for SLEIGH constructors.
 
@@ -80,7 +83,7 @@ public:
     SleighBase(void);    ///< Construct an uninitialized translator
     bool isInitialized(void) const {
         return (root != (SubtableSymbol*)0);
-    }                            ///< Return \b true if \b this is initialized
+    } ///< Return \b true if \b this is initialized
     virtual ~SleighBase(void) {} ///< Destructor
     virtual const VarnodeData& getRegister(const string& nm) const;
     virtual string getRegisterName(AddrSpace* base, uintb off, int4 size) const;
@@ -96,7 +99,7 @@ public:
     } ///< Find a specific SLEIGH symbol by id
     SleighSymbol* findGlobalSymbol(const string& nm) const {
         return symtab.findGlobalSymbol(nm);
-    }                                                            ///< Find a specific global SLEIGH symbol by name
+    } ///< Find a specific global SLEIGH symbol by name
     void encodeSlaSpace(Encoder& encoder, AddrSpace* spc) const; ///< Write the details of given space in .sla format
     void encode(Encoder& encoder) const; ///< Write out the SLEIGH specification as a \<sleigh> tag.
 };

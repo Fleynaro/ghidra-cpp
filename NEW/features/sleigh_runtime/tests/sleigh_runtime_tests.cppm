@@ -44,6 +44,12 @@ void expect_materialized_pcode(const sleigh_runtime::Instruction& instruction) {
     }
 }
 
+/// Verifies that the public opcode table covers the legacy extract opcode and rejects unused slots.
+TEST(SleighRuntime, NamesPcodeOpcodes) {
+    EXPECT_EQ(sleigh_runtime::opcode_name(sleigh_runtime::PcodeOpcode::zpull), "EXTRACT");
+    EXPECT_EQ(sleigh_runtime::opcode_name(static_cast<sleigh_runtime::PcodeOpcode>(45)), "UNKNOWN");
+}
+
 /// Verifies a register move all the way from SLA matching through p-code emission.
 TEST(SleighRuntime, DecodesRegisterMove) {
     auto decoder = make_decoder();

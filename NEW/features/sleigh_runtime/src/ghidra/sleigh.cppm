@@ -1,3 +1,12 @@
+module;
+#include <fstream>
+#include <memory>
+#include <ostream>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
+
 /* ###
  * IP: GHIDRA
  *
@@ -13,9 +22,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "detail/sleigh.cppm"
-
-#include "detail/loadimage.cppm"
+module sleigh_runtime.ghidra;
 
 namespace ghidra {
 
@@ -499,8 +506,7 @@ ParserContext* DisassemblyCache::getParserContext(const Address& addr)
 /// \param ld is the LoadImage to draw program bytes from
 /// \param c_db is the context database
 Sleigh::Sleigh(LoadImage* ld, ContextDatabase* c_db)
-    : SleighBase(), loader(ld), context_db(c_db), cache(std::make_unique<ContextCache>(c_db)), discache(nullptr) {
-}
+    : SleighBase(), loader(ld), context_db(c_db), cache(std::make_unique<ContextCache>(c_db)), discache(nullptr) {}
 
 void Sleigh::clearForDelete(void) {
     discache.reset();
@@ -548,8 +554,8 @@ void Sleigh::initialize(DocumentStorage& store)
         parser_cachesize = 8;
         parser_windowsize = 256;
     }
-    discache = std::make_unique<DisassemblyCache>(this, cache.get(), getConstantSpace(), parser_cachesize,
-                                                  parser_windowsize);
+    discache =
+        std::make_unique<DisassemblyCache>(this, cache.get(), getConstantSpace(), parser_cachesize, parser_windowsize);
 }
 
 /// \brief Obtain a parse tree for the instruction at the given address

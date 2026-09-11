@@ -1,3 +1,6 @@
+module;
+#include <memory>
+
 /* ###
  * IP: GHIDRA
  *
@@ -13,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "detail/slaformat.cppm"
+module sleigh_runtime.ghidra;
 
 namespace ghidra {
 namespace sla {

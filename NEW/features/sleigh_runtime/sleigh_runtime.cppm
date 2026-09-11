@@ -12,7 +12,6 @@ module;
 #include <span>
 #include <string>
 #include <string_view>
-#include <utility>
 #include <vector>
 
 export module sleigh_runtime;
@@ -116,6 +115,7 @@ enum class PcodeOpcode : std::uint8_t {
     cpool_ref = 68,
     new_op = 69,
     insert = 70,
+    zpull = 71,
     popcount = 72,
     lzcount = 73,
     spull = 74,
@@ -145,9 +145,15 @@ struct FlowInfo {
     std::optional<Varnode> target;
 };
 
+/// Supplies one low-level processor context value by its Sleigh field name.
+struct ContextValue {
+    std::string name;
+    std::uint64_t value = 0;
+};
+
 /// Supplies low-level processor context values by their Sleigh field names.
 struct ProcessorContext {
-    std::vector<std::pair<std::string, std::uint64_t>> values;
+    std::vector<ContextValue> values;
 };
 
 /// The complete result of decoding one machine instruction.

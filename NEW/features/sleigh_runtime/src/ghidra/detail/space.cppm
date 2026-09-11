@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -19,10 +21,13 @@
 #ifndef __SPACE_HH__
 #define __SPACE_HH__
 
-#include "error.cppm"
-#include "marshal.cppm"
+#include <string>
 
-namespace ghidra {
+export module sleigh_runtime.ghidra:space;
+export import :error;
+export import :marshal;
+
+export namespace ghidra {
 
 /// \brief Fundemental address space types
 ///

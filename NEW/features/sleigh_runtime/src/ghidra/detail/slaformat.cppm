@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -18,12 +20,13 @@
 #ifndef __SLAFORMAT__
 #define __SLAFORMAT__
 
-#include "compression.cppm"
-#include "marshal.cppm"
-
 #include <memory>
 
-namespace ghidra {
+export module sleigh_runtime.ghidra:slaformat;
+export import :compression;
+export import :marshal;
+
+export namespace ghidra {
 namespace sla {
 
 extern const int4 FORMAT_SCOPE;   ///< Grouping elements/attributes for SLA file format
@@ -193,7 +196,7 @@ public:
 ///
 /// This verifies the .sla file header, does decompression, and decodes the raw data elements/attributes.
 class FormatDecode : public PackedDecode {
-    static const int4 IN_BUFFER_SIZE; ///< The size of the \e input buffer
+    static const int4 IN_BUFFER_SIZE;  ///< The size of the \e input buffer
     std::unique_ptr<uint1[]> inBuffer; ///< Owned \e input buffer
 public:
     FormatDecode(const AddrSpaceManager* spcManager); ///< Initialize the decoder

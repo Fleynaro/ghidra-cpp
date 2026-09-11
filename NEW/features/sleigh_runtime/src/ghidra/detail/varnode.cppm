@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -19,9 +21,10 @@
 #ifndef __VARNODE_HH__
 #define __VARNODE_HH__
 
-#include "address.cppm"
+export module sleigh_runtime.ghidra:varnode;
+export import :address;
 
-namespace ghidra {
+export namespace ghidra {
 
 /// Describes a concrete address-space, offset, and byte-size triple.
 ///

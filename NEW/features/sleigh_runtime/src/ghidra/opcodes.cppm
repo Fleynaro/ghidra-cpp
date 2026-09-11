@@ -1,3 +1,6 @@
+module;
+#include <string>
+
 /* ###
  * IP: GHIDRA
  *
@@ -13,9 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "detail/opcodes.cppm"
-
-#include "detail/types.cppm"
+module sleigh_runtime.ghidra;
 
 namespace ghidra {
 
@@ -84,47 +85,4 @@ OpCode get_opcode(const string& nm)
 /// \param opc is the OpCode to complement
 /// \param reorder is set to \b true if the inputs need to be reordered
 /// \return the complementary OpCode or CPUI_MAX if not given a comparison operation
-OpCode get_booleanflip(OpCode opc, bool& reorder)
-
-{
-    switch (opc) {
-        case CPUI_INT_EQUAL:
-            reorder = false;
-            return CPUI_INT_NOTEQUAL;
-        case CPUI_INT_NOTEQUAL:
-            reorder = false;
-            return CPUI_INT_EQUAL;
-        case CPUI_INT_SLESS:
-            reorder = true;
-            return CPUI_INT_SLESSEQUAL;
-        case CPUI_INT_SLESSEQUAL:
-            reorder = true;
-            return CPUI_INT_SLESS;
-        case CPUI_INT_LESS:
-            reorder = true;
-            return CPUI_INT_LESSEQUAL;
-        case CPUI_INT_LESSEQUAL:
-            reorder = true;
-            return CPUI_INT_LESS;
-        case CPUI_BOOL_NEGATE:
-            reorder = false;
-            return CPUI_COPY;
-        case CPUI_FLOAT_EQUAL:
-            reorder = false;
-            return CPUI_FLOAT_NOTEQUAL;
-        case CPUI_FLOAT_NOTEQUAL:
-            reorder = false;
-            return CPUI_FLOAT_EQUAL;
-        case CPUI_FLOAT_LESS:
-            reorder = true;
-            return CPUI_FLOAT_LESSEQUAL;
-        case CPUI_FLOAT_LESSEQUAL:
-            reorder = true;
-            return CPUI_FLOAT_LESS;
-        default:
-            break;
-    }
-    return CPUI_MAX;
-}
-
 } // End namespace ghidra

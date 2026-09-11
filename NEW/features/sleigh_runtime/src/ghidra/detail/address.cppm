@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -26,9 +28,10 @@
 #ifndef __ADDRESS_HH__
 #define __ADDRESS_HH__
 
-#include "space.cppm"
+export module sleigh_runtime.ghidra:address;
+export import :space;
 
-namespace ghidra {
+export namespace ghidra {
 
 class AddrSpaceManager;
 
@@ -226,7 +229,7 @@ public:
     } ///< Get the address of the first byte
     Address getLastAddr(void) const {
         return Address(spc, last);
-    }                                                              ///< Get the address of the last byte
+    } ///< Get the address of the last byte
     Address getLastAddrOpen(const AddrSpaceManager* manage) const; ///< Get address of first byte after \b this
     bool contains(const Address& addr) const;                      ///< Determine if the address is in \b this Range
 
@@ -276,7 +279,7 @@ class RangeList {
 public:
     RangeList(const RangeList& op2) {
         tree = op2.tree;
-    }                  ///< Copy constructor
+    } ///< Copy constructor
     RangeList(void) {} ///< Construct an empty container
     void clear(void) {
         tree.clear();
@@ -292,7 +295,7 @@ public:
     } ///< Get iterator to ending Range
     int4 numRanges(void) const {
         return tree.size();
-    }                                                              ///< Return the number of Range objects in container
+    } ///< Return the number of Range objects in container
     const Range* getFirstRange(void) const;                        ///< Get the first Range
     const Range* getLastRange(void) const;                         ///< Get the last Range
     const Range* getLastSignedRange(AddrSpace* spaceid) const;     ///< Get the last Range viewing offsets as signed
@@ -301,11 +304,11 @@ public:
     void insertRange(AddrSpace* spc, uintb first, uintb last);            ///< Insert a range of addresses
     void insertRange(const Range& rng) {
         insertRange(rng.getSpace(), rng.getFirst(), rng.getLast());
-    }                                                          ///< Insert a range
+    } ///< Insert a range
     void removeRange(AddrSpace* spc, uintb first, uintb last); ///< Remove a range of addresses
     void removeRange(const Range& rng) {
         removeRange(rng.getSpace(), rng.getFirst(), rng.getLast());
-    }                                                           ///< Remove a range
+    } ///< Remove a range
     void merge(const RangeList& op2);                           ///< Merge another RangeList into \b this
     bool inRange(const Address& addr, uintb size) const;        ///< Check containment an address range
     bool inRange(const Range& rng) const;                       ///< Check containment of given range
@@ -336,7 +339,7 @@ public:
         leastSigBit = 0;
         numBits = bSize * 8;
         isBigEndian = bigEndian;
-    }                                                 ///< Construct byte range
+    } ///< Construct byte range
     BitRange(const BitRange& op2, int4 off, int4 sz); ///< Constructor, copy range into new container
     BitRange(int4 bOff, int4 bSize, int4 least, int4 num, bool bigEndian) {
         byteOffset = bOff;
@@ -347,7 +350,7 @@ public:
     } ///< Constructor
     bool empty(void) const {
         return (numBits <= 0);
-    }                                        ///< Return \b true if \b this is an empty bit range (zero bits)
+    } ///< Return \b true if \b this is an empty bit range (zero bits)
     int4 compare(const BitRange& op2) const; ///< Compare \b this with another as containers
     int4 translateLSB(
         const BitRange& op2) const; ///< Translate the \b leastSigBit of the given range into \b this reference frame

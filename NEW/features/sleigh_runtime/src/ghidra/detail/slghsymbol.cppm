@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -16,10 +18,17 @@
 #ifndef __SLGHSYMBOL_HH__
 #define __SLGHSYMBOL_HH__
 
-#include "semantics.cppm"
-#include "slghpatexpress.cppm"
+#include <ostream>
+#include <string>
 
-namespace ghidra {
+export module sleigh_runtime.ghidra:slghsymbol;
+#include <ostream>
+#include <string>
+
+export import :semantics;
+export import :slghpatexpress;
+
+export namespace ghidra {
 
 class SleighBase; // Forward declaration
 class SleighSymbol {

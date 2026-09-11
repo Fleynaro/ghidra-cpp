@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -16,9 +18,10 @@
 #ifndef __SLGHPATEXPRESS_HH__
 #define __SLGHPATEXPRESS_HH__
 
-#include "slghpattern.cppm"
+export module sleigh_runtime.ghidra:slghpatexpress;
+export import :slghpattern;
 
-namespace ghidra {
+export namespace ghidra {
 
 class TokenPattern {
     Pattern* pattern;

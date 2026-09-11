@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  *
@@ -19,10 +21,11 @@
 /// \file globalcontext.cppm
 /// \brief Utilities for getting address-based context to the disassembler and decompiler
 
-#include "partmap.cppm"
-#include "varnode.cppm"
+export module sleigh_runtime.ghidra:globalcontext;
+export import :partmap;
+export import :varnode;
 
-namespace ghidra {
+export namespace ghidra {
 
 extern ElementId ELEM_CONTEXT_DATA;     ///< Marshaling element \<context_data>
 extern ElementId ELEM_CONTEXT_POINTS;   ///< Marshaling element \<context_points>
@@ -364,7 +367,7 @@ public:
     } ///< Retrieve the encapsulated database object
     void allowSet(bool val) {
         allowset = val;
-    }                                                       ///< Toggle whether setContext() calls are ignored
+    } ///< Toggle whether setContext() calls are ignored
     void getContext(const Address& addr, uintm* buf) const; ///< Retrieve the context blob for the given address
     void setContext(const Address& addr, int4 num, uintm mask, uintm value);
     void setContext(const Address& addr1, const Address& addr2, int4 num, uintm mask, uintm value);

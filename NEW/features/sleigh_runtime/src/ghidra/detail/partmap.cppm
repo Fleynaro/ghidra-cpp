@@ -1,3 +1,5 @@
+module;
+
 /* ###
  * IP: GHIDRA
  * NOTE: very generic partition container
@@ -21,7 +23,9 @@
 
 #include <map>
 
-namespace ghidra {
+export module sleigh_runtime.ghidra:partmap;
+
+export namespace ghidra {
 
 /// \brief A map from a linear space to value objects
 ///
@@ -64,7 +68,7 @@ public:
     } ///< Get the default value object
     _valuetype& defaultValue(void) {
         return defaultvalue;
-    }                                                                     ///< Get the default value object
+    } ///< Get the default value object
     _valuetype& clearRange(const _linetype& pnt1, const _linetype& pnt2); ///< Clear a range of split points
     const_iterator begin(void) const {
         return database.begin();
@@ -211,35 +215,4 @@ const _valuetype& partmap<_linetype, _valuetype>::bounds(const _linetype& pnt, _
 }
 
 } // End namespace ghidra
-#endif
-
-#if 0
-
-#include <iostream>
-using std::cout;
-
-int main(int argc,char **argv)
-
-{
-  partmap<int,unsigned int> data;
-
-  data.defaultValue() = 0;
-  data.split(5) = 5;
-  data.split(2) = 2;
-  data.split(3) = 4;
-  data.split(3) = 3;
-
-  cout << data.getValue(6) << endl;
-  cout << data.getValue(8) << endl;
-  cout << data.getValue(4) << endl;
-  cout << data.getValue(1) << endl;
-  
-  partmap<int,unsigned int>::const_iterator iter;
-
-  iter = data.begin(3);
-  while(iter!=data.end()) {
-    cout << (*iter).second << endl;
-    ++iter;
-  }
-}
 #endif
