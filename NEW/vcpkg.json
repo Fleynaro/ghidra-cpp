@@ -1,0 +1,10 @@
+{
+  "name": "new-ghidra-cpp",
+  "version-semver": "0.1.0",
+  "description": "Standalone C++23 Ghidra implementation workspace",
+  "dependencies": [
+    "gtest",
+    "pugixml",
+    "zlib"
+  ]
+}

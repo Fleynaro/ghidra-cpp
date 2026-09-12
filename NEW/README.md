@@ -18,7 +18,7 @@ This directory contains the initial C++23 rewrite workspace developed alongside 
 - MSVC with C++23 support.
 - CMake 3.28 or newer (the provided script uses CMake 4.4.2 from vcpkg).
 - Ninja.
-- vcpkg with `gtest:x64-windows` installed.
+- vcpkg with the dependencies declared in [`vcpkg.json`](vcpkg.json); manifest mode installs `gtest`, `pugixml`, and `zlib` for the selected triplet.
 
 Run `build.bat` from this directory to create `build/new_ghidra_app.exe` and execute the tests.
 

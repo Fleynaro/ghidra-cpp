@@ -1,12 +1,11 @@
 module;
 
-#include "error.hh"
-
 #include <gtest/gtest.h>
 
 export module decompiler_tests;
 
 import decompiler;
+import ghidra.decompiler;
 import sleigh_runtime;
 import std;
 
@@ -2199,6 +2198,65 @@ TEST(SleighProvider, DecodesX86BytesIntoProviderPcode) {
     for (const PcodeOperation& operation : decoded->pcode) {
         EXPECT_FALSE(operation.inputs.empty());
         EXPECT_NE(operation.opcode, 0U);
+    }
+}
+
+/// Verifies that pugixml-backed parsing preserves the native DOM shape,
+/// decoded attribute/content values, storage ownership, and tag registration.
+TEST(DecompilerXml, PreservesDomAndStorageContract) {
+    std::istringstream stream("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                              "<root attr=\"a&amp;b\"><child count=\"0x2\">left &lt; right</child>"
+                              "<![CDATA[raw &lt;]]><!-- ignored --></root>");
+    ghidra::DocumentStorage storage;
+
+    ghidra::Document* document = nullptr;
+    ASSERT_NO_THROW(document = storage.parseDocument(stream));
+    ASSERT_NE(document, nullptr);
+
+    ghidra::Element* root = document->getRoot();
+    ASSERT_NE(root, nullptr);
+    EXPECT_EQ(root->getName(), "root");
+    EXPECT_EQ(root->getAttributeValue("attr"), "a&b");
+    ASSERT_EQ(root->getChildren().size(), 1U);
+    EXPECT_EQ(root->getContent(), "raw &lt;");
+
+    const ghidra::Element* child = root->getChildren().front();
+    ASSERT_NE(child, nullptr);
+    EXPECT_EQ(child->getParent(), root);
+    EXPECT_EQ(child->getAttributeValue("count"), "0x2");
+    EXPECT_EQ(child->getContent(), "left < right");
+
+    storage.registerTag(child);
+    EXPECT_EQ(storage.getTag("child"), child);
+    EXPECT_EQ(storage.getTag("missing"), nullptr);
+    EXPECT_THROW(root->getAttributeValue("missing"), ghidra::DecoderError);
+}
+
+/// Verifies that stream output keeps the native five-character XML escaping
+/// contract used by the decompiler's XML encoder.
+TEST(DecompilerXml, EscapesXmlSpecialCharacters) {
+    std::ostringstream output;
+    ghidra::xml_escape(output, "<&>\"'");
+    EXPECT_EQ(output.str(), "&lt;&amp;&gt;&quot;&apos;");
+}
+
+/// Verifies that malformed XML and unsupported DTD input are rejected with
+/// useful DecoderError diagnostics instead of returning partial DOM objects.
+TEST(DecompilerXml, RejectsMalformedAndDtdDocuments) {
+    std::istringstream malformed("<root>");
+    try {
+        const std::unique_ptr<ghidra::Document> document(ghidra::xml_tree(malformed));
+        FAIL() << "Malformed XML unexpectedly produced a document";
+    } catch (const ghidra::DecoderError& error) {
+        EXPECT_FALSE(error.explain.empty());
+    }
+
+    std::istringstream dtd("<!DOCTYPE root><root/>");
+    try {
+        const std::unique_ptr<ghidra::Document> document(ghidra::xml_tree(dtd));
+        FAIL() << "DTD input unexpectedly produced a document";
+    } catch (const ghidra::DecoderError& error) {
+        EXPECT_EQ(error.explain, "DTD's not supported");
     }
 }
 
