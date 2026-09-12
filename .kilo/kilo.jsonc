@@ -6,7 +6,7 @@
       "command": [
         "bridge-mcp-ghidra"
       ],
-      "enabled": true
+      "enabled": false
     },
     "vscode": {
       "type": "remote",
