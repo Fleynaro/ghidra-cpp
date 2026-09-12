@@ -893,6 +893,8 @@ protected:
   virtual Datatype *findById(const string &n,uint8 id,int4 sz);		///< Search by \e name and/or \e id
 public:
   TypeFactory(Architecture *g);	///< Construct a factory
+  /// Create a provider-defined Unicode character type with the native UTF flags.
+  TypeUnicode *getProviderUnicode(const string &nm,int4 sz,type_metatype m) { return getTypeUnicode(nm,sz,m); }
   void setupSizes(void);	///< Derive some size information from Architecture
   void clear(void);		///< Clear out all types
   void clearNoncore(void);	///< Clear out non-core types

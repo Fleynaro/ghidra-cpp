@@ -142,9 +142,23 @@ public:
         }
         for (const PcodeOperation& operation : result->pcode) {
             std::vector<ghidra::VarnodeData> inputs;
-            inputs.reserve(operation.inputs.size());
-            for (const Storage& input : operation.inputs) {
-                inputs.push_back(materialize(input));
+            std::size_t input_index = 0;
+            if (operation.memory_space.has_value() &&
+                (operation.opcode == static_cast<ghidra::uint4>(ghidra::CPUI_LOAD) ||
+                 operation.opcode == static_cast<ghidra::uint4>(ghidra::CPUI_STORE))) {
+                ghidra::AddrSpace* memory_space = getSpaceByName(*operation.memory_space);
+                if (memory_space == nullptr) {
+                    throw ghidra::BadDataError("P-code references an unknown memory space: " +
+                                               *operation.memory_space);
+                }
+                const ghidra::Address encoded_space = createConstFromSpace(memory_space);
+                inputs.push_back(ghidra::VarnodeData{getConstantSpace(), encoded_space.getOffset(),
+                                                     static_cast<ghidra::uint4>(sizeof(void*))});
+                input_index = operation.inputs.empty() ? 0 : 1;
+            }
+            inputs.reserve(inputs.size() + operation.inputs.size());
+            for (; input_index < operation.inputs.size(); ++input_index) {
+                inputs.push_back(materialize(operation.inputs[input_index]));
             }
             ghidra::VarnodeData output{};
             ghidra::VarnodeData* output_pointer = nullptr;
@@ -311,6 +325,7 @@ private:
         insertSpace(new ghidra::JoinSpace(this, translate, numSpaces()));
         context = new ghidra::ContextInternal();
         types = new ghidra::TypeFactory(this);
+        types->cacheCoreTypes();
         types->setupSizes();
         commentdb = new ghidra::CommentDatabaseInternal();
         stringManager = new ghidra::StringManagerUnicode(this, 4096);
@@ -327,7 +342,9 @@ private:
             "<stackpointer register=\"" +
             description_.stack_register +
             "\" space=\"ram\"/>"
-            "<default_proto><prototype name=\"default\" extrapop=\"0\">"
+            "<default_proto><prototype name=\"" +
+            description_.calling_convention +
+            "\" extrapop=\"0\">"
             "<input><pentry minsize=\"1\" maxsize=\"8\"><register name=\"RAX\"/></pentry></input>"
             "<output><pentry minsize=\"1\" maxsize=\"8\"><register name=\"RAX\"/></pentry></output>"
             "</prototype></default_proto>"
@@ -335,6 +352,10 @@ private:
         ghidra::Document* document = specification.parseDocument(specification_text);
         specification.registerTag(document->getRoot());
         parseCompilerConfig(specification);
+        if (defaultfp != nullptr) {
+            defaultfp->setPrintInDecl(true);
+        }
+        const_cast<ghidra::Translate*>(translate)->setDefaultFloatFormats();
         ghidra::DocumentStorage empty;
         buildInstructions(empty);
         buildAction(empty);
@@ -407,6 +428,7 @@ static PcodeOperation convert_operation(const sleigh_runtime::PcodeOp& value) {
     for (const sleigh_runtime::Varnode& input : value.inputs) {
         result.inputs.push_back(convert_storage(input));
     }
+    result.memory_space = value.memory_space;
     return result;
 }
 
@@ -466,6 +488,12 @@ static ghidra::Datatype* resolve_provider_type(const ProviderContext& context, g
         return structure;
     }
 
+    if (description.kind == TypeKind::unicode_character) {
+        ghidra::Datatype* result = types->getProviderUnicode(
+            description.name, static_cast<ghidra::int4>(description.size == 0 ? 2 : description.size), ghidra::TYPE_INT);
+        cache.emplace(name, result);
+        return result;
+    }
     const ghidra::type_metatype metatype =
         description.kind == TypeKind::unsigned_integer ? ghidra::TYPE_UINT
         : description.kind == TypeKind::boolean           ? ghidra::TYPE_BOOL

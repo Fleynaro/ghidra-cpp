@@ -284,7 +284,7 @@ public:
   const string &getDisplayName(void) const { return displayName; }	///< Get the name to display in output
   Datatype *getType(void) const { return type; }		///< Get the data-type
   uint8 getId(void) const { return symbolId; }			///< Get a unique id for the symbol
-  /// Apply an externally supplied local name and type.
+  /// Apply externally supplied local naming and typing after symbol recovery.
   void setProviderInfo(const string &nm,Datatype *ct);
   uint4 getFlags(void) const { return flags; }			///< Get the boolean properties of the Symbol
   uint4 getDisplayFormat(void) const { return (dispflags & 7); }	///< Get the format to display the Symbol in

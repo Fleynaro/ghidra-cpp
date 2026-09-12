@@ -127,6 +127,7 @@ public:
 static ArchitectureDescription test_architecture() {
     ArchitectureDescription description;
     description.name = "test-x86-64";
+    description.calling_convention = "__cdecl";
     description.spaces = {
         SpaceDescription{"ram", 8, 1, false, 2, 0, true},
         SpaceDescription{"register", 8, 1, false, 3, 0, true},
@@ -157,7 +158,7 @@ TEST(DecompilerFrontend, MaterializesProviderPcodeAndFlow) {
                   std::to_underlying(sleigh_runtime::PcodeOpcode::copy));
         EXPECT_FALSE(result.raw_pcode.empty());
         EXPECT_FALSE(result.high_pcode.empty());
-        EXPECT_EQ(result.c_source, "\nunkbyte8 copy_one(void)\n\n{\n  return 7;\n}\n");
+        EXPECT_EQ(result.c_source, "\nunkbyte8 __cdecl copy_one(void)\n\n{\n  return 7;\n}\n");
     } catch (const ghidra::LowlevelError& error) {
         FAIL() << error.explain;
     } catch (const std::exception& error) {
@@ -234,36 +235,31 @@ TEST(DecompilerExamples, Example1StringLengthWorkerWEndToEnd) {
     // the bytes above. It is intentionally kept as a complete source string
     // so later decompiler improvements produce a deliberate test diff.
     const std::string expected_c = R"(
-long StringLengthWorkerW(wchar_t * param_1,__uint64 param_2,__uint64 * param_3)
+long __cdecl StringLengthWorkerW(wchar_t * param_1,__uint64 param_2,__uint64 * param_3)
 
 {
-  BADSPACEBASE *in_RSP;
-  __uint64 local_res18;
+  wchar_t * local_res8;
+  __uint64 local_res10;
   int local_10;
   
-  *(__uint64 * *)((unkint8)in_RSP + 0x18) = param_3;
-  *(__uint64 *)((unkint8)in_RSP + 0x10) = param_2;
-  *(wchar_t * *)((unkint8)in_RSP + 8) = param_1;
-  *(unkbyte4 *)((unkint8)in_RSP + -0x10) = 0;
-  *(unkbyte8 *)((unkint8)in_RSP + -0x18) = *(unkbyte8 *)((unkint8)in_RSP + 0x10);
-  while ((*(unkint8 *)((unkint8)in_RSP + 0x10) != 0 && (**(unkint2 **)((unkint8)in_RSP + 8) != 0)))
-  {
-    *(unkint8 *)((unkint8)in_RSP + 8) = *(unkint8 *)((unkint8)in_RSP + 8) + 2;
-    *(unkint8 *)((unkint8)in_RSP + 0x10) = *(unkint8 *)((unkint8)in_RSP + 0x10) + -1;
+  local_10 = 0;
+  local_res10 = param_2;
+  for (local_res8 = param_1; (local_res10 != 0 && (*local_res8 != L'\0'));
+      local_res8 = local_res8 + 1) {
+    local_res10 = local_res10 - 1;
   }
-  if (*(unkint8 *)((unkint8)in_RSP + 0x10) == 0) {
-    *(unkbyte4 *)((unkint8)in_RSP + -0x10) = 0x80070057;
+  if (local_res10 == 0) {
+    local_10 = -0x7ff8ffa9;
   }
-  if (*(unkint8 *)((unkint8)in_RSP + 0x18) != 0) {
-    if (*(unkint4 *)((unkint8)in_RSP + -0x10) < 0) {
-      **(unkbyte8 **)((unkint8)in_RSP + 0x18) = 0;
+  if (param_3 != (__uint64 *)0x0) {
+    if (local_10 < 0) {
+      *param_3 = 0;
     }
     else {
-      **(unkint8 **)((unkint8)in_RSP + 0x18) =
-           *(unkint8 *)((unkint8)in_RSP + -0x18) - *(unkint8 *)((unkint8)in_RSP + 0x10);
+      *param_3 = param_2 - local_res10;
     }
   }
-  return *(unkbyte4 *)((unkint8)in_RSP + -0x10);
+  return local_10;
 }
 )";
 
@@ -291,7 +287,7 @@ long StringLengthWorkerW(wchar_t * param_1,__uint64 param_2,__uint64 * param_3)
     ASSERT_FALSE(result.raw_instructions.empty());
     EXPECT_EQ(result.raw_instructions.back().mnemonic, "RET");
     ASSERT_FALSE(result.c_source.empty());
-    EXPECT_NE(result.c_source.find("long StringLengthWorkerW"), std::string::npos);
+    EXPECT_NE(result.c_source.find("long __cdecl StringLengthWorkerW"), std::string::npos);
     EXPECT_NE(result.c_source.find("wchar_t * param_1"), std::string::npos);
     EXPECT_NE(result.c_source.find("__uint64 param_2"), std::string::npos);
     EXPECT_NE(result.c_source.find("__uint64 * param_3"), std::string::npos);

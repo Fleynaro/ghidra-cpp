@@ -58,6 +58,13 @@ public:
         for (ghidra::int4 index = 0; index < input_count; ++index) {
             op.inputs.push_back(materialize_varnode(inputs[index]));
         }
+        if ((opcode == ghidra::CPUI_LOAD || opcode == ghidra::CPUI_STORE) && input_count > 0 &&
+            inputs[0].space != nullptr && inputs[0].space->getType() == ghidra::IPTR_CONSTANT) {
+            auto *memory_space = reinterpret_cast<ghidra::AddrSpace *>(inputs[0].offset);
+            if (memory_space != nullptr) {
+                op.memory_space = memory_space->getName();
+            }
+        }
         operations_.push_back(std::move(op));
     }
 

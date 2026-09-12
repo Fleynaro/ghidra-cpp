@@ -124,6 +124,9 @@ struct PcodeOp {
     PcodeOpcode opcode = PcodeOpcode::copy;
     std::optional<Varnode> output;
     std::vector<Varnode> inputs;
+    // LOAD/STORE preserve the target address-space name separately from the
+    // legacy constant selector used by native Ghidra p-code.
+    std::optional<std::string> memory_space;
 };
 
 /// Represents one control-flow effect discovered in the materialized p-code.

@@ -16,6 +16,7 @@ struct PcodeOperation {
     std::uint32_t opcode = 0;
     std::optional<Storage> output;
     std::vector<Storage> inputs;
+    std::optional<std::string> memory_space;
 };
 
 /// Describes one decoded instruction and its raw p-code sequence.
@@ -203,6 +204,7 @@ struct ArchitectureDescription {
     std::string code_space = "ram";
     std::string data_space = "ram";
     std::string stack_register = "RSP";
+    std::string calling_convention = "default";
     std::uint32_t pointer_size = 8;
 };
 
