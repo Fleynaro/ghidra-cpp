@@ -7,6 +7,7 @@ the analyzer framework.
 ## Navigation
 
 - [`CMakeLists.txt`](CMakeLists.txt) builds the `NewGhidra::FunctionId` static library and tests.
+- [`cli/`](cli/) contains `function_id_cli`, the command-line raw-byte identifier.
 - [`function_id.cppm`](function_id.cppm) defines the public hashing, database, and identification API.
 - [`src/function_id.cpp`](src/function_id.cpp) implements FNV hashing, the packed-item and Ghidra
   buffer-file reader, schema-aware B-tree traversal, and scoring. Instruction hashing consumes the
