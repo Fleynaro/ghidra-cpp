@@ -303,7 +303,11 @@ void PrintC::pushTypeStart(const Datatype *ct,bool noident)
   }
   else {
     pushOp(tok,(const PcodeOp *)0);
-    pushAtom(Atom(ct->getDisplayName(),typetoken,EmitMarkup::type_color,ct));
+    // Keep the legacy internal unknown-type identifiers out of generated C.
+    string displayName = ct->getDisplayName();
+    if (displayName.compare(0, 8, "xunknown") == 0)
+      displayName.replace(0, 8, "undefined");
+    pushAtom(Atom(displayName,typetoken,EmitMarkup::type_color,ct));
   }
   for(int4 i=typestack.size()-2;i>=0;--i) {
     ct = typestack[i];

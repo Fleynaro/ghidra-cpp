@@ -3695,7 +3695,7 @@ void FuncProto::decodeLikelyTrash(void)
 }
 
 /// Prepend the indicated number of input parameters to \b this.
-/// The new parameters have a data-type of xunknown4. If they were
+/// The new parameters have a data-type of undefined4. If they were
 /// originally locked, the existing parameters are preserved.
 /// \param paramshift is the number of parameters to add (must be >0)
 void FuncProto::paramShift(int4 paramshift)
