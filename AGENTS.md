@@ -40,6 +40,12 @@ The project uses environment variables. Keep this table up to date.
 - Never commit secrets, machine-specific paths, or other local environment values to Git.
 - When adding a new environment variable, add it to the table above and document its purpose.
 
+## PyGhidra Script Execution
+
+- Every PyGhidra Python script, including test and diagnostic scripts, must be launched through [`TEST/run_ghidra_python.bat`](TEST/run_ghidra_python.bat).
+- Use `TEST\run_ghidra_python.bat <script.py> [script arguments...]` from the repository root, or pass the script path relative to the `TEST` directory when invoking the wrapper from another directory.
+- Do not launch PyGhidra scripts directly with `python`, `python.exe`, `pyghidraRun`, or `pyghidraRun.bat`; the wrapper is required because it selects and validates the PyGhidra virtual environment and forwards the script arguments consistently.
+
 ## C++
 
 - Use `vcpkg` as the package manager for C++ development and builds.
