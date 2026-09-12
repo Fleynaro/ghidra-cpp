@@ -19,6 +19,20 @@ struct Operand {
     std::string text;
     OperandKind kind = OperandKind::unknown;
     std::optional<std::uint64_t> value;
+
+    /// Objects emitted by the original Sleigh operand representation walker.
+    struct HashObject {
+        enum class Kind : std::uint8_t { scalar, register_value, address };
+        Kind kind{Kind::scalar};
+        std::int64_t value{};
+        bool whole_scalar{};
+        bool address_scalar{};
+        bool relocated{};
+    };
+    /// Exact instruction-byte mask associated with this operand value.
+    std::vector<std::uint8_t> value_mask;
+    /// Exact Scalar/Register/Address objects returned by getOpObjects().
+    std::vector<HashObject> hash_objects;
 };
 
 /// Identifies a concrete p-code storage location.
@@ -147,9 +161,13 @@ struct ProcessorContext {
 struct Instruction {
     std::uint64_t address = 0;
     std::size_t length = 0;
+    /// Exact machine-code bytes consumed by the matched Sleigh constructor.
+    std::vector<std::uint8_t> bytes;
     std::string mnemonic;
     std::string assembly;
     std::vector<Operand> operands;
+    /// Mask returned by InstructionPrototype.getInstructionMask().
+    std::vector<std::uint8_t> instruction_mask;
     FlowInfo flow;
     std::vector<PcodeOp> pcode;
 };

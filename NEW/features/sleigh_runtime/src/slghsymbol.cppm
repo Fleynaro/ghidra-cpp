@@ -1924,6 +1924,10 @@ public:
     int4 getNumOperands(void) const {
         return operands.size();
     }
+    /// Returns the serialized print pieces, including newline operand markers.
+    const vector<string>& getPrintPieces(void) const {
+        return printpiece;
+    }
     OperandSymbol* getOperand(int4 i) const {
         return operands[i];
     }
@@ -1940,6 +1944,10 @@ public:
     }
     int4 getNumSections(void) const {
         return namedtempl.size();
+    }
+    /// Returns the operand index used for a constructor flow-through.
+    int4 getFlowthruIndex(void) const {
+        return flowthruindex;
     }
     void printInfo(ostream& s) const { // Print identifying information about constructor
                                        // for use in error messages
@@ -2342,6 +2350,98 @@ public:
             val = walker.getInstructionBits(startbit, bitsize);
         return children[val]->resolve(walker);
     }
+    /// Finds the exact serialized constructor pattern selected during resolution.
+    // Ghidra reference:
+    // Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/DecisionNode.java
+    const DisjointPattern* findPattern(const Constructor* target) const {
+        for (const auto& entry : list) {
+            if (entry.second == target)
+                return entry.first;
+        }
+        for (const auto* child : children) {
+            if (child != nullptr) {
+                if (const auto* pattern = child->findPattern(target))
+                    return pattern;
+            }
+        }
+        return nullptr;
+    }
+    /// Collects the fixed instruction bits on the decision path to a constructor.
+    // Ghidra reference:
+    // Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/DecisionNode.java
+    bool findPathMask(const Constructor* target, vector<uint1>& mask, vector<uint1>& value,
+                      int4 base_offset = 0) const {
+        for (const auto& entry : list) {
+            if (entry.second == target) {
+                const auto length = static_cast<std::size_t>(entry.first->getLength(false));
+                if (mask.size() < static_cast<std::size_t>(base_offset) + length) {
+                    mask.resize(static_cast<std::size_t>(base_offset) + length, 0);
+                    value.resize(mask.size(), 0);
+                }
+                for (std::size_t index = 0; index < length; ++index) {
+                    mask[static_cast<std::size_t>(base_offset) + index] |=
+                        static_cast<uint1>(entry.first->getMask(static_cast<int4>(index * 8), 8, false));
+                    value[static_cast<std::size_t>(base_offset) + index] |=
+                        static_cast<uint1>(entry.first->getValue(static_cast<int4>(index * 8), 8, false));
+                }
+                return true;
+            }
+        }
+        for (std::size_t child_index = 0; child_index < children.size(); ++child_index) {
+            if (children[child_index] == nullptr ||
+                !children[child_index]->findPathMask(target, mask, value, base_offset))
+                continue;
+            if (!contextdecision) {
+                const auto last_bit = startbit + bitsize + base_offset * 8;
+                if (mask.size() < static_cast<std::size_t>((last_bit + 7) / 8)) {
+                    mask.resize(static_cast<std::size_t>((last_bit + 7) / 8), 0);
+                    value.resize(mask.size(), 0);
+                }
+                const auto selected = static_cast<uintm>(child_index);
+                for (int4 bit = 0; bit < bitsize; ++bit) {
+                    const auto global_bit = startbit + bit + base_offset * 8;
+                    const auto byte_index = static_cast<std::size_t>(global_bit / 8);
+                    const auto bit_mask = static_cast<uint1>(1U << (7 - (global_bit % 8)));
+                    mask[byte_index] |= bit_mask;
+                    if ((selected & (static_cast<uintm>(1) << (bitsize - 1 - bit))) != 0) {
+                        value[byte_index] |= bit_mask;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    /// Follows the actual parser-selected child instead of searching for the first
+    /// occurrence of a constructor copied into a decision tree.
+    // Ghidra reference:
+    // Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/DecisionNode.java
+    bool findResolvedPathMask(ParserWalker& walker, const Constructor* target, vector<uint1>& mask,
+                              vector<uint1>& value, int4 base_offset = 0) const {
+        const auto selected =
+            contextdecision ? walker.getContextBits(startbit, bitsize) : walker.getInstructionBits(startbit, bitsize);
+        if (selected >= children.size() || children[selected] == nullptr)
+            return false;
+        if (!children[selected]->findResolvedPathMask(walker, target, mask, value, base_offset))
+            return false;
+        if (!contextdecision) {
+            const auto last_bit = startbit + bitsize + base_offset * 8;
+            if (mask.size() < static_cast<std::size_t>((last_bit + 7) / 8)) {
+                mask.resize(static_cast<std::size_t>((last_bit + 7) / 8), 0);
+                value.resize(mask.size(), 0);
+            }
+            for (int4 bit = 0; bit < bitsize; ++bit) {
+                const auto global_bit = startbit + bit + base_offset * 8;
+                const auto byte_index = static_cast<std::size_t>(global_bit / 8);
+                const auto bit_mask = static_cast<uint1>(1U << (7 - (global_bit % 8)));
+                mask[byte_index] |= bit_mask;
+                if ((selected & (static_cast<uintm>(1) << (bitsize - 1 - bit))) != 0) {
+                    value[byte_index] |= bit_mask;
+                }
+            }
+        }
+        return true;
+    }
     void addConstructorPair(const DisjointPattern* pat, Constructor* ct) {
         DisjointPattern* clone = (DisjointPattern*)pat->simplifyClone(); // We need to own pattern
         list.push_back(pair<DisjointPattern*, Constructor*>(clone, ct));
@@ -2599,6 +2699,20 @@ public:
     }
     TokenPattern* getPattern(void) const {
         return pattern;
+    }
+    /// Returns the exact constructor pattern selected by the decoded decision tree.
+    const DisjointPattern* getConstructorPattern(const Constructor* target) const {
+        return decisiontree == nullptr ? nullptr : decisiontree->findPattern(target);
+    }
+    /// Returns the full instruction mask/value assembled from the decision path.
+    bool getConstructorMask(const Constructor* target, vector<uint1>& mask, vector<uint1>& value,
+                            int4 base_offset = 0) const {
+        return decisiontree != nullptr && decisiontree->findPathMask(target, mask, value, base_offset);
+    }
+    /// Returns the mask collected along the parser-selected decision branch.
+    bool getResolvedConstructorMask(ParserWalker& walker, const Constructor* target, vector<uint1>& mask,
+                                    vector<uint1>& value, int4 base_offset = 0) const {
+        return decisiontree != nullptr && decisiontree->findResolvedPathMask(walker, target, mask, value, base_offset);
     }
     int4 getNumConstructors(void) const {
         return construct.size();

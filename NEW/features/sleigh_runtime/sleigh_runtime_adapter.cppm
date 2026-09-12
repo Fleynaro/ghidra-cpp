@@ -225,6 +225,341 @@ private:
     return {};
 }
 
+/// Applies the original SleighDebugLogger operand-mask recursion to one pattern expression.
+// Ghidra reference:
+// Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighDebugLogger.java
+void combine_pattern_mask(ghidra::ParserWalker& walker, ghidra::ConstructState* state,
+                          ghidra::PatternExpression* expression, int offset, std::vector<std::uint8_t>& mask);
+
+/// Combines the visible print-piece masks belonging to one resolved constructor state.
+// Ghidra reference:
+// Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighDebugLogger.java
+void combine_symbol_mask(ghidra::ParserWalker& walker, ghidra::ConstructState* state, std::vector<std::uint8_t>& mask);
+
+/// Recursively combines one operand's constructor and token-field value bits.
+// Ghidra reference:
+// Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighDebugLogger.java
+void combine_operand_mask(ghidra::ParserWalker& walker, ghidra::ConstructState* state, ghidra::OperandSymbol* symbol,
+                          std::vector<std::uint8_t>& mask) {
+    ghidra::PatternExpression* expression = nullptr;
+    const int handle = symbol->getIndex();
+    if (handle < 0 || handle >= state->ct->getNumOperands())
+        return;
+    if (auto* triple = symbol->getDefiningSymbol()) {
+        if (triple->getType() == ghidra::SleighSymbol::subtable_symbol) {
+            auto* substate = state->resolve[handle];
+            if (substate == nullptr)
+                return;
+            combine_symbol_mask(walker, substate, mask);
+        } else {
+            expression = triple->getPatternExpression();
+        }
+    } else {
+        expression = symbol->getDefiningExpression();
+    }
+    if (symbol->getOffsetBase() < 0) {
+        combine_pattern_mask(walker, state, expression,
+                             static_cast<int>(state->offset) + static_cast<int>(symbol->getRelativeOffset()), mask);
+    } else {
+        auto* substate = state->resolve[handle];
+        if (substate == nullptr)
+            return;
+        combine_pattern_mask(walker, substate, expression, static_cast<int>(substate->offset), mask);
+    }
+}
+
+/// Recursively combines unary, binary, operand, and token-field pattern expressions.
+// Ghidra reference:
+// Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighDebugLogger.java
+void combine_pattern_mask(ghidra::ParserWalker& walker, ghidra::ConstructState* state,
+                          ghidra::PatternExpression* expression, int offset, std::vector<std::uint8_t>& mask) {
+    if (expression == nullptr)
+        return;
+    if (const auto* unary = dynamic_cast<const ghidra::UnaryExpression*>(expression)) {
+        combine_pattern_mask(walker, state, unary->getUnary(), offset, mask);
+        return;
+    }
+    if (const auto* binary = dynamic_cast<const ghidra::BinaryExpression*>(expression)) {
+        combine_pattern_mask(walker, state, binary->getLeft(), offset, mask);
+        combine_pattern_mask(walker, state, binary->getRight(), offset, mask);
+        return;
+    }
+    if (const auto* operand = dynamic_cast<const ghidra::OperandValue*>(expression)) {
+        auto* constructor = operand->getConstructor();
+        combine_operand_mask(walker, state, constructor->getOperand(operand->getIndex()), mask);
+        return;
+    }
+    const auto* field = dynamic_cast<const ghidra::TokenField*>(expression);
+    if (field == nullptr)
+        return;
+    const int start = field->getByteStart();
+    const int end = field->getByteEnd();
+    const int start_bit = field->getBitStart() % 8;
+    const int end_bit = field->getBitEnd() % 8;
+    for (int index = start; index <= end; ++index) {
+        int first_bit = 0;
+        int last_bit = 7;
+        if (index == end)
+            last_bit = field->isBigEndian() ? start_bit : end_bit;
+        if (index == start)
+            first_bit = field->isBigEndian() ? end_bit : start_bit;
+        const auto width = 7 - last_bit + first_bit;
+        const auto byte_mask = static_cast<std::uint8_t>((0xffU >> width) << first_bit);
+        if (index + offset >= 0 && static_cast<std::size_t>(index + offset) < mask.size()) {
+            mask[static_cast<std::size_t>(index + offset)] |= byte_mask;
+        }
+    }
+}
+
+/// Combines only the operand print pieces, matching getOpRepresentationList().
+// Ghidra reference:
+// Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighInstructionPrototype.java
+void combine_symbol_mask(ghidra::ParserWalker& walker, ghidra::ConstructState* state, std::vector<std::uint8_t>& mask) {
+    for (const auto& piece : state->ct->getPrintPieces()) {
+        if (piece.size() > 1 && piece[0] == '\n') {
+            const auto index = static_cast<int>(piece[1] - 'A');
+            combine_operand_mask(walker, state, state->ct->getOperand(index), mask);
+        }
+    }
+}
+
+/// Collects the exact fixed handles printed by one operand representation.
+// Ghidra reference:
+// Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighInstructionPrototype.java
+void collect_operand_handles(ghidra::ParserWalker& walker, ghidra::OperandSymbol* symbol,
+                             std::vector<ghidra::FixedHandle>& handles);
+
+/// Collects all visible operand handles from one matched subconstructor.
+// Ghidra reference:
+// Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighInstructionPrototype.java
+void collect_constructor_handles(ghidra::ParserWalker& walker, std::vector<ghidra::FixedHandle>& handles) {
+    for (const auto& piece : walker.getConstructor()->getPrintPieces()) {
+        if (piece.size() > 1 && piece[0] == '\n') {
+            collect_operand_handles(walker, walker.getConstructor()->getOperand(piece[1] - 'A'), handles);
+        }
+    }
+}
+
+/// Collects one operand's nested print representation and resolved fixed handles.
+// Ghidra reference:
+// Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighInstructionPrototype.java
+void collect_operand_handles(ghidra::ParserWalker& walker, ghidra::OperandSymbol* symbol,
+                             std::vector<ghidra::FixedHandle>& handles) {
+    walker.pushOperand(symbol->getIndex());
+    if (auto* triple = symbol->getDefiningSymbol();
+        triple && triple->getType() == ghidra::SleighSymbol::subtable_symbol) {
+        collect_constructor_handles(walker, handles);
+    } else {
+        handles.push_back(walker.getParentHandle());
+    }
+    walker.popOperand();
+}
+
+/// Collects printed operand handles directly from resolved ConstructState children.
+// Ghidra reference:
+// Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/symbol/OperandSymbol.java
+void collect_state_handles(ghidra::ConstructState* state, ghidra::OperandSymbol* symbol,
+                           std::vector<ghidra::FixedHandle>& handles) {
+    if (state == nullptr || symbol == nullptr)
+        return;
+    const auto index = symbol->getIndex();
+    if (index < 0 || index >= state->ct->getNumOperands())
+        return;
+    auto* child = state->resolve[index];
+    if (child == nullptr)
+        return;
+    if (auto* triple = symbol->getDefiningSymbol();
+        triple && triple->getType() == ghidra::SleighSymbol::subtable_symbol) {
+        for (const auto& piece : child->ct->getPrintPieces()) {
+            if (piece.size() > 1 && piece[0] == '\n') {
+                collect_state_handles(child, child->ct->getOperand(piece[1] - 'A'), handles);
+            }
+        }
+    } else {
+        auto handle = child->hand;
+        if (handle.offset_size == 0)
+            handle.offset_size = child->length;
+        handles.push_back(handle);
+    }
+}
+
+/// Carries one flattened OperandSymbol representation and its exact value mask.
+struct FlattenedOperand {
+    std::vector<std::uint8_t> mask;
+    std::vector<ghidra::FixedHandle> handles;
+};
+
+/// Flattens nested Sleigh print operands exactly as OperandSymbol.printList().
+// Ghidra reference:
+// Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/symbol/OperandSymbol.java
+void collect_flattened_operands(ghidra::ParserWalker& walker, ghidra::ConstructState* state,
+                                ghidra::OperandSymbol* symbol, std::size_t length,
+                                std::vector<FlattenedOperand>& result) {
+    walker.pushOperand(symbol->getIndex());
+    if (auto* triple = symbol->getDefiningSymbol();
+        triple && triple->getType() == ghidra::SleighSymbol::subtable_symbol) {
+        auto* substate = state->resolve[symbol->getIndex()];
+        for (const auto& piece : substate->ct->getPrintPieces()) {
+            if (piece.size() > 1 && piece[0] == '\n') {
+                collect_flattened_operands(walker, substate, substate->ct->getOperand(piece[1] - 'A'), length, result);
+            }
+        }
+    } else {
+        FlattenedOperand flattened;
+        flattened.mask.assign(length, 0);
+        combine_operand_mask(walker, state, symbol, flattened.mask);
+        flattened.handles.push_back(walker.getParentHandle());
+        result.push_back(std::move(flattened));
+    }
+    walker.popOperand();
+}
+
+/// Converts one fixed handle into the Scalar, Register, or Address object consumed by FunctionID.
+// Ghidra reference:
+// Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighInstructionPrototype.java
+void append_hash_handle(const ghidra::Sleigh& translator, const ghidra::Address& current,
+                        const ghidra::FixedHandle& handle, bool whole_scalar, bool address_scalar,
+                        std::vector<Operand::HashObject>& objects) {
+    if (handle.space == nullptr)
+        return;
+    const auto type = handle.space->getType();
+    if (type == ghidra::IPTR_SPACEBASE)
+        return;
+    if (type == ghidra::IPTR_CONSTANT) {
+        auto value = static_cast<std::int64_t>(handle.offset_offset);
+        const auto effective_size =
+            handle.size != 0
+                ? handle.size
+                : (handle.offset_size != 0 ? handle.offset_size : translator.getDefaultCodeSpace()->getAddrSize());
+        const auto width = static_cast<unsigned>(effective_size) * 8U;
+        if (width != 0 && width < 64U &&
+            (handle.offset_offset & (static_cast<ghidra::uintb>(1) << (width - 1U))) != 0) {
+            value |= static_cast<std::int64_t>(~((static_cast<ghidra::uintb>(1) << width) - 1U));
+        }
+        objects.push_back({Operand::HashObject::Kind::scalar, value, whole_scalar, address_scalar, false});
+        return;
+    }
+    if (!translator.getRegisterName(handle.space, handle.offset_offset, handle.size).empty()) {
+        objects.push_back({Operand::HashObject::Kind::register_value, static_cast<std::int64_t>(handle.offset_offset),
+                           true, false, false});
+        return;
+    }
+    if (handle.offset_space == nullptr) {
+        objects.push_back(
+            {Operand::HashObject::Kind::address, static_cast<std::int64_t>(handle.offset_offset), false, true, false});
+    } else if (!translator.getRegisterName(handle.offset_space, handle.offset_offset, handle.offset_size).empty()) {
+        objects.push_back({Operand::HashObject::Kind::register_value, static_cast<std::int64_t>(handle.offset_offset),
+                           true, false, false});
+    }
+    (void)current;
+}
+
+/// Builds the exact FunctionID instruction and operand masks from the matched Sleigh constructor tree.
+// Ghidra references:
+// Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighDebugLogger.java and
+// Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighInstructionPrototype.java
+void materialize_hash_metadata(const ghidra::Sleigh& translator, ghidra::ParserContext* parser,
+                               std::vector<Operand>& operands, std::vector<std::uint8_t>& instruction_mask) {
+    // FunctionID's rich fixed-handle projection is optional for a language.  Keep
+    // non-x86 Sleigh decoding on its established safe path until that language's
+    // register/address object map is exposed; callers can still supply abstract
+    // FunctionID instructions directly.
+    bool has_x86_registers = false;
+    try {
+        (void)translator.getRegister("RAX");
+        has_x86_registers = true;
+    } catch (...) {
+        try {
+            (void)translator.getRegister("EAX");
+            has_x86_registers = true;
+        } catch (...) {
+        }
+    }
+    if (!has_x86_registers)
+        return;
+    auto* root = parser->getBaseState();
+    if (root == nullptr || root->ct == nullptr)
+        return;
+    const auto length = static_cast<std::size_t>(parser->getLength());
+    // The Sleigh pattern path supplies context-variable bits; all remaining
+    // instruction bytes are fixed constructor bits before operand masks clear
+    // relocatable/register/immediate fields, matching PatternGroup.getMask().
+    instruction_mask.assign(length, 0xffU);
+    std::vector<ghidra::uint1> fixed_mask;
+    std::vector<ghidra::uint1> fixed_value;
+    if (translator.getInstructionMask(parser->getAddr(), fixed_mask, fixed_value)) {
+        const auto count = std::min(length, fixed_mask.size());
+        for (std::size_t index = 0; index < count; ++index) {
+            if (fixed_mask[index] != 0)
+                instruction_mask[index] = fixed_mask[index];
+        }
+    }
+    ghidra::ParserWalker walker(parser);
+    walker.baseState();
+    auto* mnemonic_state = root;
+    while (mnemonic_state->ct->getFlowthruIndex() >= 0) {
+        const auto flow_index = mnemonic_state->ct->getFlowthruIndex();
+        walker.pushOperand(flow_index);
+        mnemonic_state = mnemonic_state->resolve[flow_index];
+        if (mnemonic_state == nullptr)
+            return;
+    }
+    const auto textual_operands = operands;
+    operands.clear();
+    std::vector<int> visible_indices;
+    for (const auto& piece : mnemonic_state->ct->getPrintPieces()) {
+        if (piece.size() > 1 && piece[0] == '\n') {
+            visible_indices.push_back(piece[1] - 'A');
+        }
+    }
+    for (const int constructor_index : visible_indices) {
+        auto* symbol = mnemonic_state->ct->getOperand(constructor_index);
+        std::vector<ghidra::FixedHandle> handles;
+        collect_state_handles(mnemonic_state, symbol, handles);
+        if (handles.empty())
+            collect_operand_handles(walker, symbol, handles);
+        if (handles.empty()) {
+            continue;
+        }
+        Operand operand;
+        const auto visible_index = operands.size();
+        if (visible_index < textual_operands.size())
+            operand = textual_operands[visible_index];
+        operand.value_mask.assign(length, 0);
+        combine_operand_mask(walker, mnemonic_state, symbol, operand.value_mask);
+        if (std::all_of(operand.value_mask.begin(), operand.value_mask.end(),
+                        [](const auto value) { return value == 0; })) {
+            if (auto* triple = symbol->getDefiningSymbol();
+                triple && triple->getType() == ghidra::SleighSymbol::subtable_symbol) {
+                if (auto* child = mnemonic_state->resolve[symbol->getIndex()];
+                    child != nullptr && child->ct->getParent() != nullptr) {
+                    std::vector<ghidra::uint1> fallback_mask;
+                    std::vector<ghidra::uint1> fallback_value;
+                    child->ct->getParent()->getConstructorMask(child->ct, fallback_mask, fallback_value, child->offset);
+                    if (fallback_mask.size() == operand.value_mask.size()) {
+                        operand.value_mask = std::move(fallback_mask);
+                    }
+                }
+            }
+        }
+        for (std::size_t index = 0; index < length; ++index) {
+            instruction_mask[index] &= static_cast<std::uint8_t>(~operand.value_mask[index]);
+        }
+        const auto parent_handle = mnemonic_state->resolve[symbol->getIndex()]->hand;
+        const bool whole_scalar =
+            parent_handle.space != nullptr && parent_handle.space->getType() == ghidra::IPTR_CONSTANT;
+        const bool address_scalar =
+            parent_handle.space != nullptr && parent_handle.offset_space == nullptr &&
+            parent_handle.space->getType() != ghidra::IPTR_CONSTANT &&
+            translator.getRegisterName(parent_handle.space, parent_handle.offset_offset, parent_handle.size).empty();
+        for (const auto& handle : handles) {
+            append_hash_handle(translator, parser->getAddr(), handle, whole_scalar, address_scalar,
+                               operand.hash_objects);
+        }
+        operands.push_back(std::move(operand));
+    }
+}
+
 /// Converts legacy Ghidra decoder errors into the public error value.
 [[nodiscard]] DecodeError make_decode_error(const ghidra::LowlevelError& error) {
     return DecodeError{error.explain};
@@ -360,11 +695,14 @@ public:
             Instruction result;
             result.address = address;
             result.length = static_cast<std::size_t>(length);
+            result.bytes.assign(bytes.begin(), bytes.begin() + static_cast<std::ptrdiff_t>(length));
             result.mnemonic = assembly.mnemonic();
             result.assembly = assembly.body();
             for (std::string operand : split_operands(assembly.body())) {
                 result.operands.push_back(classify_operand(std::move(operand)));
             }
+            auto* parser = translator_->getParserContextForInstruction(instruction_address);
+            materialize_hash_metadata(*translator_, parser, result.operands, result.instruction_mask);
             result.pcode = std::move(pcode).take_operations();
             result.flow = find_flow(result.pcode);
             return result;

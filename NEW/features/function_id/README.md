@@ -1,0 +1,24 @@
+# FunctionID Feature
+
+This directory contains an autonomous C++23 implementation of Ghidra FunctionID. It reads the
+original packed `.fidb` files directly and does not depend on Ghidra Java, ProgramDB, the GUI, or
+the analyzer framework.
+
+## Navigation
+
+- [`CMakeLists.txt`](CMakeLists.txt) builds the `NewGhidra::FunctionId` static library and tests.
+- [`function_id.cppm`](function_id.cppm) defines the public hashing, database, and identification API.
+- [`src/function_id.cpp`](src/function_id.cpp) implements FNV hashing, the packed-item and Ghidra
+  buffer-file reader, schema-aware B-tree traversal, and scoring. Instruction hashing consumes the
+  abstract metadata emitted by [`../sleigh_runtime`](../sleigh_runtime), including prototype masks,
+  operand masks, fixed handles, flow metadata, and decoded bytes.
+- [`tests/CMakeLists.txt`](tests/CMakeLists.txt) registers the GoogleTest target.
+- [`tests/function_id_tests.cpp`](tests/function_id_tests.cpp) exercises real `TEST/fid/*.fidb`
+  fixtures, malformed input, hashing, filtering, relations, and candidate conflicts.
+
+## Original implementation references
+
+The implementation follows `Ghidra/Features/FunctionID/src/main/java/ghidra/feature/fid/hash`,
+`.../db`, and `.../service`, plus the minimal storage behavior from
+`Ghidra/Framework/DB/src/main/java/db` and
+`Ghidra/Framework/FileSystem/src/main/java/ghidra/framework/store/local`.

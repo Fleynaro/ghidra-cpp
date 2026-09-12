@@ -33,6 +33,10 @@ Pattern* instructionDoAnd(const InstructionPattern* self, const Pattern* b, int4
 Pattern* instructionCommonSubPattern(const InstructionPattern* self, const Pattern* b, int4 sa);
 Pattern* instructionDoOr(const InstructionPattern* self, const Pattern* b, int4 sa);
 Pattern* orSimplifyClone(const OrPattern* self);
+/// Returns the mask bits represented by a resolved Sleigh pattern.
+uintm patternMask(const Pattern* pattern, int4 startbit, int4 size, bool context);
+/// Returns the fixed value bits represented by a resolved Sleigh pattern.
+uintm patternValue(const Pattern* pattern, int4 startbit, int4 size, bool context);
 
 // A mask/value pair viewed as two bitstreams
 class PatternBlock {
@@ -522,6 +526,38 @@ public:
         return decodeDisjointPattern(decoder);
     }
 };
+
+/// Extracts a union mask from a disjoint or OR pattern without changing its matched value.
+uintm patternMask(const Pattern* pattern, int4 startbit, int4 size, bool context) {
+    if (pattern == nullptr) {
+        return 0;
+    }
+    if (const auto* disjoint = dynamic_cast<const DisjointPattern*>(pattern)) {
+        return disjoint->getMask(startbit, size, context);
+    }
+    uintm result = 0;
+    for (int4 index = 0; index < pattern->numDisjoint(); ++index) {
+        if (const auto* disjoint = pattern->getDisjoint(index)) {
+            result |= disjoint->getMask(startbit, size, context);
+        }
+    }
+    return result;
+}
+
+/// Extracts the fixed value bits from a disjoint or OR pattern.
+uintm patternValue(const Pattern* pattern, int4 startbit, int4 size, bool context) {
+    if (pattern == nullptr)
+        return 0;
+    if (const auto* disjoint = dynamic_cast<const DisjointPattern*>(pattern)) {
+        return disjoint->getValue(startbit, size, context);
+    }
+    for (int4 index = 0; index < pattern->numDisjoint(); ++index) {
+        if (const auto* disjoint = pattern->getDisjoint(index)) {
+            return disjoint->getValue(startbit, size, context);
+        }
+    }
+    return 0;
+}
 
 class OrPattern : public Pattern {
     vector<DisjointPattern*> orlist;

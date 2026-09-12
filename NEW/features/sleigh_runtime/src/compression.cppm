@@ -65,6 +65,11 @@ public:
         return streamFinished;
     } ///< Return \b if end of compressed stream is reached
 
+    /// Returns whether zlib still owns unread bytes from the current input chunk.
+    bool hasInput(void) const {
+        return compStream.avail_in != 0;
+    }
+
     /// Return the number of bytes of output space still available.  Output may be limited by the amount
     /// of space in the output buffer or the amount of data available in the current input buffer.
     /// \param buffer is where uncompressed bytes are stored
