@@ -164,8 +164,7 @@ public:
     virtual ~VariableProvider() = default;
 
     /// Returns variables associated with a function entry.
-    [[nodiscard]] virtual std::vector<VariableDescription>
-    variables_at(std::uint64_t address) const = 0;
+    [[nodiscard]] virtual std::vector<VariableDescription> variables_at(std::uint64_t address) const = 0;
 };
 
 /// Groups all external services used by one decompilation session.

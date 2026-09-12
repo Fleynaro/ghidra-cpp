@@ -6,9 +6,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,14 +32,21 @@ namespace ghidra {
 /// in the sub-graph.  The edge can either be from an input Varnode to the PcodeOp
 /// that reads it, or from a PcodeOp to the Varnode it defines.
 class ToOpEdge {
-  const PcodeOp *op;		///< The PcodeOp defining the edge
-  int4 slot;			///< Slot containing the input Varnode or -1 for the p-code op output
+    const PcodeOp* op; ///< The PcodeOp defining the edge
+    int4 slot;         ///< Slot containing the input Varnode or -1 for the p-code op output
 public:
-  ToOpEdge(const PcodeOp *o,int4 s) { op = o; slot = s; }	///< Constructor
-  const PcodeOp *getOp(void) const { return op; }		///< Get the PcodeOp defining the edge
-  int4 getSlot(void) const { return slot; }			///< Get the slot of the starting Varnode
-  bool operator<(const ToOpEdge &op2) const;			///< Compare two edges based on PcodeOp
-  uint4 hash(uint4 reg) const;					///< Hash \b this edge into an accumulator
+    ToOpEdge(const PcodeOp* o, int4 s) {
+        op = o;
+        slot = s;
+    } ///< Constructor
+    const PcodeOp* getOp(void) const {
+        return op;
+    } ///< Get the PcodeOp defining the edge
+    int4 getSlot(void) const {
+        return slot;
+    }                                          ///< Get the slot of the starting Varnode
+    bool operator<(const ToOpEdge& op2) const; ///< Compare two edges based on PcodeOp
+    uint4 hash(uint4 reg) const;               ///< Hash \b this edge into an accumulator
 };
 
 /// \brief A hash utility to uniquely identify a temporary Varnode in data-flow
@@ -62,48 +69,55 @@ public:
 /// to uniquely identify the Varnode. This is what is stored in the symbol table for
 /// a \e dynamic Symbol.
 class DynamicHash {
-  uint4 vnproc;			///< Number of Varnodes processed in the \b markvn list so far
-  uint4 opproc;			///< Number of PcodeOps processed in the \b markop list so far
-  uint4 opedgeproc;		///< Number of edges processed in the \b opedge list
+    uint4 vnproc;     ///< Number of Varnodes processed in the \b markvn list so far
+    uint4 opproc;     ///< Number of PcodeOps processed in the \b markop list so far
+    uint4 opedgeproc; ///< Number of edges processed in the \b opedge list
 
-  vector<const PcodeOp *> markop;	///< List of PcodeOps in the sub-graph being hashed
-  vector<const Varnode *> markvn;	///< List of Varnodes is the sub-graph being hashed
-  vector<const Varnode *> vnedge;	///< A staging area for Varnodes before formally adding to the sub-graph
-  vector<ToOpEdge> opedge;		///< The edges in the sub-graph
+    vector<const PcodeOp*> markop; ///< List of PcodeOps in the sub-graph being hashed
+    vector<const Varnode*> markvn; ///< List of Varnodes is the sub-graph being hashed
+    vector<const Varnode*> vnedge; ///< A staging area for Varnodes before formally adding to the sub-graph
+    vector<ToOpEdge> opedge;       ///< The edges in the sub-graph
 
-  Address addrresult;			///< Address most closely associated with variable
-  uint8 hash;				///< The calculated hash value
-  void buildVnUp(const Varnode *vn);	///< Add in the edge between the given Varnode and its defining PcodeOp
-  void buildVnDown(const Varnode *vn);	///< Add in edges between the given Varnode and any PcodeOp that reads it
-  void buildOpUp(const PcodeOp *op);	///< Move input Varnodes for the given PcodeOp into staging
-  void buildOpDown(const PcodeOp *op);	///< Move the output Varnode for the given PcodeOp into staging
-  void gatherUnmarkedVn(void);		///< Move staged Varnodes into the sub-graph and mark them
-  void gatherUnmarkedOp(void);		///< Mark any new PcodeOps in the sub-graph
-  void pieceTogetherHash(const Varnode *root,uint4 method);	///< Clean-up and piece together formal hash value
-  static void moveOffSkip(const PcodeOp *&op,int4 &slot);	///< Convert given PcodeOp to a non-skip op by following data-flow
-  static void dedupVarnodes(vector<Varnode *> &varlist);	///< Remove any duplicate Varnodes in given list
+    Address addrresult;                  ///< Address most closely associated with variable
+    uint8 hash;                          ///< The calculated hash value
+    void buildVnUp(const Varnode* vn);   ///< Add in the edge between the given Varnode and its defining PcodeOp
+    void buildVnDown(const Varnode* vn); ///< Add in edges between the given Varnode and any PcodeOp that reads it
+    void buildOpUp(const PcodeOp* op);   ///< Move input Varnodes for the given PcodeOp into staging
+    void buildOpDown(const PcodeOp* op); ///< Move the output Varnode for the given PcodeOp into staging
+    void gatherUnmarkedVn(void);         ///< Move staged Varnodes into the sub-graph and mark them
+    void gatherUnmarkedOp(void);         ///< Mark any new PcodeOps in the sub-graph
+    void pieceTogetherHash(const Varnode* root, uint4 method); ///< Clean-up and piece together formal hash value
+    static void moveOffSkip(const PcodeOp*& op,
+                            int4& slot); ///< Convert given PcodeOp to a non-skip op by following data-flow
+    static void dedupVarnodes(vector<Varnode*>& varlist); ///< Remove any duplicate Varnodes in given list
 public:
-  void clear(void);			///< Called for each additional hash (after the first)
-  void calcHash(const Varnode *root,uint4 method);	///< Calculate the hash for given Varnode and method
-  void calcHash(const PcodeOp *op,int4 slot,uint4 method);	///< Calculate hash for given PcodeOp, slot, and method
-  void uniqueHash(const Varnode *root,Funcdata *fd);	///< Select a unique hash for the given Varnode
-  void uniqueHash(const PcodeOp *op,int4 slot,Funcdata *fd);	///< Select unique hash for given PcodeOp and slot
-  Varnode *findVarnode(const Funcdata *fd,const Address &addr,uint8 h);
-  PcodeOp *findOp(const Funcdata *fd,const Address &addr,uint8 h);
-  uint8 getHash(void) const { return hash; }		///< Get the (current) hash
-  
-  const Address &getAddress(void) const { return addrresult; }	///< Get the (current) address
-  static void gatherFirstLevelVars(vector<Varnode *> &varlist,const Funcdata *fd,const Address &addr,uint8 h);
-  static void gatherOpsAtAddress(vector<PcodeOp *> &opList,const Funcdata *fd,const Address &addr);
-  static int4 getSlotFromHash(uint8 h);			///< Retrieve the encoded slot from a hash
-  static uint4 getMethodFromHash(uint8 h);		///< Retrieve the encoded method from a hash
-  static uint4 getOpCodeFromHash(uint8 h);		///< Retrieve the encoded op-code from a hash
-  static uint4 getPositionFromHash(uint8 h);		///< Retrieve the encoded position from a hash
-  static uint4 getTotalFromHash(uint8 h);		///< Retrieve the encoded collision total from a hash
-  static bool getIsNotAttached(uint8 h);		///< Retrieve the attachment boolean from a hash
-  static void clearTotalPosition(uint8 &h);		///< Clear the collision total and position fields within a hash
-  static uint4 getComparable(uint8 h) { return (uint4)h; }	///< Get only the formal hash for comparing
-  static const uint4 transtable[];				///< Translation of op-codes to hash values
+    void clear(void);                                            ///< Called for each additional hash (after the first)
+    void calcHash(const Varnode* root, uint4 method);            ///< Calculate the hash for given Varnode and method
+    void calcHash(const PcodeOp* op, int4 slot, uint4 method);   ///< Calculate hash for given PcodeOp, slot, and method
+    void uniqueHash(const Varnode* root, Funcdata* fd);          ///< Select a unique hash for the given Varnode
+    void uniqueHash(const PcodeOp* op, int4 slot, Funcdata* fd); ///< Select unique hash for given PcodeOp and slot
+    Varnode* findVarnode(const Funcdata* fd, const Address& addr, uint8 h);
+    PcodeOp* findOp(const Funcdata* fd, const Address& addr, uint8 h);
+    uint8 getHash(void) const {
+        return hash;
+    } ///< Get the (current) hash
+
+    const Address& getAddress(void) const {
+        return addrresult;
+    } ///< Get the (current) address
+    static void gatherFirstLevelVars(vector<Varnode*>& varlist, const Funcdata* fd, const Address& addr, uint8 h);
+    static void gatherOpsAtAddress(vector<PcodeOp*>& opList, const Funcdata* fd, const Address& addr);
+    static int4 getSlotFromHash(uint8 h);      ///< Retrieve the encoded slot from a hash
+    static uint4 getMethodFromHash(uint8 h);   ///< Retrieve the encoded method from a hash
+    static uint4 getOpCodeFromHash(uint8 h);   ///< Retrieve the encoded op-code from a hash
+    static uint4 getPositionFromHash(uint8 h); ///< Retrieve the encoded position from a hash
+    static uint4 getTotalFromHash(uint8 h);    ///< Retrieve the encoded collision total from a hash
+    static bool getIsNotAttached(uint8 h);     ///< Retrieve the attachment boolean from a hash
+    static void clearTotalPosition(uint8& h);  ///< Clear the collision total and position fields within a hash
+    static uint4 getComparable(uint8 h) {
+        return (uint4)h;
+    }                                ///< Get only the formal hash for comparing
+    static const uint4 transtable[]; ///< Translation of op-codes to hash values
 };
 
 } // End namespace ghidra

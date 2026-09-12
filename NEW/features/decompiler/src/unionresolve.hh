@@ -39,22 +39,35 @@ namespace ghidra {
 /// If the parent is not a pointer, the resolution is the field itself.
 /// A \b fieldNum of -1 indicates that the parent data-type itself is the resolution.
 class ResolvedUnion {
-  friend class ScoreUnionFields;
-  Datatype *resolve;		///< The resolved data-type
-  Datatype *baseType;		///< Union or Structure being resolved (pointers and partials stripped)
-  int4 fieldNum;		///< Index of field referenced by \b resolve
-  bool lock;			///< If \b true, resolution cannot be overridden
+    friend class ScoreUnionFields;
+    Datatype* resolve;  ///< The resolved data-type
+    Datatype* baseType; ///< Union or Structure being resolved (pointers and partials stripped)
+    int4 fieldNum;      ///< Index of field referenced by \b resolve
+    bool lock;          ///< If \b true, resolution cannot be overridden
 public:
-  ResolvedUnion(Datatype *unresType);		///< Construct a data-type that resolves to itself
-  ResolvedUnion(Datatype *unresType,int4 fldNum,TypeFactory &typegrp);	///< Construct a resolution with a specific field number
-  ResolvedUnion(const ResolvedUnion &op,Datatype *res);		///< Copy constructor with updated resolve data-type
-  Datatype *getDatatype(void) const { return resolve; }		///< Get the resolved data-type
-  Datatype *getBase(void) const { return baseType; }		///< Get the union or structure being referenced
-  int4 getFieldNum(void) const { return fieldNum; }		///< Get the index of the resolved field or -1
-  bool isLocked(void) const { return lock; }			///< Return \b true if the field resolution is locked
-  bool update(const ResolvedUnion &op);				///< Update a resolution with a new data-type
-  void setResolve(Datatype *res) { resolve = res; }		///< Update the resolution data-type (without changing field resolution)
-  void setLock(bool val) { lock = val; }	///< Set whether \b this resolution is locked against overrides
+    ResolvedUnion(Datatype* unresType); ///< Construct a data-type that resolves to itself
+    ResolvedUnion(Datatype* unresType, int4 fldNum,
+                  TypeFactory& typegrp);                   ///< Construct a resolution with a specific field number
+    ResolvedUnion(const ResolvedUnion& op, Datatype* res); ///< Copy constructor with updated resolve data-type
+    Datatype* getDatatype(void) const {
+        return resolve;
+    } ///< Get the resolved data-type
+    Datatype* getBase(void) const {
+        return baseType;
+    } ///< Get the union or structure being referenced
+    int4 getFieldNum(void) const {
+        return fieldNum;
+    } ///< Get the index of the resolved field or -1
+    bool isLocked(void) const {
+        return lock;
+    }                                     ///< Return \b true if the field resolution is locked
+    bool update(const ResolvedUnion& op); ///< Update a resolution with a new data-type
+    void setResolve(Datatype* res) {
+        resolve = res;
+    } ///< Update the resolution data-type (without changing field resolution)
+    void setLock(bool val) {
+        lock = val;
+    } ///< Set whether \b this resolution is locked against overrides
 };
 
 /// \brief A data-flow edge to which a resolved data-type can be assigned
@@ -63,13 +76,13 @@ public:
 /// which is typically a union or a pointer to a union.  The edge collapses different
 /// kinds of pointers to the same base union.
 class ResolveEdge {
-  uint8 typeId;			///< Id of base data-type being resolved
-  uintm opTime;			///< Id of PcodeOp edge
-  int4 encoding;		///< Encoding of the slot and pointer-ness
+    uint8 typeId;  ///< Id of base data-type being resolved
+    uintm opTime;  ///< Id of PcodeOp edge
+    int4 encoding; ///< Encoding of the slot and pointer-ness
 public:
-  ResolveEdge(const Datatype *unresType,const PcodeOp *op,int4 slot);	///< Construct from components
-  ResolveEdge(const Datatype *unresType,const Address &addr,int4 slot);	///< Construct address based resolve
-  bool operator<(const ResolveEdge &op2) const;			///< Compare two edges
+    ResolveEdge(const Datatype* unresType, const PcodeOp* op, int4 slot);   ///< Construct from components
+    ResolveEdge(const Datatype* unresType, const Address& addr, int4 slot); ///< Construct address based resolve
+    bool operator<(const ResolveEdge& op2) const;                           ///< Compare two edges
 };
 
 /// \brief Analyze data-flow to resolve which field of a union data-type is being accessed
@@ -86,91 +99,118 @@ public:
 ///
 /// The result of scoring is returned as a ResolvedUnion record.
 class ScoreUnionFields {
-  /// \brief A trial data-type fitted to a specific place in the data-flow
-  class Trial {
-    friend class ScoreUnionFields;
-    /// \brief An enumerator to distinguish how an individual trial follows data-flow
-    enum dir_type {
-      fit_down,			///< Only push the fit down \e with the data-flow
-      fit_up			///< Only push the fit up \e against the data-flow
+    /// \brief A trial data-type fitted to a specific place in the data-flow
+    class Trial {
+        friend class ScoreUnionFields;
+        /// \brief An enumerator to distinguish how an individual trial follows data-flow
+        enum dir_type {
+            fit_down, ///< Only push the fit down \e with the data-flow
+            fit_up    ///< Only push the fit up \e against the data-flow
+        };
+        Varnode* vn;        ///< The Varnode we are testing for data-type fit
+        PcodeOp* op;        ///< The PcodeOp reading the Varnode (or null)
+        int4 inslot;        ///< The slot reading the Varnode (or -1)
+        dir_type direction; ///< Direction to push fit.  0=down 1=up
+        int4 maxLength;     ///< Maximum byte offset that can be added to \b fitType as a pointer
+        Datatype* fitType;  ///< The putative data-type of the Varnode
+        int4 scoreIndex;    ///< The original field being scored by \b this trial
+    public:
+        /// \brief Construct a downward trial for a Varnode
+        ///
+        /// \param o is the PcodeOp reading the Varnode
+        /// \param slot is the input slot being read
+        /// \param ct is the trial data-type to fit
+        /// \param index is the scoring index
+        /// \param max is the biggest offset that can be added to this data-type as a pointer (or 0 if there is no known
+        /// restriction)
+        Trial(PcodeOp* o, int4 slot, Datatype* ct, int4 index, int4 max) {
+            op = o;
+            inslot = slot;
+            direction = fit_down;
+            fitType = ct;
+            scoreIndex = index;
+            vn = o->getIn(slot);
+            maxLength = max;
+        }
+
+        /// \brief Construct an upward trial for a Varnode
+        ///
+        /// \param v is the Varnode to fit
+        /// \param ct is the trial data-type to fit
+        /// \param index is the scoring index
+        /// \param max is the biggest offset that can be added to this data-type as a pointer (or 0 if there is no known
+        /// restriction)
+        Trial(Varnode* v, Datatype* ct, int4 index, int4 max) {
+            vn = v;
+            op = (PcodeOp*)0;
+            inslot = -1;
+            direction = fit_up;
+            fitType = ct;
+            scoreIndex = index;
+            maxLength = max;
+        }
     };
-    Varnode *vn;		///< The Varnode we are testing for data-type fit
-    PcodeOp *op;		///< The PcodeOp reading the Varnode (or null)
-    int4 inslot;		///< The slot reading the Varnode (or -1)
-    dir_type direction;		///< Direction to push fit.  0=down 1=up
-    int4 maxLength;		///< Maximum byte offset that can be added to \b fitType as a pointer
-    Datatype *fitType;		///< The putative data-type of the Varnode
-    int4 scoreIndex;		///< The original field being scored by \b this trial
-  public:
-    /// \brief Construct a downward trial for a Varnode
-    ///
-    /// \param o is the PcodeOp reading the Varnode
-    /// \param slot is the input slot being read
-    /// \param ct is the trial data-type to fit
-    /// \param index is the scoring index
-    /// \param max is the biggest offset that can be added to this data-type as a pointer (or 0 if there is no known restriction)
-   Trial(PcodeOp *o,int4 slot,Datatype *ct,int4 index,int4 max) {
-      op = o; inslot = slot; direction = fit_down; fitType = ct; scoreIndex = index; vn = o->getIn(slot); maxLength = max; }
 
-    /// \brief Construct an upward trial for a Varnode
-    ///
-    /// \param v is the Varnode to fit
-    /// \param ct is the trial data-type to fit
-    /// \param index is the scoring index
-    /// \param max is the biggest offset that can be added to this data-type as a pointer (or 0 if there is no known restriction)
-    Trial(Varnode *v,Datatype *ct,int4 index,int4 max) {
-      vn = v; op = (PcodeOp *)0; inslot=-1; direction = fit_up; fitType = ct; scoreIndex = index; maxLength = max; }
-  };
+    /// \brief A mark accumulated when a given Varnode is visited with a specific field index
+    class VisitMark {
+        Varnode* vn; ///< Varnode reached by trial field
+        int4 index;  ///< Index of the trial field
+    public:
+        VisitMark(Varnode* v, int4 i) {
+            vn = v;
+            index = i;
+        } ///< Constructor
 
-  /// \brief A mark accumulated when a given Varnode is visited with a specific field index
-  class VisitMark {
-    Varnode *vn;		///< Varnode reached by trial field
-    int4 index;			///< Index of the trial field
-  public:
-    VisitMark(Varnode *v,int4 i) { vn = v; index = i; }	///< Constructor
-
-    /// \brief Compare two VisitMarks for use in a set container
-    ///
-    /// \param op2 is the other VisitMark being compared with \b this
-    /// \return \b true if \b this should be ordered before \b op2
-    bool operator<(const VisitMark &op2) const {
-      if (vn != op2.vn)
-	return (vn < op2.vn);
-      return (index < op2.index);
-    }
-  };
-  Funcdata &data;		///< Function containing data-flow being scored
-  TypeFactory &typegrp;		///< The factory containing data-types
-  vector<int4> scores;		///< Score for each field, indexed by fieldNum + 1 (whole union is index=0)
-  vector<Datatype *> fields;	///< Field corresponding to each score
-  set<VisitMark> visited;	///< Places that have already been visited
-  list<Trial> trialCurrent;	///< Current trials being pushed
-  list<Trial> trialNext;	///< Next set of trials
-  ResolvedUnion result;		///< The best result
-  int4 trialCount;		///< Number of trials evaluated so far
-  static const int4 maxPasses;	///< Maximum number of levels to score through
-  static const int4 threshold;	///< Threshold of trials over which to cancel additional passes
-  static const int4 maxTrials;		///< Maximum number of trials to evaluate
-  bool testArrayArithmetic(PcodeOp *op,int4 inslot);	///< Check if given PcodeOp is operating on array with union elements
-  bool testSimpleCases(PcodeOp *op,int4 inslot,Datatype *parent);	///< Preliminary checks before doing full scoring
-  int4 scoreLockedType(Datatype *ct,Datatype *lockType);	///< Score trial data-type against a locked data-type
-  int4 scoreParameter(Datatype *ct,const FuncProto *proto,int4 paramSlot);	///< Score trial data-type against a parameter
-  int4 scoreReturnType(Datatype *ct,const FuncProto *proto);	///< Score trial data-type against return data-type of function
-  Datatype *derefPointer(const Trial &trial,Varnode *vn,int4 &score);	///< Score trial as a pointer to LOAD/STORE
-  void newTrialsDown(Varnode *vn,Datatype *ct,int4 scoreIndex,int4 max);	///< Create new trials based an reads of given Varnode
-  void newTrials(PcodeOp *op,int4 slot,Datatype *ct,int4 scoreIndex,int4 max);	///< Create new trials based on given input slot
-  void scoreTrialDown(const Trial &trial,bool lastLevel);	///< Try to fit the given trial following data-flow down
-  void scoreTrialUp(const Trial &trial,bool lastLevel);		///< Try to fit the given trial following data-flow up
-  Datatype *scoreTruncation(Datatype *ct,Varnode *vn,int4 offset,int4 scoreIndex);	///< Score a truncation in the data-flow
-  void scoreConstantFit(const Trial &trial);	///< Score trial data-type against a constant
-  void runOneLevel(bool lastPass);	///< Score all the current trials
-  void computeBestIndex(void);		///< Assuming scoring is complete, compute the best index
-  void run(void);	///< Calculate best fitting field
+        /// \brief Compare two VisitMarks for use in a set container
+        ///
+        /// \param op2 is the other VisitMark being compared with \b this
+        /// \return \b true if \b this should be ordered before \b op2
+        bool operator<(const VisitMark& op2) const {
+            if (vn != op2.vn)
+                return (vn < op2.vn);
+            return (index < op2.index);
+        }
+    };
+    Funcdata& data;              ///< Function containing data-flow being scored
+    TypeFactory& typegrp;        ///< The factory containing data-types
+    vector<int4> scores;         ///< Score for each field, indexed by fieldNum + 1 (whole union is index=0)
+    vector<Datatype*> fields;    ///< Field corresponding to each score
+    set<VisitMark> visited;      ///< Places that have already been visited
+    list<Trial> trialCurrent;    ///< Current trials being pushed
+    list<Trial> trialNext;       ///< Next set of trials
+    ResolvedUnion result;        ///< The best result
+    int4 trialCount;             ///< Number of trials evaluated so far
+    static const int4 maxPasses; ///< Maximum number of levels to score through
+    static const int4 threshold; ///< Threshold of trials over which to cancel additional passes
+    static const int4 maxTrials; ///< Maximum number of trials to evaluate
+    bool testArrayArithmetic(PcodeOp* op,
+                             int4 inslot); ///< Check if given PcodeOp is operating on array with union elements
+    bool testSimpleCases(PcodeOp* op, int4 inslot, Datatype* parent); ///< Preliminary checks before doing full scoring
+    int4 scoreLockedType(Datatype* ct, Datatype* lockType); ///< Score trial data-type against a locked data-type
+    int4 scoreParameter(Datatype* ct, const FuncProto* proto,
+                        int4 paramSlot); ///< Score trial data-type against a parameter
+    int4 scoreReturnType(Datatype* ct,
+                         const FuncProto* proto); ///< Score trial data-type against return data-type of function
+    Datatype* derefPointer(const Trial& trial, Varnode* vn, int4& score); ///< Score trial as a pointer to LOAD/STORE
+    void newTrialsDown(Varnode* vn, Datatype* ct, int4 scoreIndex,
+                       int4 max); ///< Create new trials based an reads of given Varnode
+    void newTrials(PcodeOp* op, int4 slot, Datatype* ct, int4 scoreIndex,
+                   int4 max);                                ///< Create new trials based on given input slot
+    void scoreTrialDown(const Trial& trial, bool lastLevel); ///< Try to fit the given trial following data-flow down
+    void scoreTrialUp(const Trial& trial, bool lastLevel);   ///< Try to fit the given trial following data-flow up
+    Datatype* scoreTruncation(Datatype* ct, Varnode* vn, int4 offset,
+                              int4 scoreIndex); ///< Score a truncation in the data-flow
+    void scoreConstantFit(const Trial& trial);  ///< Score trial data-type against a constant
+    void runOneLevel(bool lastPass);            ///< Score all the current trials
+    void computeBestIndex(void);                ///< Assuming scoring is complete, compute the best index
+    void run(void);                             ///< Calculate best fitting field
 public:
-  ScoreUnionFields(Funcdata &fd,Datatype *parentType,PcodeOp *op,int4 slot);
-  ScoreUnionFields(Funcdata &fd,TypeUnion *unionType,int4 offset,PcodeOp *op);
-  ScoreUnionFields(Funcdata &fd,TypeUnion *unionType,int4 offset,PcodeOp *op,int4 slot);
-  const ResolvedUnion &getResult(void) const { return result; }		///< Get the resulting best field resolution
+    ScoreUnionFields(Funcdata& fd, Datatype* parentType, PcodeOp* op, int4 slot);
+    ScoreUnionFields(Funcdata& fd, TypeUnion* unionType, int4 offset, PcodeOp* op);
+    ScoreUnionFields(Funcdata& fd, TypeUnion* unionType, int4 offset, PcodeOp* op, int4 slot);
+    const ResolvedUnion& getResult(void) const {
+        return result;
+    } ///< Get the resulting best field resolution
 };
 
 /// \brief A collection of specific union data-type and how they resolve in a given context
@@ -180,45 +220,51 @@ public:
 /// Resolutions for multiple contexts can stored and retrieved by providing an id for the context
 /// in the \b key parameter.
 class ResolveCache {
-  /// \brief A specific resolution of a union data-type
-  class Record {
-  public:
-    Datatype *baseType;	///< The union or structure needing resolution (pointers and partials stripped)
-    int4 fieldNum;	///< Index of the specific resolution
-    int4 key;		///< Context key
-    Record(int4 k,Datatype *dt,int4 fldNum) { baseType = dt; fieldNum = fldNum; key = k; }	///< Constructor
-    bool match(int4 k,Datatype *dt) const { return (key == k && baseType == dt); }	///< Does the given data-type match \b this record
-  };
-  Funcdata &data;		///< Function to which resolutions apply
-  list<Record> resolveList;	///< List of known resolutions
+    /// \brief A specific resolution of a union data-type
+    class Record {
+    public:
+        Datatype* baseType; ///< The union or structure needing resolution (pointers and partials stripped)
+        int4 fieldNum;      ///< Index of the specific resolution
+        int4 key;           ///< Context key
+        Record(int4 k, Datatype* dt, int4 fldNum) {
+            baseType = dt;
+            fieldNum = fldNum;
+            key = k;
+        } ///< Constructor
+        bool match(int4 k, Datatype* dt) const {
+            return (key == k && baseType == dt);
+        } ///< Does the given data-type match \b this record
+    };
+    Funcdata& data;           ///< Function to which resolutions apply
+    list<Record> resolveList; ///< List of known resolutions
 public:
-  ResolveCache(Funcdata &fd) : data(fd) {}	///< Constructor
-  void addResolution(int4 key,Datatype *dt,PcodeOp *op,int4 slot);	///< Add a specific resolution to the cache
-  Datatype *resolve(int4 key,Datatype *dt) const;			///< Look up the in context resolution for the given data-type
-  void inheritResolution(int4 key,Datatype *dt,int4 off,Varnode *vn,PcodeOp *op,int4 slot) const;
+    ResolveCache(Funcdata& fd) : data(fd) {}                            ///< Constructor
+    void addResolution(int4 key, Datatype* dt, PcodeOp* op, int4 slot); ///< Add a specific resolution to the cache
+    Datatype* resolve(int4 key, Datatype* dt) const; ///< Look up the in context resolution for the given data-type
+    void inheritResolution(int4 key, Datatype* dt, int4 off, Varnode* vn, PcodeOp* op, int4 slot) const;
 
-  /// \brief Associate a cached resolution with a Varnode and its new read/write edge
-  ///
-  /// \param key is the context id
-  /// \param vn is the new Varnode inheriting the resolution
-  /// \param op is the PcodeOp reading/writing the Varnode
-  /// \param slot is the read/write edge
-  void inheritResolution(int4 key,Varnode *vn,PcodeOp *op,int4 slot) const {
-    inheritResolution(key,vn->getType(),0,vn,op,slot);
-  }
+    /// \brief Associate a cached resolution with a Varnode and its new read/write edge
+    ///
+    /// \param key is the context id
+    /// \param vn is the new Varnode inheriting the resolution
+    /// \param op is the PcodeOp reading/writing the Varnode
+    /// \param slot is the read/write edge
+    void inheritResolution(int4 key, Varnode* vn, PcodeOp* op, int4 slot) const {
+        inheritResolution(key, vn->getType(), 0, vn, op, slot);
+    }
 };
 
 /// Compare based on the data-type, the \b slot, and the PcodeOp's unique id.
 /// \param op2 is the other edge to compare with \b this
 /// \return \b true if \b this should be ordered before the other edge
-inline bool ResolveEdge::operator<(const ResolveEdge &op2) const
+inline bool ResolveEdge::operator<(const ResolveEdge& op2) const
 
 {
-  if (typeId != op2.typeId)
-    return (typeId < op2.typeId);
-  if (encoding != op2.encoding)
-    return (encoding < op2.encoding);
-  return (opTime < op2.opTime);
+    if (typeId != op2.typeId)
+        return (typeId < op2.typeId);
+    if (encoding != op2.encoding)
+        return (encoding < op2.encoding);
+    return (opTime < op2.opTime);
 }
 
 } // End namespace ghidra

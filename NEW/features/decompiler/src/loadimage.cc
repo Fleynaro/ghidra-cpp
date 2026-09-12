@@ -28,90 +28,92 @@ namespace ghidra {
 /// \param size is the number of bytes to read from the image
 /// \param addr is the address of the first byte being read
 /// \return a pointer to the desired bytes
-uint1 *LoadImage::load(int4 size,const Address &addr)
+uint1* LoadImage::load(int4 size, const Address& addr)
 
 {
-  uint1 *buf = new uint1[ size ];
-  loadFill(buf,size,addr);
-  return buf;
+    uint1* buf = new uint1[size];
+    loadFill(buf, size, addr);
+    return buf;
 }
 
-RawLoadImage::RawLoadImage(const string &f) : LoadImage(f)
+RawLoadImage::RawLoadImage(const string& f)
+    : LoadImage(f)
 
 {
-  vma = 0;
-  thefile = (ifstream *)0;
-  spaceid = (AddrSpace *)0;
-  filesize = 0;
+    vma = 0;
+    thefile = (ifstream*)0;
+    spaceid = (AddrSpace*)0;
+    filesize = 0;
 }
 
 RawLoadImage::~RawLoadImage(void)
 
 {
-  if (thefile != (ifstream *)0) {
-    thefile->close();
-    delete thefile;
-  }
+    if (thefile != (ifstream*)0) {
+        thefile->close();
+        delete thefile;
+    }
 }
 
 /// The file is opened and its size immediately recovered.
 void RawLoadImage::open(void)
 
 {
-  if (thefile != (ifstream *)0) throw LowlevelError("loadimage is already open");
-  thefile = new ifstream(filename.c_str());
-  if (!(*thefile)) {
-    string errmsg = "Unable to open raw image file: "+filename;
-    delete thefile;
-    throw LowlevelError(errmsg);
-  }
-  thefile->seekg(0,ios::end);
-  filesize = thefile->tellg();
+    if (thefile != (ifstream*)0)
+        throw LowlevelError("loadimage is already open");
+    thefile = new ifstream(filename.c_str());
+    if (!(*thefile)) {
+        string errmsg = "Unable to open raw image file: " + filename;
+        delete thefile;
+        throw LowlevelError(errmsg);
+    }
+    thefile->seekg(0, ios::end);
+    filesize = thefile->tellg();
 }
 
 string RawLoadImage::getArchType(void) const
 
 {
-  return "unknown";
+    return "unknown";
 }
 
 void RawLoadImage::adjustVma(long adjust)
 
 {
-  adjust = AddrSpace::addressToByte(adjust,spaceid->getWordSize());
-  vma += adjust;
+    adjust = AddrSpace::addressToByte(adjust, spaceid->getWordSize());
+    vma += adjust;
 }
 
-void RawLoadImage::loadFill(uint1 *ptr,int4 size,const Address &addr)
+void RawLoadImage::loadFill(uint1* ptr, int4 size, const Address& addr)
 
 {
-  uintb curaddr = addr.getOffset();
-  uintb offset = 0;
-  uintb readsize;
+    uintb curaddr = addr.getOffset();
+    uintb offset = 0;
+    uintb readsize;
 
-  curaddr -= vma;		// Get relative offset of first byte
-  while(size>0) {
-    if (curaddr >= filesize) {
-      if (offset == 0)		// Initial address not within file
-	break;
-      memset(ptr+offset,0,size); // Fill out the rest of the buffer with 0
-      return;
+    curaddr -= vma; // Get relative offset of first byte
+    while (size > 0) {
+        if (curaddr >= filesize) {
+            if (offset == 0) // Initial address not within file
+                break;
+            memset(ptr + offset, 0, size); // Fill out the rest of the buffer with 0
+            return;
+        }
+        readsize = size;
+        if (curaddr + readsize > filesize) // Adjust to biggest possible read
+            readsize = filesize - curaddr;
+        thefile->seekg(curaddr);
+        thefile->read((char*)(ptr + offset), readsize);
+        offset += readsize;
+        size -= readsize;
+        curaddr += readsize;
     }
-    readsize = size;
-    if (curaddr + readsize > filesize) // Adjust to biggest possible read
-      readsize = filesize - curaddr;
-    thefile->seekg(curaddr);
-    thefile->read((char *)(ptr+offset),readsize);
-    offset += readsize;
-    size -= readsize;
-    curaddr += readsize;
-  }
-  if (size > 0) {
-    ostringstream errmsg;
-    errmsg << "Unable to load " << dec << size << " bytes at " << addr.getShortcut();
-    addr.printRaw(errmsg);
-    throw DataUnavailError(errmsg.str());
-  }
+    if (size > 0) {
+        ostringstream errmsg;
+        errmsg << "Unable to load " << dec << size << " bytes at " << addr.getShortcut();
+        addr.printRaw(errmsg);
+        throw DataUnavailError(errmsg.str());
+    }
 }
 
 } // End namespace ghidra

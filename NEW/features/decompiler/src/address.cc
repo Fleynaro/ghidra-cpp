@@ -16,27 +16,28 @@
  * limitations under the License.
  */
 #include "address.hh"
+
 #include "translate.hh"
 
 namespace ghidra {
 
-AttributeId ATTRIB_FIRST = AttributeId("first",27);
-AttributeId ATTRIB_LAST = AttributeId("last",28);
-AttributeId ATTRIB_UNIQ = AttributeId("uniq",29);
+AttributeId ATTRIB_FIRST = AttributeId("first", 27);
+AttributeId ATTRIB_LAST = AttributeId("last", 28);
+AttributeId ATTRIB_UNIQ = AttributeId("uniq", 29);
 
-ElementId ELEM_ADDR = ElementId("addr",11);
-ElementId ELEM_RANGE = ElementId("range",12);
-ElementId ELEM_RANGELIST = ElementId("rangelist",13);
-ElementId ELEM_REGISTER = ElementId("register",14);
-ElementId ELEM_SEQNUM = ElementId("seqnum",15);
-ElementId ELEM_VARNODE = ElementId("varnode",16);
+ElementId ELEM_ADDR = ElementId("addr", 11);
+ElementId ELEM_RANGE = ElementId("range", 12);
+ElementId ELEM_RANGELIST = ElementId("rangelist", 13);
+ElementId ELEM_REGISTER = ElementId("register", 14);
+ElementId ELEM_SEQNUM = ElementId("seqnum", 15);
+ElementId ELEM_VARNODE = ElementId("varnode", 16);
 
-ostream &operator<<(ostream &s,const SeqNum &sq)
+ostream& operator<<(ostream& s, const SeqNum& sq)
 
 {
-  sq.pc.printRaw(s);
-  s << ':' << sq.uniq;
-  return s;
+    sq.pc.printRaw(s);
+    s << ':' << sq.uniq;
+    return s;
 }
 
 /// This allows an Address to be written to a stream using
@@ -46,44 +47,46 @@ ostream &operator<<(ostream &s,const SeqNum &sq)
 /// \param s is the stream being written to
 /// \param addr is the Address to write
 /// \return the output stream
-ostream &operator<<(ostream &s,const Address &addr)
+ostream& operator<<(ostream& s, const Address& addr)
 
 {
-  addr.printRaw(s);
-  return s;
+    addr.printRaw(s);
+    return s;
 }
 
-SeqNum::SeqNum(Address::mach_extreme ex) : pc(ex)
+SeqNum::SeqNum(Address::mach_extreme ex)
+    : pc(ex)
 
 {
-  uniq = (ex == Address::m_minimal) ? 0 : ~((uintm)0);
+    uniq = (ex == Address::m_minimal) ? 0 : ~((uintm)0);
 }
 
-void SeqNum::encode(Encoder &encoder) const
+void SeqNum::encode(Encoder& encoder) const
 
 {
-  encoder.openElement(ELEM_SEQNUM);
-  pc.getSpace()->encodeAttributes(encoder,pc.getOffset());
-  encoder.writeUnsignedInteger(ATTRIB_UNIQ, uniq);
-  encoder.closeElement(ELEM_SEQNUM);
+    encoder.openElement(ELEM_SEQNUM);
+    pc.getSpace()->encodeAttributes(encoder, pc.getOffset());
+    encoder.writeUnsignedInteger(ATTRIB_UNIQ, uniq);
+    encoder.closeElement(ELEM_SEQNUM);
 }
 
-SeqNum SeqNum::decode(Decoder &decoder)
+SeqNum SeqNum::decode(Decoder& decoder)
 
 {
-  uintm uniq = ~((uintm)0);
-  uint4 elemId = decoder.openElement(ELEM_SEQNUM);
-  Address pc = Address::decode(decoder); // Recover address
-  for(;;) {
-    uint4 attribId = decoder.getNextAttributeId();
-    if (attribId == 0) break;
-    if (attribId == ATTRIB_UNIQ) {
-      uniq = decoder.readUnsignedInteger();
-      break;
+    uintm uniq = ~((uintm)0);
+    uint4 elemId = decoder.openElement(ELEM_SEQNUM);
+    Address pc = Address::decode(decoder); // Recover address
+    for (;;) {
+        uint4 attribId = decoder.getNextAttributeId();
+        if (attribId == 0)
+            break;
+        if (attribId == ATTRIB_UNIQ) {
+            uniq = decoder.readUnsignedInteger();
+            break;
+        }
     }
-  }
-  decoder.closeElement(elemId);
-  return SeqNum(pc,uniq);
+    decoder.closeElement(elemId);
+    return SeqNum(pc, uniq);
 }
 
 /// Some data structures sort on an Address, and it is convenient
@@ -93,14 +96,13 @@ SeqNum SeqNum::decode(Decoder &decoder)
 Address::Address(mach_extreme ex)
 
 {
-  if (ex == m_minimal) {
-    base = (AddrSpace *)0;
-    offset = 0;
-  }
-  else {
-    base = (AddrSpace *) ~((uintp)0);
-    offset = ~((uintb)0);
-  }
+    if (ex == m_minimal) {
+        base = (AddrSpace*)0;
+        offset = 0;
+    } else {
+        base = (AddrSpace*)~((uintp)0);
+        offset = ~((uintb)0);
+    }
 }
 
 /// Return \b true if the range starting at \b this extending the given number of bytes
@@ -109,18 +111,20 @@ Address::Address(mach_extreme ex)
 /// \param op2 is the start of the second given range
 /// \param sz2 is the number of bytes in the second given range
 /// \return \b true if the second given range contains \b this range
-bool Address::containedBy(int4 sz,const Address &op2,int4 sz2) const
+bool Address::containedBy(int4 sz, const Address& op2, int4 sz2) const
 
 {
-  if (base != op2.base) return false;
-  if (op2.offset > offset) return false;
-  uintb off1 = offset + (sz-1);
-  uintb off2 = op2.offset + (sz2-1);
-  return (off2 >= off1);
+    if (base != op2.base)
+        return false;
+    if (op2.offset > offset)
+        return false;
+    uintb off1 = offset + (sz - 1);
+    uintb off2 = op2.offset + (sz2 - 1);
+    return (off2 >= off1);
 }
 
 /// Return -1 if (\e op2,\e sz2) is not properly contained in (\e this,\e sz).
-/// If it is contained, return the endian aware offset of (\e op2,\e sz2) 
+/// If it is contained, return the endian aware offset of (\e op2,\e sz2)
 /// I.e. if the least significant byte of the \e op2 range falls on the least significant
 /// byte of the \e this range, return 0.  If it intersects the second least significant, return 1, etc.
 /// The -forceleft- toggle causes the check to be made against the left (lowest address) side
@@ -130,17 +134,21 @@ bool Address::containedBy(int4 sz,const Address &op2,int4 sz2) const
 /// \param sz2 is the size of the second range
 /// \param forceleft is \b true if containments is forced to be on the left even for big endian
 /// \return the endian aware offset, or -1
-int4 Address::justifiedContain(int4 sz,const Address &op2,int4 sz2,bool forceleft) const
+int4 Address::justifiedContain(int4 sz, const Address& op2, int4 sz2, bool forceleft) const
 
-{ if (base != op2.base) return -1;
-  if (op2.offset < offset) return -1;
-  uintb off1 = offset + (sz-1);
-  uintb off2 = op2.offset + (sz2-1);
-  if (off2 > off1) return -1;
-  if (base->isBigEndian()&&(!forceleft)) {
-    return (int4)(off1 - off2);
-  }
-  return (int4)(op2.offset - offset);
+{
+    if (base != op2.base)
+        return -1;
+    if (op2.offset < offset)
+        return -1;
+    uintb off1 = offset + (sz - 1);
+    uintb off2 = op2.offset + (sz2 - 1);
+    if (off2 > off1)
+        return -1;
+    if (base->isBigEndian() && (!forceleft)) {
+        return (int4)(off1 - off2);
+    }
+    return (int4)(op2.offset - offset);
 }
 
 /// If \e this + \e skip falls in the range
@@ -152,18 +160,21 @@ int4 Address::justifiedContain(int4 sz,const Address &op2,int4 sz2,bool forcelef
 /// \param op is the start of the range to check
 /// \param size is the size of the range
 /// \return an integer indicating how overlap occurs
-int4 Address::overlap(int4 skip,const Address &op,int4 size) const
+int4 Address::overlap(int4 skip, const Address& op, int4 size) const
 
 {
-  uintb dist;
+    uintb dist;
 
-  if (base != op.base) return -1; // Must be in same address space to overlap
-  if (base->getType()==IPTR_CONSTANT) return -1; // Must not be constants
+    if (base != op.base)
+        return -1; // Must be in same address space to overlap
+    if (base->getType() == IPTR_CONSTANT)
+        return -1; // Must not be constants
 
-  dist = base->wrapOffset(offset+skip-op.offset);
+    dist = base->wrapOffset(offset + skip - op.offset);
 
-  if (dist >= size) return -1; // but must fall before op+size
-  return (int4) dist;
+    if (dist >= size)
+        return -1; // but must fall before op+size
+    return (int4)dist;
 }
 
 /// Does the location \e this, \e sz form a contiguous region to \e loaddr, \e losz,
@@ -172,19 +183,21 @@ int4 Address::overlap(int4 skip,const Address &op,int4 size) const
 /// \param loaddr is the starting address of the low region
 /// \param losz is the size of the low region
 /// \return \b true if the pieces form a contiguous whole
-bool Address::isContiguous(int4 sz,const Address &loaddr,int4 losz) const
+bool Address::isContiguous(int4 sz, const Address& loaddr, int4 losz) const
 
 {
-  if (base != loaddr.base) return false;
-  if (base->isBigEndian()) {
-    uintb nextoff = base->wrapOffset(offset+sz);
-    if (nextoff == loaddr.offset) return true;
-  }
-  else {
-    uintb nextoff = base->wrapOffset(loaddr.offset+losz);
-    if (nextoff == offset) return true;
-  }
-  return false;
+    if (base != loaddr.base)
+        return false;
+    if (base->isBigEndian()) {
+        uintb nextoff = base->wrapOffset(offset + sz);
+        if (nextoff == loaddr.offset)
+            return true;
+    } else {
+        uintb nextoff = base->wrapOffset(loaddr.offset + losz);
+        if (nextoff == offset)
+            return true;
+    }
+    return false;
 }
 
 /// If pointers are possible anywhere within the \b size byte region return \b true, \b false otherwise.
@@ -193,15 +206,15 @@ bool Address::isContiguous(int4 sz,const Address &loaddr,int4 losz) const
 bool Address::highPtrPossible(int4 size) const
 
 {
-  return base->manage->highPtrPossible(*this, size);
+    return base->manage->highPtrPossible(*this, size);
 }
 
 /// If \b this is (originally) a \e join address, reevaluate it in terms of its new
 /// \e offset and \e size, changing the space and offset if necessary.
 /// \param size is the new size in bytes of the underlying object
 void Address::renormalize(int4 size) {
-  if (base->getType() == IPTR_JOIN)
-    base->manage->renormalizeJoinAddress(*this,size);
+    if (base->getType() == IPTR_JOIN)
+        base->manage->renormalizeJoinAddress(*this, size);
 }
 
 /// This is usually used to decode an address from an \b \<addr\>
@@ -213,13 +226,13 @@ void Address::renormalize(int4 size) {
 /// based on a register name.
 /// \param decoder is the stream decoder
 /// \return the resulting Address
-Address Address::decode(Decoder &decoder)
+Address Address::decode(Decoder& decoder)
 
 {
-  VarnodeData var;
+    VarnodeData var;
 
-  var.decode(decoder);
-  return Address(var.space,var.offset);
+    var.decode(decoder);
+    return Address(var.space, var.offset);
 }
 
 /// This is usually used to decode an address from an \b \<addr\>
@@ -234,190 +247,187 @@ Address Address::decode(Decoder &decoder)
 /// \param decoder is the stream decoder
 /// \param size is the reference to any recovered size
 /// \return the resulting Address
-Address Address::decode(Decoder &decoder,int4 &size)
+Address Address::decode(Decoder& decoder, int4& size)
 
 {
-  VarnodeData var;
+    VarnodeData var;
 
-  var.decode(decoder);
-  size = var.size;
-  return Address(var.space,var.offset);
+    var.decode(decoder);
+    size = var.size;
+    return Address(var.space, var.offset);
 }
 
-Range::Range(const RangeProperties &properties,const AddrSpaceManager *manage)
+Range::Range(const RangeProperties& properties, const AddrSpaceManager* manage)
 
 {
-  if (properties.isRegister) {
-    const Translate *trans = manage->getDefaultCodeSpace()->getTrans();
-    const VarnodeData &point(trans->getRegister(properties.spaceName));
-    spc = point.space;
-    first = point.offset;
-    last = (first-1) + point.size;
-    return;
-  }
-  spc = manage->getSpaceByName(properties.spaceName);
-  if (spc == (AddrSpace *)0)
-    throw LowlevelError("Undefined space: "+properties.spaceName);
+    if (properties.isRegister) {
+        const Translate* trans = manage->getDefaultCodeSpace()->getTrans();
+        const VarnodeData& point(trans->getRegister(properties.spaceName));
+        spc = point.space;
+        first = point.offset;
+        last = (first - 1) + point.size;
+        return;
+    }
+    spc = manage->getSpaceByName(properties.spaceName);
+    if (spc == (AddrSpace*)0)
+        throw LowlevelError("Undefined space: " + properties.spaceName);
 
-  if (spc == (AddrSpace *)0)
-    throw LowlevelError("No address space indicated in range tag");
-  first = properties.first;
-  last = properties.last;
-  if (!properties.seenLast) {
-    last = spc->getHighest();
-  }
-  if (first > spc->getHighest() || last > spc->getHighest() || last < first)
-    throw LowlevelError("Illegal range tag");
+    if (spc == (AddrSpace*)0)
+        throw LowlevelError("No address space indicated in range tag");
+    first = properties.first;
+    last = properties.last;
+    if (!properties.seenLast) {
+        last = spc->getHighest();
+    }
+    if (first > spc->getHighest() || last > spc->getHighest() || last < first)
+        throw LowlevelError("Illegal range tag");
 }
 
 /// Get the last address +1, updating the space, or returning
 /// the extremal address if necessary
 /// \param manage is used to fetch the next address space
-Address Range::getLastAddrOpen(const AddrSpaceManager *manage) const
+Address Range::getLastAddrOpen(const AddrSpaceManager* manage) const
 
 {
-  AddrSpace *curspc = spc;
-  uintb curlast = last;
-  if (curlast == curspc->getHighest()) {
-    curspc = manage->getNextSpaceInOrder(curspc);
-    curlast = 0;
-  }
-  else
-    curlast += 1;
-  if (curspc == (AddrSpace *)0)
-    return Address(Address::m_maximal);
-  return Address(curspc,curlast);
+    AddrSpace* curspc = spc;
+    uintb curlast = last;
+    if (curlast == curspc->getHighest()) {
+        curspc = manage->getNextSpaceInOrder(curspc);
+        curlast = 0;
+    } else
+        curlast += 1;
+    if (curspc == (AddrSpace*)0)
+        return Address(Address::m_maximal);
+    return Address(curspc, curlast);
 }
 
 /// Output a description of this Range like:  ram: 7f-9c
 /// \param s is the output stream
-void Range::printBounds(ostream &s) const
+void Range::printBounds(ostream& s) const
 
 {
-  s << spc->getName() << ": ";
-  s << hex << first << '-' << last;
+    s << spc->getName() << ": ";
+    s << hex << first << '-' << last;
 }
 
 /// Encode \b this to a stream as a \<range> element.
 /// \param encoder is the stream encoder
-void Range::encode(Encoder &encoder) const
+void Range::encode(Encoder& encoder) const
 
 {
-  encoder.openElement(ELEM_RANGE);
-  encoder.writeSpace(ATTRIB_SPACE, spc);
-  encoder.writeUnsignedInteger(ATTRIB_FIRST, first);
-  encoder.writeUnsignedInteger(ATTRIB_LAST, last);
-  encoder.closeElement(ELEM_RANGE);
+    encoder.openElement(ELEM_RANGE);
+    encoder.writeSpace(ATTRIB_SPACE, spc);
+    encoder.writeUnsignedInteger(ATTRIB_FIRST, first);
+    encoder.writeUnsignedInteger(ATTRIB_LAST, last);
+    encoder.closeElement(ELEM_RANGE);
 }
 
 /// Reconstruct this object from a \<range> or \<register> element
 /// \param decoder is the stream decoder
-void Range::decode(Decoder &decoder)
+void Range::decode(Decoder& decoder)
 
 {
-  uint4 elemId = decoder.openElement();
-  if (elemId != ELEM_RANGE && elemId != ELEM_REGISTER)
-    throw DecoderError("Expecting <range> or <register> element");
-  decodeFromAttributes(decoder);
-  decoder.closeElement(elemId);
+    uint4 elemId = decoder.openElement();
+    if (elemId != ELEM_RANGE && elemId != ELEM_REGISTER)
+        throw DecoderError("Expecting <range> or <register> element");
+    decodeFromAttributes(decoder);
+    decoder.closeElement(elemId);
 }
 
 /// Reconstruct from attributes that may not be part of a \<range> element.
 /// \param decoder is the stream decoder
-void Range::decodeFromAttributes(Decoder &decoder)
+void Range::decodeFromAttributes(Decoder& decoder)
 
 {
-  spc = (AddrSpace *)0;
-  bool seenLast = false;
-  first = 0;
-  last = 0;
-  for(;;) {
-    uint4 attribId = decoder.getNextAttributeId();
-    if (attribId == 0) break;
-    if (attribId == ATTRIB_SPACE) {
-      spc = decoder.readSpace();
+    spc = (AddrSpace*)0;
+    bool seenLast = false;
+    first = 0;
+    last = 0;
+    for (;;) {
+        uint4 attribId = decoder.getNextAttributeId();
+        if (attribId == 0)
+            break;
+        if (attribId == ATTRIB_SPACE) {
+            spc = decoder.readSpace();
+        } else if (attribId == ATTRIB_FIRST) {
+            first = decoder.readUnsignedInteger();
+        } else if (attribId == ATTRIB_LAST) {
+            last = decoder.readUnsignedInteger();
+            seenLast = true;
+        } else if (attribId == ATTRIB_NAME) {
+            const Translate* trans = decoder.getAddrSpaceManager()->getDefaultCodeSpace()->getTrans();
+            const VarnodeData& point(trans->getRegister(decoder.readString()));
+            spc = point.space;
+            first = point.offset;
+            last = (first - 1) + point.size;
+            return; // There should be no (space,first,last) attributes
+        }
     }
-    else if (attribId == ATTRIB_FIRST) {
-      first = decoder.readUnsignedInteger();
+    if (spc == (AddrSpace*)0)
+        throw LowlevelError("No address space indicated in range tag");
+    if (!seenLast) {
+        last = spc->getHighest();
     }
-    else if (attribId == ATTRIB_LAST) {
-      last = decoder.readUnsignedInteger();
-      seenLast = true;
-    }
-    else if (attribId == ATTRIB_NAME) {
-      const Translate *trans = decoder.getAddrSpaceManager()->getDefaultCodeSpace()->getTrans();
-      const VarnodeData &point(trans->getRegister(decoder.readString()));
-      spc = point.space;
-      first = point.offset;
-      last = (first-1) + point.size;
-      return;		// There should be no (space,first,last) attributes
-    }
-  }
-  if (spc == (AddrSpace *)0)
-    throw LowlevelError("No address space indicated in range tag");
-  if (!seenLast) {
-    last = spc->getHighest();
-  }
-  if (first > spc->getHighest() || last > spc->getHighest() || last < first)
-    throw LowlevelError("Illegal range tag");
+    if (first > spc->getHighest() || last > spc->getHighest() || last < first)
+        throw LowlevelError("Illegal range tag");
 }
 
-void RangeProperties::decode(Decoder &decoder)
+void RangeProperties::decode(Decoder& decoder)
 
 {
-  uint4 elemId = decoder.openElement();
-  if (elemId != ELEM_RANGE && elemId != ELEM_REGISTER)
-    throw DecoderError("Expecting <range> or <register> element");
-  for(;;) {
-    uint4 attribId = decoder.getNextAttributeId();
-    if (attribId == 0) break;
-    if (attribId == ATTRIB_SPACE)
-      spaceName = decoder.readString();
-    else if (attribId == ATTRIB_FIRST)
-      first = decoder.readUnsignedInteger();
-    else if (attribId == ATTRIB_LAST) {
-      last = decoder.readUnsignedInteger();
-      seenLast = true;
+    uint4 elemId = decoder.openElement();
+    if (elemId != ELEM_RANGE && elemId != ELEM_REGISTER)
+        throw DecoderError("Expecting <range> or <register> element");
+    for (;;) {
+        uint4 attribId = decoder.getNextAttributeId();
+        if (attribId == 0)
+            break;
+        if (attribId == ATTRIB_SPACE)
+            spaceName = decoder.readString();
+        else if (attribId == ATTRIB_FIRST)
+            first = decoder.readUnsignedInteger();
+        else if (attribId == ATTRIB_LAST) {
+            last = decoder.readUnsignedInteger();
+            seenLast = true;
+        } else if (attribId == ATTRIB_NAME) {
+            spaceName = decoder.readString();
+            isRegister = true;
+        }
     }
-    else if (attribId == ATTRIB_NAME) {
-      spaceName = decoder.readString();
-      isRegister = true;
-    }
-  }
-  decoder.closeElement(elemId);
+    decoder.closeElement(elemId);
 }
 
 /// Insert a new Range merging as appropriate to maintain the disjoint cover
 /// \param spc is the address space containing the new range
 /// \param first is the offset of the first byte in the new range
 /// \param last is the offset of the last byte in the new range
-void RangeList::insertRange(AddrSpace *spc,uintb first,uintb last)
+void RangeList::insertRange(AddrSpace* spc, uintb first, uintb last)
 
 {
-  set<Range>::iterator iter1,iter2;
+    set<Range>::iterator iter1, iter2;
 
-  // we must have iter1.first > first
-  iter1 = tree.upper_bound(Range(spc,first,first));
+    // we must have iter1.first > first
+    iter1 = tree.upper_bound(Range(spc, first, first));
 
-  // Set iter1 to first range with range.last >=first
-  // It is either current iter1 or the one before
-  if (iter1 != tree.begin()) {
-    --iter1;
-    if (((*iter1).spc!=spc)||((*iter1).last < first))
-      ++iter1;
-  }
+    // Set iter1 to first range with range.last >=first
+    // It is either current iter1 or the one before
+    if (iter1 != tree.begin()) {
+        --iter1;
+        if (((*iter1).spc != spc) || ((*iter1).last < first))
+            ++iter1;
+    }
 
-  // Set iter2 to first range with range.first > last
-  iter2 = tree.upper_bound(Range(spc,last,last));
-  
-  while(iter1!=iter2) {
-    if ((*iter1).first < first)
-      first = (*iter1).first;
-    if ((*iter1).last > last)
-      last = (*iter1).last;
-    tree.erase(iter1++);
-  }
-  tree.insert(Range(spc,first,last));
+    // Set iter2 to first range with range.first > last
+    iter2 = tree.upper_bound(Range(spc, last, last));
+
+    while (iter1 != iter2) {
+        if ((*iter1).first < first)
+            first = (*iter1).first;
+        if ((*iter1).last > last)
+            last = (*iter1).last;
+        tree.erase(iter1++);
+    }
+    tree.insert(Range(spc, first, last));
 }
 
 /// Remove/narrow/split existing Range objects to eliminate the indicated addresses
@@ -425,115 +435,126 @@ void RangeList::insertRange(AddrSpace *spc,uintb first,uintb last)
 /// \param spc is the address space of the address range to remove
 /// \param first is the offset of the first byte of the range
 /// \param last is the offset of the last byte of the range
-void RangeList::removeRange(AddrSpace *spc,uintb first,uintb last)
+void RangeList::removeRange(AddrSpace* spc, uintb first, uintb last)
 
-{				// remove a range
-  set<Range>::iterator iter1,iter2;
+{ // remove a range
+    set<Range>::iterator iter1, iter2;
 
-  if (tree.empty()) return;	// Nothing to do
+    if (tree.empty())
+        return; // Nothing to do
 
-  // we must have iter1.first > first
-  iter1 = tree.upper_bound(Range(spc,first,first));
+    // we must have iter1.first > first
+    iter1 = tree.upper_bound(Range(spc, first, first));
 
-  // Set iter1 to first range with range.last >=first
-  // It is either current iter1 or the one before
-  if (iter1 != tree.begin()) {
-    --iter1;
-    if (((*iter1).spc!=spc)||((*iter1).last < first))
-      ++iter1;
-  }
+    // Set iter1 to first range with range.last >=first
+    // It is either current iter1 or the one before
+    if (iter1 != tree.begin()) {
+        --iter1;
+        if (((*iter1).spc != spc) || ((*iter1).last < first))
+            ++iter1;
+    }
 
-  // Set iter2 to first range with range.first > last
-  iter2 = tree.upper_bound(Range(spc,last,last));
-  
-  while(iter1!=iter2) {
-    uintb a,b;
+    // Set iter2 to first range with range.first > last
+    iter2 = tree.upper_bound(Range(spc, last, last));
 
-    a = (*iter1).first;
-    b = (*iter1).last;
-    tree.erase(iter1++);
-    if (a <first)
-      tree.insert(Range(spc,a,first-1));
-    if (b > last)
-      tree.insert(Range(spc,last+1,b));
-  }
+    while (iter1 != iter2) {
+        uintb a, b;
+
+        a = (*iter1).first;
+        b = (*iter1).last;
+        tree.erase(iter1++);
+        if (a < first)
+            tree.insert(Range(spc, a, first - 1));
+        if (b > last)
+            tree.insert(Range(spc, last + 1, b));
+    }
 }
 
-void RangeList::merge(const RangeList &op2)
+void RangeList::merge(const RangeList& op2)
 
 { // Merge -op2- into this rangelist
-  set<Range>::const_iterator iter1,iter2;
-  iter1 = op2.tree.begin();
-  iter2 = op2.tree.end();
-  while(iter1 != iter2) {
-    const Range &range( *iter1 );
-    ++iter1;
-    insertRange(range);
-  }
+    set<Range>::const_iterator iter1, iter2;
+    iter1 = op2.tree.begin();
+    iter2 = op2.tree.end();
+    while (iter1 != iter2) {
+        const Range& range(*iter1);
+        ++iter1;
+        insertRange(range);
+    }
 }
 
 /// Make sure indicated range of addresses is \e contained in \b this RangeList
 /// \param addr is the first Address in the target range
 /// \param size is the number of bytes in the target range
 /// \return \b true if the range is fully contained by this RangeList
-bool RangeList::inRange(const Address &addr,uintb size) const
+bool RangeList::inRange(const Address& addr, uintb size) const
 
 {
-  set<Range>::const_iterator iter;
+    set<Range>::const_iterator iter;
 
-  if (addr.isInvalid()) return true; // We don't really care
-  if (tree.empty()) return false;
+    if (addr.isInvalid())
+        return true; // We don't really care
+    if (tree.empty())
+        return false;
 
-  // iter = first range with its first > addr
-  iter = tree.upper_bound(Range(addr.getSpace(),addr.getOffset(),addr.getOffset()));
-  if (iter == tree.begin()) return false;
-  // Set iter to last range with range.first <= addr
-  --iter;
-  //  if (iter == tree.end())   // iter can't be end if non-empty
-  //    return false;
-  if ((*iter).spc != addr.getSpace()) return false;
-  uintb end = addr.getOffset()+size-1;
-  if (end < addr.getOffset())
-    return false;	// size causes overflow
-  if ((*iter).last >= end)
-    return true;
-  return false;
+    // iter = first range with its first > addr
+    iter = tree.upper_bound(Range(addr.getSpace(), addr.getOffset(), addr.getOffset()));
+    if (iter == tree.begin())
+        return false;
+    // Set iter to last range with range.first <= addr
+    --iter;
+    //  if (iter == tree.end())   // iter can't be end if non-empty
+    //    return false;
+    if ((*iter).spc != addr.getSpace())
+        return false;
+    uintb end = addr.getOffset() + size - 1;
+    if (end < addr.getOffset())
+        return false; // size causes overflow
+    if ((*iter).last >= end)
+        return true;
+    return false;
 }
 
 /// \param rng is the target range
 /// \return \b true if the range is fully contained by this RangeList
-bool RangeList::inRange(const Range &rng) const
+bool RangeList::inRange(const Range& rng) const
 
 {
-  set<Range>::const_iterator iter;
+    set<Range>::const_iterator iter;
 
-  if (tree.empty()) return false;
+    if (tree.empty())
+        return false;
 
-  // iter = first range with its first > rng.first
-  iter = tree.upper_bound(rng);
-  if (iter == tree.begin()) return false;
-  // Set iter to last range with range.first <= rng.first
-  --iter;
-  if ((*iter).spc != rng.getSpace()) return false;
-  return ((*iter).last >= rng.last);
+    // iter = first range with its first > rng.first
+    iter = tree.upper_bound(rng);
+    if (iter == tree.begin())
+        return false;
+    // Set iter to last range with range.first <= rng.first
+    --iter;
+    if ((*iter).spc != rng.getSpace())
+        return false;
+    return ((*iter).last >= rng.last);
 }
 
 /// If \b this RangeList contains the specific address (spaceid,offset), return it
 /// \return the containing Range or NULL
-const Range *RangeList::getRange(AddrSpace *spaceid,uintb offset) const
+const Range* RangeList::getRange(AddrSpace* spaceid, uintb offset) const
 
 {
-  if (tree.empty()) return (const Range *)0;
+    if (tree.empty())
+        return (const Range*)0;
 
-  // iter = first range with its first > offset
-  set<Range>::const_iterator iter = tree.upper_bound(Range(spaceid,offset,offset));
-  if (iter == tree.begin()) return (const Range *)0;
-  // Set iter to last range with range.first <= offset
-  --iter;
-  if ((*iter).spc != spaceid) return (const Range *)0;
-  if ((*iter).last >= offset)
-    return &(*iter);
-  return (const Range *)0;
+    // iter = first range with its first > offset
+    set<Range>::const_iterator iter = tree.upper_bound(Range(spaceid, offset, offset));
+    if (iter == tree.begin())
+        return (const Range*)0;
+    // Set iter to last range with range.first <= offset
+    --iter;
+    if ((*iter).spc != spaceid)
+        return (const Range*)0;
+    if ((*iter).last >= offset)
+        return &(*iter);
+    return (const Range*)0;
 }
 
 /// If \b this contains no Range in the given address space, null is returned.
@@ -543,28 +564,33 @@ const Range *RangeList::getRange(AddrSpace *spaceid,uintb offset) const
 /// \param spaceid is the given address space
 /// \param offset is the given offset
 /// \return the nearest Range in the same address space or null
-const Range *RangeList::getNearestRange(AddrSpace *spaceid,uintb offset) const
+const Range* RangeList::getNearestRange(AddrSpace* spaceid, uintb offset) const
 
 {
-  if (tree.empty()) return (const Range *)0;
+    if (tree.empty())
+        return (const Range*)0;
 
-  set<Range>::const_iterator iter = tree.upper_bound(Range(spaceid,offset,offset));
-  const Range *after = (const Range *)0;
-  if (iter != tree.end()) {
-    after = &(*iter);
-    if (after->spc != spaceid)
-      after = (const Range *)0;
-  }
+    set<Range>::const_iterator iter = tree.upper_bound(Range(spaceid, offset, offset));
+    const Range* after = (const Range*)0;
+    if (iter != tree.end()) {
+        after = &(*iter);
+        if (after->spc != spaceid)
+            after = (const Range*)0;
+    }
 
-  if (iter == tree.begin()) return after;	// nothing earlier, after is closest
-  --iter;
-  const Range *before = &(*iter);
-  if (before->spc != spaceid) return after;
-  if (after == (const Range *)0) return before;
-  if (before->last >= offset) return before;		// Range contains offset, it is closest
-  uint8 distafter = after->first - offset;
-  uint8 distbefore = offset - before->last;
-  return (distafter < distbefore) ? after : before;
+    if (iter == tree.begin())
+        return after; // nothing earlier, after is closest
+    --iter;
+    const Range* before = &(*iter);
+    if (before->spc != spaceid)
+        return after;
+    if (after == (const Range*)0)
+        return before;
+    if (before->last >= offset)
+        return before; // Range contains offset, it is closest
+    uint8 distafter = after->first - offset;
+    uint8 distbefore = offset - before->last;
+    return (distafter < distbefore) ? after : before;
 }
 
 /// Return the size of the biggest contiguous sequence of addresses in
@@ -572,49 +598,58 @@ const Range *RangeList::getNearestRange(AddrSpace *spaceid,uintb offset) const
 /// \param addr is the given address
 /// \param maxsize is the large range to consider before giving up
 /// \return the size (in bytes) of the biggest range
-uintb RangeList::longestFit(const Address &addr,uintb maxsize) const
+uintb RangeList::longestFit(const Address& addr, uintb maxsize) const
 
 {
-  set<Range>::const_iterator iter;
+    set<Range>::const_iterator iter;
 
-  if (addr.isInvalid()) return 0;
-  if (tree.empty()) return 0;
+    if (addr.isInvalid())
+        return 0;
+    if (tree.empty())
+        return 0;
 
-  // iter = first range with its first > addr
-  uintb offset = addr.getOffset();
-  iter = tree.upper_bound(Range(addr.getSpace(),offset,offset));
-  if (iter == tree.begin()) return 0;
-  // Set iter to last range with range.first <= addr
-  --iter;
-  uintb sizeres = 0;
-  if ((*iter).last < offset) return sizeres;
-  do {
-    if ((*iter).spc != addr.getSpace()) break;
-    if ((*iter).first > offset) break;
-    sizeres += ((*iter).last + 1 - offset); // Size extends to end of range
-    offset = (*iter).last + 1;	// Try to chain on the next range
-    if (sizeres >= maxsize) break; // Don't bother if past maxsize
-    ++iter;			// Next range in the chain
-  } while(iter != tree.end());
-  return sizeres;
+    // iter = first range with its first > addr
+    uintb offset = addr.getOffset();
+    iter = tree.upper_bound(Range(addr.getSpace(), offset, offset));
+    if (iter == tree.begin())
+        return 0;
+    // Set iter to last range with range.first <= addr
+    --iter;
+    uintb sizeres = 0;
+    if ((*iter).last < offset)
+        return sizeres;
+    do {
+        if ((*iter).spc != addr.getSpace())
+            break;
+        if ((*iter).first > offset)
+            break;
+        sizeres += ((*iter).last + 1 - offset); // Size extends to end of range
+        offset = (*iter).last + 1;              // Try to chain on the next range
+        if (sizeres >= maxsize)
+            break; // Don't bother if past maxsize
+        ++iter;    // Next range in the chain
+    } while (iter != tree.end());
+    return sizeres;
 }
 
 /// \return the first contiguous range of addresses or NULL if empty
-const Range *RangeList::getFirstRange(void) const
+const Range* RangeList::getFirstRange(void) const
 
 {
-  if (tree.empty()) return (const Range *)0;
-  return &(*tree.begin());
+    if (tree.empty())
+        return (const Range*)0;
+    return &(*tree.begin());
 }
 
 /// \return the last contiguous range of addresses or NULL if empty
-const Range *RangeList::getLastRange(void) const
+const Range* RangeList::getLastRange(void) const
 
 {
-  if (tree.empty()) return (const Range *)0;
-  set<Range>::const_iterator iter = tree.end();
-  --iter;
-  return &(*iter);
+    if (tree.empty())
+        return (const Range*)0;
+    set<Range>::const_iterator iter = tree.end();
+    --iter;
+    return &(*iter);
 }
 
 /// Treating offsets with their high-bits set as coming \e before
@@ -622,117 +657,117 @@ const Range *RangeList::getLastRange(void) const
 /// Range within the given address space
 /// \param spaceid is the given address space
 /// \return indicated Range or NULL if empty
-const Range *RangeList::getLastSignedRange(AddrSpace *spaceid) const
+const Range* RangeList::getLastSignedRange(AddrSpace* spaceid) const
 
 {
-  uintb midway = spaceid->getHighest() / 2;		// Maximal signed value
-  Range range(spaceid,midway,midway);
-  set<Range>::const_iterator iter = tree.upper_bound(range);	// First element greater than -range- (should be MOST negative)
+    uintb midway = spaceid->getHighest() / 2; // Maximal signed value
+    Range range(spaceid, midway, midway);
+    set<Range>::const_iterator iter =
+        tree.upper_bound(range); // First element greater than -range- (should be MOST negative)
 
-  if (iter!=tree.begin()) {
-    --iter;
-    if ((*iter).getSpace() == spaceid)
-      return &(*iter);
-  }
+    if (iter != tree.begin()) {
+        --iter;
+        if ((*iter).getSpace() == spaceid)
+            return &(*iter);
+    }
 
-  // If there were no "positive" ranges, search for biggest negative range
-  range = Range(spaceid,spaceid->getHighest(),spaceid->getHighest());
-  iter = tree.upper_bound(range);
-  if (iter != tree.begin()) {
-    --iter;
-    if ((*iter).getSpace() == spaceid)
-      return &(*iter);
-  }
-  return (const Range *)0;
+    // If there were no "positive" ranges, search for biggest negative range
+    range = Range(spaceid, spaceid->getHighest(), spaceid->getHighest());
+    iter = tree.upper_bound(range);
+    if (iter != tree.begin()) {
+        --iter;
+        if ((*iter).getSpace() == spaceid)
+            return &(*iter);
+    }
+    return (const Range*)0;
 }
 
 /// Print a one line description of each disjoint Range making up \b this RangeList
 /// \param s is the output stream
-void RangeList::printBounds(ostream &s) const
+void RangeList::printBounds(ostream& s) const
 
 {
-  if (tree.empty())
-    s << "all" << endl;
-  else {
-    set<Range>::const_iterator iter;
-    for(iter=tree.begin();iter!=tree.end();++iter) {
-      (*iter).printBounds(s);
-      s << endl;
+    if (tree.empty())
+        s << "all" << endl;
+    else {
+        set<Range>::const_iterator iter;
+        for (iter = tree.begin(); iter != tree.end(); ++iter) {
+            (*iter).printBounds(s);
+            s << endl;
+        }
     }
-  }
 }
 
 /// Encode \b this as a \<rangelist> element
 /// \param encoder is the stream encoder
-void RangeList::encode(Encoder &encoder) const
+void RangeList::encode(Encoder& encoder) const
 
 {
-  set<Range>::const_iterator iter;
+    set<Range>::const_iterator iter;
 
-  encoder.openElement(ELEM_RANGELIST);
-  for(iter=tree.begin();iter!=tree.end();++iter) {
-    (*iter).encode(encoder);
-  }
-  encoder.closeElement(ELEM_RANGELIST);
+    encoder.openElement(ELEM_RANGELIST);
+    for (iter = tree.begin(); iter != tree.end(); ++iter) {
+        (*iter).encode(encoder);
+    }
+    encoder.closeElement(ELEM_RANGELIST);
 }
 
 /// Recover each individual disjoint Range for \b this RangeList.
 /// \param decoder is the stream decoder
-void RangeList::decode(Decoder &decoder)
+void RangeList::decode(Decoder& decoder)
 
 {
-  uint4 elemId = decoder.openElement(ELEM_RANGELIST);
-  while(decoder.peekElement() != 0) {
-    Range range;
-    range.decode(decoder);
-    tree.insert(range);
-  }
-  decoder.closeElement(elemId);
+    uint4 elemId = decoder.openElement(ELEM_RANGELIST);
+    while (decoder.peekElement() != 0) {
+        Range range;
+        range.decode(decoder);
+        tree.insert(range);
+    }
+    decoder.closeElement(elemId);
 }
 
-BitRange::BitRange(const BitRange &op2,int4 off,int4 sz)
+BitRange::BitRange(const BitRange& op2, int4 off, int4 sz)
 
 {
-  byteOffset = off;
-  byteSize = sz;
-  numBits = op2.numBits;
-  isBigEndian = op2.isBigEndian;
-  leastSigBit = translateLSB(op2);
+    byteOffset = off;
+    byteSize = sz;
+    numBits = op2.numBits;
+    isBigEndian = op2.isBigEndian;
+    leastSigBit = translateLSB(op2);
 }
 
 /// Both the byte container and the bit range are compared and must be equal to return 0.
 /// \param op2 is the other bit range to compare with
 /// \return -1, 0, or 1 to establish ordering the two ranges
-int4 BitRange::compare(const BitRange &op2) const
+int4 BitRange::compare(const BitRange& op2) const
 
 {
-  if (byteOffset != op2.byteOffset)
-    return (byteOffset < op2.byteOffset) ? -1:1;
-  if (byteSize != op2.byteSize)
-    return (byteSize < op2.byteSize) ? -1 : 1;
-  if (leastSigBit != op2.leastSigBit)
-    return (leastSigBit < op2.leastSigBit) ? -1:1;
-  if (numBits != op2.numBits)
-    return (numBits < op2.numBits) ? -1:1;
-  return 0;
+    if (byteOffset != op2.byteOffset)
+        return (byteOffset < op2.byteOffset) ? -1 : 1;
+    if (byteSize != op2.byteSize)
+        return (byteSize < op2.byteSize) ? -1 : 1;
+    if (leastSigBit != op2.leastSigBit)
+        return (leastSigBit < op2.leastSigBit) ? -1 : 1;
+    if (numBits != op2.numBits)
+        return (numBits < op2.numBits) ? -1 : 1;
+    return 0;
 }
 
 /// The returned result is directly comparable with \b leastSigBit for determining order/overlap.
 /// \param op2 is the other BitRange to translate into \b this frame
 /// \return the translated value of op2.leastSigBit
-int4 BitRange::translateLSB(const BitRange &op2) const
+int4 BitRange::translateLSB(const BitRange& op2) const
 
 {
-  int4 op2Sig = op2.leastSigBit;
-  if (isBigEndian) {
-    int4 thisPos = byteOffset + byteSize;
-    int4 op2Pos = op2.byteOffset + op2.byteSize;
-    op2Sig += 8 * (thisPos - op2Pos);
-  }
-  else {
-    op2Sig += 8 * (op2.byteOffset - byteOffset);
-  }
-  return op2Sig;
+    int4 op2Sig = op2.leastSigBit;
+    if (isBigEndian) {
+        int4 thisPos = byteOffset + byteSize;
+        int4 op2Pos = op2.byteOffset + op2.byteSize;
+        op2Sig += 8 * (thisPos - op2Pos);
+    } else {
+        op2Sig += 8 * (op2.byteOffset - byteOffset);
+    }
+    return op2Sig;
 }
 
 /// Return:
@@ -745,47 +780,53 @@ int4 BitRange::translateLSB(const BitRange &op2) const
 ///
 /// \param op2 is the other range to compare
 /// \return the intersection code
-int4 BitRange::overlapTest(const BitRange &op2) const
+int4 BitRange::overlapTest(const BitRange& op2) const
 
 {
-  int4 op2Sig = translateLSB(op2);
-  int4 thisMost = leastSigBit + numBits;
-  int4 op2Most = op2Sig + op2.numBits;
-  if (isBigEndian) {
-    if (leastSigBit >= op2Most) return -1;
-    if (op2Sig >= thisMost) return 1;
-  }
-  else {
-    if (thisMost <= op2Sig) return -1;
-    if (op2Most <= leastSigBit) return 1;
-  }
-  // Reaching here we have some kind of intersection
-  if (leastSigBit == op2Sig && thisMost == op2Most) return 0;
-  if (op2Sig <= leastSigBit && op2Most >= thisMost) return 2;	/// this contained in op2
-  if (leastSigBit <= op2Sig && thisMost >= op2Most) return 3;	/// op2 contained in this
-  return 4;
+    int4 op2Sig = translateLSB(op2);
+    int4 thisMost = leastSigBit + numBits;
+    int4 op2Most = op2Sig + op2.numBits;
+    if (isBigEndian) {
+        if (leastSigBit >= op2Most)
+            return -1;
+        if (op2Sig >= thisMost)
+            return 1;
+    } else {
+        if (thisMost <= op2Sig)
+            return -1;
+        if (op2Most <= leastSigBit)
+            return 1;
+    }
+    // Reaching here we have some kind of intersection
+    if (leastSigBit == op2Sig && thisMost == op2Most)
+        return 0;
+    if (op2Sig <= leastSigBit && op2Most >= thisMost)
+        return 2; /// this contained in op2
+    if (leastSigBit <= op2Sig && thisMost >= op2Most)
+        return 3; /// op2 contained in this
+    return 4;
 }
 
 /// The byte container for \b this does not change only \b leastSigBit and \b numBits.
 /// If the intersection is empty, \b numBits is set to 0.
 /// \param op2 is the bit range to intersect with \b this.
-void BitRange::intersection(const BitRange &op2)
+void BitRange::intersection(const BitRange& op2)
 
 {
-  int4 op2Sig = translateLSB(op2);
-  int4 op2Most = op2Sig + op2.numBits;
-  int4 thisMost = leastSigBit + numBits;
-  if (op2Sig > leastSigBit) {
-    numBits -= (op2Sig - leastSigBit);
-    leastSigBit = op2Sig;
-  }
-  if (op2Most < thisMost) {
-    numBits -= (thisMost - op2Most);
-  }
-  if (numBits < 0) {
-    leastSigBit = 0;
-    numBits = 0;
-  }
+    int4 op2Sig = translateLSB(op2);
+    int4 op2Most = op2Sig + op2.numBits;
+    int4 thisMost = leastSigBit + numBits;
+    if (op2Sig > leastSigBit) {
+        numBits -= (op2Sig - leastSigBit);
+        leastSigBit = op2Sig;
+    }
+    if (op2Most < thisMost) {
+        numBits -= (thisMost - op2Most);
+    }
+    if (numBits < 0) {
+        leastSigBit = 0;
+        numBits = 0;
+    }
 }
 
 /// The range of bits is intersected with the 1-bits of the mask.  The resulting
@@ -794,22 +835,22 @@ void BitRange::intersection(const BitRange &op2)
 void BitRange::intersectMask(uintb mask)
 
 {
-  mask &= getMask();
-  if (mask == 0) {
-    leastSigBit = 0;
-    numBits = 0;
-    return;
-  }
-  int4 newLeastSig = leastsigbit_set(mask);
-  int4 newMostSig = mostsigbit_set(mask) + 1;
-  int4 thisMost = leastSigBit + numBits;
-  if (newLeastSig > leastSigBit) {
-    numBits -= (newLeastSig - leastSigBit);
-    leastSigBit = newLeastSig;
-  }
-  if (newMostSig < thisMost) {
-    numBits -= (thisMost - newMostSig);
-  }
+    mask &= getMask();
+    if (mask == 0) {
+        leastSigBit = 0;
+        numBits = 0;
+        return;
+    }
+    int4 newLeastSig = leastsigbit_set(mask);
+    int4 newMostSig = mostsigbit_set(mask) + 1;
+    int4 thisMost = leastSigBit + numBits;
+    if (newLeastSig > leastSigBit) {
+        numBits -= (newLeastSig - leastSigBit);
+        leastSigBit = newLeastSig;
+    }
+    if (newMostSig < thisMost) {
+        numBits -= (thisMost - newMostSig);
+    }
 }
 
 /// The bit range is shifted to the left by the given amount.
@@ -817,19 +858,18 @@ void BitRange::intersectMask(uintb mask)
 void BitRange::shift(int4 leftShiftAmount)
 
 {
-  leastSigBit += leftShiftAmount;
-  int4 most = leastSigBit + numBits;
-  if (leastSigBit < 0) {
-    numBits += leastSigBit;
-    leastSigBit = 0;
-  }
-  else if (most > byteSize * 8) {
-    numBits -= (most - byteSize * 8);
-  }
-  if (numBits < 0) {
-    leastSigBit = 0;
-    numBits = 0;
-  }
+    leastSigBit += leftShiftAmount;
+    int4 most = leastSigBit + numBits;
+    if (leastSigBit < 0) {
+        numBits += leastSigBit;
+        leastSigBit = 0;
+    } else if (most > byteSize * 8) {
+        numBits -= (most - byteSize * 8);
+    }
+    if (numBits < 0) {
+        leastSigBit = 0;
+        numBits = 0;
+    }
 }
 
 /// The number of bits may be affected.
@@ -837,31 +877,31 @@ void BitRange::shift(int4 leftShiftAmount)
 void BitRange::truncateMostSigBytes(int4 num)
 
 {
-  if (isBigEndian) {
-    byteOffset += num;
-  }
-  byteSize -= num;
-  int4 maxOffset = leastSigBit + numBits;
-  if (maxOffset > byteSize * 8)
-    numBits -= (maxOffset - byteSize * 8);
-  if (numBits < 0)
-    numBits = 0;
+    if (isBigEndian) {
+        byteOffset += num;
+    }
+    byteSize -= num;
+    int4 maxOffset = leastSigBit + numBits;
+    if (maxOffset > byteSize * 8)
+        numBits -= (maxOffset - byteSize * 8);
+    if (numBits < 0)
+        numBits = 0;
 }
 
 /// \param num is the number of bytes to truncate
 void BitRange::truncateLeastSigBytes(int4 num)
 
 {
-  if (!isBigEndian)
-    byteOffset += num;
-  byteSize -= num;
-  leastSigBit -= num * 8;
-  if (leastSigBit < 0) {
-    numBits = numBits + leastSigBit;
-    leastSigBit = 0;
-    if (numBits < 0)
-      numBits = 0;
-  }
+    if (!isBigEndian)
+        byteOffset += num;
+    byteSize -= num;
+    leastSigBit -= num * 8;
+    if (leastSigBit < 0) {
+        numBits = numBits + leastSigBit;
+        leastSigBit = 0;
+        if (numBits < 0)
+            numBits = 0;
+    }
 }
 
 /// Only the container is affected, the bit range itself does not change.
@@ -869,9 +909,9 @@ void BitRange::truncateLeastSigBytes(int4 num)
 void BitRange::extendBytes(int4 num)
 
 {
-  if (isBigEndian)
-    byteOffset -= num;
-  byteSize += num;
+    if (isBigEndian)
+        byteOffset -= num;
+    byteSize += num;
 }
 
 /// The bit-mask is aligned with the byte container.
@@ -879,74 +919,76 @@ void BitRange::extendBytes(int4 num)
 uintb BitRange::getMask(void) const
 
 {
-  uintb res;
-  if (numBits >= sizeof(uintb)*8)
-    res = 0;
-  else {
-    res = 1;
-    res <<= numBits;
-  }
-  res -= 1;
-  res <<= leastSigBit;
-  return res;
+    uintb res;
+    if (numBits >= sizeof(uintb) * 8)
+        res = 0;
+    else {
+        res = 1;
+        res <<= numBits;
+    }
+    res -= 1;
+    res <<= leastSigBit;
+    return res;
 }
 
 /// \return \b true if the beginning and end of the range fall on byte boundaries
 bool BitRange::isByteRange(void) const
 
 {
-  if ((numBits & 7) != 0) return false;
-  if ((leastSigBit & 7) != 0) return false;
-  return true;
+    if ((numBits & 7) != 0)
+        return false;
+    if ((leastSigBit & 7) != 0)
+        return false;
+    return true;
 }
 
 /// \return \b true if the most significant bit of the field and the container are the same
 bool BitRange::isMostSignificant(void) const
 
 {
-  return 8*byteSize == leastSigBit + numBits;
+    return 8 * byteSize == leastSigBit + numBits;
 }
 
 void BitRange::minimizeContainer(void)
 
 {
-  int4 trunc = leastSigBit / 8;
-  if (isBigEndian)
-    byteSize -= trunc;
-  else
-    byteOffset += trunc;
-  leastSigBit &= 7;
-  int4 num = byteSize - ((leastSigBit + numBits + 7) / 8);
-  if (num > 0) {
+    int4 trunc = leastSigBit / 8;
     if (isBigEndian)
-      byteOffset += num;
-    byteSize -= num;
-  }
+        byteSize -= trunc;
+    else
+        byteOffset += trunc;
+    leastSigBit &= 7;
+    int4 num = byteSize - ((leastSigBit + numBits + 7) / 8);
+    if (num > 0) {
+        if (isBigEndian)
+            byteOffset += num;
+        byteSize -= num;
+    }
 }
 
 void BitRange::expandToMost(void)
 
 {
-  numBits = 8*byteSize - leastSigBit;	// Increase number of bits to maximum that still fits
+    numBits = 8 * byteSize - leastSigBit; // Increase number of bits to maximum that still fits
 }
 
 #ifdef UINTB4
-uintb uintbmasks[9] = { 0, 0xff, 0xffff, 0xffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff };
+uintb uintbmasks[9] = {0, 0xff, 0xffff, 0xffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff};
 #else
-uintb uintbmasks[9] = { 0, 0xff, 0xffff, 0xffffff, 0xffffffff, 0xffffffffffLL,
-			0xffffffffffffLL, 0xffffffffffffffLL, 0xffffffffffffffffLL };
+uintb uintbmasks[9] = {
+    0, 0xff, 0xffff, 0xffffff, 0xffffffff, 0xffffffffffLL, 0xffffffffffffLL, 0xffffffffffffffLL, 0xffffffffffffffffLL};
 #endif
 
 /// Treat the given \b val as a constant of \b size bytes
 /// \param val is the given value
 /// \param size is the size in bytes
 /// \return \b true if the constant (as sized) has its sign bit set
-bool signbit_negative(uintb val,int4 size)
+bool signbit_negative(uintb val, int4 size)
 
-{				// Return true if signbit is set (negative)
-  uintb mask = 0x80;
-  mask <<= 8*(size-1);
-  return ((val&mask) != 0);
+{ // Return true if signbit is set (negative)
+    uintb mask = 0x80;
+    mask <<= 8 * (size - 1);
+    return ((val & mask) != 0);
 }
 
 /// Treat the given \b in as a constant of \b size bytes.
@@ -954,10 +996,10 @@ bool signbit_negative(uintb val,int4 size)
 /// \param in is the given value
 /// \param size is the size in bytes
 /// \return the negation of the sized constant
-uintb uintb_negate(uintb in,int4 size)
+uintb uintb_negate(uintb in, int4 size)
 
-{				// Invert bits
-  return ((~in)&calc_mask(size));
+{ // Invert bits
+    return ((~in) & calc_mask(size));
 }
 
 /// Take the first \b sizein bytes of the given \b in and sign-extend
@@ -966,65 +1008,65 @@ uintb uintb_negate(uintb in,int4 size)
 /// \param sizein is the size to treat that value as an input
 /// \param sizeout is the size to sign-extend the value to
 /// \return the sign-extended value
-uintb sign_extend(uintb in,int4 sizein,int4 sizeout)
+uintb sign_extend(uintb in, int4 sizein, int4 sizeout)
 
 {
-  sizein = (sizein < sizeof(uintb)) ? sizein : sizeof(uintb);
-  sizeout = (sizeout < sizeof(uintb)) ? sizeout : sizeof(uintb);
-  intb sval = in;
-  sval <<= (sizeof(intb) - sizein) * 8;
-  uintb res = (uintb)(sval >> (sizeout - sizein) * 8);
-  res >>= (sizeof(uintb) - sizeout)*8;
-  return res;
+    sizein = (sizein < sizeof(uintb)) ? sizein : sizeof(uintb);
+    sizeout = (sizeout < sizeof(uintb)) ? sizeout : sizeof(uintb);
+    intb sval = in;
+    sval <<= (sizeof(intb) - sizein) * 8;
+    uintb res = (uintb)(sval >> (sizeout - sizein) * 8);
+    res >>= (sizeof(uintb) - sizeout) * 8;
+    return res;
 }
 
 /// \param val is the value to extend
 /// \param numbits is the number of bits in the value
 /// \param size is the integer size in bytes
 /// \return the extended value
-uintb extend_signbit(uintb val,int4 numbits,int4 size)
+uintb extend_signbit(uintb val, int4 numbits, int4 size)
 
 {
-  if (numbits < size * 8) {
-    int4 sa = 8*sizeof(intb) - numbits;
-    intb sval = val;
-    val = (sval << sa) >> sa;
-    val &= calc_mask(size);
-  }
-  return val;
+    if (numbits < size * 8) {
+        int4 sa = 8 * sizeof(intb) - numbits;
+        intb sval = val;
+        val = (sval << sa) >> sa;
+        val &= calc_mask(size);
+    }
+    return val;
 }
 
 /// Swap the least significant \b size bytes in \b val
 /// \param val is a reference to the value to swap
 /// \param size is the number of bytes to swap
-void byte_swap(intb &val,int4 size)
+void byte_swap(intb& val, int4 size)
 
 {
-  intb res = 0;
-  while(size>0) {
-    res <<= 8;
-    res |= (val&0xff);
-    val >>= 8;
-    size -= 1;
-  }
-  val = res;
+    intb res = 0;
+    while (size > 0) {
+        res <<= 8;
+        res |= (val & 0xff);
+        val >>= 8;
+        size -= 1;
+    }
+    val = res;
 }
 
 /// Swap the least significant \b size bytes in \b val
 /// \param val is the value to swap
 /// \param size is the number of bytes to swap
 /// \return the swapped value
-uintb byte_swap(uintb val,int4 size)
+uintb byte_swap(uintb val, int4 size)
 
 {
-  uintb res=0;
-  while(size>0) {
-    res <<= 8;
-    res |= (val&0xff);
-    val >>= 8;
-    size -= 1;
-  }
-  return res;
+    uintb res = 0;
+    while (size > 0) {
+        res <<= 8;
+        res |= (val & 0xff);
+        val >>= 8;
+        size -= 1;
+    }
+    return res;
 }
 
 /// The least significant bit is index 0.
@@ -1033,19 +1075,20 @@ uintb byte_swap(uintb val,int4 size)
 int4 leastsigbit_set(uintb val)
 
 {
-  if (val==0) return -1;
-  int4 res = 0;
-  int4 sz = 4*sizeof(uintb);
-  uintb mask = ~((uintb)0);
-  do {
-    mask >>= sz;
-    if ((mask&val)==0) {
-      res += sz;
-      val >>= sz;
-    }
-    sz >>= 1;
-  } while(sz!=0);
-  return res;
+    if (val == 0)
+        return -1;
+    int4 res = 0;
+    int4 sz = 4 * sizeof(uintb);
+    uintb mask = ~((uintb)0);
+    do {
+        mask >>= sz;
+        if ((mask & val) == 0) {
+            res += sz;
+            val >>= sz;
+        }
+        sz >>= 1;
+    } while (sz != 0);
+    return res;
 }
 
 /// The least significant bit is index 0.
@@ -1054,19 +1097,20 @@ int4 leastsigbit_set(uintb val)
 int4 mostsigbit_set(uintb val)
 
 {
-  if (val==0) return -1;
-  int4 res = 8*sizeof(uintb)-1;
-  int4 sz = 4*sizeof(uintb);
-  uintb mask = ~((uintb)0);
-  do {
-    mask <<= sz;
-    if ((mask&val)==0) {
-      res -= sz;
-      val <<= sz;
-    }
-    sz >>= 1;
-  } while(sz != 0);
-  return res;
+    if (val == 0)
+        return -1;
+    int4 res = 8 * sizeof(uintb) - 1;
+    int4 sz = 4 * sizeof(uintb);
+    uintb mask = ~((uintb)0);
+    do {
+        mask <<= sz;
+        if ((mask & val) == 0) {
+            res -= sz;
+            val <<= sz;
+        }
+        sz >>= 1;
+    } while (sz != 0);
+    return res;
 }
 
 /// Count the number (population) bits set.
@@ -1075,14 +1119,14 @@ int4 mostsigbit_set(uintb val)
 int4 popcount(uintb val)
 
 {
-  val = (val & 0x5555555555555555L) + ((val >> 1) & 0x5555555555555555L);
-  val = (val & 0x3333333333333333L) + ((val >> 2) & 0x3333333333333333L);
-  val = (val & 0x0f0f0f0f0f0f0f0fL) + ((val >> 4) & 0x0f0f0f0f0f0f0f0fL);
-  val = (val & 0x00ff00ff00ff00ffL) + ((val >> 8) & 0x00ff00ff00ff00ffL);
-  val = (val & 0x0000ffff0000ffffL) + ((val >> 16) & 0x0000ffff0000ffffL);
-  int4 res = (int4)(val & 0xff);
-  res += (int4)((val >> 32) & 0xff);
-  return res;
+    val = (val & 0x5555555555555555L) + ((val >> 1) & 0x5555555555555555L);
+    val = (val & 0x3333333333333333L) + ((val >> 2) & 0x3333333333333333L);
+    val = (val & 0x0f0f0f0f0f0f0f0fL) + ((val >> 4) & 0x0f0f0f0f0f0f0f0fL);
+    val = (val & 0x00ff00ff00ff00ffL) + ((val >> 8) & 0x00ff00ff00ff00ffL);
+    val = (val & 0x0000ffff0000ffffL) + ((val >> 16) & 0x0000ffff0000ffffL);
+    int4 res = (int4)(val & 0xff);
+    res += (int4)((val >> 32) & 0xff);
+    return res;
 }
 
 /// Count the number of more significant zero bits before the most significant
@@ -1092,25 +1136,24 @@ int4 popcount(uintb val)
 int4 count_leading_zeros(uintb val)
 
 {
-  if (val == 0)
-    return 8*sizeof(uintb);
-  uintb mask = ~((uintb)0);
-  int4 maskSize = 4*sizeof(uintb);
-  mask &= (mask << maskSize);
-  int4 bit = 0;
+    if (val == 0)
+        return 8 * sizeof(uintb);
+    uintb mask = ~((uintb)0);
+    int4 maskSize = 4 * sizeof(uintb);
+    mask &= (mask << maskSize);
+    int4 bit = 0;
 
-  do {
-    if ((mask & val)==0) {
-      bit += maskSize;
-      maskSize >>= 1;
-      mask |= (mask >> maskSize);
-    }
-    else {
-      maskSize >>= 1;
-      mask &= (mask << maskSize);
-    }
-  } while(maskSize != 0);
-  return bit;
+    do {
+        if ((mask & val) == 0) {
+            bit += maskSize;
+            maskSize >>= 1;
+            mask |= (mask >> maskSize);
+        } else {
+            maskSize >>= 1;
+            mask &= (mask << maskSize);
+        }
+    } while (maskSize != 0);
+    return bit;
 }
 
 /// Return smallest number of form 2^n-1, bigger or equal to the given value
@@ -1119,13 +1162,13 @@ int4 count_leading_zeros(uintb val)
 uintb coveringmask(uintb val)
 
 {
-  uintb res = val;
-  int4 sz = 1;
-  while(sz < 8*sizeof(uintb)) {
-    res = res | (res>>sz);
-    sz <<= 1;
-  }
-  return res;
+    uintb res = val;
+    int4 sz = 1;
+    while (sz < 8 * sizeof(uintb)) {
+        res = res | (res >> sz);
+        sz <<= 1;
+    }
+    return res;
 }
 
 /// Treat \b val as a constant of size \b sz.
@@ -1134,22 +1177,23 @@ uintb coveringmask(uintb val)
 /// \param val is the given value
 /// \param sz is the size to treat the value as
 /// \return the number of transitions
-int4 bit_transitions(uintb val,int4 sz)
+int4 bit_transitions(uintb val, int4 sz)
 
 {
-  int4 res = 0;
-  int4 last = val & 1;
-  int4 cur;
-  for(int4 i=1;i<8*sz;++i) {
-    val >>= 1;
-    cur = val & 1;
-    if (cur != last) {
-      res += 1;
-      last = cur;
+    int4 res = 0;
+    int4 last = val & 1;
+    int4 cur;
+    for (int4 i = 1; i < 8 * sz; ++i) {
+        val >>= 1;
+        cur = val & 1;
+        if (cur != last) {
+            res += 1;
+            last = cur;
+        }
+        if (val == 0)
+            break;
     }
-    if (val==0) break;
-  }
-  return res;
+    return res;
 }
 
 } // End namespace ghidra

@@ -15,8 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "funcdata.hh"
 #include "flow.hh"
+#include "funcdata.hh"
 
 namespace ghidra {
 
@@ -26,57 +26,56 @@ namespace ghidra {
 /// printed to stream.  This is suitable for a console mode or debug view
 /// of the state of control-flow structuring at any point during analysis.
 /// \param s is the output stream
-void Funcdata::printBlockTree(ostream &s) const
+void Funcdata::printBlockTree(ostream& s) const
 
 {
-  if (sblocks.getSize() != 0)
-    sblocks.printTree(s,0);
+    if (sblocks.getSize() != 0)
+        sblocks.printTree(s, 0);
 }
 
 void Funcdata::clearBlocks(void)
 
 {
-  bblocks.clear();
-  sblocks.clear();
+    bblocks.clear();
+    sblocks.clear();
 }
 
 /// Any override information is preserved.
 void Funcdata::clearJumpTables(void)
 
 {
-  vector<JumpTable *> remain;
-  vector<JumpTable *>::iterator iter;
+    vector<JumpTable*> remain;
+    vector<JumpTable*>::iterator iter;
 
-  for(iter=jumpvec.begin();iter!=jumpvec.end();++iter) {
-    JumpTable *jt = *iter;
-    if (jt->isOverride()) {
-      jt->clear();		// Clear out any derived data
-      remain.push_back(jt);	// Keep the override itself
+    for (iter = jumpvec.begin(); iter != jumpvec.end(); ++iter) {
+        JumpTable* jt = *iter;
+        if (jt->isOverride()) {
+            jt->clear();          // Clear out any derived data
+            remain.push_back(jt); // Keep the override itself
+        } else
+            delete jt;
     }
-    else
-      delete jt;
-  }
 
-  jumpvec = remain;
+    jumpvec = remain;
 }
 
 /// The JumpTable object is freed, and the associated BRANCHIND is no longer marked
 /// as a \e switch point.
 /// \param jt is the given JumpTable object
-void Funcdata::removeJumpTable(JumpTable *jt)
+void Funcdata::removeJumpTable(JumpTable* jt)
 
 {
-  vector<JumpTable *> remain;
-  vector<JumpTable *>::iterator iter;
-  
-  for(iter=jumpvec.begin();iter!=jumpvec.end();++iter)
-    if ((*iter) != jt)
-      remain.push_back(*iter);
-  PcodeOp *op = jt->getIndirectOp();
-  delete jt;
-  if (op != (PcodeOp *)0)
-    op->getParent()->clearFlag(FlowBlock::f_switch_out);
-  jumpvec = remain;
+    vector<JumpTable*> remain;
+    vector<JumpTable*>::iterator iter;
+
+    for (iter = jumpvec.begin(); iter != jumpvec.end(); ++iter)
+        if ((*iter) != jt)
+            remain.push_back(*iter);
+    PcodeOp* op = jt->getIndirectOp();
+    delete jt;
+    if (op != (PcodeOp*)0)
+        op->getParent()->clearFlag(FlowBlock::f_switch_out);
+    jumpvec = remain;
 }
 
 /// The replacement has the same address and size as the given Varnode but can optionally turned into a new \e unique.
@@ -85,125 +84,130 @@ void Funcdata::removeJumpTable(JumpTable *jt)
 /// \param origvn is the given Varnode to be replaced
 /// \param makeUnique is \b true if the replacement should be a new \e unique
 /// \return the new replacement Varnode
-Varnode *Funcdata::createReplaceVarnode(Varnode *origvn,bool makeUnique)
+Varnode* Funcdata::createReplaceVarnode(Varnode* origvn, bool makeUnique)
 
 {
-  Varnode *replacevn;
-  if (makeUnique)
-    replacevn = newUnique(origvn->getSize(),origvn->getType());
-  else
-    replacevn = newVarnode(origvn->getSize(),origvn->getAddr(),origvn->getType());
-  if (isHighOn()) {
-    origvn->replaceInHigh(replacevn);
-    replacevn->setExplicit();
-  }
-  return replacevn;
+    Varnode* replacevn;
+    if (makeUnique)
+        replacevn = newUnique(origvn->getSize(), origvn->getType());
+    else
+        replacevn = newVarnode(origvn->getSize(), origvn->getAddr(), origvn->getType());
+    if (isHighOn()) {
+        origvn->replaceInHigh(replacevn);
+        replacevn->setExplicit();
+    }
+    return replacevn;
 }
 
 /// Assuming the given basic block is being removed, force any Varnode defined by
 /// a MULTIEQUAL in the block to be defined in the output block instead. This is used
 /// as part of the basic block removal process to patch up data-flow.
 /// \param bb is the given basic block
-void Funcdata::pushMultiequals(BlockBasic *bb)
+void Funcdata::pushMultiequals(BlockBasic* bb)
 
 {
-  BlockBasic *outblock;
-  PcodeOp *origop,*replaceop;
-  Varnode *origvn,*replacevn;
-  list<PcodeOp *>::iterator iter;
-  list<PcodeOp *>::const_iterator citer;
+    BlockBasic* outblock;
+    PcodeOp *origop, *replaceop;
+    Varnode *origvn, *replacevn;
+    list<PcodeOp*>::iterator iter;
+    list<PcodeOp*>::const_iterator citer;
 
-  if (bb->sizeOut()==0) return;
-  if (bb->sizeOut()>1)
-    warningHeader("push_multiequal on block with multiple outputs");
-  outblock = (BlockBasic *) bb->getOut(0); // Take first output block. If this is a
-				// donothing block, it is the only output block
-  int4 outblock_ind = bb->getOutRevIndex(0);
-  for(iter=bb->beginOp();iter!=bb->endOp();++iter) {
-    origop = *iter;
-    if (origop->code() != CPUI_MULTIEQUAL) continue;
-    origvn = origop->getOut();
-    if (origvn->hasNoDescend()) continue;
-    bool needreplace = false;
-    bool neednewunique = false;
-    for(citer=origvn->beginDescend();citer!=origvn->endDescend();++citer) {
-      PcodeOp *op = *citer;
-      if ((op->code()==CPUI_MULTIEQUAL)&&(op->getParent()==outblock)) {
-	bool deadEdge = true;	// Check for reference to origvn NOT thru the dead edge
-	for(int4 i=0;i<op->numInput();++i) {
-	  if (i == outblock_ind) continue;	// Not going thru dead edge
-	  if (op->getIn(i) == origvn) {		// Reference to origvn
-	    deadEdge = false;
-	    break;
-	  }
-	}
-	if (deadEdge) {
-	  if ((origvn->getAddr() == op->getOut()->getAddr())&&origvn->isAddrTied())
-	  // If origvn is addrtied and feeds into a MULTIEQUAL at same address in outblock
-	  // Then any use of origvn beyond outblock that did not go thru this MULTIEQUAL must have
-	  // propagated through some other register.  So we make the new MULTIEQUAL write to a unique register
-	    neednewunique = true;
-	  continue;
-	}
-      }
-      needreplace = true;
-      break;
-    }
-    if (!needreplace) continue;
-				// Construct artificial MULTIEQUAL
-    replacevn = createReplaceVarnode(origvn, neednewunique);
-    vector<Varnode *> branches;
-    for(int4 i=0;i<outblock->sizeIn();++i) {
-      if (outblock->getIn(i) == bb)
-	branches.push_back(origvn);
-      else
-	branches.push_back( replacevn );
+    if (bb->sizeOut() == 0)
+        return;
+    if (bb->sizeOut() > 1)
+        warningHeader("push_multiequal on block with multiple outputs");
+    outblock = (BlockBasic*)bb->getOut(0); // Take first output block. If this is a
+                                           // donothing block, it is the only output block
+    int4 outblock_ind = bb->getOutRevIndex(0);
+    for (iter = bb->beginOp(); iter != bb->endOp(); ++iter) {
+        origop = *iter;
+        if (origop->code() != CPUI_MULTIEQUAL)
+            continue;
+        origvn = origop->getOut();
+        if (origvn->hasNoDescend())
+            continue;
+        bool needreplace = false;
+        bool neednewunique = false;
+        for (citer = origvn->beginDescend(); citer != origvn->endDescend(); ++citer) {
+            PcodeOp* op = *citer;
+            if ((op->code() == CPUI_MULTIEQUAL) && (op->getParent() == outblock)) {
+                bool deadEdge = true; // Check for reference to origvn NOT thru the dead edge
+                for (int4 i = 0; i < op->numInput(); ++i) {
+                    if (i == outblock_ind)
+                        continue;                 // Not going thru dead edge
+                    if (op->getIn(i) == origvn) { // Reference to origvn
+                        deadEdge = false;
+                        break;
+                    }
+                }
+                if (deadEdge) {
+                    if ((origvn->getAddr() == op->getOut()->getAddr()) && origvn->isAddrTied())
+                        // If origvn is addrtied and feeds into a MULTIEQUAL at same address in outblock
+                        // Then any use of origvn beyond outblock that did not go thru this MULTIEQUAL must have
+                        // propagated through some other register.  So we make the new MULTIEQUAL write to a unique
+                        // register
+                        neednewunique = true;
+                    continue;
+                }
+            }
+            needreplace = true;
+            break;
+        }
+        if (!needreplace)
+            continue;
+        // Construct artificial MULTIEQUAL
+        replacevn = createReplaceVarnode(origvn, neednewunique);
+        vector<Varnode*> branches;
+        for (int4 i = 0; i < outblock->sizeIn(); ++i) {
+            if (outblock->getIn(i) == bb)
+                branches.push_back(origvn);
+            else
+                branches.push_back(replacevn);
 
-      // In this situation there are other blocks "beyond" outblock which read
-      // origvn defined in bb, but there are other blocks falling into outblock
-      // Assuming the only out of bb is outblock, all heritages of origvn must
-      // come through outblock.  Thus any alternate ins to outblock must be
-      // dominated by bb.  So the artificial MULTIEQUAL we construct must have
-      // all inputs be origvn
-    }
-    replaceop = newOp(branches.size(),outblock->getStart());
-    opSetOpcode(replaceop,CPUI_MULTIEQUAL);
-    opSetOutput(replaceop,replacevn);
-    opSetAllInput(replaceop,branches);
-    opInsertBegin(replaceop,outblock);
+            // In this situation there are other blocks "beyond" outblock which read
+            // origvn defined in bb, but there are other blocks falling into outblock
+            // Assuming the only out of bb is outblock, all heritages of origvn must
+            // come through outblock.  Thus any alternate ins to outblock must be
+            // dominated by bb.  So the artificial MULTIEQUAL we construct must have
+            // all inputs be origvn
+        }
+        replaceop = newOp(branches.size(), outblock->getStart());
+        opSetOpcode(replaceop, CPUI_MULTIEQUAL);
+        opSetOutput(replaceop, replacevn);
+        opSetAllInput(replaceop, branches);
+        opInsertBegin(replaceop, outblock);
 
-    // Replace obsolete origvn with replacevn
-    int4 i;
-    list<PcodeOp *>::iterator titer = origvn->descend.begin();
-    while(titer != origvn->descend.end()) {
-      PcodeOp *op = *titer++;
-      for(i=0;i<op->numInput();++i) {
-	if (op->getIn(i) != origvn)
-	  continue;
-	if (i == outblock_ind && op->getParent() == outblock && op->code() == CPUI_MULTIEQUAL) {
-	  continue;
-	}
-	opSetInput(op,replacevn,i);
-	break;
-      }
+        // Replace obsolete origvn with replacevn
+        int4 i;
+        list<PcodeOp*>::iterator titer = origvn->descend.begin();
+        while (titer != origvn->descend.end()) {
+            PcodeOp* op = *titer++;
+            for (i = 0; i < op->numInput(); ++i) {
+                if (op->getIn(i) != origvn)
+                    continue;
+                if (i == outblock_ind && op->getParent() == outblock && op->code() == CPUI_MULTIEQUAL) {
+                    continue;
+                }
+                opSetInput(op, replacevn, i);
+                break;
+            }
+        }
     }
-  }
 }
 
 /// If the MULTIEQUAL has no inputs, presumably the basic block is unreachable, so we treat
 /// the p-code op as a COPY from a new input Varnode. If there is 1 input, the MULTIEQUAL
 /// is transformed directly into a COPY.
 /// \param op is the given MULTIEQUAL
-void Funcdata::opZeroMulti(PcodeOp *op)
+void Funcdata::opZeroMulti(PcodeOp* op)
 
 {
-  if (op->numInput()==0) {	// If no branches left
-    opInsertInput(op,newVarnode(op->getOut()->getSize(),op->getOut()->getAddr()),0);
-    setInputVarnode(op->getIn(0));	// Then this is an input
-    opSetOpcode(op,CPUI_COPY);
-  }
-  else if (op->numInput()==1)
-    opSetOpcode(op,CPUI_COPY);
+    if (op->numInput() == 0) { // If no branches left
+        opInsertInput(op, newVarnode(op->getOut()->getSize(), op->getOut()->getAddr()), 0);
+        setInputVarnode(op->getIn(0)); // Then this is an input
+        opSetOpcode(op, CPUI_COPY);
+    } else if (op->numInput() == 1)
+        opSetOpcode(op, CPUI_COPY);
 }
 
 /// \brief Remove an outgoing branch of the given basic block
@@ -212,36 +216,37 @@ void Funcdata::opZeroMulti(PcodeOp *op)
 /// are patched appropriately.
 /// \param bb is the given basic block
 /// \param num is the index of the outgoing edge to remove
-void Funcdata::branchRemoveInternal(BlockBasic *bb,int4 num)
+void Funcdata::branchRemoveInternal(BlockBasic* bb, int4 num)
 
 {
-  BlockBasic *bbout;
-  list<PcodeOp *>::iterator iter;
-  PcodeOp *op;
-  int4 blocknum;
-  
-  if (bb->sizeOut() == 2)	// If there is no decision left
-    opDestroy(bb->lastOp());	// Remove the branch instruction
+    BlockBasic* bbout;
+    list<PcodeOp*>::iterator iter;
+    PcodeOp* op;
+    int4 blocknum;
 
-  bbout = (BlockBasic *) bb->getOut(num);
-  blocknum = bbout->getInIndex(bb);
-  bblocks.removeEdge(bb,bbout); // Sever (one) connection between bb and bbout
-  for(iter=bbout->beginOp();iter!=bbout->endOp();++iter) {
-    op = *iter;
-    if (op->code() != CPUI_MULTIEQUAL) break;
-    opRemoveInput(op,blocknum);
-    opZeroMulti(op);
-  }
+    if (bb->sizeOut() == 2)      // If there is no decision left
+        opDestroy(bb->lastOp()); // Remove the branch instruction
+
+    bbout = (BlockBasic*)bb->getOut(num);
+    blocknum = bbout->getInIndex(bb);
+    bblocks.removeEdge(bb, bbout); // Sever (one) connection between bb and bbout
+    for (iter = bbout->beginOp(); iter != bbout->endOp(); ++iter) {
+        op = *iter;
+        if (op->code() != CPUI_MULTIEQUAL)
+            break;
+        opRemoveInput(op, blocknum);
+        opZeroMulti(op);
+    }
 }
 
 /// The edge is removed from control-flow and affected MULTIEQUAL ops are adjusted.
 /// \param bb is the basic block
 /// \param num is the index of the out edge to remove
-void Funcdata::removeBranch(BlockBasic *bb,int4 num)
+void Funcdata::removeBranch(BlockBasic* bb, int4 num)
 
 {
-  branchRemoveInternal(bb,num);
-  structureReset();
+    branchRemoveInternal(bb, num);
+    structureReset();
 }
 
 /// \brief Check if given Varnode has any descendants in a dead block
@@ -250,14 +255,15 @@ void Funcdata::removeBranch(BlockBasic *bb,int4 num)
 /// the Varnode is in the dead block.
 /// \param vn is the given Varnode
 /// \return \b true if the Varnode is read in the dead block
-bool Funcdata::descendantsOutside(Varnode *vn)
+bool Funcdata::descendantsOutside(Varnode* vn)
 
 {
-  list<PcodeOp *>::const_iterator iter;
+    list<PcodeOp*>::const_iterator iter;
 
-  for(iter=vn->beginDescend();iter!=vn->endDescend();++iter)
-    if (!(*iter)->getParent()->isDead()) return true;
-  return false;
+    for (iter = vn->beginDescend(); iter != vn->endDescend(); ++iter)
+        if (!(*iter)->getParent()->isDead())
+            return true;
+    return false;
 }
 
 /// \brief Remove an active basic block from the function
@@ -271,72 +277,73 @@ bool Funcdata::descendantsOutside(Varnode *vn)
 /// a warning is printed.
 /// \param bb is the given basic block
 /// \param unreachable is \b true if the caller wants a warning for stranded Varnodes
-void Funcdata::blockRemoveInternal(BlockBasic *bb,bool unreachable)
+void Funcdata::blockRemoveInternal(BlockBasic* bb, bool unreachable)
 
 {
-  BlockBasic *bbout;
-  Varnode *deadvn;
-  PcodeOp *op,*deadop;
-  list<PcodeOp *>::iterator iter;
-  int4 i,j,blocknum;
-  bool desc_warning;
+    BlockBasic* bbout;
+    Varnode* deadvn;
+    PcodeOp *op, *deadop;
+    list<PcodeOp*>::iterator iter;
+    int4 i, j, blocknum;
+    bool desc_warning;
 
-  op = bb->lastOp();
-  if ((op != (PcodeOp *)0)&&(op->code() == CPUI_BRANCHIND)) {
-    JumpTable *jt = findJumpTable(op);
-    if (jt != (JumpTable *)0)
-      removeJumpTable(jt);
-  }
-  if (!unreachable) {
-    pushMultiequals(bb);	// Make sure data flow is preserved
-
-    for(i=0;i<bb->sizeOut();++i) {
-      bbout = (BlockBasic *) bb->getOut(i);
-      if (bbout->isDead()) continue;
-      blocknum = bbout->getInIndex(bb); // Get index of bb into bbout
-      for(iter=bbout->beginOp();iter!=bbout->endOp();++iter) {
-	op = *iter;
-	if (op->code() != CPUI_MULTIEQUAL) continue;
-	deadvn = op->getIn(blocknum);
-	opRemoveInput(op,blocknum);	// Remove the deleted blocks branch
-	deadop = deadvn->getDef();
-	if ((deadvn->isWritten())&&(deadop->code()==CPUI_MULTIEQUAL)&&(deadop->getParent()==bb)) {
-	  // Append new branches
-	  for(j=0;j<bb->sizeIn();++j)
-	    opInsertInput(op,deadop->getIn(j),op->numInput());
-	}
-	else {
-	  for(j=0;j<bb->sizeIn();++j)
-	    opInsertInput(op,deadvn,op->numInput()); // Otherwise make copies
-	}
-	opZeroMulti(op);
-      }
+    op = bb->lastOp();
+    if ((op != (PcodeOp*)0) && (op->code() == CPUI_BRANCHIND)) {
+        JumpTable* jt = findJumpTable(op);
+        if (jt != (JumpTable*)0)
+            removeJumpTable(jt);
     }
-  }
-  bblocks.removeFromFlow(bb);
+    if (!unreachable) {
+        pushMultiequals(bb); // Make sure data flow is preserved
 
-  desc_warning = false;
-  iter = bb->beginOp();
-  while(iter!=bb->endOp()) {	// Finally remove all the ops
-    op = *iter;
-    if (op->isAssignment()) {	// op still has some descendants
-      deadvn = op->getOut();
-      if (unreachable) {
-	bool undef = descend2Undef(deadvn);
-	if (undef&&(!desc_warning))  { // Mark descendants as undefined
-	  warningHeader("Creating undefined varnodes in (possibly) reachable block");
-	  desc_warning = true;	// Print the warning only once
-	}
-      }
-      if (descendantsOutside(deadvn)) // If any descendants outside of bb
-	throw LowlevelError("Deleting op with descendants\n");
+        for (i = 0; i < bb->sizeOut(); ++i) {
+            bbout = (BlockBasic*)bb->getOut(i);
+            if (bbout->isDead())
+                continue;
+            blocknum = bbout->getInIndex(bb); // Get index of bb into bbout
+            for (iter = bbout->beginOp(); iter != bbout->endOp(); ++iter) {
+                op = *iter;
+                if (op->code() != CPUI_MULTIEQUAL)
+                    continue;
+                deadvn = op->getIn(blocknum);
+                opRemoveInput(op, blocknum); // Remove the deleted blocks branch
+                deadop = deadvn->getDef();
+                if ((deadvn->isWritten()) && (deadop->code() == CPUI_MULTIEQUAL) && (deadop->getParent() == bb)) {
+                    // Append new branches
+                    for (j = 0; j < bb->sizeIn(); ++j)
+                        opInsertInput(op, deadop->getIn(j), op->numInput());
+                } else {
+                    for (j = 0; j < bb->sizeIn(); ++j)
+                        opInsertInput(op, deadvn, op->numInput()); // Otherwise make copies
+                }
+                opZeroMulti(op);
+            }
+        }
     }
-    if (op->isCall())
-      deleteCallSpecs(op);
-    iter++;			// Increment iterator before unlinking
-    opDestroy(op);		// No longer has descendants
-  }
-  bblocks.removeBlock(bb);	// Remove the block altogether
+    bblocks.removeFromFlow(bb);
+
+    desc_warning = false;
+    iter = bb->beginOp();
+    while (iter != bb->endOp()) { // Finally remove all the ops
+        op = *iter;
+        if (op->isAssignment()) { // op still has some descendants
+            deadvn = op->getOut();
+            if (unreachable) {
+                bool undef = descend2Undef(deadvn);
+                if (undef && (!desc_warning)) { // Mark descendants as undefined
+                    warningHeader("Creating undefined varnodes in (possibly) reachable block");
+                    desc_warning = true; // Print the warning only once
+                }
+            }
+            if (descendantsOutside(deadvn)) // If any descendants outside of bb
+                throw LowlevelError("Deleting op with descendants\n");
+        }
+        if (op->isCall())
+            deleteCallSpecs(op);
+        iter++;        // Increment iterator before unlinking
+        opDestroy(op); // No longer has descendants
+    }
+    bblocks.removeBlock(bb); // Remove the block altogether
 }
 
 /// The block must contain only \e marker operations (MULTIEQUAL) and possibly a single
@@ -344,15 +351,15 @@ void Funcdata::blockRemoveInternal(BlockBasic *bb,bool unreachable)
 /// the current control-flow and data-flow.  This forces a reset of the control-flow structuring
 /// hierarchy.
 /// \param bb is the given basic block
-void Funcdata::removeDoNothingBlock(BlockBasic *bb)
+void Funcdata::removeDoNothingBlock(BlockBasic* bb)
 
 {
-  if (bb->sizeOut()>1)
-    throw LowlevelError("Cannot delete a reachable block unless it has 1 out or less");
+    if (bb->sizeOut() > 1)
+        throw LowlevelError("Cannot delete a reachable block unless it has 1 out or less");
 
-  bb->setDead();
-  blockRemoveInternal(bb,false);
-  structureReset();		// Delete any structure we had before
+    bb->setDead();
+    blockRemoveInternal(bb, false);
+    structureReset(); // Delete any structure we had before
 }
 
 /// \brief Remove any unreachable basic blocks
@@ -363,53 +370,56 @@ void Funcdata::removeDoNothingBlock(BlockBasic *bb)
 /// \param issuewarning is \b true if warning comments are desired
 /// \param checkexistence is \b true to force an active search for unreachable blocks
 /// \return \b true if unreachable blocks were actually found and removed
-bool Funcdata::removeUnreachableBlocks(bool issuewarning,bool checkexistence)
+bool Funcdata::removeUnreachableBlocks(bool issuewarning, bool checkexistence)
 
 {
-  vector<FlowBlock *> list;
-  uint4 i;
+    vector<FlowBlock*> list;
+    uint4 i;
 
-  if (checkexistence) { // Quick check for the existence of unreachable blocks
-    for(i=0;i<bblocks.getSize();++i) {
-      FlowBlock *blk = bblocks.getBlock(i);
-      if (blk->isEntryPoint()) continue; // Don't remove starting component
-      if (blk->getImmedDom() == (FlowBlock *)0) break;
+    if (checkexistence) { // Quick check for the existence of unreachable blocks
+        for (i = 0; i < bblocks.getSize(); ++i) {
+            FlowBlock* blk = bblocks.getBlock(i);
+            if (blk->isEntryPoint())
+                continue; // Don't remove starting component
+            if (blk->getImmedDom() == (FlowBlock*)0)
+                break;
+        }
+        if (i == bblocks.getSize())
+            return false;
+    } else if (!hasUnreachableBlocks()) // Use cached check
+        return false;
+
+    // There must be at least one unreachable block if we reach here
+
+    for (i = 0; i < bblocks.getSize(); ++i) // Find entry point
+        if (bblocks.getBlock(i)->isEntryPoint())
+            break;
+    bblocks.collectReachable(list, bblocks.getBlock(i), true); // Collect (un)reachable blocks
+
+    for (i = 0; i < list.size(); ++i) {
+        list[i]->setDead();
+        if (issuewarning) {
+            ostringstream s;
+            BlockBasic* bb = (BlockBasic*)list[i];
+            s << "Removing unreachable block (";
+            s << bb->getStart().getSpace()->getName();
+            s << ',';
+            bb->getStart().printRaw(s);
+            s << ')';
+            warningHeader(s.str());
+        }
     }
-    if (i==bblocks.getSize()) return false;
-  }
-  else if (!hasUnreachableBlocks())		// Use cached check
-    return false;
-
-  // There must be at least one unreachable block if we reach here
-
-  for(i=0;i<bblocks.getSize();++i) // Find entry point
-    if (bblocks.getBlock(i)->isEntryPoint()) break;
-  bblocks.collectReachable(list,bblocks.getBlock(i),true); // Collect (un)reachable blocks
-
-  for(i=0;i<list.size();++i) {
-    list[i]->setDead();
-    if (issuewarning) {
-      ostringstream s;
-      BlockBasic *bb = (BlockBasic *)list[i];
-      s << "Removing unreachable block (";
-      s << bb->getStart().getSpace()->getName();
-      s << ',';
-      bb->getStart().printRaw(s);
-      s << ')';
-      warningHeader(s.str());
+    for (i = 0; i < list.size(); ++i) {
+        BlockBasic* bb = (BlockBasic*)list[i];
+        while (bb->sizeOut() > 0)
+            branchRemoveInternal(bb, 0);
     }
-  }
-  for(i=0;i<list.size();++i) {
-    BlockBasic *bb = (BlockBasic *)list[i];
-    while(bb->sizeOut() > 0)
-      branchRemoveInternal(bb,0);
-  }
-  for(i=0;i<list.size();++i) {
-    BlockBasic *bb = (BlockBasic *)list[i];
-    blockRemoveInternal(bb,true);
-  }
-  structureReset();
-  return true;
+    for (i = 0; i < list.size(); ++i) {
+        BlockBasic* bb = (BlockBasic*)list[i];
+        blockRemoveInternal(bb, true);
+    }
+    structureReset();
+    return true;
 }
 
 /// \brief Move a control-flow edge from one block to another
@@ -420,59 +430,60 @@ bool Funcdata::removeUnreachableBlocks(bool issuewarning,bool checkexistence)
 /// \param bb is the basic block out of which the edge to move flows
 /// \param slot is the index of the (out) edge
 /// \param bbnew is the basic block where the edge should get moved to
-void Funcdata::pushBranch(BlockBasic *bb,int4 slot,BlockBasic *bbnew)
+void Funcdata::pushBranch(BlockBasic* bb, int4 slot, BlockBasic* bbnew)
 
 {
-  PcodeOp *cbranch = bb->lastOp();
-  if ((cbranch->code() != CPUI_CBRANCH)||(bb->sizeOut() != 2))
-    throw LowlevelError("Cannot push non-conditional edge");
-  PcodeOp *indop = bbnew->lastOp();
-  if (indop->code() != CPUI_BRANCHIND)
-    throw LowlevelError("Can only push branch into indirect jump");
+    PcodeOp* cbranch = bb->lastOp();
+    if ((cbranch->code() != CPUI_CBRANCH) || (bb->sizeOut() != 2))
+        throw LowlevelError("Cannot push non-conditional edge");
+    PcodeOp* indop = bbnew->lastOp();
+    if (indop->code() != CPUI_BRANCHIND)
+        throw LowlevelError("Can only push branch into indirect jump");
 
-  // Turn the conditional branch into a branch
-  opRemoveInput(cbranch,1);	// Remove the conditional variable
-  opSetOpcode(cbranch,CPUI_BRANCH);
-  bblocks.moveOutEdge(bb,slot,bbnew);
-  // No change needs to be made to the indirect branch
-  // we assume it handles its new branch implicitly
-  structureReset();
+    // Turn the conditional branch into a branch
+    opRemoveInput(cbranch, 1); // Remove the conditional variable
+    opSetOpcode(cbranch, CPUI_BRANCH);
+    bblocks.moveOutEdge(bb, slot, bbnew);
+    // No change needs to be made to the indirect branch
+    // we assume it handles its new branch implicitly
+    structureReset();
 }
 
 /// Look up the jump-table object with the matching PcodeOp address, then
 /// attach the given PcodeOp to it.
 /// \param op is the given BRANCHIND PcodeOp
 /// \return the matching jump-table object or NULL
-JumpTable *Funcdata::linkJumpTable(PcodeOp *op)
+JumpTable* Funcdata::linkJumpTable(PcodeOp* op)
 
 {
-  vector<JumpTable *>::iterator iter;
-  JumpTable *jt;
+    vector<JumpTable*>::iterator iter;
+    JumpTable* jt;
 
-  for(iter=jumpvec.begin();iter!=jumpvec.end();++iter) {
-    jt = *iter;
-    if (jt->getOpAddress() == op->getAddr()) {
-      jt->setIndirectOp(op);
-      return jt;
+    for (iter = jumpvec.begin(); iter != jumpvec.end(); ++iter) {
+        jt = *iter;
+        if (jt->getOpAddress() == op->getAddr()) {
+            jt->setIndirectOp(op);
+            return jt;
+        }
     }
-  }
-  return (JumpTable *)0;
+    return (JumpTable*)0;
 }
 
 /// Look up the jump-table object with the matching PcodeOp address
 /// \param op is the given BRANCHIND PcodeOp
 /// \return the matching jump-table object or NULL
-JumpTable *Funcdata::findJumpTable(const PcodeOp *op) const
+JumpTable* Funcdata::findJumpTable(const PcodeOp* op) const
 
 {
-  vector<JumpTable *>::const_iterator iter;
-  JumpTable *jt;
+    vector<JumpTable*>::const_iterator iter;
+    JumpTable* jt;
 
-  for(iter=jumpvec.begin();iter!=jumpvec.end();++iter) {
-    jt = *iter;
-    if (jt->getOpAddress() == op->getAddr()) return jt;
-  }
-  return (JumpTable *)0;
+    for (iter = jumpvec.begin(); iter != jumpvec.end(); ++iter) {
+        jt = *iter;
+        if (jt->getOpAddress() == op->getAddr())
+            return jt;
+    }
+    return (JumpTable*)0;
 }
 
 /// The given address must have a BRANCHIND op attached to it.
@@ -480,19 +491,19 @@ JumpTable *Funcdata::findJumpTable(const PcodeOp *op) const
 /// flow has been traced.
 /// \param addr is the given Address
 /// \return the new jump-table object
-JumpTable *Funcdata::installJumpTable(const Address &addr)
+JumpTable* Funcdata::installJumpTable(const Address& addr)
 
 {
-  if (isProcStarted())
-    throw LowlevelError("Cannot install jumptable if flow is already traced");
-  for(int4 i=0;i<jumpvec.size();++i) {
-    JumpTable *jt = jumpvec[i];
-    if (jt->getOpAddress() == addr)
-      throw LowlevelError("Trying to install over existing jumptable");
-  }
-  JumpTable *newjt = new JumpTable(addr);
-  jumpvec.push_back(newjt);
-  return newjt;
+    if (isProcStarted())
+        throw LowlevelError("Cannot install jumptable if flow is already traced");
+    for (int4 i = 0; i < jumpvec.size(); ++i) {
+        JumpTable* jt = jumpvec[i];
+        if (jt->getOpAddress() == addr)
+            throw LowlevelError("Trying to install over existing jumptable");
+    }
+    JumpTable* newjt = new JumpTable(addr);
+    jumpvec.push_back(newjt);
+    return newjt;
 }
 
 /// \brief Recover a jump-table for a given BRANCHIND using existing flow information
@@ -508,63 +519,60 @@ JumpTable *Funcdata::installJumpTable(const Address &addr)
 /// \param op is the BRANCHIND p-code op to analyze
 /// \param flow is the existing flow information
 /// \return the success/failure code
-JumpTable::RecoveryMode Funcdata::stageJumpTable(Funcdata &partial,JumpTable *jt,PcodeOp *op,FlowInfo *flow)
+JumpTable::RecoveryMode Funcdata::stageJumpTable(Funcdata& partial, JumpTable* jt, PcodeOp* op, FlowInfo* flow)
 
 {
-  jt->incrementRecoveryCount();
-  if (!partial.isJumptableRecoveryOn()) {
-    // Do full analysis on the table if we haven't before
-    partial.flags |= jumptablerecovery_on; // Mark that this Funcdata object is dedicated to jumptable recovery
-    partial.truncatedFlow(this,flow);
+    jt->incrementRecoveryCount();
+    if (!partial.isJumptableRecoveryOn()) {
+        // Do full analysis on the table if we haven't before
+        partial.flags |= jumptablerecovery_on; // Mark that this Funcdata object is dedicated to jumptable recovery
+        partial.truncatedFlow(this, flow);
 
-    string oldactname = glb->allacts.getCurrentName(); // Save off old action
+        string oldactname = glb->allacts.getCurrentName(); // Save off old action
+        try {
+            glb->allacts.setCurrent("jumptable");
+#ifdef OPACTION_DEBUG
+            if (jtcallback != (void (*)(Funcdata& orig, Funcdata& fd))0)
+                (*jtcallback)(*this, partial); // Alternative reset/perform
+            else {
+#endif
+                glb->allacts.getCurrent()->reset(partial);
+                glb->allacts.getCurrent()->perform(partial); // Simplify the partial function
+#ifdef OPACTION_DEBUG
+            }
+#endif
+            glb->allacts.setCurrent(oldactname); // Restore old action
+        } catch (LowlevelError& err) {
+            glb->allacts.setCurrent(oldactname);
+            warning(err.explain, op->getAddr());
+            return JumpTable::fail_normal;
+        }
+    }
+    PcodeOp* partop = partial.findOp(op->getSeqNum());
+
+    if (partop == (PcodeOp*)0 || partop->code() != CPUI_BRANCHIND || partop->getAddr() != op->getAddr())
+        throw LowlevelError("Error recovering jumptable: Bad partial clone");
+    if (partop->isDead())          // Indirectop we were trying to recover was eliminated as dead code (unreachable)
+        return JumpTable::success; // Return jumptable as
+
+    // Test if the branch target is copied from the return address.
+    if (testForReturnAddress(partop->getIn(0)))
+        return JumpTable::fail_return; // Return special failure code.  Switch would not recover anyway.
+
     try {
-      glb->allacts.setCurrent("jumptable");
-#ifdef OPACTION_DEBUG
-      if (jtcallback != (void (*)(Funcdata &orig,Funcdata &fd))0)
-	(*jtcallback)(*this,partial);  // Alternative reset/perform
-      else {
-#endif
-      glb->allacts.getCurrent()->reset( partial );
-      glb->allacts.getCurrent()->perform( partial ); // Simplify the partial function
-#ifdef OPACTION_DEBUG
-      }
-#endif
-      glb->allacts.setCurrent(oldactname); // Restore old action
+        jt->setLoadCollect(flow->doesJumpRecord());
+        jt->setIndirectOp(partop);
+        if (jt->isPartial())
+            jt->recoverMultistage(&partial);
+        else
+            jt->recoverAddresses(&partial); // Analyze partial to recover jumptable addresses
+    } catch (JumptableThunkError& err) {    // Thrown by recoverAddresses
+        return JumpTable::fail_thunk;
+    } catch (LowlevelError& err) {
+        warning(err.explain, op->getAddr());
+        return JumpTable::fail_normal;
     }
-    catch(LowlevelError &err) {
-      glb->allacts.setCurrent(oldactname);
-      warning(err.explain,op->getAddr());
-      return JumpTable::fail_normal;
-    }
-  }
-  PcodeOp *partop = partial.findOp(op->getSeqNum());
-
-  if (partop==(PcodeOp *)0 || partop->code() != CPUI_BRANCHIND || partop->getAddr() != op->getAddr())
-    throw LowlevelError("Error recovering jumptable: Bad partial clone");
-  if (partop->isDead())	// Indirectop we were trying to recover was eliminated as dead code (unreachable)
-    return JumpTable::success;			// Return jumptable as
-
-  // Test if the branch target is copied from the return address.
-  if (testForReturnAddress(partop->getIn(0)))
-    return JumpTable::fail_return;		// Return special failure code.  Switch would not recover anyway.
-
-  try {
-    jt->setLoadCollect(flow->doesJumpRecord());
-    jt->setIndirectOp(partop);
-    if (jt->isPartial())
-      jt->recoverMultistage(&partial);
-    else
-      jt->recoverAddresses(&partial); // Analyze partial to recover jumptable addresses
-  }
-  catch(JumptableThunkError &err) {		// Thrown by recoverAddresses
-    return JumpTable::fail_thunk;
-  }
-  catch(LowlevelError &err) {
-    warning(err.explain,op->getAddr());
-    return JumpTable::fail_normal;
-  }
-  return JumpTable::success;
+    return JumpTable::success;
 }
 
 /// Backtrack from the BRANCHIND, looking for ops that might affect the destination.
@@ -572,79 +580,81 @@ JumpTable::RecoveryMode Funcdata::stageJumpTable(Funcdata &partial,JumpTable *jt
 /// the destination calculation, we know the jump-table analysis will fail and the failure mode is returned.
 /// \param op is the BRANCHIND op
 /// \return \b success if there is no early failure, or the failure mode otherwise
-JumpTable::RecoveryMode Funcdata::earlyJumpTableFail(PcodeOp *op)
+JumpTable::RecoveryMode Funcdata::earlyJumpTableFail(PcodeOp* op)
 
 {
-  Varnode *vn = op->getIn(0);
-  list<PcodeOp *>::const_iterator iter = op->insertiter;
-  list<PcodeOp *>::const_iterator startiter = beginOpDead();
-  int4 countMax = 8;
-  while(iter != startiter) {
-    if (vn->getSize() == 1) return JumpTable::success;
-    countMax -= 1;
-    if (countMax < 0) return JumpTable::success;	// Don't iterate too many times
-    --iter;
-    op = *iter;
-    Varnode *outvn = op->getOut();
-    bool outhit = false;
-    if (outvn != (Varnode *)0)
-      outhit = vn->intersects(*outvn);
-    if (op->getEvalType() == PcodeOp::special) {
-      if (op->isCall()) {
-	OpCode opc = op->code();
-	if (opc == CPUI_CALLOTHER) {
-	  int4 id = (int4)op->getIn(0)->getOffset();
-	  uint4 userOpType = glb->userops.getOp(id)->getType();
-	  if (userOpType == UserPcodeOp::injected)
-	    return JumpTable::success;	// Don't try to back track through injection
-	  if (userOpType == UserPcodeOp::jumpassist)
-	    return JumpTable::success;
-	  if (userOpType == UserPcodeOp::segment)
-	    return JumpTable::success;
-	  if (outhit)
-	    return JumpTable::fail_callother;	// Address formed via uninjected CALLOTHER, analysis will fail
-	  // Assume CALLOTHER will not interfere with address and continue backtracking
-	}
-	else {
-	  // CALL or CALLIND - Output has not been established yet
-	  return JumpTable::success;	// Don't try to back track through CALL
-	}
-      }
-      else if (op->isBranch())
-	return JumpTable::success;	// Don't try to back track further
-      else {
-	if (op->code() == CPUI_STORE) return JumpTable::success;	// Don't try to back track through STORE
-	if (outhit)
-	  return JumpTable::success;	// Some special op (CPOOLREF, NEW, etc) generates address, don't assume failure
-	// Assume special will not interfere with address and continue backtracking
-      }
+    Varnode* vn = op->getIn(0);
+    list<PcodeOp*>::const_iterator iter = op->insertiter;
+    list<PcodeOp*>::const_iterator startiter = beginOpDead();
+    int4 countMax = 8;
+    while (iter != startiter) {
+        if (vn->getSize() == 1)
+            return JumpTable::success;
+        countMax -= 1;
+        if (countMax < 0)
+            return JumpTable::success; // Don't iterate too many times
+        --iter;
+        op = *iter;
+        Varnode* outvn = op->getOut();
+        bool outhit = false;
+        if (outvn != (Varnode*)0)
+            outhit = vn->intersects(*outvn);
+        if (op->getEvalType() == PcodeOp::special) {
+            if (op->isCall()) {
+                OpCode opc = op->code();
+                if (opc == CPUI_CALLOTHER) {
+                    int4 id = (int4)op->getIn(0)->getOffset();
+                    uint4 userOpType = glb->userops.getOp(id)->getType();
+                    if (userOpType == UserPcodeOp::injected)
+                        return JumpTable::success; // Don't try to back track through injection
+                    if (userOpType == UserPcodeOp::jumpassist)
+                        return JumpTable::success;
+                    if (userOpType == UserPcodeOp::segment)
+                        return JumpTable::success;
+                    if (outhit)
+                        return JumpTable::fail_callother; // Address formed via uninjected CALLOTHER, analysis will fail
+                    // Assume CALLOTHER will not interfere with address and continue backtracking
+                } else {
+                    // CALL or CALLIND - Output has not been established yet
+                    return JumpTable::success; // Don't try to back track through CALL
+                }
+            } else if (op->isBranch())
+                return JumpTable::success; // Don't try to back track further
+            else {
+                if (op->code() == CPUI_STORE)
+                    return JumpTable::success; // Don't try to back track through STORE
+                if (outhit)
+                    return JumpTable::success; // Some special op (CPOOLREF, NEW, etc) generates address, don't assume
+                                               // failure
+                // Assume special will not interfere with address and continue backtracking
+            }
+        } else if (op->getEvalType() == PcodeOp::unary) {
+            if (outhit) {
+                Varnode* invn = op->getIn(0);
+                if (invn->getSize() != vn->getSize())
+                    return JumpTable::success;
+                vn = invn; // Treat input as address
+            }
+            // Continue backtracking
+        } else if (op->getEvalType() == PcodeOp::binary) {
+            if (outhit) {
+                OpCode opc = op->code();
+                if (opc != CPUI_INT_ADD && opc != CPUI_INT_SUB && opc != CPUI_INT_XOR)
+                    return JumpTable::success;
+                if (!op->getIn(1)->isConstant())
+                    return JumpTable::success; // Don't back-track thru binary op, don't assume failure
+                Varnode* invn = op->getIn(0);
+                if (invn->getSize() != vn->getSize())
+                    return JumpTable::success;
+                vn = invn; // Treat input as address
+            }
+            // Continue backtracking
+        } else {
+            if (outhit)
+                return JumpTable::success;
+        }
     }
-    else if (op->getEvalType() == PcodeOp::unary) {
-      if (outhit) {
-	Varnode *invn = op->getIn(0);
-	if (invn->getSize() != vn->getSize()) return JumpTable::success;
-	vn = invn;		// Treat input as address
-      }
-      // Continue backtracking
-    }
-    else if (op->getEvalType() == PcodeOp::binary) {
-      if (outhit) {
-	OpCode opc = op->code();
-	if (opc != CPUI_INT_ADD && opc != CPUI_INT_SUB && opc != CPUI_INT_XOR)
-	  return JumpTable::success;
-	if (!op->getIn(1)->isConstant()) return JumpTable::success;	// Don't back-track thru binary op, don't assume failure
-	Varnode *invn = op->getIn(0);
-	if (invn->getSize() != vn->getSize()) return JumpTable::success;
-	vn = invn;		// Treat input as address
-      }
-      // Continue backtracking
-    }
-    else {
-      if (outhit)
-	return JumpTable::success;
-    }
-  }
-  return JumpTable::success;
+    return JumpTable::success;
 }
 
 /// \brief Recover control-flow destinations for a BRANCHIND
@@ -657,66 +667,66 @@ JumpTable::RecoveryMode Funcdata::earlyJumpTableFail(PcodeOp *op)
 /// \param flow is current flow information for \b this function
 /// \param mode will hold the final success/failure code
 /// \return the recovered JumpTable or NULL if there was no success
-JumpTable *Funcdata::recoverJumpTable(Funcdata &partial,PcodeOp *op,FlowInfo *flow,JumpTable::RecoveryMode &mode)
+JumpTable* Funcdata::recoverJumpTable(Funcdata& partial, PcodeOp* op, FlowInfo* flow, JumpTable::RecoveryMode& mode)
 
 {
-  JumpTable *jt;
+    JumpTable* jt;
 
-  mode = JumpTable::success;
-  jt = linkJumpTable(op);		// Search for pre-existing jumptable
-  if (jt != (JumpTable *)0) {
-    if (!jt->isOverride()) {
-      if (!jt->isPartial() && jt->numEntries() != 0)
-	return jt;		// Previously calculated jumptable (NOT an override and NOT incomplete)
+    mode = JumpTable::success;
+    jt = linkJumpTable(op); // Search for pre-existing jumptable
+    if (jt != (JumpTable*)0) {
+        if (!jt->isOverride()) {
+            if (!jt->isPartial() && jt->numEntries() != 0)
+                return jt; // Previously calculated jumptable (NOT an override and NOT incomplete)
+        }
+        mode = stageJumpTable(partial, jt, op, flow); // Recover empty jumptable or based on override information
+        if (mode != JumpTable::success)
+            return (JumpTable*)0;
+        jt->setIndirectOp(op); // Relink table back to original op
+        return jt;
     }
-    mode = stageJumpTable(partial,jt,op,flow); // Recover empty jumptable or based on override information
-    if (mode != JumpTable::success)
-      return (JumpTable *)0;
-    jt->setIndirectOp(op);	// Relink table back to original op
-    return jt;
-  }
 
-  if ((flags & jumptablerecovery_dont)!=0)
-    return (JumpTable *)0;	// Explicitly told not to recover jumptables
-  mode = earlyJumpTableFail(op);
-  if (mode != JumpTable::success)
-    return (JumpTable *)0;
-  JumpTable trialjt;
-  mode = stageJumpTable(partial,&trialjt,op,flow);
-  if (mode != JumpTable::success)
-    return (JumpTable *)0;
-  //  if (trialjt.is_twostage())
-  //    warning("Jumptable maybe incomplete. Second-stage recovery not implemented",trialjt.Opaddress());
-  jt = new JumpTable(&trialjt); // Make the jumptable permanent
-  jumpvec.push_back(jt);
-  jt->setIndirectOp(op);		// Relink table back to original op
-  return jt;
+    if ((flags & jumptablerecovery_dont) != 0)
+        return (JumpTable*)0; // Explicitly told not to recover jumptables
+    mode = earlyJumpTableFail(op);
+    if (mode != JumpTable::success)
+        return (JumpTable*)0;
+    JumpTable trialjt;
+    mode = stageJumpTable(partial, &trialjt, op, flow);
+    if (mode != JumpTable::success)
+        return (JumpTable*)0;
+    //  if (trialjt.is_twostage())
+    //    warning("Jumptable maybe incomplete. Second-stage recovery not implemented",trialjt.Opaddress());
+    jt = new JumpTable(&trialjt); // Make the jumptable permanent
+    jumpvec.push_back(jt);
+    jt->setIndirectOp(op); // Relink table back to original op
+    return jt;
 }
 
 /// For each jump-table, for each address, the corresponding basic block index is computed.
 /// This also calculates the \e default branch for each jump-table.
 /// \param flow is the flow object (mapping addresses to p-code ops)
-void Funcdata::switchOverJumpTables(const FlowInfo &flow)
+void Funcdata::switchOverJumpTables(const FlowInfo& flow)
 
 {
-  vector<JumpTable *>::iterator iter;
+    vector<JumpTable*>::iterator iter;
 
-  for(iter=jumpvec.begin();iter!=jumpvec.end();++iter)
-    (*iter)->switchOver(flow);
+    for (iter = jumpvec.begin(); iter != jumpvec.end(); ++iter)
+        (*iter)->switchOver(flow);
 }
 
 void Funcdata::installSwitchDefaults(void)
 
 {
-  vector<JumpTable *>::iterator iter;
-  for(iter=jumpvec.begin();iter!=jumpvec.end();++iter) {
-    JumpTable *jt = *iter;
-    PcodeOp *indop = jt->getIndirectOp();
-    BlockBasic *ind = indop->getParent();
-			 // Mark any switch blocks default edge
-    if (jt->getDefaultBlock() != -1) // If a default case is present
-      ind->setDefaultSwitch(jt->getDefaultBlock());
-  }
+    vector<JumpTable*>::iterator iter;
+    for (iter = jumpvec.begin(); iter != jumpvec.end(); ++iter) {
+        JumpTable* jt = *iter;
+        PcodeOp* indop = jt->getIndirectOp();
+        BlockBasic* ind = indop->getParent();
+        // Mark any switch blocks default edge
+        if (jt->getDefaultBlock() != -1) // If a default case is present
+            ind->setDefaultSwitch(jt->getDefaultBlock());
+    }
 }
 
 /// For the current control-flow graph, (re)calculate the loop structure and dominance.
@@ -725,30 +735,30 @@ void Funcdata::installSwitchDefaults(void)
 void Funcdata::structureReset(void)
 
 {
-  vector<JumpTable *>::iterator iter;
-  vector<FlowBlock *> rootlist;
+    vector<JumpTable*>::iterator iter;
+    vector<FlowBlock*> rootlist;
 
-  flags &= ~blocks_unreachable;	// Clear any old blocks flag
-  bblocks.structureLoops(rootlist);
-  bblocks.calcForwardDominator(rootlist);
-  if (rootlist.size() > 1)
-    flags |= blocks_unreachable;
-  // Check for dead jumptables
-  vector<JumpTable *> alivejumps;
-  for(iter=jumpvec.begin();iter!=jumpvec.end();++iter) {
-    JumpTable *jt = *iter;
-    PcodeOp *indop = jt->getIndirectOp();
-    if (indop->isDead()) {
-      warningHeader("Recovered jumptable eliminated as dead code");
-      delete jt;
-      continue;
+    flags &= ~blocks_unreachable; // Clear any old blocks flag
+    bblocks.structureLoops(rootlist);
+    bblocks.calcForwardDominator(rootlist);
+    if (rootlist.size() > 1)
+        flags |= blocks_unreachable;
+    // Check for dead jumptables
+    vector<JumpTable*> alivejumps;
+    for (iter = jumpvec.begin(); iter != jumpvec.end(); ++iter) {
+        JumpTable* jt = *iter;
+        PcodeOp* indop = jt->getIndirectOp();
+        if (indop->isDead()) {
+            warningHeader("Recovered jumptable eliminated as dead code");
+            delete jt;
+            continue;
+        }
+        alivejumps.push_back(jt);
     }
-    alivejumps.push_back(jt);
-  }
-  jumpvec = alivejumps;
-  sblocks.clear();		// Force structuring algorithm to start over
-  //  sblocks.build_copy(bblocks);	// Make copy of the basic block control flow graph
-  heritage.forceRestructure();
+    jumpvec = alivejumps;
+    sblocks.clear(); // Force structuring algorithm to start over
+    //  sblocks.build_copy(bblocks);	// Make copy of the basic block control flow graph
+    heritage.forceRestructure();
 }
 
 /// \brief Force a specific control-flow edge to be marked as \e unstructured
@@ -759,28 +769,32 @@ void Funcdata::structureReset(void)
 /// \param pcop is the source Address
 /// \param pcdest is the destination Address
 /// \return \b true if a control-flow edge was successfully labeled
-bool Funcdata::forceGoto(const Address &pcop,const Address &pcdest)
+bool Funcdata::forceGoto(const Address& pcop, const Address& pcdest)
 
 {
-  FlowBlock *bl,*bl2;
-  PcodeOp *op,*op2;
-  int4 i,j;
+    FlowBlock *bl, *bl2;
+    PcodeOp *op, *op2;
+    int4 i, j;
 
-  for(i=0;i<bblocks.getSize();++i) {
-    bl = bblocks.getBlock(i);
-    op = bl->lastOp();
-    if (op == (PcodeOp *)0) continue;
-    if (op->getAddr() != pcop) continue;	// Find op to mark unstructured
-    for(j=0;j<bl->sizeOut();++j) {
-      bl2 = bl->getOut(j);
-      op2 = bl2->lastOp();
-      if (op2 == (PcodeOp *)0) continue;
-      if (op2->getAddr() != pcdest) continue; // Find particular branch
-      bl->setGotoBranch(j);
-      return true;
+    for (i = 0; i < bblocks.getSize(); ++i) {
+        bl = bblocks.getBlock(i);
+        op = bl->lastOp();
+        if (op == (PcodeOp*)0)
+            continue;
+        if (op->getAddr() != pcop)
+            continue; // Find op to mark unstructured
+        for (j = 0; j < bl->sizeOut(); ++j) {
+            bl2 = bl->getOut(j);
+            op2 = bl2->lastOp();
+            if (op2 == (PcodeOp*)0)
+                continue;
+            if (op2->getAddr() != pcdest)
+                continue; // Find particular branch
+            bl->setGotoBranch(j);
+            return true;
+        }
     }
-  }
-  return false;
+    return false;
 }
 
 /// \brief Create a new basic block for holding a merged CBRANCH
@@ -797,42 +811,39 @@ bool Funcdata::forceGoto(const Address &pcop,const Address &pcdest)
 /// \param forb_block1ishigh designates which edge is moved for exitb
 /// \param addr is the Address associated with (1 of the) CBRANCH ops
 /// \return the new basic block
-BlockBasic *Funcdata::nodeJoinCreateBlock(BlockBasic *block1,BlockBasic *block2,
-					  BlockBasic *exita,BlockBasic *exitb,
-					  bool fora_block1ishigh,bool forb_block1ishigh,const Address &addr)
+BlockBasic* Funcdata::nodeJoinCreateBlock(BlockBasic* block1, BlockBasic* block2, BlockBasic* exita, BlockBasic* exitb,
+                                          bool fora_block1ishigh, bool forb_block1ishigh, const Address& addr)
 
 {
-  BlockBasic *newblock = bblocks.newBlockBasic(this);
-  newblock->setFlag(FlowBlock::f_joined_block);
-  newblock->setInitialRange(addr, addr);
-  FlowBlock *swapa,*swapb;
+    BlockBasic* newblock = bblocks.newBlockBasic(this);
+    newblock->setFlag(FlowBlock::f_joined_block);
+    newblock->setInitialRange(addr, addr);
+    FlowBlock *swapa, *swapb;
 
-  // Delete 2 of the original edges into exita and exitb
-  if (fora_block1ishigh) {		// Remove the edge from block1
-    bblocks.removeEdge(block1,exita);
-    swapa = block2;
-  }
-  else {
-    bblocks.removeEdge(block2,exita);
-    swapa = block1;
-  }
-  if (forb_block1ishigh) {
-    bblocks.removeEdge(block1,exitb);
-    swapb = block2;
-  }
-  else {
-    bblocks.removeEdge(block2,exitb);
-    swapb = block1;
-  }
+    // Delete 2 of the original edges into exita and exitb
+    if (fora_block1ishigh) { // Remove the edge from block1
+        bblocks.removeEdge(block1, exita);
+        swapa = block2;
+    } else {
+        bblocks.removeEdge(block2, exita);
+        swapa = block1;
+    }
+    if (forb_block1ishigh) {
+        bblocks.removeEdge(block1, exitb);
+        swapb = block2;
+    } else {
+        bblocks.removeEdge(block2, exitb);
+        swapb = block1;
+    }
 
-  // Move the remaining two from block1,block2 to newblock
-  bblocks.moveOutEdge(swapa,swapa->getOutIndex(exita),newblock);
-  bblocks.moveOutEdge(swapb,swapb->getOutIndex(exitb),newblock);
+    // Move the remaining two from block1,block2 to newblock
+    bblocks.moveOutEdge(swapa, swapa->getOutIndex(exita), newblock);
+    bblocks.moveOutEdge(swapb, swapb->getOutIndex(exitb), newblock);
 
-  bblocks.addEdge(block1,newblock);
-  bblocks.addEdge(block2,newblock);
-  structureReset();
-  return newblock;
+    bblocks.addEdge(block1, newblock);
+    bblocks.addEdge(block2, newblock);
+    structureReset();
+    return newblock;
 }
 
 /// \brief Split given basic block b along an \e in edge
@@ -842,19 +853,19 @@ BlockBasic *Funcdata::nodeJoinCreateBlock(BlockBasic *block1,BlockBasic *block2,
 /// Other data-flow is \b not affected.
 /// \param b is the given basic block
 /// \param inedge is the index of the indicated \e in edge
-BlockBasic *Funcdata::nodeSplitBlockEdge(BlockBasic *b,int4 inedge)
+BlockBasic* Funcdata::nodeSplitBlockEdge(BlockBasic* b, int4 inedge)
 
 {
-  FlowBlock *a = b->getIn(inedge);
-  BlockBasic *bprime;
+    FlowBlock* a = b->getIn(inedge);
+    BlockBasic* bprime;
 
-  bprime = bblocks.newBlockBasic(this);
-  bprime->setFlag(FlowBlock::f_duplicate_block);
-  bprime->copyRange(b);
-  bblocks.switchEdge(a,b,bprime);
-  for(int4 i=0;i<b->sizeOut();++i)
-    bblocks.addEdge(bprime,b->getOut(i));
-  return bprime;
+    bprime = bblocks.newBlockBasic(this);
+    bprime->setFlag(FlowBlock::f_duplicate_block);
+    bprime->copyRange(b);
+    bblocks.switchEdge(a, b, bprime);
+    for (int4 i = 0; i < b->sizeOut(); ++i)
+        bblocks.addEdge(bprime, b->getOut(i));
+    return bprime;
 }
 
 /// \brief Split control-flow into a basic block, duplicating its p-code into a new block
@@ -863,32 +874,32 @@ BlockBasic *Funcdata::nodeSplitBlockEdge(BlockBasic *b,int4 inedge)
 /// block takes over flow from one input edge to the original block.
 /// \param b is the basic block to be duplicated and split
 /// \param inedge is the index of the input edge to move to the duplicate block
-void Funcdata::nodeSplit(BlockBasic *b,int4 inedge)
+void Funcdata::nodeSplit(BlockBasic* b, int4 inedge)
 
 { // Split node b along inedge
-  if (b->sizeOut() != 0)
-    throw LowlevelError("Cannot (currently) nodesplit block with out flow");
-  if (b->sizeIn()<=1)
-    throw LowlevelError("Cannot nodesplit block with only 1 in edge");
-  for(int4 i=0;i<b->sizeIn();++i) {
-    if (b->getIn(i)->isMark())
-      throw LowlevelError("Cannot nodesplit block with redundant in edges");
-    b->setMark();
-  }
-  for(int4 i=0;i<b->sizeIn();++i)
-    b->clearMark();
+    if (b->sizeOut() != 0)
+        throw LowlevelError("Cannot (currently) nodesplit block with out flow");
+    if (b->sizeIn() <= 1)
+        throw LowlevelError("Cannot nodesplit block with only 1 in edge");
+    for (int4 i = 0; i < b->sizeIn(); ++i) {
+        if (b->getIn(i)->isMark())
+            throw LowlevelError("Cannot nodesplit block with redundant in edges");
+        b->setMark();
+    }
+    for (int4 i = 0; i < b->sizeIn(); ++i)
+        b->clearMark();
 
-				// Create duplicate block
-  BlockBasic *bprime = nodeSplitBlockEdge(b,inedge);
-  CloneBlockOps cloner(*this);
-  cloner.cloneBlock(b, bprime, inedge);		// Copy b's ops into bprime
+    // Create duplicate block
+    BlockBasic* bprime = nodeSplitBlockEdge(b, inedge);
+    CloneBlockOps cloner(*this);
+    cloner.cloneBlock(b, bprime, inedge); // Copy b's ops into bprime
 
-  // We would need to patch outputs here for the more general
-  // case when b has out edges
-  // any references not in b to varnodes defined in b
-  // need to have MULTIEQUALs defined in b's out blocks
-  //   with edges coming from b and bprime
-  structureReset();
+    // We would need to patch outputs here for the more general
+    // case when b has out edges
+    // any references not in b to varnodes defined in b
+    // need to have MULTIEQUALs defined in b's out blocks
+    //   with edges coming from b and bprime
+    structureReset();
 }
 
 /// \brief Remove a basic block splitting its control-flow into two distinct paths
@@ -899,14 +910,14 @@ void Funcdata::nodeSplit(BlockBasic *b,int4 inedge)
 /// In(0) flows to Out(0) and In(1) flows to Out(1), or vice versa.
 /// \param bl is the given basic block
 /// \param swap is \b true to force In(0)->Out(1) and In(1)->Out(0)
-void Funcdata::removeFromFlowSplit(BlockBasic *bl,bool swap)
+void Funcdata::removeFromFlowSplit(BlockBasic* bl, bool swap)
 
 {
-  if (!bl->emptyOp())
-    throw LowlevelError("Can only split the flow for an empty block");
-  bblocks.removeFromFlowSplit(bl,swap);
-  bblocks.removeBlock(bl);
-  structureReset();
+    if (!bl->emptyOp())
+        throw LowlevelError("Can only split the flow for an empty block");
+    bblocks.removeFromFlowSplit(bl, swap);
+    bblocks.removeBlock(bl);
+    structureReset();
 }
 
 /// \brief Switch an outgoing edge from the given \e source block to flow into another block
@@ -915,149 +926,152 @@ void Funcdata::removeFromFlowSplit(BlockBasic *bl,bool swap)
 /// \param inblock is the given \e source block
 /// \param outbefore is the other side of the desired edge
 /// \param outafter is the new destination block desired
-void Funcdata::switchEdge(FlowBlock *inblock,BlockBasic *outbefore,FlowBlock *outafter)
+void Funcdata::switchEdge(FlowBlock* inblock, BlockBasic* outbefore, FlowBlock* outafter)
 
 {
-  bblocks.switchEdge(inblock,outbefore,outafter);
-  structureReset();
+    bblocks.switchEdge(inblock, outbefore, outafter);
+    structureReset();
 }
 
 /// The given block must have a single output block, which will be removed.  The given block
 /// has the p-code from the output block concatenated to its own, and it inherits the output
 /// block's out edges.
 /// \param bl is the given basic block
-void Funcdata::spliceBlockBasic(BlockBasic *bl)
+void Funcdata::spliceBlockBasic(BlockBasic* bl)
 
 {
-  BlockBasic *outbl = (BlockBasic *)0;
-  if (bl->sizeOut() == 1) {
-    outbl = (BlockBasic *)bl->getOut(0);
-    if (outbl->sizeIn() != 1)
-      outbl = (BlockBasic *)0;
-  }
-  if (outbl == (BlockBasic *)0)
-    throw LowlevelError("Cannot splice basic blocks");
-  // Remove any jump op at the end of -bl-
-  if (!bl->op.empty()) {
-    PcodeOp *jumpop = bl->op.back();
-    if (jumpop->isBranch())
-      opDestroy(jumpop);
-  }
-  if (!outbl->op.empty()) {
-    // Check for MULTIEQUALs
-    PcodeOp *firstop = outbl->op.front();
-    if (firstop->code() == CPUI_MULTIEQUAL)
-      throw LowlevelError("Splicing block with MULTIEQUAL");
-    firstop->clearFlag(PcodeOp::startbasic);
-    list<PcodeOp *>::iterator iter;
-    // Move ops into -bl-
-    for(iter=outbl->beginOp();iter!=outbl->endOp();++iter) {
-      PcodeOp *op = *iter;
-      op->setParent(bl);	// Reset ops parent to -bl-
+    BlockBasic* outbl = (BlockBasic*)0;
+    if (bl->sizeOut() == 1) {
+        outbl = (BlockBasic*)bl->getOut(0);
+        if (outbl->sizeIn() != 1)
+            outbl = (BlockBasic*)0;
     }
-    // Move all ops from -outbl- to end of -bl-
-    bl->op.splice(bl->op.end(),outbl->op,outbl->op.begin(),outbl->op.end());
-    // insertiter should remain valid through splice
-    bl->setOrder();		// Reset the seqnum ordering on all the ops
-  }
-  bl->mergeRange(outbl);	// Update the address cover
-  bblocks.spliceBlock(bl);
-  structureReset();
+    if (outbl == (BlockBasic*)0)
+        throw LowlevelError("Cannot splice basic blocks");
+    // Remove any jump op at the end of -bl-
+    if (!bl->op.empty()) {
+        PcodeOp* jumpop = bl->op.back();
+        if (jumpop->isBranch())
+            opDestroy(jumpop);
+    }
+    if (!outbl->op.empty()) {
+        // Check for MULTIEQUALs
+        PcodeOp* firstop = outbl->op.front();
+        if (firstop->code() == CPUI_MULTIEQUAL)
+            throw LowlevelError("Splicing block with MULTIEQUAL");
+        firstop->clearFlag(PcodeOp::startbasic);
+        list<PcodeOp*>::iterator iter;
+        // Move ops into -bl-
+        for (iter = outbl->beginOp(); iter != outbl->endOp(); ++iter) {
+            PcodeOp* op = *iter;
+            op->setParent(bl); // Reset ops parent to -bl-
+        }
+        // Move all ops from -outbl- to end of -bl-
+        bl->op.splice(bl->op.end(), outbl->op, outbl->op.begin(), outbl->op.end());
+        // insertiter should remain valid through splice
+        bl->setOrder(); // Reset the seqnum ordering on all the ops
+    }
+    bl->mergeRange(outbl); // Update the address cover
+    bblocks.spliceBlock(bl);
+    structureReset();
 }
 
 /// Make a basic clone of the p-code op copying its basic control-flow properties.
 /// In the case of a \e branch, the p-code op is not cloned and null is returned.
 /// \param op is the given PcodeOp
 /// \return the cloned op or null
-PcodeOp *CloneBlockOps::buildOpClone(PcodeOp *op)
+PcodeOp* CloneBlockOps::buildOpClone(PcodeOp* op)
 
 {
-  PcodeOp *dup;
+    PcodeOp* dup;
 
-  if (op->isBranch()) {
-    if (op->code() != CPUI_BRANCH)
-      throw LowlevelError("Cannot duplicate 2-way or n-way branch in nodeplit");
-    return (PcodeOp *)0;
-  }
-  dup = data.newOp(op->numInput(),op->getAddr());
-  data.opSetOpcode(dup,op->code());
-  uint4 fl = op->flags & (PcodeOp::startbasic | PcodeOp::nocollapse | PcodeOp::startmark |
-      PcodeOp::nonprinting | PcodeOp::halt | PcodeOp::badinstruction | PcodeOp::unimplemented |
-      PcodeOp::noreturn | PcodeOp::missing | PcodeOp::indirect_creation | PcodeOp::indirect_store |
-      PcodeOp::no_indirect_collapse | PcodeOp::calculated_bool | PcodeOp::ptrflow);
-  dup->setFlag(fl);
-  fl = op->addlflags & (PcodeOp::special_prop | PcodeOp::special_print | PcodeOp::incidental_copy |
-      PcodeOp::is_cpool_transformed | PcodeOp::stop_type_propagation | PcodeOp::store_unmapped);
-  dup->setAdditionalFlag(fl);
+    if (op->isBranch()) {
+        if (op->code() != CPUI_BRANCH)
+            throw LowlevelError("Cannot duplicate 2-way or n-way branch in nodeplit");
+        return (PcodeOp*)0;
+    }
+    dup = data.newOp(op->numInput(), op->getAddr());
+    data.opSetOpcode(dup, op->code());
+    uint4 fl = op->flags & (PcodeOp::startbasic | PcodeOp::nocollapse | PcodeOp::startmark | PcodeOp::nonprinting |
+                            PcodeOp::halt | PcodeOp::badinstruction | PcodeOp::unimplemented | PcodeOp::noreturn |
+                            PcodeOp::missing | PcodeOp::indirect_creation | PcodeOp::indirect_store |
+                            PcodeOp::no_indirect_collapse | PcodeOp::calculated_bool | PcodeOp::ptrflow);
+    dup->setFlag(fl);
+    fl = op->addlflags & (PcodeOp::special_prop | PcodeOp::special_print | PcodeOp::incidental_copy |
+                          PcodeOp::is_cpool_transformed | PcodeOp::stop_type_propagation | PcodeOp::store_unmapped);
+    dup->setAdditionalFlag(fl);
 
-  cloneList.emplace_back(dup,op);	// Map from clone to orig
-  origToClone[op] = dup;		// Map from orig to clone
-  return dup;
+    cloneList.emplace_back(dup, op); // Map from clone to orig
+    origToClone[op] = dup;           // Map from orig to clone
+    return dup;
 }
 
 /// Make a basic clone of a Varnode and its flags. The clone is created
 /// as an output Varnode of a previously cloned PcodeOp.
 /// \param origOp is the given op whose output should be cloned
 /// \param cloneOp is the cloned version
-void CloneBlockOps::buildVarnodeOutput(PcodeOp *origOp,PcodeOp *cloneOp)
+void CloneBlockOps::buildVarnodeOutput(PcodeOp* origOp, PcodeOp* cloneOp)
 
 {
-  Varnode *opvn = origOp->getOut();
-  Varnode *newvn;
+    Varnode* opvn = origOp->getOut();
+    Varnode* newvn;
 
-  if (opvn == (Varnode *)0) return;
-  newvn = data.newVarnodeOut(opvn->getSize(),opvn->getAddr(),cloneOp);
-  uint4 vflags = opvn->getFlags();
-  vflags &= (Varnode::externref | Varnode::volatil | Varnode::incidental_copy | Varnode::readonly |
-      Varnode::persist | Varnode::addrtied | Varnode::addrforce | Varnode::nolocalalias | Varnode::spacebase |
-      Varnode::indirect_creation | Varnode::return_address | Varnode::precislo | Varnode::precishi |
-      Varnode::incidental_copy);
-  newvn->setFlags(vflags);
-  uint2 aflags = opvn->addlflags;
-  aflags &= (Varnode::writemask | Varnode::ptrflow | Varnode::stack_store);
-  newvn->addlflags |= aflags;
+    if (opvn == (Varnode*)0)
+        return;
+    newvn = data.newVarnodeOut(opvn->getSize(), opvn->getAddr(), cloneOp);
+    uint4 vflags = opvn->getFlags();
+    vflags &= (Varnode::externref | Varnode::volatil | Varnode::incidental_copy | Varnode::readonly | Varnode::persist |
+               Varnode::addrtied | Varnode::addrforce | Varnode::nolocalalias | Varnode::spacebase |
+               Varnode::indirect_creation | Varnode::return_address | Varnode::precislo | Varnode::precishi |
+               Varnode::incidental_copy);
+    newvn->setFlags(vflags);
+    uint2 aflags = opvn->addlflags;
+    aflags &= (Varnode::writemask | Varnode::ptrflow | Varnode::stack_store);
+    newvn->addlflags |= aflags;
 }
 
 /// P-code in a basic block is cloned into the split version of the block.
 /// \param b is the original basic block
 /// \param bprime is the cloned block
 /// \param inedge is the incoming edge index that was split on
-void CloneBlockOps::cloneBlock(BlockBasic *b,BlockBasic *bprime,int4 inedge)
+void CloneBlockOps::cloneBlock(BlockBasic* b, BlockBasic* bprime, int4 inedge)
 
 {
-  PcodeOp *origOp,*cloneOp;
-  list<PcodeOp *>::iterator iter;
+    PcodeOp *origOp, *cloneOp;
+    list<PcodeOp*>::iterator iter;
 
-  for(iter=b->beginOp();iter!=b->endOp();++iter) {
-    origOp = *iter;
-    cloneOp = buildOpClone(origOp);
-    if (cloneOp == (PcodeOp *)0) continue;
-    buildVarnodeOutput(origOp,cloneOp);
-    data.opInsertEnd(cloneOp,bprime);
-  }
-  patchInputs(inedge);
+    for (iter = b->beginOp(); iter != b->endOp(); ++iter) {
+        origOp = *iter;
+        cloneOp = buildOpClone(origOp);
+        if (cloneOp == (PcodeOp*)0)
+            continue;
+        buildVarnodeOutput(origOp, cloneOp);
+        data.opInsertEnd(cloneOp, bprime);
+    }
+    patchInputs(inedge);
 }
 
 /// P-code in the list is cloned right before the given \b followOp.
 /// \param ops is the list of ops to clone
 /// \param followOp is the point where the cloned ops are inserted
 /// \return the output Varnode of the last cloned op
-Varnode *CloneBlockOps::cloneExpression(vector<PcodeOp *> &ops,PcodeOp *followOp)
+Varnode* CloneBlockOps::cloneExpression(vector<PcodeOp*>& ops, PcodeOp* followOp)
 
 {
-  PcodeOp *origOp,*cloneOp;
-  for(int4 i=0;i<ops.size();++i) {
-    origOp = ops[i];
-    cloneOp = buildOpClone(origOp);
-    if (cloneOp == (PcodeOp *)0) continue;
-    buildVarnodeOutput(origOp,cloneOp);
-    data.opInsertBefore(cloneOp, followOp);
-  }
-  if (cloneList.empty())
-    throw LowlevelError("No expression to clone");
-  patchInputs(0);
-  cloneOp = cloneList.back().cloneOp;
-  return cloneOp->getOut();
+    PcodeOp *origOp, *cloneOp;
+    for (int4 i = 0; i < ops.size(); ++i) {
+        origOp = ops[i];
+        cloneOp = buildOpClone(origOp);
+        if (cloneOp == (PcodeOp*)0)
+            continue;
+        buildVarnodeOutput(origOp, cloneOp);
+        data.opInsertBefore(cloneOp, followOp);
+    }
+    if (cloneList.empty())
+        throw LowlevelError("No expression to clone");
+    patchInputs(0);
+    cloneOp = cloneList.back().cloneOp;
+    return cloneOp->getOut();
 }
 
 /// Map Varnodes that are inputs for PcodeOps in the original basic block to the input slots of
@@ -1068,49 +1082,44 @@ Varnode *CloneBlockOps::cloneExpression(vector<PcodeOp *> &ops,PcodeOp *followOp
 void CloneBlockOps::patchInputs(int4 inedge)
 
 {
-  for(int4 pos=0;pos<cloneList.size();++pos) {
-    PcodeOp *origOp = cloneList[pos].origOp;
-    PcodeOp *cloneOp = cloneList[pos].cloneOp;
-    if (origOp->code() == CPUI_MULTIEQUAL) {
-      cloneOp->setNumInputs(1);	// One edge now goes into the new block
-      data.opSetOpcode(cloneOp,CPUI_COPY);
-      data.opSetInput(cloneOp,origOp->getIn(inedge),0);
-      data.opRemoveInput(origOp,inedge); // One edge is removed from original block
-      if (origOp->numInput() == 1)
-	data.opSetOpcode(origOp,CPUI_COPY);
+    for (int4 pos = 0; pos < cloneList.size(); ++pos) {
+        PcodeOp* origOp = cloneList[pos].origOp;
+        PcodeOp* cloneOp = cloneList[pos].cloneOp;
+        if (origOp->code() == CPUI_MULTIEQUAL) {
+            cloneOp->setNumInputs(1); // One edge now goes into the new block
+            data.opSetOpcode(cloneOp, CPUI_COPY);
+            data.opSetInput(cloneOp, origOp->getIn(inedge), 0);
+            data.opRemoveInput(origOp, inedge); // One edge is removed from original block
+            if (origOp->numInput() == 1)
+                data.opSetOpcode(origOp, CPUI_COPY);
+        } else if (origOp->code() == CPUI_INDIRECT) {
+            throw LowlevelError("Can't clone INDIRECTs");
+        } else if (origOp->isCall()) {
+            throw LowlevelError("Can't clone CALLs");
+        } else {
+            for (int4 i = 0; i < cloneOp->numInput(); ++i) {
+                Varnode* origVn = origOp->getIn(i);
+                Varnode* cloneVn;
+                if (origVn->isConstant())
+                    cloneVn = origVn;
+                else if (origVn->isAnnotation())
+                    cloneVn = data.newCodeRef(origVn->getAddr());
+                else if (origVn->isFree())
+                    throw LowlevelError("Can't clone free varnode");
+                else {
+                    if (origVn->isWritten()) {
+                        map<PcodeOp*, PcodeOp*>::const_iterator iter = origToClone.find(origVn->getDef());
+                        if (iter != origToClone.end()) {
+                            cloneVn = (*iter).second->getOut();
+                        } else
+                            cloneVn = origVn;
+                    } else
+                        cloneVn = origVn;
+                }
+                data.opSetInput(cloneOp, cloneVn, i);
+            }
+        }
     }
-    else if (origOp->code() == CPUI_INDIRECT) {
-      throw LowlevelError("Can't clone INDIRECTs");
-    }
-    else if (origOp->isCall()) {
-      throw LowlevelError("Can't clone CALLs");
-    }
-    else {
-      for(int4 i=0;i<cloneOp->numInput();++i) {
-	Varnode *origVn = origOp->getIn(i);
-	Varnode *cloneVn;
-	if (origVn->isConstant())
-	  cloneVn = origVn;
-	else if (origVn->isAnnotation())
-	  cloneVn = data.newCodeRef(origVn->getAddr());
-	else if (origVn->isFree())
-	  throw LowlevelError("Can't clone free varnode");
-	else {
-	  if (origVn->isWritten()) {
-	    map<PcodeOp *,PcodeOp *>::const_iterator iter = origToClone.find(origVn->getDef());
-	    if (iter != origToClone.end()) {
-	      cloneVn = (*iter).second->getOut();
-	    }
-	    else
-	      cloneVn = origVn;
-	  }
-	  else
-	    cloneVn = origVn;
-	}
-	data.opSetInput(cloneOp,cloneVn,i);
-      }
-    }
-  }
 }
 
 } // End namespace ghidra

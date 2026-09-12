@@ -499,8 +499,10 @@ int __fastcall FUN_140333210(undefined8 param_1,int param_2)
 /// decompiler, including provider-backed `__doserrno` and callback metadata.
 TEST(DecompilerExamples, Example2BsearchEndToEnd) {
     /// Supplies Example 2 symbols and remembers child addresses discovered from CALL p-code.
-    class TestProviders final : public SymbolProvider, public TypeProvider,
-                                public PrototypeProvider, public VariableProvider {
+    class TestProviders final : public SymbolProvider,
+                                public TypeProvider,
+                                public PrototypeProvider,
+                                public VariableProvider {
     public:
         /// Resolves the root and discovered external function symbols.
         [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
@@ -586,81 +588,81 @@ TEST(DecompilerExamples, Example2BsearchEndToEnd) {
 
     // The following groups are the complete Example 2 instruction listing.
     const std::vector<std::uint8_t> function_bytes{
-        0x48, 0x8b, 0xc4,                               // MOV RAX, RSP.
-        0x48, 0x89, 0x58, 0x08,                         // MOV [RAX+local_res8], RBX.
-        0x48, 0x89, 0x68, 0x10,                         // MOV [RAX+local_res10], RBP.
-        0x48, 0x89, 0x70, 0x18,                         // MOV [RAX+local_res18], RSI.
-        0x48, 0x89, 0x78, 0x20,                         // MOV [RAX+local_res20], RDI.
-        0x41, 0x55,                                     // PUSH R13.
-        0x41, 0x56,                                     // PUSH R14.
-        0x41, 0x57,                                     // PUSH R15.
-        0x48, 0x83, 0xec, 0x20,                         // SUB RSP, 0x20.
-        0x49, 0x8d, 0x78, 0xff,                         // LEA RDI, [_NumOfElements-1].
-        0x45, 0x33, 0xf6,                               // XOR R14D, R14D.
-        0x4d, 0x8b, 0xf9,                               // MOV R15, _SizeOfElements.
-        0x49, 0x8b, 0xf0,                               // MOV RSI, _NumOfElements.
-        0x48, 0x8b, 0xda,                               // MOV RBX, _Base.
-        0x4c, 0x8b, 0xe9,                               // MOV R13, _Key.
-        0x49, 0x0f, 0xaf, 0xf9,                         // IMUL RDI, _SizeOfElements.
-        0x48, 0x03, 0xfa,                               // ADD RDI, _Base.
-        0x48, 0x85, 0xd2,                               // TEST _Base, _Base.
-        0x75, 0x36,                                     // JNZ LAB_14170cae6.
-        0x4d, 0x85, 0xc0,                               // TEST _NumOfElements, _NumOfElements.
-        0x74, 0x31,                                     // JZ LAB_14170cae6.
-        0xe8, 0x4a, 0x45, 0x00, 0x00,                   // CALL __doserrno.
-        0xc7, 0x00, 0x16, 0x00, 0x00, 0x00,             // MOV [RAX], 0x16.
-        0xe8, 0xaf, 0x94, 0x00, 0x00,                   // CALL FUN_141715f74.
-        0x33, 0xc0,                                     // XOR EAX, EAX.
-        0x48, 0x8b, 0x5c, 0x24, 0x40,                   // MOV RBX, [RSP+local_res8].
-        0x48, 0x8b, 0x6c, 0x24, 0x48,                   // MOV RBP, [RSP+local_res10].
-        0x48, 0x8b, 0x74, 0x24, 0x50,                   // MOV RSI, [RSP+local_res18].
-        0x48, 0x8b, 0x7c, 0x24, 0x58,                   // MOV RDI, [RSP+local_res20].
-        0x48, 0x83, 0xc4, 0x20,                         // ADD RSP, 0x20.
-        0x41, 0x5f,                                     // POP R15.
-        0x41, 0x5e,                                     // POP R14.
-        0x41, 0x5d,                                     // POP R13.
-        0xc3,                                           // RET.
-        0x4d, 0x85, 0xc9,                               // TEST _SizeOfElements, _SizeOfElements.
-        0x74, 0xca,                                     // JZ LAB_14170cab5.
-        0x4c, 0x39, 0x74, 0x24, 0x60,                   // CMP [_PtFuncCompare], R14.
-        0x74, 0xc3,                                     // JZ LAB_14170cab5.
-        0x48, 0x3b, 0xd7,                               // CMP _Base, RDI.
-        0x77, 0xce,                                     // JA LAB_14170cac5.
-        0x48, 0x8b, 0xee,                               // MOV RBP, RSI.
-        0x48, 0xd1, 0xed,                               // SHR RBP, 0x1.
-        0x74, 0x41,                                     // JZ LAB_14170cb40.
-        0x40, 0xf6, 0xc6, 0x01,                         // TEST SIL, 0x1.
-        0x48, 0x8d, 0x75, 0xff,                         // LEA RSI, [RBP-1].
-        0x49, 0x8b, 0xcd,                               // MOV _Key, R13.
-        0x48, 0x0f, 0x45, 0xf5,                         // CMOVNZ RSI, RBP.
-        0x4c, 0x8b, 0xf6,                               // MOV R14, RSI.
-        0x4d, 0x0f, 0xaf, 0xf7,                         // IMUL R14, R15.
-        0x4c, 0x03, 0xf3,                               // ADD R14, RBX.
-        0x49, 0x8b, 0xd6,                               // MOV _Base, R14.
-        0xff, 0x54, 0x24, 0x60,                         // CALL [_PtFuncCompare].
-        0x85, 0xc0,                                     // TEST EAX, EAX.
-        0x74, 0x18,                                     // JZ LAB_14170cb3b.
-        0x79, 0x08,                                     // JNS LAB_14170cb2d.
-        0x49, 0x8b, 0xfe,                               // MOV RDI, R14.
-        0x49, 0x2b, 0xff,                               // SUB RDI, R15.
-        0xeb, 0x07,                                     // JMP LAB_14170cb34.
-        0x4b, 0x8d, 0x1c, 0x3e,                         // LEA RBX, [R14+R15].
-        0x48, 0x8b, 0xf5,                               // MOV RSI, RBP.
-        0x48, 0x3b, 0xdf,                               // CMP RBX, RDI.
-        0x76, 0xbe,                                     // JBE LAB_14170caf7.
-        0xeb, 0x8a,                                     // JMP LAB_14170cac5.
-        0x49, 0x8b, 0xc6,                               // MOV RAX, R14.
-        0xeb, 0x87,                                     // JMP LAB_14170cac7.
-        0x45, 0x33, 0xf6,                               // XOR R14D, R14D.
-        0x48, 0x85, 0xf6,                               // TEST RSI, RSI.
-        0x0f, 0x84, 0x79, 0xff, 0xff, 0xff,             // JZ LAB_14170cac5.
-        0x48, 0x8b, 0xd3,                               // MOV _Base, RBX.
-        0x49, 0x8b, 0xcd,                               // MOV _Key, R13.
-        0xff, 0x54, 0x24, 0x60,                         // CALL [_PtFuncCompare].
-        0x85, 0xc0,                                     // TEST EAX, EAX.
-        0x49, 0x0f, 0x45, 0xde,                         // CMOVNZ RBX, R14.
-        0x48, 0x8b, 0xc3,                               // MOV RAX, RBX.
-        0xe9, 0x63, 0xff, 0xff, 0xff,                   // JMP LAB_14170cac7.
+        0x48, 0x8b, 0xc4,                   // MOV RAX, RSP.
+        0x48, 0x89, 0x58, 0x08,             // MOV [RAX+local_res8], RBX.
+        0x48, 0x89, 0x68, 0x10,             // MOV [RAX+local_res10], RBP.
+        0x48, 0x89, 0x70, 0x18,             // MOV [RAX+local_res18], RSI.
+        0x48, 0x89, 0x78, 0x20,             // MOV [RAX+local_res20], RDI.
+        0x41, 0x55,                         // PUSH R13.
+        0x41, 0x56,                         // PUSH R14.
+        0x41, 0x57,                         // PUSH R15.
+        0x48, 0x83, 0xec, 0x20,             // SUB RSP, 0x20.
+        0x49, 0x8d, 0x78, 0xff,             // LEA RDI, [_NumOfElements-1].
+        0x45, 0x33, 0xf6,                   // XOR R14D, R14D.
+        0x4d, 0x8b, 0xf9,                   // MOV R15, _SizeOfElements.
+        0x49, 0x8b, 0xf0,                   // MOV RSI, _NumOfElements.
+        0x48, 0x8b, 0xda,                   // MOV RBX, _Base.
+        0x4c, 0x8b, 0xe9,                   // MOV R13, _Key.
+        0x49, 0x0f, 0xaf, 0xf9,             // IMUL RDI, _SizeOfElements.
+        0x48, 0x03, 0xfa,                   // ADD RDI, _Base.
+        0x48, 0x85, 0xd2,                   // TEST _Base, _Base.
+        0x75, 0x36,                         // JNZ LAB_14170cae6.
+        0x4d, 0x85, 0xc0,                   // TEST _NumOfElements, _NumOfElements.
+        0x74, 0x31,                         // JZ LAB_14170cae6.
+        0xe8, 0x4a, 0x45, 0x00, 0x00,       // CALL __doserrno.
+        0xc7, 0x00, 0x16, 0x00, 0x00, 0x00, // MOV [RAX], 0x16.
+        0xe8, 0xaf, 0x94, 0x00, 0x00,       // CALL FUN_141715f74.
+        0x33, 0xc0,                         // XOR EAX, EAX.
+        0x48, 0x8b, 0x5c, 0x24, 0x40,       // MOV RBX, [RSP+local_res8].
+        0x48, 0x8b, 0x6c, 0x24, 0x48,       // MOV RBP, [RSP+local_res10].
+        0x48, 0x8b, 0x74, 0x24, 0x50,       // MOV RSI, [RSP+local_res18].
+        0x48, 0x8b, 0x7c, 0x24, 0x58,       // MOV RDI, [RSP+local_res20].
+        0x48, 0x83, 0xc4, 0x20,             // ADD RSP, 0x20.
+        0x41, 0x5f,                         // POP R15.
+        0x41, 0x5e,                         // POP R14.
+        0x41, 0x5d,                         // POP R13.
+        0xc3,                               // RET.
+        0x4d, 0x85, 0xc9,                   // TEST _SizeOfElements, _SizeOfElements.
+        0x74, 0xca,                         // JZ LAB_14170cab5.
+        0x4c, 0x39, 0x74, 0x24, 0x60,       // CMP [_PtFuncCompare], R14.
+        0x74, 0xc3,                         // JZ LAB_14170cab5.
+        0x48, 0x3b, 0xd7,                   // CMP _Base, RDI.
+        0x77, 0xce,                         // JA LAB_14170cac5.
+        0x48, 0x8b, 0xee,                   // MOV RBP, RSI.
+        0x48, 0xd1, 0xed,                   // SHR RBP, 0x1.
+        0x74, 0x41,                         // JZ LAB_14170cb40.
+        0x40, 0xf6, 0xc6, 0x01,             // TEST SIL, 0x1.
+        0x48, 0x8d, 0x75, 0xff,             // LEA RSI, [RBP-1].
+        0x49, 0x8b, 0xcd,                   // MOV _Key, R13.
+        0x48, 0x0f, 0x45, 0xf5,             // CMOVNZ RSI, RBP.
+        0x4c, 0x8b, 0xf6,                   // MOV R14, RSI.
+        0x4d, 0x0f, 0xaf, 0xf7,             // IMUL R14, R15.
+        0x4c, 0x03, 0xf3,                   // ADD R14, RBX.
+        0x49, 0x8b, 0xd6,                   // MOV _Base, R14.
+        0xff, 0x54, 0x24, 0x60,             // CALL [_PtFuncCompare].
+        0x85, 0xc0,                         // TEST EAX, EAX.
+        0x74, 0x18,                         // JZ LAB_14170cb3b.
+        0x79, 0x08,                         // JNS LAB_14170cb2d.
+        0x49, 0x8b, 0xfe,                   // MOV RDI, R14.
+        0x49, 0x2b, 0xff,                   // SUB RDI, R15.
+        0xeb, 0x07,                         // JMP LAB_14170cb34.
+        0x4b, 0x8d, 0x1c, 0x3e,             // LEA RBX, [R14+R15].
+        0x48, 0x8b, 0xf5,                   // MOV RSI, RBP.
+        0x48, 0x3b, 0xdf,                   // CMP RBX, RDI.
+        0x76, 0xbe,                         // JBE LAB_14170caf7.
+        0xeb, 0x8a,                         // JMP LAB_14170cac5.
+        0x49, 0x8b, 0xc6,                   // MOV RAX, R14.
+        0xeb, 0x87,                         // JMP LAB_14170cac7.
+        0x45, 0x33, 0xf6,                   // XOR R14D, R14D.
+        0x48, 0x85, 0xf6,                   // TEST RSI, RSI.
+        0x0f, 0x84, 0x79, 0xff, 0xff, 0xff, // JZ LAB_14170cac5.
+        0x48, 0x8b, 0xd3,                   // MOV _Base, RBX.
+        0x49, 0x8b, 0xcd,                   // MOV _Key, R13.
+        0xff, 0x54, 0x24, 0x60,             // CALL [_PtFuncCompare].
+        0x85, 0xc0,                         // TEST EAX, EAX.
+        0x49, 0x0f, 0x45, 0xde,             // CMOVNZ RBX, R14.
+        0x48, 0x8b, 0xc3,                   // MOV RAX, RBX.
+        0xe9, 0x63, 0xff, 0xff, 0xff,       // JMP LAB_14170cac7.
     };
     std::vector<std::uint8_t> image_bytes = function_bytes;
     image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
@@ -678,8 +680,8 @@ TEST(DecompilerExamples, Example2BsearchEndToEnd) {
     providers.prototypes = metadata;
     providers.variables = metadata;
     Decompiler decompiler(std::move(architecture), std::move(providers));
-    const DecompilationResult result = decompiler.decompile(
-        FunctionDescription{"bsearch", 0x14170ca74, 0x14170ca74 + function_bytes.size()});
+    const DecompilationResult result =
+        decompiler.decompile(FunctionDescription{"bsearch", 0x14170ca74, 0x14170ca74 + function_bytes.size()});
 
     ASSERT_FALSE(result.raw_instructions.empty());
     ASSERT_FALSE(result.c_source.empty());
@@ -758,29 +760,44 @@ bsearch(void * _Key,void * _Base,size_t _NumOfElements,size_t _SizeOfElements,
 /// Exercises the iterator loop and indirect callback call from Example 4.
 TEST(DecompilerExamples, Example4VectorConstructorIteratorEndToEnd) {
     /// Supplies the typed iterator prototype and callback symbol metadata.
-    class TestProviders final : public SymbolProvider, public TypeProvider,
-                                public PrototypeProvider, public VariableProvider {
+    class TestProviders final : public SymbolProvider,
+                                public TypeProvider,
+                                public PrototypeProvider,
+                                public VariableProvider {
     public:
         /// Names the root function.
         [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
-            if (address == 0x140001500) return SymbolDescription{address, "vector_constructor_iterator", ""};
+            if (address == 0x140001500)
+                return SymbolDescription{address, "vector_constructor_iterator", ""};
             return std::nullopt;
         }
         /// Supplies primitive and callback pointer types.
         [[nodiscard]] std::optional<TypeDescription> type_named(std::string_view name) const override {
-            TypeDescription type; type.name = std::string(name);
-            if (name == "void") { type.size = 1; type.kind = TypeKind::void_type; }
-            else if (name == "int") { type.size = 4; type.kind = TypeKind::signed_integer; }
-            else if (name == "__uint64") { type.size = 8; type.kind = TypeKind::unsigned_integer; }
-            else if (name == "void *" || name == "_func_void_ptr_void_ptr *") {
-                type.size = 8; type.kind = TypeKind::pointer; type.element_type = "void";
-            } else return std::nullopt;
+            TypeDescription type;
+            type.name = std::string(name);
+            if (name == "void") {
+                type.size = 1;
+                type.kind = TypeKind::void_type;
+            } else if (name == "int") {
+                type.size = 4;
+                type.kind = TypeKind::signed_integer;
+            } else if (name == "__uint64") {
+                type.size = 8;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "void *" || name == "_func_void_ptr_void_ptr *") {
+                type.size = 8;
+                type.kind = TypeKind::pointer;
+                type.element_type = "void";
+            } else
+                return std::nullopt;
             return type;
         }
         /// Supplies the four documented iterator parameters.
         [[nodiscard]] std::optional<PrototypeDescription> prototype_at(std::uint64_t address) const override {
-            if (address != 0x140001500) return std::nullopt;
-            PrototypeDescription prototype; prototype.calling_convention = "__cdecl";
+            if (address != 0x140001500)
+                return std::nullopt;
+            PrototypeDescription prototype;
+            prototype.calling_convention = "__cdecl";
             prototype.return_type = "void";
             prototype.parameters = {
                 PrototypeParameterDescription{"param_1", "void *", Storage{"register", 8, 8}},
@@ -792,7 +809,8 @@ TEST(DecompilerExamples, Example4VectorConstructorIteratorEndToEnd) {
         }
         /// Supplies the saved register locals.
         [[nodiscard]] std::vector<VariableDescription> variables_at(std::uint64_t address) const override {
-            if (address != 0x140001500) return {};
+            if (address != 0x140001500)
+                return {};
             return {
                 VariableDescription{"local_res8", "undefined8", Storage{"stack", 8, 8}},
                 VariableDescription{"local_res10", "undefined8", Storage{"stack", 0x10, 8}},
@@ -802,38 +820,46 @@ TEST(DecompilerExamples, Example4VectorConstructorIteratorEndToEnd) {
     };
     // The following groups are the complete Example 4 instruction listing.
     const std::vector<std::uint8_t> function_bytes{
-        0x48, 0x89, 0x5c, 0x24, 0x08,                   // MOV [RSP+local_res8], RBX: save RBX.
-        0x48, 0x89, 0x6c, 0x24, 0x10,                   // MOV [RSP+local_res10], RBP: save RBP.
-        0x48, 0x89, 0x74, 0x24, 0x18,                   // MOV [RSP+local_res18], RSI: save RSI.
-        0x57,                                           // PUSH RDI: save RDI.
-        0x48, 0x83, 0xec, 0x20,                         // SUB RSP, 0x20: allocate the stack frame.
-        0x49, 0x8b, 0xf1,                               // MOV RSI, R9: save callback.
-        0x41, 0x8b, 0xd8,                               // MOV EBX, R8D: save element count.
-        0x48, 0x8b, 0xea,                               // MOV RBP, RDX: save element stride.
-        0x48, 0x8b, 0xf9,                               // MOV RDI, RCX: save current element.
-        0xeb, 0x08,                                     // JMP LAB_14000153a: enter loop check.
-        0x48, 0x8b, 0xcf,                               // MOV RCX, RDI: pass current element.
-        0xff, 0xd6,                                     // CALL RSI: invoke element constructor.
-        0x48, 0x03, 0xfd,                               // ADD RDI, RBP: advance by stride.
-        0xff, 0xcb,                                     // DEC EBX: decrement remaining count.
-        0x79, 0xf4,                                     // JNS LAB_140001532: continue while non-negative.
-        0x48, 0x8b, 0x5c, 0x24, 0x30,                   // MOV RBX, [RSP+local_res8]: restore RBX.
-        0x48, 0x8b, 0x6c, 0x24, 0x38,                   // MOV RBP, [RSP+local_res10]: restore RBP.
-        0x48, 0x8b, 0x74, 0x24, 0x40,                   // MOV RSI, [RSP+local_res18]: restore RSI.
-        0x48, 0x83, 0xc4, 0x20,                         // ADD RSP, 0x20: release the stack frame.
-        0x5f,                                           // POP RDI: restore RDI.
-        0xc3,                                           // RET: return.
+        0x48, 0x89, 0x5c, 0x24, 0x08, // MOV [RSP+local_res8], RBX: save RBX.
+        0x48, 0x89, 0x6c, 0x24, 0x10, // MOV [RSP+local_res10], RBP: save RBP.
+        0x48, 0x89, 0x74, 0x24, 0x18, // MOV [RSP+local_res18], RSI: save RSI.
+        0x57,                         // PUSH RDI: save RDI.
+        0x48, 0x83, 0xec, 0x20,       // SUB RSP, 0x20: allocate the stack frame.
+        0x49, 0x8b, 0xf1,             // MOV RSI, R9: save callback.
+        0x41, 0x8b, 0xd8,             // MOV EBX, R8D: save element count.
+        0x48, 0x8b, 0xea,             // MOV RBP, RDX: save element stride.
+        0x48, 0x8b, 0xf9,             // MOV RDI, RCX: save current element.
+        0xeb, 0x08,                   // JMP LAB_14000153a: enter loop check.
+        0x48, 0x8b, 0xcf,             // MOV RCX, RDI: pass current element.
+        0xff, 0xd6,                   // CALL RSI: invoke element constructor.
+        0x48, 0x03, 0xfd,             // ADD RDI, RBP: advance by stride.
+        0xff, 0xcb,                   // DEC EBX: decrement remaining count.
+        0x79, 0xf4,                   // JNS LAB_140001532: continue while non-negative.
+        0x48, 0x8b, 0x5c, 0x24, 0x30, // MOV RBX, [RSP+local_res8]: restore RBX.
+        0x48, 0x8b, 0x6c, 0x24, 0x38, // MOV RBP, [RSP+local_res10]: restore RBP.
+        0x48, 0x8b, 0x74, 0x24, 0x40, // MOV RSI, [RSP+local_res18]: restore RSI.
+        0x48, 0x83, 0xc4, 0x20,       // ADD RSP, 0x20: release the stack frame.
+        0x5f,                         // POP RDI: restore RDI.
+        0xc3,                         // RET: return.
     };
-    std::vector<std::uint8_t> image_bytes = function_bytes; image_bytes.insert(image_bytes.end(), 16, 0x90);
+    std::vector<std::uint8_t> image_bytes = function_bytes;
+    image_bytes.insert(image_bytes.end(), 16, 0x90);
     auto memory = std::make_shared<SparseMemory>(0x140001500, std::move(image_bytes));
     SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
-                                 {{"addrsize",2},{"opsize",1},{"rexprefix",0},{"longMode",1}});
-    ArchitectureDescription architecture = test_architecture(); architecture.calling_convention = "__cdecl";
-    ProviderContext providers; providers.pcode = std::make_shared<SleighPcodeProvider>(std::move(provider));
-    providers.memory = memory; auto metadata = std::make_shared<TestProviders>();
-    providers.symbols = metadata; providers.types = metadata; providers.prototypes = metadata; providers.variables = metadata;
+                                 {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
+    ArchitectureDescription architecture = test_architecture();
+    architecture.calling_convention = "__cdecl";
+    ProviderContext providers;
+    providers.pcode = std::make_shared<SleighPcodeProvider>(std::move(provider));
+    providers.memory = memory;
+    auto metadata = std::make_shared<TestProviders>();
+    providers.symbols = metadata;
+    providers.types = metadata;
+    providers.prototypes = metadata;
+    providers.variables = metadata;
     Decompiler decompiler(std::move(architecture), std::move(providers));
-    const DecompilationResult result = decompiler.decompile(FunctionDescription{"vector_constructor_iterator",0x140001500,0x140001500+function_bytes.size()});
+    const DecompilationResult result = decompiler.decompile(
+        FunctionDescription{"vector_constructor_iterator", 0x140001500, 0x140001500 + function_bytes.size()});
     ASSERT_FALSE(result.c_source.empty());
     const std::string expected_c = R"(
 void __cdecl
@@ -860,30 +886,45 @@ vector_constructor_iterator
 /// Exercises the bounded slot append and typed allocation call from Example 5.
 TEST(DecompilerExamples, Example5SlotAppendEndToEnd) {
     /// Supplies the function, allocator child, primitive types, and prototype.
-    class TestProviders final : public SymbolProvider, public TypeProvider,
-                                public PrototypeProvider, public VariableProvider {
+    class TestProviders final : public SymbolProvider,
+                                public TypeProvider,
+                                public PrototypeProvider,
+                                public VariableProvider {
     public:
         /// Names the root and dynamically discovered allocator child.
         [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
-            if (address == 0x141501684) return SymbolDescription{address, "FUN_141501684", ""};
-            if (address != 0) return SymbolDescription{address, "FUN_140001044", ""};
+            if (address == 0x141501684)
+                return SymbolDescription{address, "FUN_141501684", ""};
+            if (address != 0)
+                return SymbolDescription{address, "FUN_140001044", ""};
             return std::nullopt;
         }
         /// Supplies integer and pointer types used by the table update.
         [[nodiscard]] std::optional<TypeDescription> type_named(std::string_view name) const override {
-            TypeDescription type; type.name = std::string(name);
-            if (name == "void") { type.size=1; type.kind=TypeKind::void_type; }
-            else if (name == "int") { type.size=4; type.kind=TypeKind::signed_integer; }
-            else if (name == "longlong" || name == "ulonglong" || name == "undefined8") { type.size=8; type.kind=TypeKind::unsigned_integer; }
-            else if (name == "longlong *" || name == "undefined8 *" || name == "void *") { type.size=8; type.kind=TypeKind::pointer; type.element_type="undefined8"; }
-            else return std::nullopt;
+            TypeDescription type;
+            type.name = std::string(name);
+            if (name == "void") {
+                type.size = 1;
+                type.kind = TypeKind::void_type;
+            } else if (name == "int") {
+                type.size = 4;
+                type.kind = TypeKind::signed_integer;
+            } else if (name == "longlong" || name == "ulonglong" || name == "undefined8") {
+                type.size = 8;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "longlong *" || name == "undefined8 *" || name == "void *") {
+                type.size = 8;
+                type.kind = TypeKind::pointer;
+                type.element_type = "undefined8";
+            } else
+                return std::nullopt;
             return type;
         }
         /// Supplies the root ABI and allocator return prototype.
         [[nodiscard]] std::optional<PrototypeDescription> prototype_at(std::uint64_t address) const override {
             PrototypeDescription prototype;
             if (address == 0x141501684) {
-                prototype.return_type="void";
+                prototype.return_type = "void";
                 prototype.parameters = {
                     PrototypeParameterDescription{"param_1", "longlong", Storage{"register", 8, 8}},
                     PrototypeParameterDescription{"param_2", "ulonglong", Storage{"register", 0x10, 8}},
@@ -891,56 +932,75 @@ TEST(DecompilerExamples, Example5SlotAppendEndToEnd) {
                 };
                 return prototype;
             }
-            if (address != 0) { prototype.return_type="void *"; prototype.return_storage=Storage{"register",0,8}; return prototype; }
+            if (address != 0) {
+                prototype.return_type = "void *";
+                prototype.return_storage = Storage{"register", 0, 8};
+                return prototype;
+            }
             return std::nullopt;
         }
         /// Supplies saved-register locals for the bounded slot function.
         [[nodiscard]] std::vector<VariableDescription> variables_at(std::uint64_t address) const override {
-            if (address != 0x141501684) return {};
-            return {VariableDescription{"local_res8","undefined8",Storage{"stack",8,8}}, VariableDescription{"local_res10","undefined8",Storage{"stack",0x10,8}}, VariableDescription{"local_res18","undefined8",Storage{"stack",0x18,8}}};
+            if (address != 0x141501684)
+                return {};
+            return {VariableDescription{"local_res8", "undefined8", Storage{"stack", 8, 8}},
+                    VariableDescription{"local_res10", "undefined8", Storage{"stack", 0x10, 8}},
+                    VariableDescription{"local_res18", "undefined8", Storage{"stack", 0x18, 8}}};
         }
     };
     // The following groups are the complete Example 5 instruction listing.
     const std::vector<std::uint8_t> function_bytes{
-        0x48, 0x89, 0x5c, 0x24, 0x08,                   // MOV [RSP+local_res8], RBX: save RBX.
-        0x48, 0x89, 0x6c, 0x24, 0x10,                   // MOV [RSP+local_res10], RBP: save RBP.
-        0x48, 0x89, 0x74, 0x24, 0x18,                   // MOV [RSP+local_res18], RSI: save RSI.
-        0x57,                                           // PUSH RDI: save RDI.
-        0x48, 0x83, 0xec, 0x20,                         // SUB RSP, 0x20: allocate the stack frame.
-        0x0f, 0xb6, 0xfa,                               // MOVZX EDI, DL: mask the slot selector.
-        0x49, 0x8b, 0xe8,                               // MOV RBP, R8: save param_3.
-        0x48, 0x8b, 0xf2,                               // MOV RSI, RDX: save param_2.
-        0x48, 0x8b, 0x04, 0xf9,                         // MOV RAX, [RCX+RDI*8]: load the slot record.
-        0x48, 0x8b, 0xd9,                               // MOV RBX, RCX: save table base.
-        0x48, 0x85, 0xc0,                               // TEST RAX, RAX: check for an empty slot.
-        0x74, 0x06,                                     // JZ LAB_1415016b3: allocate when empty.
-        0x83, 0x78, 0x40, 0x07,                         // CMP [RAX+0x40], 0x7: check record capacity.
-        0x75, 0x19,                                     // JNZ LAB_1415016cc: append to a non-full record.
-        0xb9, 0x80, 0x00, 0x00, 0x00,                   // MOV ECX, 0x80: request record allocation.
-        0xe8, 0x87, 0xf9, 0xaf, 0xfe,                   // CALL FUN_140001044: allocate a record.
-        0x48, 0x8b, 0x0c, 0xfb,                         // MOV RCX, [RBX+RDI*8]: load previous slot head.
-        0x83, 0x60, 0x40, 0x00,                         // AND [RAX+0x40], 0: clear record count.
-        0x48, 0x89, 0x08,                               // MOV [RAX], RCX: link previous slot head.
-        0x48, 0x89, 0x04, 0xfb,                         // MOV [RBX+RDI*8], RAX: publish new record.
-        0x8b, 0x48, 0x40,                               // MOV ECX, [RAX+0x40]: load record count.
-        0x48, 0x8b, 0x5c, 0x24, 0x30,                   // MOV RBX, [RSP+local_res8]: restore RBX.
-        0x48, 0x89, 0x74, 0xc8, 0x48,                   // MOV [RAX+RCX*8+0x48], RSI: store param_2.
-        0x48, 0x8b, 0x48, 0x40,                         // MOV RCX, [RAX+0x40]: reload record count.
-        0x48, 0x8b, 0x74, 0x24, 0x40,                   // MOV RSI, [RSP+local_res18]: restore RSI.
-        0x48, 0x89, 0x6c, 0xc8, 0x08,                   // MOV [RAX+RCX*8+0x8], RBP: store param_3.
-        0xff, 0x40, 0x40,                               // INC [RAX+0x40]: increment record count.
-        0x48, 0x8b, 0x6c, 0x24, 0x38,                   // MOV RBP, [RSP+local_res10]: restore RBP.
-        0x48, 0x83, 0xc4, 0x20,                         // ADD RSP, 0x20: release the stack frame.
-        0x5f,                                           // POP RDI: restore RDI.
-        0xc3,                                           // RET: return.
+        0x48, 0x89, 0x5c, 0x24, 0x08, // MOV [RSP+local_res8], RBX: save RBX.
+        0x48, 0x89, 0x6c, 0x24, 0x10, // MOV [RSP+local_res10], RBP: save RBP.
+        0x48, 0x89, 0x74, 0x24, 0x18, // MOV [RSP+local_res18], RSI: save RSI.
+        0x57,                         // PUSH RDI: save RDI.
+        0x48, 0x83, 0xec, 0x20,       // SUB RSP, 0x20: allocate the stack frame.
+        0x0f, 0xb6, 0xfa,             // MOVZX EDI, DL: mask the slot selector.
+        0x49, 0x8b, 0xe8,             // MOV RBP, R8: save param_3.
+        0x48, 0x8b, 0xf2,             // MOV RSI, RDX: save param_2.
+        0x48, 0x8b, 0x04, 0xf9,       // MOV RAX, [RCX+RDI*8]: load the slot record.
+        0x48, 0x8b, 0xd9,             // MOV RBX, RCX: save table base.
+        0x48, 0x85, 0xc0,             // TEST RAX, RAX: check for an empty slot.
+        0x74, 0x06,                   // JZ LAB_1415016b3: allocate when empty.
+        0x83, 0x78, 0x40, 0x07,       // CMP [RAX+0x40], 0x7: check record capacity.
+        0x75, 0x19,                   // JNZ LAB_1415016cc: append to a non-full record.
+        0xb9, 0x80, 0x00, 0x00, 0x00, // MOV ECX, 0x80: request record allocation.
+        0xe8, 0x87, 0xf9, 0xaf, 0xfe, // CALL FUN_140001044: allocate a record.
+        0x48, 0x8b, 0x0c, 0xfb,       // MOV RCX, [RBX+RDI*8]: load previous slot head.
+        0x83, 0x60, 0x40, 0x00,       // AND [RAX+0x40], 0: clear record count.
+        0x48, 0x89, 0x08,             // MOV [RAX], RCX: link previous slot head.
+        0x48, 0x89, 0x04, 0xfb,       // MOV [RBX+RDI*8], RAX: publish new record.
+        0x8b, 0x48, 0x40,             // MOV ECX, [RAX+0x40]: load record count.
+        0x48, 0x8b, 0x5c, 0x24, 0x30, // MOV RBX, [RSP+local_res8]: restore RBX.
+        0x48, 0x89, 0x74, 0xc8, 0x48, // MOV [RAX+RCX*8+0x48], RSI: store param_2.
+        0x48, 0x8b, 0x48, 0x40,       // MOV RCX, [RAX+0x40]: reload record count.
+        0x48, 0x8b, 0x74, 0x24, 0x40, // MOV RSI, [RSP+local_res18]: restore RSI.
+        0x48, 0x89, 0x6c, 0xc8, 0x08, // MOV [RAX+RCX*8+0x8], RBP: store param_3.
+        0xff, 0x40, 0x40,             // INC [RAX+0x40]: increment record count.
+        0x48, 0x8b, 0x6c, 0x24, 0x38, // MOV RBP, [RSP+local_res10]: restore RBP.
+        0x48, 0x83, 0xc4, 0x20,       // ADD RSP, 0x20: release the stack frame.
+        0x5f,                         // POP RDI: restore RDI.
+        0xc3,                         // RET: return.
     };
-    std::vector<std::uint8_t> image_bytes = function_bytes; image_bytes.insert(image_bytes.end(),16,0x90);
-    auto memory = std::make_shared<SparseMemory>(0x141501684,std::move(image_bytes));
-    SleighPcodeProvider provider(std::filesystem::path("..")/"sleigh_runtime"/"test_data"/"x86-64.sla",memory,{{"addrsize",2},{"opsize",1},{"rexprefix",0},{"longMode",1}});
-    ArchitectureDescription architecture=test_architecture(); ProviderContext providers; providers.pcode=std::make_shared<SleighPcodeProvider>(std::move(provider)); providers.memory=memory;
-    auto metadata=std::make_shared<TestProviders>(); providers.symbols=metadata; providers.types=metadata; providers.prototypes=metadata; providers.variables=metadata;
-    Decompiler decompiler(std::move(architecture),std::move(providers)); const DecompilationResult result=decompiler.decompile(FunctionDescription{"FUN_141501684",0x141501684,0x141501684+function_bytes.size()});
-    ASSERT_FALSE(result.c_source.empty()); const std::string expected_c = R"(
+    std::vector<std::uint8_t> image_bytes = function_bytes;
+    image_bytes.insert(image_bytes.end(), 16, 0x90);
+    auto memory = std::make_shared<SparseMemory>(0x141501684, std::move(image_bytes));
+    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+                                 {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
+    ArchitectureDescription architecture = test_architecture();
+    ProviderContext providers;
+    providers.pcode = std::make_shared<SleighPcodeProvider>(std::move(provider));
+    providers.memory = memory;
+    auto metadata = std::make_shared<TestProviders>();
+    providers.symbols = metadata;
+    providers.types = metadata;
+    providers.prototypes = metadata;
+    providers.variables = metadata;
+    Decompiler decompiler(std::move(architecture), std::move(providers));
+    const DecompilationResult result =
+        decompiler.decompile(FunctionDescription{"FUN_141501684", 0x141501684, 0x141501684 + function_bytes.size()});
+    ASSERT_FALSE(result.c_source.empty());
+    const std::string expected_c = R"(
 void __cdecl FUN_141501684(longlong param_1,ulonglong param_2,undefined8 param_3)
 
 {
@@ -962,7 +1022,10 @@ void __cdecl FUN_141501684(longlong param_1,ulonglong param_2,undefined8 param_3
   *(int4 *)(puVar1 + 8) = (int4)puVar1[8] + 1;
   return;
 }
-)"; EXPECT_NE(result.c_source.find("FUN_141501684"),std::string::npos); EXPECT_NE(result.c_source.find("FUN_140001044"),std::string::npos); EXPECT_EQ(result.c_source, expected_c);
+)";
+    EXPECT_NE(result.c_source.find("FUN_141501684"), std::string::npos);
+    EXPECT_NE(result.c_source.find("FUN_140001044"), std::string::npos);
+    EXPECT_EQ(result.c_source, expected_c);
 }
 
 /// Verifies that the production p-code provider consumes bytes through NEW's

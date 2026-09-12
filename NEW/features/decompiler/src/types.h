@@ -41,23 +41,26 @@ typedef int8_t int1;
 /* uintp is intended to be an unsigned integer that is the same size as a pointer */
 typedef uintptr_t uintp;
 
-#if defined (__x86_64__) || defined (__i386__)
+#if defined(__x86_64__) || defined(__i386__)
 #define HOST_ENDIAN 0
 
 #else // other platforms (not compatible with g++ 4.8.5)
 class Endian {
 public:
-  static constexpr const union { int4 whole; int1 part[4]; } host = { 1 };
+    static constexpr const union {
+        int4 whole;
+        int1 part[4];
+    } host = {1};
 };
 #define HOST_ENDIAN Endian::host.part[3]
 #endif
 
 #if defined(_WINDOWS)
-#pragma warning (disable:4312)
-#pragma warning (disable:4311)
-#pragma warning (disable:4267)
-#pragma warning (disable:4018)
-#pragma warning (disable:4244)
+#pragma warning(disable : 4312)
+#pragma warning(disable : 4311)
+#pragma warning(disable : 4267)
+#pragma warning(disable : 4018)
+#pragma warning(disable : 4244)
 
 /*
  The windows standard template library list implementation seems to have a philosophical difference with
@@ -65,8 +68,8 @@ public:
  (via the splice method) These defines turn off the validity checks
  (These have been moved to the VC project spec)
  */
-//#define _SECURE_SCL 0
-//#define _HAS_ITERATOR_DEBUGGING 0
+// #define _SECURE_SCL 0
+// #define _HAS_ITERATOR_DEBUGGING 0
 #endif
 
 /*
@@ -76,8 +79,8 @@ public:
                 precision integers that store as big a number as you would ever need.
 */
 
-typedef int8 intb;		/* This is a signed big integer */
-typedef uint8 uintb;		/* This is an unsigned big integer */
+typedef int8 intb;   /* This is a signed big integer */
+typedef uint8 uintb; /* This is an unsigned big integer */
 
 /*
 
@@ -88,14 +91,14 @@ CPUI_DEBUG        --    This is the ONE debug switch that should be passed in
 */
 
 #ifdef CPUI_DEBUG
-# define OPACTION_DEBUG
-# define PRETTY_DEBUG
-# define TYPEPROP_DEBUG
-//# define __REMOTE_SOCKET__
-//# define DFSVERIFY_DEBUG
-//# define BLOCKCONSISTENT_DEBUG
-//# define MERGEMULTI_DEBUG
-//# define VARBANK_DEBUG
+#define OPACTION_DEBUG
+#define PRETTY_DEBUG
+#define TYPEPROP_DEBUG
+// # define __REMOTE_SOCKET__
+// # define DFSVERIFY_DEBUG
+// # define BLOCKCONSISTENT_DEBUG
+// # define MERGEMULTI_DEBUG
+// # define VARBANK_DEBUG
 #endif
 
 } // End namespace ghidra

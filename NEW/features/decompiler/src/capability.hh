@@ -6,9 +6,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,13 +21,14 @@
 #define __CAPABILITY_HH__
 
 #include "types.h"
-#include <vector>
+
 #include <string>
+#include <vector>
 
 namespace ghidra {
 
-using std::vector;
 using std::string;
+using std::vector;
 
 /// \brief Class for automatically registering extension points to the decompiler
 ///
@@ -39,18 +40,18 @@ using std::string;
 /// will ensure that the initialize() method is called on each extension, allowing it
 /// to complete its integration.
 class CapabilityPoint {
-  static vector<CapabilityPoint *> &getList(void);	///< Retrieve the list of extension point singletons
+    static vector<CapabilityPoint*>& getList(void); ///< Retrieve the list of extension point singletons
 protected:
-  CapabilityPoint(void);		///< Construct extension capability exactly once
+    CapabilityPoint(void); ///< Construct extension capability exactly once
 public:
-  virtual ~CapabilityPoint(void) {}	///< Destructor
+    virtual ~CapabilityPoint(void) {} ///< Destructor
 
-  /// \brief Complete initialization of an extension point
-  ///
-  /// This method is implemented by each extension so it can do specialized integration
-  virtual void initialize(void)=0;
+    /// \brief Complete initialization of an extension point
+    ///
+    /// This method is implemented by each extension so it can do specialized integration
+    virtual void initialize(void) = 0;
 
-  static void initializeAll(void);	///< Finish initialization for all extension points
+    static void initializeAll(void); ///< Finish initialization for all extension points
 };
 
 } // End namespace ghidra

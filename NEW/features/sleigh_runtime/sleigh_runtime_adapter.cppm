@@ -60,7 +60,7 @@ public:
         }
         if ((opcode == ghidra::CPUI_LOAD || opcode == ghidra::CPUI_STORE) && input_count > 0 &&
             inputs[0].space != nullptr && inputs[0].space->getType() == ghidra::IPTR_CONSTANT) {
-            auto *memory_space = reinterpret_cast<ghidra::AddrSpace *>(inputs[0].offset);
+            auto* memory_space = reinterpret_cast<ghidra::AddrSpace*>(inputs[0].offset);
             if (memory_space != nullptr) {
                 op.memory_space = memory_space->getName();
             }

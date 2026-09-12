@@ -21,8 +21,8 @@
 /// \file merge.hh
 /// \brief Utilities for merging low-level Varnodes into high-level variables
 
-#include "op.hh"
 #include "expression.hh"
+#include "op.hh"
 
 namespace ghidra {
 
@@ -32,14 +32,20 @@ namespace ghidra {
 /// If a Varnode does not have a defining PcodeOp it is assigned an index of 0.
 /// This facilitates quicker sorting of Varnodes based on their defining block.
 class BlockVarnode {
-  int4 index;		///< Index of BlockBasic defining Varnode
-  Varnode *vn;		///< The Varnode itself
+    int4 index;  ///< Index of BlockBasic defining Varnode
+    Varnode* vn; ///< The Varnode itself
 public:
-  void set(Varnode *v);		///< Set \b this as representing the given Varnode
-  bool operator<(const BlockVarnode &op2) const { return (index < op2.index); } ///< Comparator
-  Varnode *getVarnode(void) const { return vn; } ///< Get the Varnode represented by \b this
-  int4 getIndex(void) const { return index; }	 ///< Get the Varnode's defining block index
-  static int4 findFront(int4 blocknum,const vector<BlockVarnode> &list);
+    void set(Varnode* v); ///< Set \b this as representing the given Varnode
+    bool operator<(const BlockVarnode& op2) const {
+        return (index < op2.index);
+    } ///< Comparator
+    Varnode* getVarnode(void) const {
+        return vn;
+    } ///< Get the Varnode represented by \b this
+    int4 getIndex(void) const {
+        return index;
+    } ///< Get the Varnode's defining block index
+    static int4 findFront(int4 blocknum, const vector<BlockVarnode>& list);
 };
 
 class Funcdata;
@@ -52,11 +58,11 @@ class Funcdata;
 /// of the Cover of an address tied Varnode and a PcodeOp in this set, affectsTest() can do
 /// secondary testing of whether the Varnode is actually modified by the PcodeOp.
 class StackAffectingOps : public PcodeOpSet {
-  Funcdata &data;		///< The function containing these ops
+    Funcdata& data; ///< The function containing these ops
 public:
-  StackAffectingOps(Funcdata &fd) : data(fd) {}	///< Constructor
-  virtual void populate(void);
-  virtual bool affectsTest(PcodeOp *op,Varnode *vn) const;
+    StackAffectingOps(Funcdata& fd) : data(fd) {} ///< Constructor
+    virtual void populate(void);
+    virtual bool affectsTest(PcodeOp* op, Varnode* vn) const;
 };
 
 /// \brief Class for merging low-level Varnodes into high-level HighVariables
@@ -83,60 +89,62 @@ public:
 ///   - Merging an input and output Varnode of a single p-code op
 ///   - Merging Varnodes that hold the same data-type
 class Merge {
-  Funcdata &data;		///< The function containing the Varnodes to be merged
-  StackAffectingOps stackAffectingOps;		///< Set of CALL and STORE ops indirectly affecting stack variables
-  HighIntersectTest testCache;	///< Cached intersection tests
-  vector<PcodeOp *> copyTrims;	///< COPY ops inserted to facilitate merges
-  vector<PcodeOp *> protoPartial;	///< Roots of unmapped CONCAT trees
-  static bool mergeTestRequired(HighVariable *high_out,HighVariable *high_in);
-  static bool mergeTestAdjacent(HighVariable *high_out,HighVariable *high_in);
-  static bool mergeTestSpeculative(HighVariable *high_out,HighVariable *high_in);
-  static void mergeTestMust(Varnode *vn);
-  static bool mergeTestBasic(Varnode *vn);
-  static void findSingleCopy(HighVariable *high,vector<Varnode *> &singlelist);
-  static bool compareHighByBlock(const HighVariable *a,const HighVariable *b);
-  static bool compareCopyByInVarnode(PcodeOp *op1,PcodeOp *op2);
-  static bool shadowedVarnode(const Varnode *vn);
-  static void findAllIntoCopies(HighVariable *high,vector<PcodeOp *> &copyIns,bool filterTemps);
-  void collectInputs(HighVariable *high,vector<PcodeOpNode> &oplist,PcodeOp *op);
-  PcodeOp *allocateCopyTrim(Varnode *inVn,const Address &addr,PcodeOp *trimOp);
-  void snipReads(Varnode *vn,list<PcodeOp *> &markedop);
-  bool snipOutputInterference(PcodeOp *indop);
-  void eliminateIntersect(Varnode *vn,const vector<BlockVarnode> &blocksort);
-  void unifyAddress(VarnodeLocSet::const_iterator startiter,VarnodeLocSet::const_iterator enditer);
-  void trimOpOutput(PcodeOp *op);
-  void trimOpInput(PcodeOp *op,int4 slot);
-  void mergeRangeMust(VarnodeLocSet::const_iterator startiter,VarnodeLocSet::const_iterator enditer);
-  void mergeOp(PcodeOp *op);
-  void mergeIndirect(PcodeOp *indop);
-  void mergeLinear(vector<HighVariable *> &highvec);
-  bool merge(HighVariable *high1,HighVariable *high2,bool isspeculative);
-  bool checkCopyPair(HighVariable *high,PcodeOp *domOp,PcodeOp *subOp);
-  void buildDominantCopy(HighVariable *high,vector<PcodeOp *> &copy,int4 pos,int4 size);
-  void markRedundantCopies(HighVariable *high,vector<PcodeOp *> &copy,int4 pos,int4 size);
-  void processHighDominantCopy(HighVariable *high);
-  void processHighRedundantCopy(HighVariable *high);
-  void groupPartialRoot(Varnode *vn);
-public:
-  Merge(Funcdata &fd) : data(fd), stackAffectingOps(fd), testCache(stackAffectingOps) {} ///< Construct given a specific function
-  void clear(void);
-  static void markImplied(Varnode *vn);
-  bool inflateTest(Varnode *a,HighVariable *high);
-  bool mergeTest(HighVariable *high,vector<HighVariable *> &tmplist);
+    Funcdata& data;                      ///< The function containing the Varnodes to be merged
+    StackAffectingOps stackAffectingOps; ///< Set of CALL and STORE ops indirectly affecting stack variables
+    HighIntersectTest testCache;         ///< Cached intersection tests
+    vector<PcodeOp*> copyTrims;          ///< COPY ops inserted to facilitate merges
+    vector<PcodeOp*> protoPartial;       ///< Roots of unmapped CONCAT trees
+    static bool mergeTestRequired(HighVariable* high_out, HighVariable* high_in);
+    static bool mergeTestAdjacent(HighVariable* high_out, HighVariable* high_in);
+    static bool mergeTestSpeculative(HighVariable* high_out, HighVariable* high_in);
+    static void mergeTestMust(Varnode* vn);
+    static bool mergeTestBasic(Varnode* vn);
+    static void findSingleCopy(HighVariable* high, vector<Varnode*>& singlelist);
+    static bool compareHighByBlock(const HighVariable* a, const HighVariable* b);
+    static bool compareCopyByInVarnode(PcodeOp* op1, PcodeOp* op2);
+    static bool shadowedVarnode(const Varnode* vn);
+    static void findAllIntoCopies(HighVariable* high, vector<PcodeOp*>& copyIns, bool filterTemps);
+    void collectInputs(HighVariable* high, vector<PcodeOpNode>& oplist, PcodeOp* op);
+    PcodeOp* allocateCopyTrim(Varnode* inVn, const Address& addr, PcodeOp* trimOp);
+    void snipReads(Varnode* vn, list<PcodeOp*>& markedop);
+    bool snipOutputInterference(PcodeOp* indop);
+    void eliminateIntersect(Varnode* vn, const vector<BlockVarnode>& blocksort);
+    void unifyAddress(VarnodeLocSet::const_iterator startiter, VarnodeLocSet::const_iterator enditer);
+    void trimOpOutput(PcodeOp* op);
+    void trimOpInput(PcodeOp* op, int4 slot);
+    void mergeRangeMust(VarnodeLocSet::const_iterator startiter, VarnodeLocSet::const_iterator enditer);
+    void mergeOp(PcodeOp* op);
+    void mergeIndirect(PcodeOp* indop);
+    void mergeLinear(vector<HighVariable*>& highvec);
+    bool merge(HighVariable* high1, HighVariable* high2, bool isspeculative);
+    bool checkCopyPair(HighVariable* high, PcodeOp* domOp, PcodeOp* subOp);
+    void buildDominantCopy(HighVariable* high, vector<PcodeOp*>& copy, int4 pos, int4 size);
+    void markRedundantCopies(HighVariable* high, vector<PcodeOp*>& copy, int4 pos, int4 size);
+    void processHighDominantCopy(HighVariable* high);
+    void processHighRedundantCopy(HighVariable* high);
+    void groupPartialRoot(Varnode* vn);
 
-  void mergeOpcode(OpCode opc);
-  void mergeByDatatype(VarnodeLocSet::const_iterator startiter,VarnodeLocSet::const_iterator enditer);
-  void mergeAddrTied(void);
-  void mergeMarker(void);
-  void groupPartials(void);
-  void mergeAdjacent(void);
-  void mergeMultiEntry(void);
-  bool hideShadows(HighVariable *high);
-  void processCopyTrims(void);
-  void markInternalCopies(void);
-  void registerProtoPartialRoot(Varnode *vn);
+public:
+    Merge(Funcdata& fd)
+        : data(fd), stackAffectingOps(fd), testCache(stackAffectingOps) {} ///< Construct given a specific function
+    void clear(void);
+    static void markImplied(Varnode* vn);
+    bool inflateTest(Varnode* a, HighVariable* high);
+    bool mergeTest(HighVariable* high, vector<HighVariable*>& tmplist);
+
+    void mergeOpcode(OpCode opc);
+    void mergeByDatatype(VarnodeLocSet::const_iterator startiter, VarnodeLocSet::const_iterator enditer);
+    void mergeAddrTied(void);
+    void mergeMarker(void);
+    void groupPartials(void);
+    void mergeAdjacent(void);
+    void mergeMultiEntry(void);
+    bool hideShadows(HighVariable* high);
+    void processCopyTrims(void);
+    void markInternalCopies(void);
+    void registerProtoPartialRoot(Varnode* vn);
 #ifdef MERGEMULTI_DEBUG
-  void verifyHighCovers(void);
+    void verifyHighCovers(void);
 #endif
 };
 
@@ -151,28 +159,27 @@ public:
 /// \param a is the first HighVariable to compare
 /// \param b is the second HighVariable
 /// \return \b true if the first HighVariable should be ordered before the second
-inline bool Merge::compareHighByBlock(const HighVariable *a,const HighVariable *b)
+inline bool Merge::compareHighByBlock(const HighVariable* a, const HighVariable* b)
 
 {
-  int4 result = a->getCover().compareTo(b->getCover());
-  if ( result == 0 ) {
-    Varnode *v1 = a->getInstance( 0 );
-    Varnode *v2 = b->getInstance( 0 );
-    
-    if ( v1->getAddr() == v2->getAddr() ) {
-      PcodeOp *def1 = v1->getDef();
-      PcodeOp *def2 = v2->getDef();
-      if ( def1 == (PcodeOp *) 0 ) {
-	return def2 != (PcodeOp *) 0;
-      }
-      else if ( def2 == (PcodeOp *) 0 ) {
-	return false;
-      }
-      return (def1->getAddr() < def2->getAddr());
+    int4 result = a->getCover().compareTo(b->getCover());
+    if (result == 0) {
+        Varnode* v1 = a->getInstance(0);
+        Varnode* v2 = b->getInstance(0);
+
+        if (v1->getAddr() == v2->getAddr()) {
+            PcodeOp* def1 = v1->getDef();
+            PcodeOp* def2 = v2->getDef();
+            if (def1 == (PcodeOp*)0) {
+                return def2 != (PcodeOp*)0;
+            } else if (def2 == (PcodeOp*)0) {
+                return false;
+            }
+            return (def1->getAddr() < def2->getAddr());
+        }
+        return (v1->getAddr() < v2->getAddr());
     }
-    return (v1->getAddr() < v2->getAddr());
-  }
-  return (result < 0);
+    return (result < 0);
 }
 
 } // End namespace ghidra
