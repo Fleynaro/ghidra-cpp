@@ -41,6 +41,180 @@ public:
     }
 };
 
+/// Provides a one-byte COPY/RETURN sequence using deliberately non-x86 space
+/// and register names. This catches bootstrap code that silently assumes RAX,
+/// RSP, or the conventional `ram` space.
+class GenericInstructionProvider final : public PcodeProvider {
+public:
+    /// Constructs the deterministic generic instruction provider.
+    GenericInstructionProvider() = default;
+
+    /// Returns one instruction at address zero and rejects unmapped addresses.
+    [[nodiscard]] std::expected<Instruction, ProviderError> decode(std::uint64_t address) const override {
+        if (address != 0) {
+            return std::unexpected(ProviderError{"GenericInstructionProvider has no instruction at this address"});
+        }
+        Instruction instruction;
+        instruction.address = address;
+        instruction.length = 1;
+        instruction.mnemonic = "load-immediate";
+        instruction.assembly = "A0, 1";
+        instruction.pcode.push_back(PcodeOperation{std::to_underlying(sleigh_runtime::PcodeOpcode::copy),
+                                                   Storage{"registers", 0, 4},
+                                                   {Storage{"const", 1, 4}}});
+        instruction.pcode.push_back(PcodeOperation{
+            std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt, {Storage{"const", 0, 4}}});
+        return instruction;
+    }
+};
+
+/// Provides LOAD and STORE operations whose memory selector is carried solely
+/// by `memory_space`, as required by the frontend contract.
+class MemoryOperandProvider final : public PcodeProvider {
+public:
+    /// Constructs the memory operand provider.
+    MemoryOperandProvider() = default;
+
+    /// Returns one instruction with address/value operands and no legacy selector.
+    [[nodiscard]] std::expected<Instruction, ProviderError> decode(std::uint64_t address) const override {
+        if (address != 0) {
+            return std::unexpected(ProviderError{"MemoryOperandProvider has no instruction at this address"});
+        }
+        Instruction instruction;
+        instruction.address = address;
+        instruction.length = 1;
+        instruction.pcode.push_back(PcodeOperation{std::to_underlying(sleigh_runtime::PcodeOpcode::load),
+                                                   Storage{"registers", 0, 4},
+                                                   {Storage{"const", 0, 4}},
+                                                   std::optional<std::string>{"data"}});
+        instruction.pcode.push_back(PcodeOperation{std::to_underlying(sleigh_runtime::PcodeOpcode::store),
+                                                   std::nullopt,
+                                                   {Storage{"const", 4, 4}, Storage{"const", 1, 4}},
+                                                   std::optional<std::string>{"data"}});
+        instruction.pcode.push_back(PcodeOperation{
+            std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt, {Storage{"registers", 0, 4}}});
+        return instruction;
+    }
+};
+
+/// Supplies a non-x86 architecture description with no stack register and a
+/// four-byte pointer ABI, exercising provider-derived compiler bootstrap data.
+static ArchitectureDescription generic_architecture() {
+    ArchitectureDescription description;
+    description.name = "generic-provider-32";
+    description.calling_convention = "generic_cc";
+    description.pointer_size = 4;
+    description.code_space = "program";
+    description.data_space = "data";
+    description.spaces = {
+        SpaceDescription{"program", 4, 1, false, 2, 0, true},
+        SpaceDescription{"data", 4, 1, false, 3, 0, true},
+        SpaceDescription{"registers", 4, 1, false, 4, 0, true},
+    };
+    description.registers = {
+        RegisterDescription{"A0", Storage{"registers", 0, 4}},
+        RegisterDescription{"A1", Storage{"registers", 4, 4}},
+    };
+    return description;
+}
+
+/// Rejects an instruction length that would wrap the provider address space.
+class OverflowInstructionProvider final : public PcodeProvider {
+public:
+    /// Constructs the malformed provider used by the overflow contract test.
+    OverflowInstructionProvider() = default;
+
+    /// Returns a two-byte instruction at the maximum-minus-one address.
+    [[nodiscard]] std::expected<Instruction, ProviderError> decode(std::uint64_t address) const override {
+        Instruction instruction;
+        instruction.address = address;
+        instruction.length = 2;
+        return instruction;
+    }
+};
+
+/// Returns a validly addressed instruction containing an out-of-range opcode.
+class InvalidOpcodeProvider final : public PcodeProvider {
+public:
+    /// Constructs the malformed opcode provider.
+    InvalidOpcodeProvider() = default;
+
+    /// Returns one operation whose numeric opcode is reserved as CPUI_MAX.
+    [[nodiscard]] std::expected<Instruction, ProviderError> decode(std::uint64_t address) const override {
+        Instruction instruction;
+        instruction.address = address;
+        instruction.length = 1;
+        instruction.pcode.push_back(PcodeOperation{static_cast<std::uint32_t>(ghidra::CPUI_MAX), std::nullopt, {}});
+        return instruction;
+    }
+};
+
+/// Supplies a union, typedef, signedness, explicit declarations, and a custom
+/// prototype storage layout for one generic function.
+class MetadataTypeProvider final : public TypeProvider {
+public:
+    /// Resolves all metadata types used by the prototype below.
+    [[nodiscard]] std::optional<TypeDescription> type_named(std::string_view name) const override {
+        if (name == "int32") {
+            return TypeDescription{"int32", 4, "", TypeKind::signed_integer, true, "", 0, {}};
+        }
+        if (name == "uint32") {
+            return TypeDescription{"uint32", 4, "", TypeKind::unsigned_integer, false, "", 0, {}};
+        }
+        if (name == "Payload") {
+            TypeDescription type;
+            type.name = "Payload";
+            type.size = 8;
+            type.declaration = "union Payload { int32 value; uint32 bits; };";
+            type.kind = TypeKind::union_type;
+            type.fields = {TypeFieldDescription{"value", "int32", 0}, TypeFieldDescription{"bits", "uint32", 0}};
+            return type;
+        }
+        if (name == "PayloadAlias") {
+            TypeDescription type;
+            type.name = "PayloadAlias";
+            type.size = 8;
+            type.declaration = "typedef union Payload PayloadAlias;";
+            type.kind = TypeKind::typedef_type;
+            type.element_type = "Payload";
+            return type;
+        }
+        return std::nullopt;
+    }
+};
+
+/// Supplies the exact convention and custom locations used to verify the
+/// prototype frontend does not fall back to the architecture default model.
+class MetadataPrototypeProvider final : public PrototypeProvider {
+public:
+    /// Returns the metadata-bearing prototype at address zero.
+    [[nodiscard]] std::optional<PrototypeDescription> prototype_at(std::uint64_t address) const override {
+        if (address != 0) {
+            return std::nullopt;
+        }
+        PrototypeDescription prototype;
+        prototype.calling_convention = "metadata_cc";
+        prototype.return_type = "PayloadAlias";
+        prototype.return_storage = Storage{"registers", 0, 4};
+        prototype.parameters = {
+            PrototypeParameterDescription{"payload", "Payload", Storage{"registers", 4, 4}},
+        };
+        return prototype;
+    }
+};
+
+/// Preserves a namespace supplied independently of the symbol's short name.
+class NamespacedSymbolProvider final : public SymbolProvider {
+public:
+    /// Returns the namespaced symbol at the generic function entry.
+    [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
+        if (address != 0) {
+            return std::nullopt;
+        }
+        return SymbolDescription{address, "run", "module::detail"};
+    }
+};
+
 /// Builds the minimal x86-like provider architecture used by frontend tests.
 static ArchitectureDescription test_architecture() {
     ArchitectureDescription description;
@@ -121,6 +295,95 @@ TEST(DecompilerFrontend, RejectsInstructionOutsideFunctionRange) {
     } catch (const std::exception& error) {
         FAIL() << error.what();
     }
+}
+
+/// Verifies that an architecture with provider-specific spaces, registers,
+/// pointer width, and no stack register can bootstrap the native engine.
+TEST(DecompilerFrontend, BootstrapsProviderArchitectureWithoutX86Names) {
+    try {
+        auto provider = std::make_shared<GenericInstructionProvider>();
+        auto memory = std::make_shared<SparseMemory>(0, std::vector<std::uint8_t>{0});
+        Decompiler decompiler(generic_architecture(), provider, memory);
+
+        const DecompilationResult result = decompiler.decompile(FunctionDescription{"generic_function", 0, 1});
+
+        ASSERT_EQ(result.raw_instructions.size(), 1U);
+        EXPECT_EQ(result.raw_instructions.front().length, 1U);
+        EXPECT_EQ(result.c_source.find("RAX"), std::string::npos);
+        EXPECT_EQ(result.c_source.find("RSP"), std::string::npos);
+    } catch (const ghidra::LowlevelError& error) {
+        FAIL() << error.explain;
+    } catch (const std::exception& error) {
+        FAIL() << error.what();
+    }
+}
+
+/// Verifies that LOAD/STORE address and value operands remain intact when the
+/// target memory space is supplied through the canonical metadata field.
+TEST(DecompilerFrontend, PreservesLoadStoreMemoryOperands) {
+    try {
+        auto provider = std::make_shared<MemoryOperandProvider>();
+        auto memory = std::make_shared<SparseMemory>(0, std::vector<std::uint8_t>{0, 0, 0, 0, 0, 0, 0, 0});
+        Decompiler decompiler(generic_architecture(), provider, memory);
+
+        const DecompilationResult result = decompiler.decompile(FunctionDescription{"memory_function", 0, 1});
+
+        ASSERT_EQ(result.raw_instructions.size(), 1U);
+        EXPECT_EQ(result.raw_instructions.front().pcode.front().inputs.size(), 1U);
+        EXPECT_FALSE(result.raw_pcode.empty());
+    } catch (const ghidra::LowlevelError& error) {
+        FAIL() << error.explain;
+    } catch (const std::exception& error) {
+        FAIL() << error.what();
+    }
+}
+
+/// Verifies that union/typedef declarations, signedness, explicit composite
+/// size, custom convention, custom storage, and a symbol namespace survive the
+/// provider-to-native frontend boundary.
+TEST(DecompilerFrontend, PreservesMetadataConventionStorageAndNamespace) {
+    try {
+        ProviderContext context;
+        context.pcode = std::make_shared<GenericInstructionProvider>();
+        context.memory = std::make_shared<SparseMemory>(0, std::vector<std::uint8_t>{0});
+        context.types = std::make_shared<MetadataTypeProvider>();
+        context.prototypes = std::make_shared<MetadataPrototypeProvider>();
+        context.symbols = std::make_shared<NamespacedSymbolProvider>();
+        Decompiler decompiler(generic_architecture(), std::move(context));
+
+        const DecompilationResult result = decompiler.decompile(FunctionDescription{"fallback", 0, 1});
+
+        EXPECT_NE(result.c_source.find("union Payload"), std::string::npos);
+        EXPECT_NE(result.c_source.find("typedef union Payload PayloadAlias"), std::string::npos);
+        EXPECT_NE(result.c_source.find("metadata_cc"), std::string::npos);
+        EXPECT_NE(result.c_source.find("module::detail::run"), std::string::npos);
+    } catch (const ghidra::LowlevelError& error) {
+        FAIL() << error.explain;
+    } catch (const std::exception& error) {
+        FAIL() << error.what();
+    }
+}
+
+/// Verifies that instruction end-address arithmetic is checked before the
+/// native flow builder can wrap back to address zero.
+TEST(DecompilerFrontend, RejectsInstructionAddressOverflow) {
+    auto provider = std::make_shared<OverflowInstructionProvider>();
+    auto memory = std::make_shared<SparseMemory>(0, std::vector<std::uint8_t>{0});
+    Decompiler decompiler(test_architecture(), provider, memory);
+
+    EXPECT_THROW(decompiler.decompile(FunctionDescription{"overflow", std::numeric_limits<std::uint64_t>::max() - 1,
+                                                          std::numeric_limits<std::uint64_t>::max()}),
+                 std::runtime_error);
+}
+
+/// Verifies that reserved numeric opcode values are rejected before casting to
+/// the native OpCode enum.
+TEST(DecompilerFrontend, RejectsInvalidPcodeOpcode) {
+    auto provider = std::make_shared<InvalidOpcodeProvider>();
+    auto memory = std::make_shared<SparseMemory>(0, std::vector<std::uint8_t>{0});
+    Decompiler decompiler(test_architecture(), provider, memory);
+
+    EXPECT_THROW(decompiler.decompile(FunctionDescription{"invalid_opcode", 0, 1}), std::runtime_error);
 }
 
 /// Runs Example 1 from machine bytes through Sleigh, native p-code flow, SSA,
@@ -2163,26 +2426,13 @@ TEST(SleighProvider, DecodesX86BytesIntoProviderPcode) {
     // own instruction-family tests. The REX.W prefix selects 64-bit operands;
     // opcode 83 selects an immediate sign-extended arithmetic operation;
     // ModR/M EC selects RSP as both the destination and source; and 40 is the
-    // stack-frame decrement. The remaining bytes are NOP padding so the
-    // provider can honor the runtime's 16-byte decode window without reading
-    // past the represented image.
+    // stack-frame decrement. No read-ahead padding is mapped: the frontend
+    // must retry a shorter mapped window instead of requiring 16 bytes.
     const std::vector<std::uint8_t> instruction_bytes{
         0x48, // REX.W: use 64-bit register arithmetic.
         0x83, // Group-1 arithmetic with an 8-bit immediate.
         0xec, // SUB the immediate from RSP.
         0x40, // Allocate 0x40 bytes of stack space.
-        0x90, // Padding byte; not part of the decoded instruction.
-        0x90, // Padding byte; keeps the decode window mapped.
-        0x90, // Padding byte; preserves deterministic test storage.
-        0x90, // Padding byte; preserves deterministic test storage.
-        0x90, // Padding byte; preserves deterministic test storage.
-        0x90, // Padding byte; preserves deterministic test storage.
-        0x90, // Padding byte; preserves deterministic test storage.
-        0x90, // Padding byte; preserves deterministic test storage.
-        0x90, // Padding byte; preserves deterministic test storage.
-        0x90, // Padding byte; preserves deterministic test storage.
-        0x90, // Padding byte; preserves deterministic test storage.
-        0x90, // Padding byte; completes the runtime's maximum decode window.
     };
     auto memory = std::make_shared<SparseMemory>(0x100, instruction_bytes);
     SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
@@ -2258,6 +2508,176 @@ TEST(DecompilerXml, RejectsMalformedAndDtdDocuments) {
     } catch (const ghidra::DecoderError& error) {
         EXPECT_EQ(error.explain, "DTD's not supported");
     }
+
+    std::istringstream incomplete_dtd("<!DOCTYPE");
+    try {
+        const std::unique_ptr<ghidra::Document> document(ghidra::xml_tree(incomplete_dtd));
+        FAIL() << "Incomplete DTD unexpectedly produced a document";
+    } catch (const ghidra::DecoderError& error) {
+        EXPECT_EQ(error.explain, "DTD's not supported");
+    }
+}
+
+/// Verifies that the compatibility parser preserves CRLF and tab bytes in
+/// both character data and attributes instead of applying XML normalization.
+TEST(DecompilerXml, PreservesCrlfAndAttributeWhitespace) {
+    std::istringstream stream("<root attr=\"first\r\n\t second\">left\r\n\t right</root>");
+    const std::unique_ptr<ghidra::Document> document(ghidra::xml_tree(stream));
+    ASSERT_NE(document, nullptr);
+    const ghidra::Element* root = document->getRoot();
+    ASSERT_NE(root, nullptr);
+    EXPECT_EQ(root->getAttributeValue("attr"), "first\r\n\t second");
+    EXPECT_EQ(root->getContent(), "left\r\n\t right");
+}
+
+/// Verifies the five predefined entities and the original one-byte numeric
+/// reference result rather than pugixml's UTF-8 code-point result.
+TEST(DecompilerXml, PreservesLegacyEntityConversions) {
+    std::istringstream stream(
+        "<root attr=\"&lt;&amp;&gt;&quot;&apos;&#x41;&#169;\">&lt;&amp;&gt;&quot;&apos;&#x41;&#169;</root>");
+    const std::unique_ptr<ghidra::Document> document(ghidra::xml_tree(stream));
+    ASSERT_NE(document, nullptr);
+    const ghidra::Element* root = document->getRoot();
+    ASSERT_NE(root, nullptr);
+
+    std::string expected("<&>\"'A");
+    expected.push_back(static_cast<char>(0xa9));
+    EXPECT_EQ(root->getAttributeValue("attr"), expected);
+    EXPECT_EQ(root->getContent(), expected);
+}
+
+/// Verifies that processing instructions fail with the exact diagnostic used
+/// by the original generated parser rather than being silently discarded.
+TEST(DecompilerXml, RejectsProcessingInstructions) {
+    std::istringstream stream("<root><?instruction data?></root>");
+    try {
+        const std::unique_ptr<ghidra::Document> document(ghidra::xml_tree(stream));
+        FAIL() << "Processing instruction unexpectedly produced a document";
+    } catch (const ghidra::DecoderError& error) {
+        EXPECT_EQ(error.explain, "Processing instructions are not supported");
+    }
+}
+
+/// Records the SAX callbacks needed to verify event ordering and error
+/// completion without changing the production ContentHandler interface.
+class XmlEventRecorder final : public ghidra::ContentHandler {
+public:
+    /// Records that parsing started.
+    void startDocument() override {
+        ++start_documents;
+    }
+
+    /// Records that parsing completed successfully.
+    void endDocument() override {
+        ++end_documents;
+    }
+
+    /// Records element-start names and ignores the namespace placeholder.
+    void startElement(const std::string&, const std::string& local_name, const std::string&,
+                      const ghidra::Attributes&) override {
+        start_elements.push_back(local_name);
+    }
+
+    /// Records element-end names and ignores the namespace placeholder.
+    void endElement(const std::string&, const std::string& local_name, const std::string&) override {
+        end_elements.push_back(local_name);
+    }
+
+    /// Records a character callback using the callback's explicit byte length.
+    void characters(const char* text, ghidra::int4 start, ghidra::int4 length) override {
+        character_chunks.emplace_back(text + start, static_cast<std::size_t>(length));
+    }
+
+    /// Records ignorable whitespace using the callback's explicit byte length.
+    void ignorableWhitespace(const char* text, ghidra::int4 start, ghidra::int4 length) override {
+        whitespace_chunks.emplace_back(text + start, static_cast<std::size_t>(length));
+    }
+
+    /// Records the XML declaration version.
+    void setVersion(const std::string& value) override {
+        version = value;
+    }
+
+    /// Records the XML declaration encoding.
+    void setEncoding(const std::string& value) override {
+        encoding = value;
+    }
+
+    /// Stores the parser diagnostic and does not throw from the callback.
+    void setError(const std::string& value) override {
+        error = value;
+    }
+
+    /// Implements the unused locator callback required by the SAX contract.
+    void setDocumentLocator(ghidra::Locator) override {}
+
+    /// Implements the unused namespace-prefix callback required by the SAX contract.
+    void startPrefixMapping(const std::string&, const std::string&) override {}
+
+    /// Implements the unused namespace-prefix callback required by the SAX contract.
+    void endPrefixMapping(const std::string&) override {}
+
+    /// Processing instructions are rejected before this callback can be used.
+    void processingInstruction(const std::string&, const std::string&) override {}
+
+    /// The legacy parser does not expose unknown entities to this handler.
+    void skippedEntity(const std::string&) override {}
+
+    int start_documents = 0;
+    int end_documents = 0;
+    std::vector<std::string> start_elements;
+    std::vector<std::string> end_elements;
+    std::vector<std::string> character_chunks;
+    std::vector<std::string> whitespace_chunks;
+    std::string version;
+    std::string encoding;
+    std::string error;
+};
+
+/// Verifies source-level entity boundaries and that failed parsing does not
+/// emit an end-document callback after reporting an error.
+TEST(DecompilerXml, PreservesContentHandlerEvents) {
+    XmlEventRecorder valid;
+    std::istringstream valid_stream("<?xml version=\"1.0\" encoding=\"UTF-8\"?><root>a&amp;b&#x41;</root>");
+    EXPECT_EQ(ghidra::xml_parse(valid_stream, &valid), 0);
+    EXPECT_EQ(valid.start_documents, 1);
+    EXPECT_EQ(valid.end_documents, 1);
+    ASSERT_EQ(valid.start_elements, std::vector<std::string>{"root"});
+    ASSERT_EQ(valid.end_elements, std::vector<std::string>{"root"});
+    EXPECT_EQ(valid.version, "1.0");
+    EXPECT_EQ(valid.encoding, "UTF-8");
+    EXPECT_EQ(valid.character_chunks, (std::vector<std::string>{"a", "&", "b", "A"}));
+
+    XmlEventRecorder malformed;
+    std::istringstream malformed_stream("<root>");
+    EXPECT_NE(ghidra::xml_parse(malformed_stream, &malformed), 0);
+    EXPECT_EQ(malformed.start_documents, 1);
+    EXPECT_EQ(malformed.end_documents, 0);
+    EXPECT_FALSE(malformed.error.empty());
+}
+
+/// Verifies that a practical nesting depth survives pugixml parsing and the
+/// recursive DOM replay without truncating the original hierarchy.
+TEST(DecompilerXml, PreservesDeepNesting) {
+    constexpr int depth = 256;
+    std::string source;
+    for (int index = 0; index < depth; ++index)
+        source += "<node>";
+    source += "payload";
+    for (int index = 0; index < depth; ++index)
+        source += "</node>";
+
+    std::istringstream stream(source);
+    const std::unique_ptr<ghidra::Document> document(ghidra::xml_tree(stream));
+    ASSERT_NE(document, nullptr);
+    const ghidra::Element* current = document->getRoot();
+    for (int index = 1; index < depth; ++index) {
+        ASSERT_EQ(current->getName(), "node");
+        ASSERT_EQ(current->getChildren().size(), 1U);
+        current = current->getChildren().front();
+    }
+    ASSERT_EQ(current->getName(), "node");
+    EXPECT_EQ(current->getContent(), "payload");
 }
 
 } // namespace newghidra::decompiler::tests

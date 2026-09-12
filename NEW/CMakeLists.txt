@@ -13,4 +13,10 @@ enable_testing()
 add_subdirectory(features)
 
 add_executable(new_ghidra_app src/main.cpp)
-target_link_libraries(new_ghidra_app PRIVATE hello_feature NewGhidra::SleighRuntime)
+target_link_libraries(new_ghidra_app PRIVATE
+    hello_feature
+    NewGhidra::DecompilerFrontend
+)
+
+# Keep the application smoke case in the normal build/test workflow.
+add_test(NAME new_ghidra_app_smoke COMMAND new_ghidra_app)

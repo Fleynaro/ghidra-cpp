@@ -16,6 +16,10 @@ struct PcodeOperation {
     std::uint32_t opcode = 0;
     std::optional<Storage> output;
     std::vector<Storage> inputs;
+    /// Names the address space targeted by LOAD/STORE. The public provider
+    /// contract keeps the target space here; `inputs` contain the address and
+    /// value operands. A legacy constant-space selector is also accepted when
+    /// it is the first input and encodes the same target space.
     std::optional<std::string> memory_space;
 };
 
@@ -97,6 +101,8 @@ struct TypeFieldDescription {
 struct TypeDescription {
     std::string name;
     std::uint32_t size = 0;
+    /// Optional source declaration retained by the frontend for emitted type
+    /// declarations. The native type name remains the provider identifier.
     std::string declaration;
     TypeKind kind = TypeKind::signed_integer;
     bool signed_value = true;

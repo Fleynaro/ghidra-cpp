@@ -1946,28 +1946,6 @@ BlockInfLoop* BlockGraph::newBlockInfLoop(FlowBlock* body)
     return ret;
 }
 
-/// Add the new BlockSwitch to \b this, collapsing all the case FlowBlocks into it.
-/// \param cs is the list of case FlowBlocks
-/// \param hasExit is \b true if the switch has a formal exit
-/// \return the new BlockSwitch
-BlockSwitch* BlockGraph::newBlockSwitch(const vector<FlowBlock*>& cs, bool hasExit)
-
-{
-    FlowBlock* rootbl = cs[0];
-    unique_ptr<BlockSwitch> uret(new BlockSwitch(rootbl));
-    const FlowBlock* leafbl = rootbl->getExitLeaf();
-    if ((leafbl == (const FlowBlock*)0) || (leafbl->getType() != FlowBlock::t_copy))
-        throw LowlevelError("Could not get switch leaf");
-    uret->grabCaseBasic(leafbl->subBlock(0), cs); // Must be called before the identifyInternal
-    identifyInternal(uret.get(), cs);
-    BlockSwitch* ret = uret.release();
-    addBlock(ret);
-    if (hasExit)
-        ret->forceOutputNum(1);   // If there is an exit, there should be exactly 1 out edge
-    ret->clearFlag(f_switch_out); // Don't consider this as being a switch "out"
-    return ret;
-}
-
 /// Construct a copy of the given BlockGraph in \b this.  The nodes of the copy
 /// will be official BlockCopy objects which will contain a reference to their
 /// corresponding FlowBlock in the given graph.  All edges will be duplicated.

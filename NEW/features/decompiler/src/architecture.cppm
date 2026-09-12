@@ -26,11 +26,6 @@ namespace ghidra {
 using std::sqrt;
 #endif
 
-vector<ArchitectureCapability*> ArchitectureCapability::thelist;
-
-const uint4 ArchitectureCapability::majorversion = 6;
-const uint4 ArchitectureCapability::minorversion = 2;
-
 AttributeId ATTRIB_ADDRESS = AttributeId("address", 148);
 AttributeId ATTRIB_ADJUSTVMA = AttributeId("adjustvma", 103);
 AttributeId ATTRIB_ENABLE = AttributeId("enable", 104);
@@ -74,74 +69,6 @@ ElementId ELEM_SPACEBASE = ElementId("spacebase", 156);
 ElementId ELEM_SPECEXTENSIONS = ElementId("specextensions", 157);
 ElementId ELEM_STACKPOINTER = ElementId("stackpointer", 158);
 ElementId ELEM_VOLATILE = ElementId("volatile", 159);
-
-/// This builds a list of just the ArchitectureCapability extensions
-void ArchitectureCapability::initialize(void)
-
-{
-    thelist.push_back(this);
-}
-
-/// Given a specific file, find an ArchitectureCapability that can handle it.
-/// \param filename is the path to the file
-/// \return an ArchitectureCapability that can handle it or NULL
-ArchitectureCapability* ArchitectureCapability::findCapability(const string& filename)
-
-{
-    for (uint4 i = 0; i < thelist.size(); ++i) {
-        ArchitectureCapability* capa = thelist[i];
-        if (capa->isFileMatch(filename))
-            return capa;
-    }
-    return (ArchitectureCapability*)0;
-}
-
-/// Given a parsed XML document, find an ArchitectureCapability that can handle it.
-/// \param doc is the parsed XML document
-/// \return an ArchitectureCapability that can handle it or NULL
-ArchitectureCapability* ArchitectureCapability::findCapability(Document* doc)
-
-{
-    for (uint4 i = 0; i < thelist.size(); ++i) {
-        ArchitectureCapability* capa = thelist[i];
-        if (capa->isXmlMatch(doc))
-            return capa;
-    }
-    return (ArchitectureCapability*)0;
-}
-
-/// Return the ArchitectureCapability object with the matching name
-/// \param name is the name to match
-/// \return the ArchitectureCapability or null if no match is found
-ArchitectureCapability* ArchitectureCapability::getCapability(const string& name)
-
-{
-    for (int4 i = 0; i < thelist.size(); ++i) {
-        ArchitectureCapability* res = thelist[i];
-        if (res->getName() == name)
-            return res;
-    }
-    return (ArchitectureCapability*)0;
-}
-
-/// Modify order that extensions are searched, to effect which gets a chance
-/// to run first.
-/// Right now all we need to do is make sure the raw architecture comes last
-void ArchitectureCapability::sortCapabilities(void)
-
-{
-    uint4 i;
-    for (i = 0; i < thelist.size(); ++i) {
-        if (thelist[i]->getName() == "raw")
-            break;
-    }
-    if (i == thelist.size())
-        return;
-    ArchitectureCapability* capa = thelist[i];
-    for (uint4 j = i + 1; j < thelist.size(); ++j)
-        thelist[j - 1] = thelist[j];
-    thelist[thelist.size() - 1] = capa;
-}
 
 /// Set most sub-components to null pointers. Provide reasonable defaults
 /// for the configurable options
@@ -745,12 +672,10 @@ void Architecture::decodeDynamicRule(Decoder& decoder)
         throw LowlevelError("Dynamic rule has no group");
     if (!enabled)
         return;
-#ifdef CPUI_RULECOMPILE
-    Rule* dynrule = RuleGeneric::build(rulename, groupname, el->getContent());
-    extra_pool_rules.push_back(dynrule);
-#else
+    // The standalone module set does not include the optional rule compiler.
+    // Preserve the original disabled-build diagnostic without referring to
+    // an unavailable dynamic-rule implementation.
     throw LowlevelError("Dynamic rules have not been enabled for this decompiler");
-#endif
     decoder.closeElement(elemId);
 }
 

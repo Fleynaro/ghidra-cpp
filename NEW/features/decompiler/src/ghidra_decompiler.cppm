@@ -3202,7 +3202,7 @@ int main(int argc,char **argv)
     };
 
     /// Precalculated masks indexed by size
-    extern uintb uintbmasks[];
+    extern uintb decompiler_uintbmasks[];
 
     // Inline functions
 
@@ -3455,7 +3455,7 @@ int main(int argc,char **argv)
     /// \param size is the desired size in bytes
     /// \return a value appropriate for masking off the first \e size bytes
     inline uintb calc_mask(int4 size) {
-        return uintbmasks[((uint4)size) < 8 ? size : 8];
+        return decompiler_uintbmasks[((uint4)size) < 8 ? size : 8];
     }
 
     /// \param size of the integer in bytes
@@ -5501,28 +5501,6 @@ int main(int argc,char **argv)
         virtual string getArchType(void) const = 0;      ///< Get a string indicating the architecture type
         virtual void adjustVma(long adjust) = 0;         ///< Adjust load addresses with a global offset
         uint1* load(int4 size, const Address& addr);     ///< Load a chunk of image
-    };
-
-    /// \brief A simple raw binary loadimage
-    ///
-    /// This is probably the simplest loadimage.  Bytes from the image are read directly from a file stream.
-    /// The address associated with each byte is determined by a single value, the vma, which is the address
-    /// of the first byte in the file.  No symbols or sections are supported
-    class RawLoadImage : public LoadImage {
-        uintb vma;          ///< Address of first byte in the file
-        ifstream* thefile;  ///< Main file stream for image
-        uintb filesize;     ///< Total number of bytes in the loadimage/file
-        AddrSpace* spaceid; ///< Address space that the file bytes are mapped to
-    public:
-        RawLoadImage(const string& f); ///< RawLoadImage constructor
-        void attachToSpace(AddrSpace* id) {
-            spaceid = id;
-        } ///< Attach the raw image to a particular space
-        void open(void);             ///< Open the raw file for reading
-        virtual ~RawLoadImage(void); ///< RawLoadImage destructor
-        virtual void loadFill(uint1* ptr, int4 size, const Address& addr);
-        virtual string getArchType(void) const;
-        virtual void adjustVma(long adjust);
     };
 
     /// For the base class there is no relevant initialization except
@@ -19041,140 +19019,7 @@ int main(int argc,char **argv)
 
     class Emulate; // Forward declaration
 
-    /// \brief A collection of breakpoints for the emulator
-    ///
-    /// A BreakTable keeps track of an arbitrary number of breakpoints for an emulator.
-    /// Breakpoints are either associated with a particular user-defined pcode op,
-    /// or with a specific machine address (as in a standard debugger). Through the BreakTable
-    /// object, an emulator can invoke breakpoints through the two methods
-    ///  - doPcodeOpBreak()
-    ///  - doAddressBreak()
-    ///
-    /// depending on the type of breakpoint they currently want to invoke
-    class BreakTable {
-    public:
-        virtual ~BreakTable(void) {};
-
-        /// \brief Associate a particular emulator with breakpoints in this table
-        ///
-        /// Breakpoints may need access to the context in which they are invoked. This
-        /// routine provides the context for all breakpoints in the table.
-        /// \param emu is the Emulate context
-        virtual void setEmulate(Emulate* emu) = 0;
-
-        /// \brief Invoke any breakpoints associated with this particular pcodeop
-        ///
-        /// Within the table, the first breakpoint which is designed to work with this particular
-        /// kind of pcode operation is invoked.  If there was a breakpoint and it was designed
-        /// to \e replace the action of the pcode op, then \b true is returned.
-        /// \param curop is the instance of a pcode op to test for breakpoints
-        /// \return \b true if the action of the pcode op is performed by the breakpoint
-        virtual bool doPcodeOpBreak(PcodeOpRaw* curop) = 0;
-
-        /// \brief Invoke any breakpoints associated with this machine address
-        ///
-        /// Within the table, the first breakpoint which is designed to work with at this address
-        /// is invoked.  If there was a breakpoint, and if it was designed to \e replace
-        /// the action of the machine instruction, then \b true is returned.
-        /// \param addr is address to test for breakpoints
-        /// \return \b true if the machine instruction has been replaced by a breakpoint
-        virtual bool doAddressBreak(const Address& addr) = 0;
-    };
-
-    /// \brief A breakpoint object
-    ///
-    /// This is a base class for breakpoint objects in an emulator.  The breakpoints are implemented
-    /// as callback method, which is overridden for the particular behavior needed by the emulator.
-    /// Each derived class must override either
-    ///   - pcodeCallback()
-    ///   - addressCallback()
-    ///
-    /// depending on whether the breakpoint is tailored for a particular pcode op or for
-    /// a machine address.
-    class BreakCallBack {
-    protected:
-        Emulate* emulate; ///< The emulator currently associated with this breakpoint
-    public:
-        BreakCallBack(void); ///< Generic breakpoint constructor
-        virtual ~BreakCallBack(void) {}
-        virtual bool pcodeCallback(PcodeOpRaw* op);        ///< Call back method for pcode based breakpoints
-        virtual bool addressCallback(const Address& addr); ///< Call back method for address based breakpoints
-        void setEmulate(Emulate* emu);                     ///< Associate a particular emulator with this breakpoint
-    };
-
-    /// The base breakpoint needs no initialization parameters, the setEmulate() method must be
-    /// called before the breakpoint can be invoked
-    inline BreakCallBack::BreakCallBack(void)
-
-    {
-        emulate = (Emulate*)0;
-    }
-
-    /// This routine is invoked during emulation, if this breakpoint has somehow been associated with
-    /// this kind of pcode op.  The callback can perform any operation on the emulator context it wants.
-    /// It then returns \b true if these actions are intended to replace the action of the pcode op itself.
-    /// Or it returns \b false if the pcode op should still have its normal effect on the emulator context.
-    /// \param op is the particular pcode operation where the break occurs.
-    /// \return \b true if the normal pcode op action should not occur
-    inline bool BreakCallBack::pcodeCallback(PcodeOpRaw* op)
-
-    {
-        return true;
-    }
-
-    /// This routine is invoked during emulation, if this breakpoint has somehow been associated with
-    /// this address.  The callback can perform any operation on the emulator context it wants. It then
-    /// returns \b true if these actions are intended to replace the action of the \b entire machine
-    /// instruction at this address. Or it returns \b false if the machine instruction should still be
-    /// executed normally.
-    /// \param addr is the address where the break has occurred
-    /// \return \b true if the machine instruction should not be executed
-    inline bool BreakCallBack::addressCallback(const Address& addr)
-
-    {
-        return true;
-    }
-
-    /// Breakpoints can be associated with one emulator at a time.
-    /// \param emu is the emulator to associate this breakpoint with
-    inline void BreakCallBack::setEmulate(Emulate* emu)
-
-    {
-        emulate = emu;
-    }
-
-    /// \brief A basic instantiation of a breakpoint table
-    ///
-    /// This object allows breakpoints to registered in the table via either
-    ///   - registerPcodeCallback()  or
-    ///   = registerAddressCallback()
-    ///
-    /// Breakpoints are stored in map containers, and the core BreakTable methods
-    /// are implemented to search in these containers
-    class BreakTableCallBack : public BreakTable {
-        Emulate* emulate;                             ///< The emulator associated with this table
-        Translate* trans;                             ///< The translator
-        map<Address, BreakCallBack*> addresscallback; ///< a container of pcode based breakpoints
-        map<uintb, BreakCallBack*> pcodecallback;     ///< a container of addressed based breakpoints
-    public:
-        BreakTableCallBack(Translate* t);                                  ///< Basic breaktable constructor
-        void registerPcodeCallback(const string& nm, BreakCallBack* func); ///< Register a pcode based breakpoint
-        void registerAddressCallback(const Address& addr,
-                                     BreakCallBack* func); ///< Register an address based breakpoint
-        virtual void setEmulate(Emulate* emu);             ///< Associate an emulator with all breakpoints in the table
-        virtual bool doPcodeOpBreak(PcodeOpRaw* curop);    ///< Invoke any breakpoints for the given pcode op
-        virtual bool doAddressBreak(const Address& addr);  ///< Invoke any breakpoints for the given address
-    };
-
-    /// The break table needs a translator object so user-defined pcode ops can be registered against
-    /// by name.
-    /// \param t is the translator object
-    inline BreakTableCallBack::BreakTableCallBack(Translate* t)
-
-    {
-        emulate = (Emulate*)0;
-        trans = t;
-    }
+    /// The aggregate retains only the generic p-code execution interface.
 
     /// \brief A pcode-based emulator interface.
     ///
@@ -19249,55 +19094,6 @@ int main(int argc,char **argv)
         return emu_halted;
     }
 
-    /// \brief An abstract Emulate class using a MemoryState object as the backing machine state
-    ///
-    /// Most p-code operations are implemented using the MemoryState to fetch and store
-    /// values.  Control-flow is implemented partially in that setExecuteAddress() is called
-    /// to indicate which instruction is being executed. The derived class must provide
-    ///   - fallthruOp()
-    ///   - setExecuteAddress()
-    ///   - getExecuteAddress()
-    ///
-    /// The following p-code operations are stubbed out and will throw an exception:
-    /// CALLOTHER, MULTIEQUAL, INDIRECT, CPOOLREF, SEGMENTOP, and NEW.
-    /// Of course the derived class can override these.
-
-    class EmulateMemory : public Emulate {
-    protected:
-        MemoryState* memstate; ///< The memory state of the emulator
-        PcodeOpRaw* currentOp; ///< Current op to execute
-        virtual void executeUnary(void);
-        virtual void executeBinary(void);
-        virtual void executeLoad(void);
-        virtual void executeStore(void);
-        virtual void executeBranch(void);
-        virtual bool executeCbranch(void);
-        virtual void executeBranchind(void);
-        virtual void executeCall(void);
-        virtual void executeCallind(void);
-        virtual void executeCallother(void);
-        virtual void executeMultiequal(void);
-        virtual void executeIndirect(void);
-        virtual void executeSegmentOp(void);
-        virtual void executeCpoolRef(void);
-        virtual void executeNew(void);
-
-    public:
-        /// Construct given a memory state
-        EmulateMemory(MemoryState* mem) {
-            memstate = mem;
-            currentOp = (PcodeOpRaw*)0;
-        }
-        MemoryState* getMemoryState(void) const; ///< Get the emulator's memory state
-    };
-
-    /// \return the memory state object which this emulator uses
-    inline MemoryState* EmulateMemory::getMemoryState(void) const
-
-    {
-        return memstate;
-    }
-
     /// \brief P-code emitter that dumps its raw Varnodes and PcodeOps to an in memory cache
     ///
     /// This is used for emulation when full Varnode and PcodeOp objects aren't needed
@@ -19313,87 +19109,6 @@ int main(int argc,char **argv)
         virtual void dump(const Address& addr, OpCode opc, VarnodeData* outvar, VarnodeData* vars, int4 isize);
     };
 
-    /// \brief A SLEIGH based implementation of the Emulate interface
-    ///
-    /// This implementation uses a Translate object to translate machine instructions into
-    /// pcode and caches pcode ops for later use by the emulator.  The pcode is cached as soon
-    /// as the execution address is set, either explicitly, or via branches and fallthrus.  There
-    /// are additional methods for inspecting the pcode ops in the current instruction as a sequence.
-    class EmulatePcodeCache : public EmulateMemory {
-        Translate* trans;                            ///< The SLEIGH translator
-        vector<PcodeOpRaw*> opcache;                 ///< The cache of current p-code ops
-        vector<VarnodeData*> varcache;               ///< The cache of current varnodes
-        vector<OpBehavior*> inst;                    ///< Map from OpCode to OpBehavior
-        BreakTable* breaktable;                      ///< The table of breakpoints
-        Address current_address;                     ///< Address of current instruction being executed
-        bool instruction_start;                      ///< \b true if next pcode op is start of instruction
-        int4 current_op;                             ///< Index of current pcode op within machine instruction
-        int4 instruction_length;                     ///< Length of current instruction in bytes
-        void clearCache(void);                       ///< Clear the p-code cache
-        void createInstruction(const Address& addr); ///< Cache pcode for instruction at given address
-        void establishOp(void);
-
-    protected:
-        virtual void fallthruOp(void);       ///< Execute fallthru semantics for the pcode cache
-        virtual void executeBranch(void);    ///< Execute branch (including relative branches)
-        virtual void executeCallother(void); ///< Execute breakpoint for this user-defined op
-    public:
-        EmulatePcodeCache(Translate* t, MemoryState* s, BreakTable* b); ///< Pcode cache emulator constructor
-        ~EmulatePcodeCache(void);
-        bool isInstructionStart(void) const;    ///< Return \b true if we are at an instruction start
-        int4 numCurrentOps(void) const;         ///< Return number of pcode ops in translation of current instruction
-        int4 getCurrentOpIndex(void) const;     ///< Get the index of current pcode op within current instruction
-        PcodeOpRaw* getOpByIndex(int4 i) const; ///< Get pcode op in current instruction translation by index
-        virtual void setExecuteAddress(const Address& addr); ///< Set current execution address
-        virtual Address getExecuteAddress(void) const;       ///< Get current execution address
-        void executeInstruction(void);                       ///< Execute (the rest of) a single machine instruction
-    };
-
-    /// Since the emulator can single step through individual pcode operations, the machine state
-    /// may be halted in the \e middle of a single machine instruction, unlike conventional debuggers.
-    /// This routine can be used to determine if execution is actually at the beginning of a machine
-    /// instruction.
-    /// \return \b true if the next pcode operation is at the start of the instruction translation
-    inline bool EmulatePcodeCache::isInstructionStart(void) const
-
-    {
-        return instruction_start;
-    }
-
-    /// A typical machine instruction translates into a sequence of pcode ops.
-    /// \return the number of ops in the sequence
-    inline int4 EmulatePcodeCache::numCurrentOps(void) const
-
-    {
-        return opcache.size();
-    }
-
-    /// This routine can be used to determine where, within the sequence of ops in the translation
-    /// of the entire machine instruction, the currently executing op is.
-    /// \return the index of the current (next) pcode op.
-    inline int4 EmulatePcodeCache::getCurrentOpIndex(void) const
-
-    {
-        return current_op;
-    }
-
-    /// This routine can be used to examine ops other than the currently executing op in the
-    /// machine instruction's translation sequence.
-    /// \param i is the desired op index
-    /// \return the pcode op at the indicated index
-    inline PcodeOpRaw* EmulatePcodeCache::getOpByIndex(int4 i) const
-
-    {
-        return opcache[i];
-    }
-
-    /// \return the currently executing machine address
-    inline Address EmulatePcodeCache::getExecuteAddress(void) const
-
-    {
-        return current_address;
-    }
-
     /** \page sleighAPIemulate The SLEIGH Emulator
 
       \section emu_overview Overview
@@ -19401,38 +19116,20 @@ int main(int argc,char **argv)
       \b SLEIGH provides a framework for emulating the processors which have a specification written
        for them.  The key classes in this framework are:
 
-      \b Key \b Classes
-        - \ref MemoryState
-        - \ref MemoryBank
-        - \ref BreakTable
-        - \ref BreakCallBack
-        - \ref Emulate
-        - \ref EmulatePcodeCache
+       \b Key \b Classes
+         - \ref MemoryState
+         - \ref MemoryBank
+         - \ref Emulate
 
       The MemoryState object holds the representation of registers and memory during emulation.  It
       understands the address spaces defined in the \b SLEIGH specification and how data is encoded
       in these spaces.  It also knows any register names defined by the specification, so these
       can be used to set or query the state of these registers naturally.
 
-      The emulation framework can be tailored to a particular environment by creating \b breakpoint
-      objects, which derive off the BreakCallBack interface.  These can be used to create callbacks
-      during emulation that have full access to the memory state and the emulator, so any action
-      can be accomplished.  The breakpoint callbacks can be designed to either augment or replace
-      the instruction at a particular address, or the callback can be used to implement the action
-      of a user-defined pcode op.  The BreakCallBack objects are managed by the BreakTable object,
-      which takes care of invoking the callback at the appropriate time.
-
-      The Emulate object serves as a basic execution engine.  Its main method is
-      Emulate::executeCurrentOp() which executes a single pcode operation on the memory state.
-      Methods exist for querying and setting the current execution address and examining the pcode
-      op being executed.
-
-      The main implementation of the Emulate interface is the EmulatePcodeCache object.  It uses
-      SLEIGH to translate machine instructions as they are executed.  The currently executing instruction
-      is translated into a cached sequence of pcode operations.  Additional methods allow this entire
-      sequence to be inspected, and there is another stepping function which allows the emulator
-      to be stepped through an entire machine instruction at a time.  The single pcode stepping methods
-      are of course still available and the two methods can be used together without conflict.
+       The Emulate object serves as a basic execution engine.  Its main method is
+      Emulate::executeCurrentOp()
+      which executes a single pcode operation on the memory state. Methods exist for querying and setting the current
+      execution address and examining the pcode op being executed.
 
       \section emu_membuild Building a Memory State
 
@@ -19491,14 +19188,15 @@ int main(int argc,char **argv)
 
       In order to provide behavior within the emulator beyond just what the core instruction emulation
       provides, the framework supports \b breakpoint classes.  A breakpoint is created by deriving a
-      class from the BreakCallBack class and overriding either BreakCallBack::addressCallback() or
-      BreakCallBack::pcodeCallback().  Here is an example of a breakpoint that implements a
-      standard C library \e puts call an the x86 architecture.  When the breakpoint is invoked,
-      a call to \e puts has just been made, so the stack pointer is pointing to the return address
-      and the next 4 bytes on the stack are a pointer to the string being passed in.
+       Legacy breakpoint callback examples are not part of this aggregate.  The remaining
+       documentation covers
+      the active memory and p-code interfaces.
+      standard C library \e puts call an the x86 architecture.  When the
+      breakpoint is invoked, a call to \e puts has just been made, so the stack pointer is pointing to the return
+      address and the next 4 bytes on the stack are a pointer to the string being passed in.
 
       \code
-        class PutsCallBack : public BreakCallBack {
+         class PutsCallBack {
         public:
           virtual bool addressCallback(const Address &addr);
         };
@@ -19531,8 +19229,7 @@ int main(int argc,char **argv)
       instruction is emulated by explicitly setting the next execution address to be the return value.
 
       \section emu_finalsetup Running the Emulator
-      Here is an example of instantiating an EmulatePcodeCache object. A breakpoint is also instantiated
-      and registered with the BreakTable.
+       The active emulator interface executes individual p-code operations.
 
       \code
         ...
@@ -19540,15 +19237,14 @@ int main(int argc,char **argv)
         ...
         MemoryState memstate(&trans);      // Instantiate the memory state
         ...
-        BreakTableCallBack breaktable(&trans);  // Instantiate a breakpoint table
-        EmulatePcodeCache emulator(&trans,&memstate,&breaktable);  // Instantiate the emulator
+         Emulate emulator;  // Instantiate an implementation supplied by the caller
 
         // Set up the initial stack pointer
         memstate.setValue("ESP",0xbffffffc);
         emulator.setExecuteAddress(Address(trans.getDefaultCodeSpace(),0x1D00114));  // Initial execution address
 
         PutsCallBack putscallback;
-        breaktable.registerAddressCallback(Address(trans.getDefaultCodeSpace(),0x1D00130),&putscallback);
+         // Configure any caller-owned callbacks through its own adapter.
 
         AssemblyRaw assememit;
         for(;;) {
@@ -19559,10 +19255,10 @@ int main(int argc,char **argv)
 
       \endcode
 
-      Notice how the initial stack pointer and initial execute address is set up.  The breakpoint
-      is registered with the BreakTable, giving it a specific address.  The executeInstruction method
-      is called inside the loop, to actually run the emulator.  Notice that a disassembly of each
-      instruction is printed after each step of the emulator.
+       Notice how the initial stack pointer and initial execute address is set up.  The execution method
+      is called
+      inside the loop, to actually run the emulator.  Notice that a disassembly of each instruction is printed after
+      each step of the emulator.
 
       Other information can be examined from within this execution loop or in other tailored breakpoints.
       In particular, the Emulate::getCurrentOp() method can be used to retrieve the an instance
@@ -24235,61 +23931,6 @@ extern ElementId ELEM_SPACEBASE;              ///< Marshaling element \<spacebas
 extern ElementId ELEM_SPECEXTENSIONS;         ///< Marshaling element \<specextensions>
 extern ElementId ELEM_STACKPOINTER;           ///< Marshaling element \<stackpointer>
 extern ElementId ELEM_VOLATILE;               ///< Marshaling element \<volatile>
-
-/// \brief Abstract extension point for building Architecture objects
-///
-/// Decompilation hinges on initially recognizing the format of code then
-/// bootstrapping into discovering the processor etc.  This is the base class
-/// for the different extensions that perform this process.  Each extension
-/// implements the buildArchitecture() method as the formal entry point
-/// for the bootstrapping process.
-class ArchitectureCapability : public CapabilityPoint {
-    static const uint4 majorversion;                ///< Current major version of decompiler
-    static const uint4 minorversion;                ///< Current minor version of decompiler
-    static vector<ArchitectureCapability*> thelist; ///< The list of registered extensions
-protected:
-    string name; ///< Identifier for this capability
-public:
-    const string& getName(void) const {
-        return name;
-    } ///< Get the capability identifier
-    virtual void initialize(void); ///< Do specialized initialization
-
-    /// \brief Build an Architecture given a raw file or data
-    ///
-    /// This is implemented by each separate extension. The method is handed
-    /// a \e filename and possibly external target information and must build
-    /// the Architecture object, initializing all the major subcomponents, using just this info.
-    /// \param filename is the path to the executable file to examine
-    /// \param target if non-empty is a language id string
-    /// \param estream is an output stream for error messages
-    virtual Architecture* buildArchitecture(const string& filename, const string& target, ostream* estream) = 0;
-
-    /// \brief Determine if this extension can handle this file
-    ///
-    /// \param filename is the name of the file to examine
-    /// \return \b true is \b this extension is suitable for analyzing the file
-    virtual bool isFileMatch(const string& filename) const = 0;
-
-    /// \brief Determine is this extension can handle this XML document
-    ///
-    /// If a file to analyze is XML based, this method examines the XML parse
-    /// to determine if \b this extension can understand the document
-    /// \param doc is the parsed XML document
-    /// \return \b true if \b this extension understands the XML
-    virtual bool isXmlMatch(Document* doc) const = 0;
-
-    static ArchitectureCapability* findCapability(const string& filename); ///< Find an extension to process a file
-    static ArchitectureCapability* findCapability(Document* doc);     ///< Find an extension to process an XML document
-    static ArchitectureCapability* getCapability(const string& name); ///< Get a capability by name
-    static void sortCapabilities(void);                               ///< Sort extensions
-    static uint4 getMajorVersion(void) {
-        return majorversion;
-    } ///< Get \e major decompiler version
-    static uint4 getMinorVersion(void) {
-        return minorversion;
-    } ///< Get \e minor decompiler version
-};
 
 /// \brief Manager for all the major decompiler subsystems
 ///

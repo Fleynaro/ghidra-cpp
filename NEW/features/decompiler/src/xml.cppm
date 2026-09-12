@@ -29,10 +29,177 @@ string Attributes::bogus_uri("http://unused.uri");
 
 namespace {
 
-/// Uses pugixml's standards-compliant XML features while retaining whitespace
-/// and declaration nodes needed by the legacy ContentHandler contract.
-const unsigned int XML_PARSE_OPTIONS =
-    pugi::parse_default | pugi::parse_ws_pcdata | pugi::parse_declaration | pugi::parse_doctype;
+/// Uses pugixml while disabling its XML line-ending and attribute-value
+/// normalization, both of which differ from the original generated scanner.
+const unsigned int XML_PARSE_OPTIONS = (pugi::parse_default & ~(pugi::parse_wconv_attribute | pugi::parse_eol)) |
+                                       pugi::parse_ws_pcdata | pugi::parse_comments | pugi::parse_declaration |
+                                       pugi::parse_pi | pugi::parse_doctype;
+
+/// Stores one source-level entity replaced before pugixml parsing so that its
+/// result can retain the original parser's single-byte conversion semantics.
+struct LegacyReference {
+    string marker;
+    char value;
+};
+
+/// Returns whether a string begins with the supplied literal at the given byte
+/// offset without interpreting or normalizing any source bytes.
+bool startsWith(const string& source, uint4 offset, const char* literal) {
+    const string needle(literal);
+    return offset <= source.size() && source.size() - offset >= needle.size() &&
+           source.compare(offset, needle.size(), needle) == 0;
+}
+
+/// Creates a marker absent from the original source and records its byte value.
+string makeReferenceMarker(const string& source, vector<LegacyReference>& references, char value) {
+    uint4 index = static_cast<uint4>(references.size());
+    string marker;
+    do {
+        marker = "__ghidra_xml_reference_" + std::to_string(index++) + "__";
+    } while (source.find(marker) != string::npos);
+    references.push_back(LegacyReference{marker, value});
+    return marker;
+}
+
+/// Converts the original parser's numeric character reference accumulator to
+/// its final byte. The generated parser appended an int4 to std::string,
+/// which converted the accumulated value to one char instead of UTF-8.
+char legacyNumericValue(const string& digits, bool hexadecimal) {
+    unsigned int value = 0;
+    const unsigned int radix = hexadecimal ? 16U : 10U;
+    for (char digit : digits) {
+        unsigned int part;
+        if (digit >= '0' && digit <= '9')
+            part = static_cast<unsigned int>(digit - '0');
+        else if (digit >= 'A' && digit <= 'F')
+            part = 10U + static_cast<unsigned int>(digit - 'A');
+        else
+            part = 10U + static_cast<unsigned int>(digit - 'a');
+        value = value * radix + part;
+    }
+    return static_cast<char>(value & 0xffU);
+}
+
+/// Replaces the five named entities and numeric references recognized by the
+/// original parser, retaining its 0xff fallback for unknown named entities.
+/// Comments and CDATA remain byte-for-byte intact.
+string preserveLegacyReferences(const string& source, vector<LegacyReference>& references) {
+    string result;
+    result.reserve(source.size());
+    for (uint4 index = 0; index < source.size();) {
+        if (startsWith(source, index, "<!--")) {
+            const string::size_type end = source.find("-->", index + 4);
+            const string::size_type limit = end == string::npos ? source.size() : end + 3;
+            result.append(source, index, limit - index);
+            index = static_cast<uint4>(limit);
+            continue;
+        }
+        if (startsWith(source, index, "<![CDATA[")) {
+            const string::size_type end = source.find("]]>", index + 9);
+            const string::size_type limit = end == string::npos ? source.size() : end + 3;
+            result.append(source, index, limit - index);
+            index = static_cast<uint4>(limit);
+            continue;
+        }
+        if (source[index] == '&') {
+            uint4 cursor = index + 1;
+            bool hexadecimal = false;
+            if (cursor < source.size() && source[cursor] == '#') {
+                ++cursor;
+                if (cursor < source.size() && source[cursor] == 'x') {
+                    hexadecimal = true;
+                    ++cursor;
+                }
+                const uint4 digitsStart = cursor;
+                while (cursor < source.size()) {
+                    const char digit = source[cursor];
+                    const bool valid = hexadecimal ? ((digit >= '0' && digit <= '9') ||
+                                                      (digit >= 'A' && digit <= 'F') || (digit >= 'a' && digit <= 'f'))
+                                                   : (digit >= '0' && digit <= '9');
+                    if (!valid)
+                        break;
+                    ++cursor;
+                }
+                if (cursor > digitsStart && cursor < source.size() && source[cursor] == ';') {
+                    const string digits = source.substr(digitsStart, cursor - digitsStart);
+                    result += makeReferenceMarker(source, references, legacyNumericValue(digits, hexadecimal));
+                    index = cursor + 1;
+                    continue;
+                }
+            } else if (cursor < source.size() && ((source[cursor] >= 'A' && source[cursor] <= 'Z') ||
+                                                  (source[cursor] >= 'a' && source[cursor] <= 'z'))) {
+                const uint4 nameStart = cursor++;
+                while (cursor < source.size()) {
+                    const char nameChar = source[cursor];
+                    if (!((nameChar >= 'A' && nameChar <= 'Z') || (nameChar >= 'a' && nameChar <= 'z') ||
+                          (nameChar >= '0' && nameChar <= '9') || nameChar == '.' || nameChar == '-' ||
+                          nameChar == '_' || nameChar == ':'))
+                        break;
+                    ++cursor;
+                }
+                if (cursor < source.size() && source[cursor] == ';') {
+                    const string name = source.substr(nameStart, cursor - nameStart);
+                    char value = 0;
+                    if (name == "lt")
+                        value = '<';
+                    else if (name == "amp")
+                        value = '&';
+                    else if (name == "gt")
+                        value = '>';
+                    else if (name == "quot")
+                        value = '"';
+                    else if (name == "apos")
+                        value = '\'';
+                    else
+                        value = static_cast<char>(-1);
+                    result += makeReferenceMarker(source, references, value);
+                    index = cursor + 1;
+                    continue;
+                }
+            }
+        }
+        result += source[index++];
+    }
+    return result;
+}
+
+/// Restores source-level entity bytes in an attribute or text value returned
+/// by pugixml. Markers are guaranteed not to collide with the original input.
+string restoreLegacyReferences(const char* value, const vector<LegacyReference>& references) {
+    string result(value == nullptr ? "" : value);
+    for (const LegacyReference& reference : references) {
+        for (string::size_type position = result.find(reference.marker); position != string::npos;
+             position = result.find(reference.marker, position + 1)) {
+            result.replace(position, reference.marker.size(), 1, reference.value);
+        }
+    }
+    return result;
+}
+
+/// Finds the first unsupported processing instruction or DTD in source order,
+/// including malformed constructs that pugixml might diagnose too early.
+string findUnsupportedMarkup(const string& source) {
+    for (uint4 index = 0; index < source.size(); ++index) {
+        if (!startsWith(source, index, "<"))
+            continue;
+        if (startsWith(source, index, "<!--")) {
+            const string::size_type end = source.find("-->", index + 4);
+            if (end == string::npos)
+                return "";
+            index = static_cast<uint4>(end + 2);
+        } else if (startsWith(source, index, "<![CDATA[")) {
+            const string::size_type end = source.find("]]>", index + 9);
+            if (end == string::npos)
+                return "";
+            index = static_cast<uint4>(end + 2);
+        } else if (startsWith(source, index, "<!DOCTYPE")) {
+            return "DTD's not supported";
+        } else if (startsWith(source, index, "<?") && !startsWith(source, index, "<?xml")) {
+            return "Processing instructions are not supported";
+        }
+    }
+    return "";
+}
 
 /// Reports a pugixml parse failure using the diagnostic format exposed by the
 /// existing ContentHandler error callback.
@@ -54,11 +221,9 @@ void reportStructuralError(ContentHandler* handler, const string& message) {
 
 /// Returns true when text consists only of the four whitespace characters
 /// classified as ignorable by the original generated parser.
-bool isIgnorableWhitespace(const char* text) {
-    if (text == nullptr)
-        return true;
-    for (const char* cur = text; *cur != '\0'; ++cur) {
-        if (*cur != ' ' && *cur != '\n' && *cur != '\r' && *cur != '\t')
+bool isIgnorableWhitespace(const string& text) {
+    for (char cur : text) {
+        if (cur != ' ' && cur != '\n' && cur != '\r' && cur != '\t')
             return false;
     }
     return true;
@@ -69,74 +234,116 @@ bool isIgnorableWhitespace(const char* text) {
 void emitText(ContentHandler* handler, const char* text) {
     if (text == nullptr || *text == '\0')
         return;
-    const int4 length = static_cast<int4>(std::char_traits<char>::length(text));
-    if (isIgnorableWhitespace(text))
+    const string value(text);
+    const int4 length = static_cast<int4>(value.size());
+    if (isIgnorableWhitespace(value))
         handler->ignorableWhitespace(text, 0, length);
     else
         handler->characters(text, 0, length);
 }
 
 /// Replays an XML declaration in the order used by the original grammar.
-void emitDeclaration(const pugi::xml_node& node, ContentHandler* handler) {
+void emitDeclaration(const pugi::xml_node& node, ContentHandler* handler, const vector<LegacyReference>& references) {
     const pugi::xml_attribute version = node.attribute("version");
     if (version)
-        handler->setVersion(version.value());
+        handler->setVersion(restoreLegacyReferences(version.value(), references));
 
     const pugi::xml_attribute encoding = node.attribute("encoding");
     if (encoding)
-        handler->setEncoding(encoding.value());
+        handler->setEncoding(restoreLegacyReferences(encoding.value(), references));
 }
 
-/// Returns whether a parsed DOM contains a doctype, which the original parser
-/// deliberately rejected instead of attempting DTD processing.
-bool containsDoctype(const pugi::xml_node& node) {
+/// Returns the first unsupported node in a parsed DOM using document order.
+string findUnsupportedNode(const pugi::xml_node& node) {
     for (pugi::xml_node child = node.first_child(); child; child = child.next_sibling()) {
-        if (child.type() == pugi::node_doctype || containsDoctype(child))
-            return true;
+        if (child.type() == pugi::node_doctype)
+            return "DTD's not supported";
+        if (child.type() == pugi::node_pi)
+            return "Processing instructions are not supported";
+        const string nested = findUnsupportedNode(child);
+        if (!nested.empty())
+            return nested;
     }
-    return false;
+    return "";
+}
+
+/// Emits one already-restored text segment using the original whitespace split.
+void emitTextSegment(ContentHandler* handler, const string& text) {
+    if (text.empty())
+        return;
+    const int4 length = static_cast<int4>(text.size());
+    if (isIgnorableWhitespace(text))
+        handler->ignorableWhitespace(text.data(), 0, length);
+    else
+        handler->characters(text.data(), 0, length);
+}
+
+/// Replays text while retaining event boundaries at source-level references.
+void emitText(ContentHandler* handler, const char* text, const vector<LegacyReference>& references) {
+    const string raw(text == nullptr ? "" : text);
+    string::size_type position = 0;
+    while (position < raw.size()) {
+        string::size_type next = string::npos;
+        const LegacyReference* matched = nullptr;
+        for (const LegacyReference& reference : references) {
+            const string::size_type candidate = raw.find(reference.marker, position);
+            if (candidate != string::npos && (next == string::npos || candidate < next)) {
+                next = candidate;
+                matched = &reference;
+            }
+        }
+        if (next == string::npos) {
+            emitTextSegment(handler, restoreLegacyReferences(raw.substr(position).c_str(), references));
+            break;
+        }
+        emitTextSegment(handler, restoreLegacyReferences(raw.substr(position, next - position).c_str(), references));
+        emitTextSegment(handler, string(1, matched->value));
+        position = next + matched->marker.size();
+    }
 }
 
 /// Replays a pugixml DOM node through the legacy SAX-compatible callbacks.
-void emitNode(const pugi::xml_node& node, ContentHandler* handler) {
+void emitNode(const pugi::xml_node& node, ContentHandler* handler, const vector<LegacyReference>& references) {
     switch (node.type()) {
         case pugi::node_element: {
             Attributes attributes(new string(node.name()));
             for (pugi::xml_attribute attribute = node.first_attribute(); attribute;
                  attribute = attribute.next_attribute()) {
-                attributes.add_attribute(new string(attribute.name()), new string(attribute.value()));
+                attributes.add_attribute(new string(attribute.name()),
+                                         new string(restoreLegacyReferences(attribute.value(), references)));
             }
 
             const string& name = attributes.getelemName();
             const string& uri = attributes.getelemURI();
             handler->startElement(uri, name, name, attributes);
             for (pugi::xml_node child = node.first_child(); child; child = child.next_sibling())
-                emitNode(child, handler);
+                emitNode(child, handler, references);
             handler->endElement(uri, name, name);
             break;
         }
         case pugi::node_pcdata:
         case pugi::node_cdata:
-            emitText(handler, node.value());
+            emitText(handler, node.value(), references);
             break;
         case pugi::node_declaration:
-            emitDeclaration(node, handler);
+            emitDeclaration(node, handler, references);
             break;
         case pugi::node_comment:
         case pugi::node_pi:
         case pugi::node_doctype:
         case pugi::node_null:
         case pugi::node_document:
-            // The original parser ignored comments, processing instructions, and
-            // DTD content after reporting DTDs as unsupported.
+            // Comments are intentionally ignored after parsing; processing
+            // instructions and DTDs are rejected before this replay phase.
             break;
     }
 }
 
 /// Replays all top-level nodes after the XML document has been validated.
-void emitDocument(const pugi::xml_document& document, ContentHandler* handler) {
+void emitDocument(const pugi::xml_document& document, ContentHandler* handler,
+                  const vector<LegacyReference>& references) {
     for (pugi::xml_node node = document.first_child(); node; node = node.next_sibling())
-        emitNode(node, handler);
+        emitNode(node, handler, references);
 }
 
 /// Counts document element nodes so an empty parsed stream cannot produce the
@@ -241,15 +448,28 @@ int4 xml_parse(istream& i, ContentHandler* hand, int4 dbg) {
 
     hand->startDocument();
 
+    ostringstream sourceStream;
+    sourceStream << i.rdbuf();
+    const string source = sourceStream.str();
+    const string sourceDiagnostic = findUnsupportedMarkup(source);
+    if (!sourceDiagnostic.empty()) {
+        reportStructuralError(hand, sourceDiagnostic);
+        return 1;
+    }
+
+    vector<LegacyReference> references;
+    const string parserInput = preserveLegacyReferences(source, references);
+    istringstream parserStream(parserInput);
     pugi::xml_document document;
-    const pugi::xml_parse_result result = document.load(i, XML_PARSE_OPTIONS);
+    const pugi::xml_parse_result result = document.load(parserStream, XML_PARSE_OPTIONS);
     if (!result) {
         reportParseError(hand, result);
         return static_cast<int4>(result.status);
     }
 
-    if (containsDoctype(document)) {
-        reportStructuralError(hand, "DTD's not supported");
+    const string parsedDiagnostic = findUnsupportedNode(document);
+    if (!parsedDiagnostic.empty()) {
+        reportStructuralError(hand, parsedDiagnostic);
         return 1;
     }
     if (countDocumentElements(document) != 1) {
@@ -257,7 +477,7 @@ int4 xml_parse(istream& i, ContentHandler* hand, int4 dbg) {
         return 1;
     }
 
-    emitDocument(document, hand);
+    emitDocument(document, hand, references);
     hand->endDocument();
     return 0;
 }

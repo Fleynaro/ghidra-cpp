@@ -80,6 +80,27 @@ public:
 } // namespace ghidra
 
 namespace ghidra {
+
+/// Add the new BlockSwitch to the owning graph after the complete switch type
+/// is visible. This definition must live in this module because block.cppm
+/// imports the switch module but cannot define a member that allocates its
+/// incomplete class across the module boundary.
+BlockSwitch* BlockGraph::newBlockSwitch(const vector<FlowBlock*>& cs, bool hasExit) {
+    FlowBlock* rootbl = cs[0];
+    unique_ptr<BlockSwitch> uret(new BlockSwitch(rootbl));
+    const FlowBlock* leafbl = rootbl->getExitLeaf();
+    if ((leafbl == (const FlowBlock*)0) || (leafbl->getType() != FlowBlock::t_copy))
+        throw LowlevelError("Could not get switch leaf");
+    uret->grabCaseBasic(leafbl->subBlock(0), cs);
+    identifyInternal(uret.get(), cs);
+    BlockSwitch* ret = uret.release();
+    addBlock(ret);
+    if (hasExit)
+        ret->forceOutputNum(1);
+    ret->clearFlag(f_switch_out);
+    return ret;
+}
+
 BlockSwitch::BlockSwitch(FlowBlock* ind)
 
 {
