@@ -475,19 +475,10 @@ int __fastcall FUN_140333210(undefined8 param_1,int param_2)
 
 {
   uint4 uVar1;
-  BADSPACEBASE *in_RSP;
-  xunknown8 *pxVar2;
-  xunknown1 *pxVar3;
-  undefined1 local_28 [16];
   
-  pxVar2 = local_28;
-  local_28._0_8_ = 0x14033322e;
   FUN_14032b6f4();
-  pxVar3 = (xunknown1 *)((int8)pxVar2 + -8);
-  *(xunknown8 *)((int8)pxVar2 + -8) = 0x140333239;
   FUN_14032b5e0(param_1);
   if (param_2 == 0) {
-    *(xunknown8 *)(pxVar3 + -8) = 0x140333269;
     uVar1 = rand();
   }
   else {
@@ -641,66 +632,57 @@ bsearch(void * _Key,void * _Base,size_t _NumOfElements,size_t _SizeOfElements,
   int4 iVar1;
   ulong * puVar2;
   BADSPACEBASE *in_RSP;
-  xunknown8 *pxVar3;
-  xunknown8 *pxVar5;
   xunknown1 *pxVar4;
+  xunknown1 *pxVar3;
+  uint8 uVar5;
   uint8 uVar6;
-  uint8 uVar7;
+  void * pvVar7;
   void * pvVar8;
-  void * pvVar9;
-  xunknown8 *pxVar10;
   int8 in_stack_00000028;
-  xunknown8 xStack_40;
   xunknown1 axStack_38 [56];
   
   pxVar4 = axStack_38;
-  pvVar8 = (void *)((_NumOfElements - 1) * _SizeOfElements + (int8)_Base);
+  pvVar7 = (void *)((_NumOfElements - 1) * _SizeOfElements + (int8)_Base);
   if ((((_Base == (void *)0x0) && (_NumOfElements != 0)) || (_SizeOfElements == 0)) ||
      (in_stack_00000028 == 0)) {
-    pxVar3 = &xStack_40;
-    xStack_40 = 0x14170caba;
     puVar2 = __doserrno();
     *(xunknown4 *)puVar2 = 0x16;
-    *(xunknown8 *)((int8)pxVar3 + -8) = 0x14170cac5;
     FUN_141715f74();
   }
-  else if (_Base <= pvVar8) {
+  else if (_Base <= pvVar7) {
     do {
-      uVar6 = _NumOfElements >> 1;
-      if (uVar6 == 0) {
-        pvVar8 = (void *)0x0;
+      uVar5 = _NumOfElements >> 1;
+      if (uVar5 == 0) {
+        pvVar7 = (void *)0x0;
         if (_NumOfElements == 0) {
           return 0;
         }
-        *(xunknown8 *)(pxVar4 + -8) = 0x14170cb56;
         iVar1 = (**(code **)(pxVar4 + 0x60))(_Key,_Base);
         if (iVar1 != 0) {
-          _Base = pvVar8;
+          _Base = pvVar7;
         }
         return _Base;
       }
-      uVar7 = uVar6 - 1;
+      uVar6 = uVar5 - 1;
       if ((_NumOfElements & 1) != 0) {
-        uVar7 = uVar6;
+        uVar6 = uVar5;
       }
-      pvVar9 = (void *)(uVar7 * _SizeOfElements + (int8)_Base);
-      pxVar10 = (xunknown8 *)(pxVar4 + 0x60);
-      pxVar5 = (xunknown8 *)(pxVar4 + -8);
-      pxVar4 = pxVar4 + -8;
-      *pxVar5 = 0x14170cb1f;
-      iVar1 = (*(code *)*pxVar10)(_Key,pvVar9);
+      pvVar8 = (void *)(uVar6 * _SizeOfElements + (int8)_Base);
+      pxVar3 = pxVar4 + -8;
+      iVar1 = (**(code **)(pxVar4 + 0x60))(_Key,pvVar8);
+      pxVar4 = pxVar3 + 8;
       if (iVar1 == 0) {
-        return pvVar9;
+        return pvVar8;
       }
       if (iVar1 < 0) {
-        pvVar8 = (void *)((int8)pvVar9 - _SizeOfElements);
-        uVar6 = uVar7;
+        pvVar7 = (void *)((int8)pvVar8 - _SizeOfElements);
+        uVar5 = uVar6;
       }
       else {
-        _Base = (void *)((int8)pvVar9 + _SizeOfElements);
+        _Base = (void *)((int8)pvVar8 + _SizeOfElements);
       }
-      _NumOfElements = uVar6;
-    } while (_Base <= pvVar8);
+      _NumOfElements = uVar5;
+    } while (_Base <= pvVar7);
   }
   return 0;
 }
@@ -787,17 +769,9 @@ vector_constructor_iterator
 {
   uint4 uVar1;
   uint8 uVar2;
-  BADSPACEBASE *in_RSP;
-  xunknown8 *pxVar4;
-  xunknown1 *pxVar3;
-  xunknown1 axStack_28 [40];
   
-  pxVar3 = axStack_28;
   uVar2 = (uint8)(uint4)param_3;
   while (uVar1 = (int4)uVar2 - 1, uVar2 = (uint8)uVar1, -1 < (int4)uVar1) {
-    pxVar4 = (xunknown8 *)(pxVar3 + -8);
-    pxVar3 = pxVar3 + -8;
-    *pxVar4 = 0x140001527;
     (*param_4)(param_1);
     param_1 = (void *)((int8)param_1 + param_2);
   }

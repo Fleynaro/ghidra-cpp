@@ -140,7 +140,20 @@ public:
         if (!result) {
             throw ghidra::BadDataError(result.error().message);
         }
+        const bool has_call = std::any_of(result->pcode.begin(), result->pcode.end(), [](const PcodeOperation& op) {
+            return op.opcode == static_cast<ghidra::uint4>(ghidra::CPUI_CALL) ||
+                   op.opcode == static_cast<ghidra::uint4>(ghidra::CPUI_CALLIND);
+        });
         for (const PcodeOperation& operation : result->pcode) {
+            // x86 CALL semantics materialize the return PC as a STORE before
+            // the CALL op. The native compiler specification models this
+            // location as the function return-address effect; discard only
+            // that exact synthetic store so it cannot become a user local.
+            if (has_call && operation.opcode == static_cast<ghidra::uint4>(ghidra::CPUI_STORE) &&
+                !operation.inputs.empty() && operation.inputs.back().space == "const" &&
+                operation.inputs.back().offset == address.getOffset() + result->length) {
+                continue;
+            }
             std::vector<ghidra::VarnodeData> inputs;
             std::size_t input_index = 0;
             if (operation.memory_space.has_value() &&
@@ -364,9 +377,10 @@ private:
             "<stackpointer register=\"" +
             description_.stack_register +
             "\" space=\"ram\"/>"
+            "<returnaddress><varnode space=\"stack\" offset=\"0\" size=\"8\"/></returnaddress>"
             "<default_proto><prototype name=\"" +
             description_.calling_convention +
-            "\" extrapop=\"0\">"
+            "\" extrapop=\"8\" stackshift=\"8\">"
             "<input>"
             "<pentry minsize=\"1\" maxsize=\"8\"><register name=\"RCX\"/></pentry>"
             "<pentry minsize=\"1\" maxsize=\"8\"><register name=\"RDX\"/></pentry>"
