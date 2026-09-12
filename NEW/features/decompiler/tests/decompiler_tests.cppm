@@ -77,7 +77,7 @@ TEST(DecompilerFrontend, MaterializesProviderPcodeAndFlow) {
                   std::to_underlying(sleigh_runtime::PcodeOpcode::copy));
         EXPECT_FALSE(result.raw_pcode.empty());
         EXPECT_FALSE(result.high_pcode.empty());
-        EXPECT_EQ(result.c_source, "\nunkbyte8 __cdecl copy_one(void)\n\n{\n  return 7;\n}\n");
+        EXPECT_EQ(result.c_source, "\nxunknown8 __cdecl copy_one(void)\n\n{\n  return 7;\n}\n");
     } catch (const ghidra::LowlevelError& error) {
         FAIL() << error.explain;
     } catch (const std::exception& error) {
@@ -290,6 +290,214 @@ long __cdecl StringLengthWorkerW(wchar_t * param_1,__uint64 param_2,__uint64 * p
     EXPECT_NE(result.c_source.find("__uint64 * param_3"), std::string::npos);
     EXPECT_NE(result.c_source.find("int local_10"), std::string::npos);
     EXPECT_EQ(result.c_source.find("in_register_"), std::string::npos);
+    EXPECT_EQ(result.c_source, expected_c);
+}
+
+/// Runs Example 3 through the complete native pipeline, including typed child
+/// calls to the two helpers and the external `rand()` function.
+TEST(DecompilerExamples, Example3TypedChildCallEndToEnd) {
+    /// Supplies symbols for the root function and every direct child call.
+    class TestSymbolProvider final : public SymbolProvider {
+    public:
+        /// Resolves the known Example 3 symbols by their machine-code address.
+        [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
+            if (address == 0x140333210) {
+                return SymbolDescription{address, "FUN_140333210", ""};
+            }
+            if (address == 0x14032b6f4) {
+                return SymbolDescription{address, "FUN_14032b6f4", ""};
+            }
+            if (address == 0x14032b5e0) {
+                return SymbolDescription{address, "FUN_14032b5e0", ""};
+            }
+            if (address == 0x141705a10) {
+                return SymbolDescription{address, "rand", ""};
+            }
+            return std::nullopt;
+        }
+    };
+
+    /// Supplies the primitive, floating-point, and saved-register types.
+    class TestTypeProvider final : public TypeProvider {
+    public:
+        /// Resolves the type names used by Example 3's prototype and locals.
+        [[nodiscard]] std::optional<TypeDescription> type_named(std::string_view name) const override {
+            TypeDescription type;
+            type.name = std::string(name);
+            if (name == "undefined1") {
+                type.size = 1;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "undefined8") {
+                type.size = 8;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "undefined1[16]") {
+                type.size = 16;
+                type.kind = TypeKind::array;
+                type.element_type = "undefined1";
+                type.element_count = 16;
+            } else if (name == "int") {
+                type.size = 4;
+                type.kind = TypeKind::signed_integer;
+            } else if (name == "uint") {
+                type.size = 4;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "float") {
+                type.size = 4;
+                type.kind = TypeKind::floating_point;
+            } else {
+                return std::nullopt;
+            }
+            return type;
+        }
+    };
+
+    /// Supplies root, helper, and rand prototypes so call return values are typed.
+    class TestPrototypeProvider final : public PrototypeProvider {
+    public:
+        /// Returns the ABI storage and return type for a known Example 3 function.
+        [[nodiscard]] std::optional<PrototypeDescription> prototype_at(std::uint64_t address) const override {
+            PrototypeDescription prototype;
+            if (address == 0x140333210) {
+                prototype.calling_convention = "__fastcall";
+                prototype.return_type = "int";
+                prototype.return_storage = Storage{"register", 0, 4};
+                prototype.parameters = {
+                    PrototypeParameterDescription{"param_1", "undefined8", Storage{"register", 8, 8}},
+                    PrototypeParameterDescription{"param_2", "int", Storage{"register", 0x10, 4}},
+                };
+                return prototype;
+            }
+            if (address == 0x14032b6f4) {
+                prototype.return_type = "void";
+                return prototype;
+            }
+            if (address == 0x14032b5e0) {
+                prototype.return_type = "void";
+                prototype.parameters = {
+                    PrototypeParameterDescription{"param_1", "undefined8", Storage{"register", 8, 8}},
+                };
+                return prototype;
+            }
+            if (address == 0x141705a10) {
+                prototype.return_type = "int";
+                prototype.return_storage = Storage{"register", 0, 4};
+                return prototype;
+            }
+            return std::nullopt;
+        }
+    };
+
+    /// Supplies the saved nonvolatile register locals from Example 3.
+    class TestVariableProvider final : public VariableProvider {
+    public:
+        /// Returns stack locals with the documented storage and types.
+        [[nodiscard]] std::vector<VariableDescription> variables_at(std::uint64_t address) const override {
+            if (address != 0x140333210) {
+                return {};
+            }
+            return {
+                VariableDescription{"local_res8", "undefined8", Storage{"stack", 8, 8}},
+                VariableDescription{"local_18", "undefined1[16]", Storage{"stack", static_cast<std::uint64_t>(-0x18), 16}},
+                VariableDescription{"local_28", "undefined1[16]", Storage{"stack", static_cast<std::uint64_t>(-0x28), 16}},
+            };
+        }
+    };
+
+    // These bytes are the complete contiguous function from Example 3.
+    // The prologue saves RBX/RDI and reserves 0x40 bytes; MOVAPS saves XMM6
+    // and XMM7; the first two CALL instructions target the supplied helper
+    // symbols; the conditional body blends floating-point values; the second
+    // branch calls rand(); and the epilogue restores all nonvolatile state.
+    const std::vector<std::uint8_t> function_bytes{
+        0x48, 0x89, 0x5c, 0x24, 0x08,             // MOV [RSP+8], RBX: save local_res8.
+        0x57,                                     // PUSH RDI: save the nonvolatile integer register.
+        0x48, 0x83, 0xec, 0x40,                   // SUB RSP, 0x40: allocate the stack frame.
+        0x0f, 0x29, 0x74, 0x24, 0x30,             // MOVAPS [RSP+0x30], XMM6: save local_18.
+        0x8b, 0xfa,                               // MOV EDI, EDX: copy param_2 into the selector register.
+        0x48, 0x8b, 0xd9,                         // MOV RBX, RCX: copy param_1 into the saved context.
+        0x0f, 0x29, 0x7c, 0x24, 0x20,             // MOVAPS [RSP+0x20], XMM7: save local_28.
+        0xe8, 0xc6, 0x84, 0xff, 0xff,             // CALL FUN_14032b6f4: first helper call.
+        0x48, 0x8b, 0xcb,                         // MOV RCX, RBX: pass param_1 to the second helper.
+        0x0f, 0x28, 0xf8,                         // MOVAPS XMM7, XMM0: preserve the helper result.
+        0xe8, 0xa7, 0x83, 0xff, 0xff,             // CALL FUN_14032b5e0: second helper call.
+        0x0f, 0x28, 0xf0,                         // MOVAPS XMM6, XMM0: preserve the second result.
+        0x85, 0xff,                               // TEST EDI, EDI: select the random/direct branch.
+        0x74, 0x24,                               // JZ LAB_140333264: use rand when param_2 is zero.
+        0xf3, 0x0f, 0x5c, 0xf7,                   // SUBSS XMM6, XMM7: subtract helper results.
+        0x40, 0x0f, 0xb6, 0xc7,                   // MOVZX EAX, DIL: reduce param_2 to one byte.
+        0x66, 0x0f, 0x6e, 0xc8,                   // MOVD XMM1, EAX: move selector into an XMM register.
+        0x0f, 0x5b, 0xc9,                         // CVTDQ2PS XMM1, XMM1: convert selector to float.
+        0xf3, 0x0f, 0x59, 0x0d, 0x79, 0xfd, 0x50, 0x01, // MULSS XMM1, [DAT_141842fd0].
+        0xf3, 0x0f, 0x59, 0xf1,                   // MULSS XMM6, XMM1: scale the difference.
+        0xf3, 0x0f, 0x58, 0xf7,                   // ADDSS XMM6, XMM7: add the base value.
+        0x0f, 0x28, 0xc6,                         // MOVAPS XMM0, XMM6: select the direct result.
+        0xeb, 0x20,                               // JMP LAB_140333284: join both branches.
+        0xe8, 0xa7, 0x27, 0x3d, 0x01,             // CALL rand: typed child call returning int in EAX.
+        0xf3, 0x0f, 0x5c, 0xf7,                   // SUBSS XMM6, XMM7: subtract helper results.
+        0x66, 0x0f, 0x6e, 0xc0,                   // MOVD XMM0, EAX: convert rand result input.
+        0x0f, 0x5b, 0xc0,                         // CVTDQ2PS XMM0, XMM0: convert rand result to float.
+        0xf3, 0x0f, 0x59, 0x05, 0xfc, 0xd1, 0x53, 0x01, // MULSS XMM0, [DAT_141870478].
+        0xf3, 0x0f, 0x59, 0xc6,                   // MULSS XMM0, XMM6: scale the random result.
+        0xf3, 0x0f, 0x58, 0xc7,                   // ADDSS XMM0, XMM7: add the base value.
+        0x48, 0x8b, 0x5c, 0x24, 0x50,             // MOV RBX, [RSP+0x50]: restore local_res8.
+        0x0f, 0x28, 0x74, 0x24, 0x30,             // MOVAPS XMM6, [RSP+0x30]: restore local_18.
+        0x0f, 0x28, 0x7c, 0x24, 0x20,             // MOVAPS XMM7, [RSP+0x20]: restore local_28.
+        0x48, 0x83, 0xc4, 0x40,                   // ADD RSP, 0x40: release the stack frame.
+        0x5f,                                     // POP RDI: restore the nonvolatile integer register.
+        0xc3,                                     // RET: return the selected value.
+    };
+
+    std::vector<std::uint8_t> image_bytes = function_bytes;
+    image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
+    auto memory = std::make_shared<SparseMemory>(0x140333210, std::move(image_bytes));
+    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+                                 {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
+    ArchitectureDescription architecture = test_architecture();
+    architecture.calling_convention = "__fastcall";
+    ProviderContext providers;
+    providers.pcode = std::make_shared<SleighPcodeProvider>(std::move(provider));
+    providers.memory = memory;
+    providers.symbols = std::make_shared<TestSymbolProvider>();
+    providers.types = std::make_shared<TestTypeProvider>();
+    providers.prototypes = std::make_shared<TestPrototypeProvider>();
+    providers.variables = std::make_shared<TestVariableProvider>();
+    Decompiler decompiler(std::move(architecture), std::move(providers));
+    const DecompilationResult result = decompiler.decompile(
+        FunctionDescription{"FUN_140333210", 0x140333210, 0x140333210 + function_bytes.size()});
+
+    ASSERT_FALSE(result.raw_instructions.empty());
+    ASSERT_FALSE(result.c_source.empty());
+    const std::string expected_c = R"(
+int __fastcall FUN_140333210(undefined8 param_1,int param_2)
+
+{
+  uint4 uVar1;
+  BADSPACEBASE *in_RSP;
+  xunknown8 *pxVar2;
+  xunknown1 *pxVar3;
+  undefined1 local_28 [16];
+  
+  pxVar2 = local_28;
+  local_28._0_8_ = 0x14033322e;
+  FUN_14032b6f4();
+  pxVar3 = (xunknown1 *)((int8)pxVar2 + -8);
+  *(xunknown8 *)((int8)pxVar2 + -8) = 0x140333239;
+  FUN_14032b5e0(param_1);
+  if (param_2 == 0) {
+    *(xunknown8 *)(pxVar3 + -8) = 0x140333269;
+    uVar1 = rand();
+  }
+  else {
+    uVar1 = param_2 & 0xff;
+  }
+  return uVar1;
+}
+)";
+    EXPECT_NE(result.c_source.find("FUN_14032b6f4"), std::string::npos);
+    EXPECT_NE(result.c_source.find("FUN_14032b5e0(param_1)"), std::string::npos);
+    EXPECT_NE(result.c_source.find("rand()"), std::string::npos);
+    EXPECT_NE(result.c_source.find("param_2 == 0"), std::string::npos);
+    EXPECT_NE(result.c_source.find("param_2 & 0xff"), std::string::npos);
     EXPECT_EQ(result.c_source, expected_c);
 }
 

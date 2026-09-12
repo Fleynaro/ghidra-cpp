@@ -325,8 +325,30 @@ private:
         insertSpace(new ghidra::JoinSpace(this, translate, numSpaces()));
         context = new ghidra::ContextInternal();
         types = new ghidra::TypeFactory(this);
-        types->cacheCoreTypes();
         types->setupSizes();
+        types->setCoreType("void", 1, ghidra::TYPE_VOID, false);
+        types->setCoreType("bool", 1, ghidra::TYPE_BOOL, false);
+        types->setCoreType("uint1", 1, ghidra::TYPE_UINT, false);
+        types->setCoreType("uint2", 2, ghidra::TYPE_UINT, false);
+        types->setCoreType("uint4", 4, ghidra::TYPE_UINT, false);
+        types->setCoreType("uint8", 8, ghidra::TYPE_UINT, false);
+        types->setCoreType("int1", 1, ghidra::TYPE_INT, false);
+        types->setCoreType("int2", 2, ghidra::TYPE_INT, false);
+        types->setCoreType("int4", 4, ghidra::TYPE_INT, false);
+        types->setCoreType("int8", 8, ghidra::TYPE_INT, false);
+        types->setCoreType("float4", 4, ghidra::TYPE_FLOAT, false);
+        types->setCoreType("float8", 8, ghidra::TYPE_FLOAT, false);
+        types->setCoreType("float10", 10, ghidra::TYPE_FLOAT, false);
+        types->setCoreType("float16", 16, ghidra::TYPE_FLOAT, false);
+        types->setCoreType("xunknown1", 1, ghidra::TYPE_UNKNOWN, false);
+        types->setCoreType("xunknown2", 2, ghidra::TYPE_UNKNOWN, false);
+        types->setCoreType("xunknown4", 4, ghidra::TYPE_UNKNOWN, false);
+        types->setCoreType("xunknown8", 8, ghidra::TYPE_UNKNOWN, false);
+        types->setCoreType("code", 1, ghidra::TYPE_CODE, false);
+        types->setCoreType("char", 1, ghidra::TYPE_INT, true);
+        types->setCoreType("wchar2", 2, ghidra::TYPE_INT, true);
+        types->setCoreType("wchar4", 4, ghidra::TYPE_INT, true);
+        types->cacheCoreTypes();
         commentdb = new ghidra::CommentDatabaseInternal();
         stringManager = new ghidra::StringManagerUnicode(this, 4096);
         cpool = new ghidra::ConstantPoolInternal();
@@ -633,6 +655,88 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
         const std::optional<SymbolDescription> symbol = state_->context.symbols->symbol_at(function.entry);
         if (symbol && !symbol->name.empty()) {
             function_name = symbol->name;
+        }
+    }
+    auto install_external_function = [&](std::uint64_t address, const std::string& fallback_name) {
+        ghidra::AddrSpace* external_space = state_->architecture->getDefaultCodeSpace();
+        const ghidra::Address external_address(external_space, address);
+        std::string external_name = fallback_name;
+        if (state_->context.symbols) {
+            const std::optional<SymbolDescription> symbol = state_->context.symbols->symbol_at(address);
+            if (symbol && !symbol->name.empty()) {
+                external_name = symbol->name;
+            }
+        }
+        ghidra::FunctionSymbol* external_symbol =
+            state_->architecture->symboltab->getGlobalScope()->addFunction(external_address, external_name);
+        ghidra::Funcdata* external_data = external_symbol->getFunction();
+        if (!state_->context.prototypes) {
+            return;
+        }
+        const std::optional<PrototypeDescription> prototype = state_->context.prototypes->prototype_at(address);
+        if (!prototype) {
+            return;
+        }
+        std::map<std::string, ghidra::Datatype*> type_cache;
+        ghidra::PrototypePieces pieces{};
+        pieces.model = state_->architecture->defaultfp;
+        pieces.name = external_name;
+        pieces.outtype = detail::resolve_provider_type(state_->context, state_->architecture->types,
+                                                       prototype->return_type, type_cache);
+        pieces.firstVarArgSlot = -1;
+        for (const PrototypeParameterDescription& parameter : prototype->parameters) {
+            pieces.innames.push_back(parameter.name);
+            pieces.intypes.push_back(detail::resolve_provider_type(state_->context,
+                                                                   state_->architecture->types,
+                                                                   parameter.type_name, type_cache));
+        }
+        external_data->getFuncProto().setPieces(pieces);
+        for (std::size_t index = 0; index < prototype->parameters.size(); ++index) {
+            if (!prototype->parameters[index].storage) {
+                continue;
+            }
+            ghidra::AddrSpace* parameter_space =
+                state_->architecture->getSpaceByName(prototype->parameters[index].storage->space);
+            if (parameter_space == nullptr) {
+                throw std::runtime_error("Child prototype references an unknown storage space: " +
+                                         prototype->parameters[index].storage->space);
+            }
+            ghidra::ParameterPieces parameter_pieces{};
+            parameter_pieces.addr = ghidra::Address(parameter_space,
+                                                    prototype->parameters[index].storage->offset);
+            parameter_pieces.type = pieces.intypes[index];
+            parameter_pieces.flags = ghidra::ParameterPieces::typelock |
+                                     ghidra::ParameterPieces::namelock |
+                                     ghidra::ParameterPieces::sizelock;
+            external_data->getFuncProto().setParam(static_cast<ghidra::int4>(index),
+                                                   prototype->parameters[index].name, parameter_pieces);
+        }
+        if (prototype->return_storage) {
+            ghidra::AddrSpace* output_space =
+                state_->architecture->getSpaceByName(prototype->return_storage->space);
+            if (output_space == nullptr) {
+                throw std::runtime_error("Child prototype references an unknown return space: " +
+                                         prototype->return_storage->space);
+            }
+            ghidra::ParameterPieces output_pieces{};
+            output_pieces.addr = ghidra::Address(output_space, prototype->return_storage->offset);
+            output_pieces.type = pieces.outtype;
+            output_pieces.flags = ghidra::ParameterPieces::typelock | ghidra::ParameterPieces::sizelock;
+            external_data->getFuncProto().setOutput(output_pieces);
+        }
+        external_data->getFuncProto().setCustomStorage(true);
+        external_data->getFuncProto().clearProviderErrors();
+    };
+    for (const Instruction& instruction : result.raw_instructions) {
+        for (const PcodeOperation& operation : instruction.pcode) {
+            if (operation.opcode != static_cast<std::uint32_t>(ghidra::CPUI_CALL) || operation.inputs.empty()) {
+                continue;
+            }
+            const std::uint64_t target = operation.inputs.front().offset;
+            if (target == function.entry) {
+                continue;
+            }
+            install_external_function(target, "FUN_" + std::to_string(target));
         }
     }
     ghidra::FunctionSymbol* symbol =
