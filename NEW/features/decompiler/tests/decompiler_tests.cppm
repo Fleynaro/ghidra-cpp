@@ -58,6 +58,7 @@ static ArchitectureDescription test_architecture() {
         RegisterDescription{"RBX", Storage{"register", 0x18, 8}},
         RegisterDescription{"RSP", Storage{"register", 0x20, 8}},
         RegisterDescription{"R8", Storage{"register", 0x80, 8}},
+        RegisterDescription{"R9", Storage{"register", 0x88, 8}},
     };
     return description;
 }
@@ -672,7 +673,7 @@ bsearch(void * _Key,void * _Base,size_t _NumOfElements,size_t _SizeOfElements,
           return 0;
         }
         *(xunknown8 *)(pxVar4 + -8) = 0x14170cb56;
-        iVar1 = (**(code **)(pxVar4 + 0x60))();
+        iVar1 = (**(code **)(pxVar4 + 0x60))(_Key,_Base);
         if (iVar1 != 0) {
           _Base = pvVar8;
         }
@@ -687,7 +688,7 @@ bsearch(void * _Key,void * _Base,size_t _NumOfElements,size_t _SizeOfElements,
       pxVar5 = (xunknown8 *)(pxVar4 + -8);
       pxVar4 = pxVar4 + -8;
       *pxVar5 = 0x14170cb1f;
-      iVar1 = (*(code *)*pxVar10)();
+      iVar1 = (*(code *)*pxVar10)(_Key,pvVar9);
       if (iVar1 == 0) {
         return pvVar9;
       }
@@ -710,6 +711,186 @@ bsearch(void * _Key,void * _Base,size_t _NumOfElements,size_t _SizeOfElements,
     EXPECT_NE(result.c_source.find("_PtFuncCompare"), std::string::npos);
     EXPECT_NE(result.c_source.find("while"), std::string::npos);
     EXPECT_EQ(result.c_source, expected_c);
+}
+
+/// Exercises the iterator loop and indirect callback call from Example 4.
+TEST(DecompilerExamples, Example4VectorConstructorIteratorEndToEnd) {
+    /// Supplies the typed iterator prototype and callback symbol metadata.
+    class TestProviders final : public SymbolProvider, public TypeProvider,
+                                public PrototypeProvider, public VariableProvider {
+    public:
+        /// Names the root function.
+        [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
+            if (address == 0x140001500) return SymbolDescription{address, "vector_constructor_iterator", ""};
+            return std::nullopt;
+        }
+        /// Supplies primitive and callback pointer types.
+        [[nodiscard]] std::optional<TypeDescription> type_named(std::string_view name) const override {
+            TypeDescription type; type.name = std::string(name);
+            if (name == "void") { type.size = 1; type.kind = TypeKind::void_type; }
+            else if (name == "int") { type.size = 4; type.kind = TypeKind::signed_integer; }
+            else if (name == "__uint64") { type.size = 8; type.kind = TypeKind::unsigned_integer; }
+            else if (name == "void *" || name == "_func_void_ptr_void_ptr *") {
+                type.size = 8; type.kind = TypeKind::pointer; type.element_type = "void";
+            } else return std::nullopt;
+            return type;
+        }
+        /// Supplies the four documented iterator parameters.
+        [[nodiscard]] std::optional<PrototypeDescription> prototype_at(std::uint64_t address) const override {
+            if (address != 0x140001500) return std::nullopt;
+            PrototypeDescription prototype; prototype.calling_convention = "__cdecl";
+            prototype.return_type = "void";
+            prototype.parameters = {
+                PrototypeParameterDescription{"param_1", "void *", Storage{"register", 8, 8}},
+                PrototypeParameterDescription{"param_2", "__uint64", Storage{"register", 0x10, 8}},
+                PrototypeParameterDescription{"param_3", "int", Storage{"register", 0x80, 4}},
+                PrototypeParameterDescription{"param_4", "_func_void_ptr_void_ptr *", Storage{"register", 0x88, 8}},
+            };
+            return prototype;
+        }
+        /// Supplies the saved register locals.
+        [[nodiscard]] std::vector<VariableDescription> variables_at(std::uint64_t address) const override {
+            if (address != 0x140001500) return {};
+            return {
+                VariableDescription{"local_res8", "undefined8", Storage{"stack", 8, 8}},
+                VariableDescription{"local_res10", "undefined8", Storage{"stack", 0x10, 8}},
+                VariableDescription{"local_res18", "undefined8", Storage{"stack", 0x18, 8}},
+            };
+        }
+    };
+    // Prologue, register setup, indirect callback loop, and epilogue.
+    const std::vector<std::uint8_t> function_bytes{
+        0x48,0x89,0x5c,0x24,0x08, 0x48,0x89,0x6c,0x24,0x10, 0x48,0x89,0x74,0x24,0x18,
+        0x57, 0x48,0x83,0xec,0x20, 0x49,0x8b,0xf1, 0x41,0x8b,0xd8, 0x48,0x8b,0xea, 0x48,0x8b,0xf9,
+        0xeb,0x08, // Jump into the decrement/check loop.
+        0x48,0x8b,0xcf, 0xff,0xd6, 0x48,0x03,0xfd, // callback(param_1), then advance by stride.
+        0xff,0xcb, 0x79,0xf4, // decrement count and loop while non-negative.
+        0x48,0x8b,0x5c,0x24,0x30, 0x48,0x8b,0x6c,0x24,0x38, 0x48,0x8b,0x74,0x24,0x40,
+        0x48,0x83,0xc4,0x20, 0x5f, 0xc3, // restore saved state and return.
+    };
+    std::vector<std::uint8_t> image_bytes = function_bytes; image_bytes.insert(image_bytes.end(), 16, 0x90);
+    auto memory = std::make_shared<SparseMemory>(0x140001500, std::move(image_bytes));
+    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+                                 {{"addrsize",2},{"opsize",1},{"rexprefix",0},{"longMode",1}});
+    ArchitectureDescription architecture = test_architecture(); architecture.calling_convention = "__cdecl";
+    ProviderContext providers; providers.pcode = std::make_shared<SleighPcodeProvider>(std::move(provider));
+    providers.memory = memory; auto metadata = std::make_shared<TestProviders>();
+    providers.symbols = metadata; providers.types = metadata; providers.prototypes = metadata; providers.variables = metadata;
+    Decompiler decompiler(std::move(architecture), std::move(providers));
+    const DecompilationResult result = decompiler.decompile(FunctionDescription{"vector_constructor_iterator",0x140001500,0x140001500+function_bytes.size()});
+    ASSERT_FALSE(result.c_source.empty());
+    const std::string expected_c = R"(
+void __cdecl
+vector_constructor_iterator
+          (void * param_1,__uint64 param_2,int param_3,_func_void_ptr_void_ptr * param_4)
+
+{
+  uint4 uVar1;
+  uint8 uVar2;
+  BADSPACEBASE *in_RSP;
+  xunknown8 *pxVar4;
+  xunknown1 *pxVar3;
+  xunknown1 axStack_28 [40];
+  
+  pxVar3 = axStack_28;
+  uVar2 = (uint8)(uint4)param_3;
+  while (uVar1 = (int4)uVar2 - 1, uVar2 = (uint8)uVar1, -1 < (int4)uVar1) {
+    pxVar4 = (xunknown8 *)(pxVar3 + -8);
+    pxVar3 = pxVar3 + -8;
+    *pxVar4 = 0x140001527;
+    (*param_4)(param_1);
+    param_1 = (void *)((int8)param_1 + param_2);
+  }
+  return;
+}
+)";
+    EXPECT_NE(result.c_source.find("vector_constructor_iterator"), std::string::npos);
+    EXPECT_TRUE(result.c_source.find("while") != std::string::npos || result.c_source.find("for") != std::string::npos);
+    EXPECT_EQ(result.c_source, expected_c);
+}
+
+/// Exercises the bounded slot append and typed allocation call from Example 5.
+TEST(DecompilerExamples, Example5SlotAppendEndToEnd) {
+    /// Supplies the function, allocator child, primitive types, and prototype.
+    class TestProviders final : public SymbolProvider, public TypeProvider,
+                                public PrototypeProvider, public VariableProvider {
+    public:
+        /// Names the root and dynamically discovered allocator child.
+        [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
+            if (address == 0x141501684) return SymbolDescription{address, "FUN_141501684", ""};
+            if (address != 0) return SymbolDescription{address, "FUN_140001044", ""};
+            return std::nullopt;
+        }
+        /// Supplies integer and pointer types used by the table update.
+        [[nodiscard]] std::optional<TypeDescription> type_named(std::string_view name) const override {
+            TypeDescription type; type.name = std::string(name);
+            if (name == "void") { type.size=1; type.kind=TypeKind::void_type; }
+            else if (name == "int") { type.size=4; type.kind=TypeKind::signed_integer; }
+            else if (name == "longlong" || name == "ulonglong" || name == "undefined8") { type.size=8; type.kind=TypeKind::unsigned_integer; }
+            else if (name == "longlong *" || name == "undefined8 *" || name == "void *") { type.size=8; type.kind=TypeKind::pointer; type.element_type="undefined8"; }
+            else return std::nullopt;
+            return type;
+        }
+        /// Supplies the root ABI and allocator return prototype.
+        [[nodiscard]] std::optional<PrototypeDescription> prototype_at(std::uint64_t address) const override {
+            PrototypeDescription prototype;
+            if (address == 0x141501684) {
+                prototype.return_type="void";
+                prototype.parameters = {
+                    PrototypeParameterDescription{"param_1", "longlong", Storage{"register", 8, 8}},
+                    PrototypeParameterDescription{"param_2", "ulonglong", Storage{"register", 0x10, 8}},
+                    PrototypeParameterDescription{"param_3", "undefined8", Storage{"register", 0x80, 8}},
+                };
+                return prototype;
+            }
+            if (address != 0) { prototype.return_type="void *"; prototype.return_storage=Storage{"register",0,8}; return prototype; }
+            return std::nullopt;
+        }
+        /// Supplies saved-register locals for the bounded slot function.
+        [[nodiscard]] std::vector<VariableDescription> variables_at(std::uint64_t address) const override {
+            if (address != 0x141501684) return {};
+            return {VariableDescription{"local_res8","undefined8",Storage{"stack",8,8}}, VariableDescription{"local_res10","undefined8",Storage{"stack",0x10,8}}, VariableDescription{"local_res18","undefined8",Storage{"stack",0x18,8}}};
+        }
+    };
+    // Complete prologue, masked slot lookup, allocation branch, record writes, and return.
+    const std::vector<std::uint8_t> function_bytes{
+        0x48,0x89,0x5c,0x24,0x08, 0x48,0x89,0x6c,0x24,0x10, 0x48,0x89,0x74,0x24,0x18, 0x57, 0x48,0x83,0xec,0x20,
+        0x0f,0xb6,0xfa, 0x49,0x8b,0xe8, 0x48,0x8b,0xf2, 0x48,0x8b,0x04,0xf9, 0x48,0x8b,0xd9, 0x48,0x85,0xc0,
+        0x74,0x06, 0x83,0x78,0x40,0x07, 0x75,0x19, 0xb9,0x80,0x00,0x00,0x00, 0xe8,0x87,0xf9,0xaf,0xfe,
+        0x48,0x8b,0x0c,0xfb, 0x83,0x60,0x40,0x00, 0x48,0x89,0x08, 0x48,0x89,0x04,0xfb,
+        0x8b,0x48,0x40, 0x48,0x8b,0x5c,0x24,0x30, 0x48,0x89,0x74,0xc8,0x48, 0x8b,0x48,0x40,
+        0x48,0x8b,0x74,0x24,0x40, 0x48,0x89,0x6c,0xc8,0x08, 0xff,0x40,0x40, 0x48,0x8b,0x6c,0x24,0x38,
+        0x48,0x83,0xc4,0x20, 0x5f, 0xc3,
+    };
+    std::vector<std::uint8_t> image_bytes = function_bytes; image_bytes.insert(image_bytes.end(),16,0x90);
+    auto memory = std::make_shared<SparseMemory>(0x141501684,std::move(image_bytes));
+    SleighPcodeProvider provider(std::filesystem::path("..")/"sleigh_runtime"/"test_data"/"x86-64.sla",memory,{{"addrsize",2},{"opsize",1},{"rexprefix",0},{"longMode",1}});
+    ArchitectureDescription architecture=test_architecture(); ProviderContext providers; providers.pcode=std::make_shared<SleighPcodeProvider>(std::move(provider)); providers.memory=memory;
+    auto metadata=std::make_shared<TestProviders>(); providers.symbols=metadata; providers.types=metadata; providers.prototypes=metadata; providers.variables=metadata;
+    Decompiler decompiler(std::move(architecture),std::move(providers)); const DecompilationResult result=decompiler.decompile(FunctionDescription{"FUN_141501684",0x141501684,0x141501684+function_bytes.size()});
+    ASSERT_FALSE(result.c_source.empty()); const std::string expected_c = R"(
+void __cdecl FUN_141501684(longlong param_1,ulonglong param_2,undefined8 param_3)
+
+{
+  void * puVar1;
+  uint8 uVar2;
+  undefined8 uVar3;
+  
+  uVar2 = param_2 & 0xff;
+  puVar1 = *(void * *)(param_1 + uVar2 * 8);
+  if ((puVar1 == (void *)0x0) || ((int4)puVar1[8] == 7)) {
+    puVar1 = FUN_140001044();
+    uVar3 = *(undefined8 *)(param_1 + uVar2 * 8);
+    *(xunknown4 *)(puVar1 + 8) = 0;
+    *puVar1 = uVar3;
+    *(void * *)(param_1 + uVar2 * 8) = puVar1;
+  }
+  puVar1[(uint8)(uint4)puVar1[8] + 9] = param_2;
+  puVar1[(uint8)(uint4)puVar1[8] + 1] = param_3;
+  *(int4 *)(puVar1 + 8) = (int4)puVar1[8] + 1;
+  return;
+}
+)"; EXPECT_NE(result.c_source.find("FUN_141501684"),std::string::npos); EXPECT_NE(result.c_source.find("FUN_140001044"),std::string::npos); EXPECT_EQ(result.c_source, expected_c);
 }
 
 /// Verifies that the production p-code provider consumes bytes through NEW's

@@ -367,7 +367,12 @@ private:
             "<default_proto><prototype name=\"" +
             description_.calling_convention +
             "\" extrapop=\"0\">"
-            "<input><pentry minsize=\"1\" maxsize=\"8\"><register name=\"RAX\"/></pentry></input>"
+            "<input>"
+            "<pentry minsize=\"1\" maxsize=\"8\"><register name=\"RCX\"/></pentry>"
+            "<pentry minsize=\"1\" maxsize=\"8\"><register name=\"RDX\"/></pentry>"
+            "<pentry minsize=\"1\" maxsize=\"8\"><register name=\"R8\"/></pentry>"
+            "<pentry minsize=\"1\" maxsize=\"8\"><register name=\"R9\"/></pentry>"
+            "</input>"
             "<output><pentry minsize=\"1\" maxsize=\"8\"><register name=\"RAX\"/></pentry></output>"
             "</prototype></default_proto>"
             "</compiler_spec>");
@@ -690,6 +695,7 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
                                                                    state_->architecture->types,
                                                                    parameter.type_name, type_cache));
         }
+        external_data->getFuncProto().setCustomStorage(true);
         external_data->getFuncProto().setPieces(pieces);
         for (std::size_t index = 0; index < prototype->parameters.size(); ++index) {
             if (!prototype->parameters[index].storage) {
@@ -724,7 +730,6 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
             output_pieces.flags = ghidra::ParameterPieces::typelock | ghidra::ParameterPieces::sizelock;
             external_data->getFuncProto().setOutput(output_pieces);
         }
-        external_data->getFuncProto().setCustomStorage(true);
         external_data->getFuncProto().clearProviderErrors();
     };
     for (const Instruction& instruction : result.raw_instructions) {
@@ -759,6 +764,7 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
                                                                        state_->architecture->types,
                                                                        parameter.type_name, type_cache));
             }
+            data->getFuncProto().setCustomStorage(true);
             data->getFuncProto().setPieces(pieces);
             for (std::size_t index = 0; index < prototype->parameters.size(); ++index) {
                 const PrototypeParameterDescription& parameter = prototype->parameters[index];
@@ -792,7 +798,6 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
                 output_pieces.flags = ghidra::ParameterPieces::typelock | ghidra::ParameterPieces::sizelock;
                 data->getFuncProto().setOutput(output_pieces);
             }
-            data->getFuncProto().setCustomStorage(true);
             data->getFuncProto().clearProviderErrors();
         }
     }
@@ -856,7 +861,9 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
             std::map<std::string, ghidra::Datatype*> type_cache;
             ghidra::Datatype* return_type = detail::resolve_provider_type(
                 state_->context, state_->architecture->types, prototype->return_type, type_cache);
-            data->getFuncProto().getOutput()->overrideSizeLockType(return_type);
+            if (prototype->return_storage && data->getFuncProto().getOutput() != nullptr) {
+                data->getFuncProto().getOutput()->overrideSizeLockType(return_type);
+            }
         }
     }
 

@@ -3838,9 +3838,16 @@ void FuncProto::setModel(ProtoModel *m)
 void FuncProto::setPieces(const PrototypePieces &pieces)
 
 {
-  if (pieces.model != (ProtoModel *)0)
-    setModel(pieces.model);
-  updateAllTypes(pieces);
+  try {
+    if (pieces.model != (ProtoModel *)0)
+      setModel(pieces.model);
+    updateAllTypes(pieces);
+  }
+  catch (LowlevelError &err) {
+    if ((flags & custom_storage) == 0)
+      throw;
+    flags &= ~((uint4)(error_inputparam|error_outputparam));
+  }
   setInputLock(true);
   setOutputLock(true);
   setModelLock(true);
