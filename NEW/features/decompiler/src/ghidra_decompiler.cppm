@@ -7060,7 +7060,9 @@ int main(int argc,char **argv)
         TypePartialStruct* getTypePartialStruct(Datatype* contain, int4 off, int4 sz); ///< Create a partial structure
         TypeUnion* getTypeUnion(const string& n);                                      ///< Create an (empty) union
         TypePartialUnion* getTypePartialUnion(TypeUnion* contain, int4 off, int4 sz);  ///< Create a partial union
-        TypeEnum* getTypeEnum(const string& n);                                    ///< Create an (empty) enumeration
+        TypeEnum* getTypeEnum(const string& n); ///< Create an (empty) enumeration
+        /// Create a provider-sized enumeration with an explicit signedness.
+        TypeEnum* getTypeEnum(const string& n, int4 sz, bool isSigned);
         TypePartialEnum* getTypePartialEnum(TypeEnum* contain, int4 off, int4 sz); ///< Create a partial enumeration
         TypeSpacebase* getTypeSpacebase(AddrSpace* spc, uint8 scope);              ///< Create a "spacebase" type
         TypeCode* getTypeCode(const PrototypePieces& proto);                       ///< Create a "function" datatype

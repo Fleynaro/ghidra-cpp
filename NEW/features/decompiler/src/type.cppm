@@ -4685,6 +4685,23 @@ TypeEnum* TypeFactory::getTypeEnum(const string& n)
     return (TypeEnum*)findAdd(tmp);
 }
 
+/// Create a provider-sized enumeration with an explicit signedness.
+///
+/// The provider frontend cannot rely on compiler-spec enum defaults because an
+/// externally supplied type may use a different storage width or signedness.
+///
+/// \param n is the provider name of the enumeration
+/// \param s is the storage size in bytes
+/// \param isSigned selects signed or unsigned enumeration semantics
+/// \return the canonical enumeration owned by this factory
+TypeEnum* TypeFactory::getTypeEnum(const string& n, int4 s, bool isSigned)
+
+{
+    TypeEnum tmp(s, isSigned ? TYPE_ENUM_INT : TYPE_ENUM_UINT, n);
+    tmp.id = Datatype::hashName(n);
+    return (TypeEnum*)findAdd(tmp);
+}
+
 /// Create a data-type representing storage of part of an \e enumeration.
 /// \param contain is the parent \e enumeration data-type that we are taking a part of.
 /// \param off is the offset (in bytes) within the parent that the partial data-type starts at

@@ -69,3 +69,36 @@ add_test(NAME native_funcproto_tests COMMAND native_funcproto_tests)
 set_tests_properties(native_funcproto_tests PROPERTIES
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
+
+add_executable(decompiler_architecture_tests)
+target_sources(decompiler_architecture_tests
+    PUBLIC
+        FILE_SET cxx_modules TYPE CXX_MODULES FILES decompiler_architecture_tests.cppm
+)
+target_link_libraries(decompiler_architecture_tests PRIVATE
+    NewGhidra::DecompilerFrontend
+    GTest::gtest_main
+)
+target_compile_features(decompiler_architecture_tests PRIVATE cxx_std_23)
+
+add_test(NAME decompiler_architecture_tests COMMAND decompiler_architecture_tests)
+set_tests_properties(decompiler_architecture_tests PROPERTIES
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.."
+)
+
+
+add_executable(metadata_provider_tests)
+target_sources(metadata_provider_tests
+    PUBLIC
+        FILE_SET cxx_modules TYPE CXX_MODULES FILES metadata_provider_tests.cppm
+)
+target_link_libraries(metadata_provider_tests PRIVATE
+    NewGhidra::DecompilerFrontend
+    GTest::gtest_main
+)
+target_compile_features(metadata_provider_tests PRIVATE cxx_std_23)
+
+add_test(NAME metadata_provider_tests COMMAND metadata_provider_tests)
+set_tests_properties(metadata_provider_tests PROPERTIES
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.."
+)
