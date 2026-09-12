@@ -168,6 +168,8 @@ struct Instruction {
     std::vector<Operand> operands;
     /// Mask returned by InstructionPrototype.getInstructionMask().
     std::vector<std::uint8_t> instruction_mask;
+    /// True when the owning Sleigh specification is an x86 language.
+    bool is_x86{};
     FlowInfo flow;
     std::vector<PcodeOp> pcode;
 };

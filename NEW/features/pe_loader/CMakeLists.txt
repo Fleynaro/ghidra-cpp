@@ -36,4 +36,6 @@ else()
     target_compile_options(pe_loader PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-add_subdirectory(tests)
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()

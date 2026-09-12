@@ -88,7 +88,8 @@ public:
 struct ProgramInfo {
     std::optional<std::string> language_id;
     std::optional<std::string> compiler_spec;
-    std::set<std::string> source_languages;
+    /// Null means that every source language is acceptable; an empty set means none are acceptable.
+    std::optional<std::set<std::string>> source_languages;
     bool ignore_database_filters{};
 };
 

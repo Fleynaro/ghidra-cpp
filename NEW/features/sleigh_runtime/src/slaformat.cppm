@@ -199,8 +199,14 @@ public:
         s.seekg(compressed_start, ios::beg);
         if (compressed_start < 0 || compressed_end < compressed_start)
             throw LowlevelError("Unable to determine compressed SLA length");
-        vector<uint1> compressed(static_cast<size_t>(compressed_end - compressed_start));
+        const auto compressed_size = static_cast<std::uintmax_t>(compressed_end - compressed_start);
+        if (compressed_size > static_cast<std::uintmax_t>(std::numeric_limits<int4>::max()) ||
+            compressed_size > static_cast<std::uintmax_t>(std::numeric_limits<std::streamsize>::max()))
+            throw LowlevelError("Compressed SLA stream is too large");
+        vector<uint1> compressed(static_cast<size_t>(compressed_size));
         s.read(reinterpret_cast<char*>(compressed.data()), static_cast<std::streamsize>(compressed.size()));
+        if (s.gcount() != static_cast<std::streamsize>(compressed.size()))
+            throw LowlevelError("Unexpected end of compressed SLA stream");
         if (compressed.empty())
             throw LowlevelError("Unexpected end of compressed SLA stream");
         decompressor.input(compressed.data(), static_cast<int4>(compressed.size()));
@@ -215,6 +221,8 @@ public:
                 }
                 outAvail = decompressor.inflate(outBuf + (BUFFER_SIZE - outAvail), outAvail);
             } while (!decompressor.isFinished() && (outAvail == 0 || decompressor.hasInput()));
+            if (!decompressor.isFinished() && !decompressor.hasInput())
+                throw LowlevelError("Unexpected end of compressed SLA stream");
         }
         endIngest(BUFFER_SIZE - outAvail);
     }

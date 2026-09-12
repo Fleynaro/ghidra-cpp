@@ -6,7 +6,8 @@ the analyzer framework.
 
 ## Navigation
 
-- [`CMakeLists.txt`](CMakeLists.txt) builds the `NewGhidra::FunctionId` static library and tests.
+- [`CMakeLists.txt`](CMakeLists.txt) builds the `NewGhidra::FunctionId` static library and optionally its tests
+  when `BUILD_TESTING` is enabled.
 - [`cli/`](cli/) contains `function_id_cli`, the command-line raw-byte identifier.
 - [`function_id.cppm`](function_id.cppm) defines the public hashing, database, and identification API.
 - [`src/function_id.cpp`](src/function_id.cpp) implements FNV hashing, the packed-item and Ghidra
@@ -15,7 +16,7 @@ the analyzer framework.
   operand masks, fixed handles, flow metadata, and decoded bytes.
 - [`tests/CMakeLists.txt`](tests/CMakeLists.txt) registers the GoogleTest target.
 - [`tests/function_id_tests.cpp`](tests/function_id_tests.cpp) exercises real `TEST/fid/*.fidb`
-  fixtures, malformed input, hashing, filtering, relations, and candidate conflicts.
+  fixtures, x86 and ARM-backed hashing, generic skip behavior, and the source-filter API contract.
 
 ## Original implementation references
 

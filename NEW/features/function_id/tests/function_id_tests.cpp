@@ -120,9 +120,49 @@ TEST(FunctionIdHash, SkipsX86NopInstruction) {
     }
     instructions[2].bytes = {0x90};
     instructions[2].instruction_mask = {0xff};
+    instructions[2].skip = true;
     const auto result = fid::Hasher::hash(instructions);
     ASSERT_TRUE(result.has_value());
     EXPECT_EQ(result->code_unit_size, 4);
+}
+
+/// Verifies that architecture-specific x86 skipping is not applied to generic instruction bytes.
+TEST(FunctionIdHash, DoesNotSkipUnmarkedGenericBytes) {
+    std::vector<fid::Instruction> instructions(4);
+    for (auto& instruction : instructions) {
+        instruction.bytes = {0x90};
+        instruction.instruction_mask = {0xff};
+    }
+    const auto result = fid::Hasher::hash(instructions);
+    ASSERT_TRUE(result.has_value()) << result.error().message;
+    EXPECT_EQ(result->code_unit_size, 4);
+}
+
+/// Verifies that a non-x86 Sleigh instruction retains byte-dependent hash semantics instead of a constant fallback.
+TEST(FunctionIdHash, HashesNonX86SleighInstructionBytes) {
+    sleigh_runtime::Decoder decoder(SLEIGH_ARM_TEST_SLA);
+    const std::array<std::uint8_t, 4> bx_lr{0x1e, 0xff, 0x2f, 0xe1};
+    const std::array<std::uint8_t, 4> svc_zero{0x00, 0x00, 0x00, 0xef};
+    const auto first = decoder.decode(0x400000ULL, bx_lr, {});
+    const auto second = decoder.decode(0x400000ULL, svc_zero, {});
+    ASSERT_TRUE(first.has_value()) << first.error().message;
+    ASSERT_TRUE(second.has_value()) << second.error().message;
+    const std::array<sleigh_runtime::Instruction, 4> first_extent{*first, *first, *first, *first};
+    const std::array<sleigh_runtime::Instruction, 4> second_extent{*second, *second, *second, *second};
+    const auto first_hash = fid::Hasher::hash_sleigh(first_extent);
+    const auto second_hash = fid::Hasher::hash_sleigh(second_extent);
+    ASSERT_TRUE(first_hash.has_value()) << first_hash.error().message;
+    ASSERT_TRUE(second_hash.has_value()) << second_hash.error().message;
+    EXPECT_NE(first_hash->full_hash, second_hash->full_hash);
+}
+
+/// Verifies that the public program context can distinguish unrestricted sources from no sources.
+TEST(FunctionIdFilter, DistinguishesWildcardAndEmptySourceSets) {
+    const fid::ProgramInfo unrestricted{std::nullopt, std::nullopt, std::nullopt, false};
+    const fid::ProgramInfo no_sources{std::nullopt, std::nullopt, std::set<std::string>{}, false};
+    EXPECT_FALSE(unrestricted.source_languages.has_value());
+    ASSERT_TRUE(no_sources.source_languages.has_value());
+    EXPECT_TRUE(no_sources.source_languages->empty());
 }
 
 /// Verifies the first real acceptance extent through Sleigh and the original VS2012 database.
@@ -154,7 +194,7 @@ void expect_fixture_matches(std::string_view hex, std::initializer_list<std::str
     ASSERT_TRUE(hash.has_value()) << hash.error().message;
     std::vector<std::string> names;
     const fid::FunctionContext context{*hash, {}, {}};
-    const fid::ProgramInfo program{std::string{"x86:LE:64:default"}, std::nullopt, {}, false};
+    const fid::ProgramInfo program{std::string{"x86:LE:64:default"}, std::nullopt, std::nullopt, false};
     for (const auto database_name : database_names) {
         auto database = open_database(database_name);
         const auto result = database.identify(context, program, 0.0F);

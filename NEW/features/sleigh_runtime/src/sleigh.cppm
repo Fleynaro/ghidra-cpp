@@ -742,6 +742,17 @@ public:
     bool getInstructionMask(const Address& baseaddr, std::vector<uint1>& mask, std::vector<uint1>& value) const {
         auto* parser = obtainContext(baseaddr, ParserContext::pcode);
         bool found = false;
+        bool x86 = false;
+        try {
+            (void)getRegister("RAX");
+            x86 = true;
+        } catch (...) {
+            try {
+                (void)getRegister("EAX");
+                x86 = true;
+            } catch (...) {
+            }
+        }
         std::function<void(ConstructState*)> collect = [&](ConstructState* state) {
             if (state == nullptr || state->ct == nullptr)
                 return;
@@ -749,7 +760,11 @@ public:
             if (parent != nullptr) {
                 std::vector<uint1> current_mask;
                 std::vector<uint1> current_value;
-                if (parent->getConstructorMask(state->ct, current_mask, current_value, state->offset)) {
+                const bool resolved =
+                    x86 ? parent->getConstructorMask(state->ct, current_mask, current_value, state->offset)
+                        : parent->getResolvedConstructorMask(*parser, state->ct, current_mask, current_value,
+                                                             state->offset);
+                if (resolved) {
                     if (mask.size() < current_mask.size()) {
                         mask.resize(current_mask.size(), 0);
                         value.resize(current_mask.size(), 0);

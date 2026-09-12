@@ -14,6 +14,17 @@ constexpr std::uint32_t scalar_placeholder = 0xfeeddeadU;
 constexpr std::uint64_t packed_magic = 0x2e30212634e92c20ULL;
 constexpr std::uint64_t buffer_magic = 0x2f30312c34292c2aULL;
 constexpr std::string_view fid_content_type = "Function ID Database";
+constexpr std::string_view fid_zip_entry_name = "FOLDER_ITEM";
+/// Matches db.ChainedBuffer.XOR_MASK_BYTES from the original Ghidra database layer.
+constexpr std::array<Byte, 128> chained_xor_mask = {
+    0x59, 0xea, 0x67, 0x23, 0xda, 0xb8, 0x00, 0xb8, 0xc3, 0x48, 0xdd, 0x8b, 0x21, 0xd6, 0x94, 0x78, 0x35, 0xab, 0x2b,
+    0x7e, 0xb2, 0x4f, 0x82, 0x4e, 0x0e, 0x16, 0xc4, 0x57, 0x12, 0x8e, 0x7e, 0xe6, 0xb6, 0xbd, 0x56, 0x91, 0x57, 0x72,
+    0xe6, 0x91, 0xdc, 0x52, 0x2e, 0xf2, 0x1a, 0xb7, 0xd6, 0x6f, 0xda, 0xde, 0xe8, 0x48, 0xb1, 0xbb, 0x50, 0x6f, 0xf4,
+    0xdd, 0x11, 0xee, 0xf2, 0x67, 0xfe, 0x48, 0x8d, 0xae, 0x69, 0x1a, 0xe0, 0x26, 0x8c, 0x24, 0x8e, 0x17, 0x76, 0x51,
+    0xe2, 0x60, 0xd7, 0xe6, 0x83, 0x65, 0xd5, 0xf0, 0x7f, 0xf2, 0xa0, 0xd6, 0x4b, 0xbd, 0x24, 0xd8, 0xab, 0xea, 0x9e,
+    0xa6, 0x48, 0x94, 0x3e, 0x7b, 0x2c, 0xf4, 0xce, 0xdc, 0x69, 0x11, 0xf8, 0x3c, 0xa7, 0x3f, 0x5d, 0x77, 0x94, 0x3f,
+    0xe4, 0x8e, 0x48, 0x20, 0xdb, 0x56, 0x32, 0xc1, 0x87, 0x01, 0x2e, 0xe3, 0x7f, 0x40,
+};
 
 /// Carries an internal parser failure without losing its public error category.
 class ParseException final : public std::runtime_error {
@@ -88,6 +99,8 @@ std::vector<Byte> inflate_raw(std::span<const Byte> compressed, std::size_t expe
     z_stream stream{};
     const int init_result = inflateInit2(&stream, -MAX_WBITS);
     require(init_result == Z_OK, fid::ErrorCode::invalid_zip, "unable to initialize DEFLATE decoder");
+    [[maybe_unused]] const auto cleanup =
+        std::unique_ptr<z_stream, void (*)(z_stream*)>(&stream, [](z_stream* state) { inflateEnd(state); });
 
     std::vector<Byte> output;
     output.reserve(expected_size);
@@ -115,7 +128,6 @@ std::vector<Byte> inflate_raw(std::span<const Byte> compressed, std::size_t expe
             require(false, fid::ErrorCode::invalid_zip, "DEFLATE decoder made no progress");
         }
     }
-    inflateEnd(&stream);
     require(output.size() == expected_size, fid::ErrorCode::invalid_zip,
             "packed item length does not match its header");
     return output;
@@ -160,6 +172,9 @@ std::vector<Byte> unpack_fidb(const std::vector<Byte>& packed) {
     require(method == 8, fid::ErrorCode::invalid_zip, "unsupported ZIP compression method");
     const auto data_offset = cursor + 30 + name_length + extra_length;
     require(data_offset <= packed.size(), fid::ErrorCode::invalid_zip, "truncated ZIP local header");
+    require(name_length == fid_zip_entry_name.size() &&
+                std::equal(fid_zip_entry_name.begin(), fid_zip_entry_name.end(), packed.begin() + cursor + 30),
+            fid::ErrorCode::invalid_zip, "unexpected ZIP entry name");
     const auto data = std::span<const Byte>(packed).subspan(data_offset);
     return inflate_raw(data, static_cast<std::size_t>(length));
 }
@@ -207,6 +222,11 @@ public:
         return std::span<const Byte>(bytes_).subspan(offset + 5, buffer_size_);
     }
 
+    /// Returns the number of logical database buffers addressable after the file header.
+    [[nodiscard]] std::size_t buffer_count() const noexcept {
+        return bytes_.size() / block_size_ - 1;
+    }
+
     /// Returns the database parameter stored in DBParms buffer zero.
     [[nodiscard]] std::int32_t parameter(std::size_t index) const {
         const auto data = buffer(0);
@@ -227,10 +247,11 @@ public:
         require(length > 0, fid::ErrorCode::invalid_database, "empty chained DBBuffer");
         std::vector<Byte> result(length);
         if (first[0] == 9) {
-            const auto available = std::min(length, first.size() - 5);
-            std::copy_n(first.begin() + 5, available, result.begin());
+            require(length <= first.size() - 5, fid::ErrorCode::invalid_database,
+                    "direct chained DBBuffer exceeds its data node");
+            std::copy_n(first.begin() + 5, length, result.begin());
             if (obfuscated) {
-                xor_bytes(result, 0, available);
+                xor_bytes(result, 0, length);
             }
             return result;
         }
@@ -240,8 +261,12 @@ public:
         std::size_t copied = 0;
         std::int32_t index_id = first_id;
         bool first_index = true;
+        std::set<std::int32_t> visited_indexes;
         while (index_id >= 0 && copied < length) {
+            require(visited_indexes.insert(index_id).second, fid::ErrorCode::invalid_database,
+                    "cycle detected in chained DBBuffer index nodes");
             const auto index_buffer = buffer(index_id);
+            require(index_buffer[0] == 8, fid::ErrorCode::invalid_database, "invalid chained DBBuffer index node type");
             const auto next = static_cast<std::int32_t>(read_be(index_buffer, 5, 4));
             const auto index_base = std::size_t{9};
             const auto needed = (length - copied + data_space - 1) / data_space;
@@ -250,6 +275,8 @@ public:
                 const auto data_id = static_cast<std::int32_t>(read_be(index_buffer, index_base + slot * 4, 4));
                 require(data_id >= 0, fid::ErrorCode::invalid_database, "missing chained data buffer");
                 const auto data_buffer = buffer(data_id);
+                require(data_buffer[0] == 9, fid::ErrorCode::invalid_database,
+                        "invalid chained DBBuffer data node type");
                 const auto amount = std::min(data_space, length - copied);
                 std::copy_n(data_buffer.begin() + 1, amount, result.begin() + static_cast<std::ptrdiff_t>(copied));
                 if (obfuscated) {
@@ -274,10 +301,8 @@ public:
 private:
     /// Applies Ghidra's fixed XOR mask to a contiguous chained-buffer range.
     static void xor_bytes(std::vector<Byte>& data, std::size_t offset, std::size_t length) {
-        constexpr std::array<Byte, 16> mask = {0x59, 0xea, 0x67, 0x23, 0xda, 0xb8, 0x00, 0xb8,
-                                               0xc3, 0x48, 0xdd, 0x8b, 0x21, 0xd6, 0x94, 0x78};
         for (std::size_t index = 0; index < length; ++index) {
-            data[offset + index] ^= mask[index % mask.size()];
+            data[offset + index] ^= chained_xor_mask[index % chained_xor_mask.size()];
         }
     }
 
@@ -307,6 +332,23 @@ struct TableDescriptor {
     std::int32_t indexed_column{-1};
     std::int32_t record_count{};
 };
+
+/// Validates the schema subset required by the native FunctionID table decoder.
+void validate_table_descriptor(const TableDescriptor& descriptor, std::initializer_list<std::uint8_t> fields) {
+    constexpr std::uint8_t long_key_type = 3;
+    require(descriptor.key_type == long_key_type, fid::ErrorCode::unsupported_schema,
+            "FunctionID table does not use a long primary key");
+    require(descriptor.indexed_column == -1, fid::ErrorCode::unsupported_schema,
+            "FunctionID table is not using its primary key");
+    require(descriptor.field_types.size() == fields.size(), fid::ErrorCode::unsupported_schema,
+            "FunctionID table has an unsupported field schema extension");
+    auto expected = fields.begin();
+    for (const auto encoded : descriptor.field_types) {
+        require((encoded & 0x0fU) == *expected, fid::ErrorCode::unsupported_schema,
+                "FunctionID table field schema does not match the supported contract");
+        ++expected;
+    }
+}
 
 using Value =
     std::variant<std::monostate, std::int8_t, std::int16_t, std::int32_t, std::int64_t, std::string, std::vector<Byte>>;
@@ -343,8 +385,10 @@ Value read_value(std::span<const Byte> data, std::size_t& cursor, std::uint8_t e
             require(cursor + 4 <= data.size(), fid::ErrorCode::malformed_record, "truncated string length");
             const auto length = static_cast<std::int32_t>(signed_be(data, cursor, 4));
             cursor += 4;
-            require(length >= 0 && static_cast<std::size_t>(length) <= data.size() - cursor,
-                    fid::ErrorCode::malformed_record, "invalid string length");
+            if (length < 0)
+                return std::monostate{};
+            require(static_cast<std::size_t>(length) <= data.size() - cursor, fid::ErrorCode::malformed_record,
+                    "invalid string length");
             std::string value(reinterpret_cast<const char*>(data.data() + cursor), static_cast<std::size_t>(length));
             cursor += static_cast<std::size_t>(length);
             return value;
@@ -353,8 +397,10 @@ Value read_value(std::span<const Byte> data, std::size_t& cursor, std::uint8_t e
             require(cursor + 4 <= data.size(), fid::ErrorCode::malformed_record, "truncated binary length");
             const auto length = static_cast<std::int32_t>(signed_be(data, cursor, 4));
             cursor += 4;
-            require(length >= 0 && static_cast<std::size_t>(length) <= data.size() - cursor,
-                    fid::ErrorCode::malformed_record, "invalid binary length");
+            if (length < 0)
+                return std::monostate{};
+            require(static_cast<std::size_t>(length) <= data.size() - cursor, fid::ErrorCode::malformed_record,
+                    "invalid binary length");
             std::vector<Byte> value(data.begin() + static_cast<std::ptrdiff_t>(cursor), data.begin() + cursor + length);
             cursor += static_cast<std::size_t>(length);
             return value;
@@ -403,7 +449,23 @@ const std::string& string_value(const Value& value) {
     if (const auto* string = std::get_if<std::string>(&value)) {
         return *string;
     }
+    if (std::holds_alternative<std::monostate>(value)) {
+        static const std::string empty;
+        return empty;
+    }
     throw ParseException(fid::ErrorCode::malformed_record, "expected string database field");
+}
+
+/// Returns a binary schema value, treating Ghidra's null field encoding as an empty value.
+const std::vector<Byte>& binary_value(const Value& value) {
+    if (const auto* binary = std::get_if<std::vector<Byte>>(&value)) {
+        return *binary;
+    }
+    if (std::holds_alternative<std::monostate>(value)) {
+        static const std::vector<Byte> empty;
+        return empty;
+    }
+    throw ParseException(fid::ErrorCode::malformed_record, "expected binary database field");
 }
 
 /// Walks the long-key B-tree storage used by all primary FunctionID tables.
@@ -411,17 +473,20 @@ template <typename Visitor>
 void walk_long_tree(const BufferFile& file, std::int32_t root, std::size_t fixed_record_length,
                     const std::vector<std::uint8_t>& fields, Visitor&& visitor) {
     std::set<std::int32_t> visited;
-    std::function<void(std::int32_t)> walk = [&](std::int32_t buffer_id) {
+    std::optional<std::int64_t> previous_key;
+    std::function<void(std::int32_t, std::size_t)> walk = [&](std::int32_t buffer_id, std::size_t depth) {
+        require(depth <= file.buffer_count(), fid::ErrorCode::invalid_database,
+                "database B-tree exceeds the physical buffer count");
         require(visited.insert(buffer_id).second, fid::ErrorCode::invalid_database,
                 "cycle detected in database B-tree");
         const auto buffer = file.buffer(buffer_id);
         const auto node_type = buffer[0];
         const auto count = static_cast<std::size_t>(read_be(buffer, 1, 4));
         if (node_type == 0) {
-            require(5 + count * 12 <= buffer.size(), fid::ErrorCode::invalid_database,
+            require(count <= (buffer.size() - 5) / 12, fid::ErrorCode::invalid_database,
                     "invalid long-key interior node");
             for (std::size_t index = 0; index < count; ++index) {
-                walk(static_cast<std::int32_t>(signed_be(buffer, 5 + index * 12 + 8, 4)));
+                walk(static_cast<std::int32_t>(signed_be(buffer, 5 + index * 12 + 8, 4)), depth + 1);
             }
             return;
         }
@@ -429,25 +494,35 @@ void walk_long_tree(const BufferFile& file, std::int32_t root, std::size_t fixed
                 "primary table does not use a long-key node");
         require(13 <= buffer.size(), fid::ErrorCode::invalid_database, "invalid long-key leaf header");
         if (node_type == 2) {
+            require(fixed_record_length <= std::numeric_limits<std::size_t>::max() - 8,
+                    fid::ErrorCode::invalid_database, "fixed record length overflows node layout");
             const auto entry_size = 8 + fixed_record_length;
-            require(entry_size != 0 && 13 + count * entry_size <= buffer.size(), fid::ErrorCode::invalid_database,
+            require(entry_size != 0 && count <= (buffer.size() - 13) / entry_size, fid::ErrorCode::invalid_database,
                     "invalid fixed-record leaf node");
             for (std::size_t index = 0; index < count; ++index) {
                 const auto offset = 13 + index * entry_size;
                 const auto key = static_cast<std::int64_t>(signed_be(buffer, offset, 8));
+                require(!previous_key || key > *previous_key, fid::ErrorCode::invalid_database,
+                        "database B-tree keys are not strictly ascending");
+                previous_key = key;
                 visitor(key, buffer.subspan(offset + 8, fixed_record_length));
             }
             return;
         }
         constexpr std::size_t entry_size = 13;
-        require(13 + count * entry_size <= buffer.size(), fid::ErrorCode::invalid_database,
+        require(count <= (buffer.size() - 13) / entry_size, fid::ErrorCode::invalid_database,
                 "invalid variable-record leaf node");
         for (std::size_t index = 0; index < count; ++index) {
             const auto offset = 13 + index * entry_size;
             const auto key = static_cast<std::int64_t>(signed_be(buffer, offset, 8));
+            require(!previous_key || key > *previous_key, fid::ErrorCode::invalid_database,
+                    "database B-tree keys are not strictly ascending");
+            previous_key = key;
             const auto record_offset = static_cast<std::size_t>(read_be(buffer, offset + 8, 4));
             const bool indirect = buffer[offset + 12] != 0;
             if (indirect) {
+                require(record_offset <= buffer.size() && buffer.size() - record_offset >= 4,
+                        fid::ErrorCode::invalid_database, "indirect variable-record pointer is outside leaf");
                 const auto record_id = static_cast<std::int32_t>(signed_be(buffer, record_offset, 4));
                 const auto record = file.chained(record_id);
                 visitor(key, std::span<const Byte>(record));
@@ -463,23 +538,22 @@ void walk_long_tree(const BufferFile& file, std::int32_t root, std::size_t fixed
         }
     };
     if (root >= 0) {
-        walk(root);
+        walk(root, 0);
     }
 }
 
-/// Splits a comma-separated FunctionID metadata list into a set, preserving empty-as-unrestricted.
+/// Splits a comma- or space-separated FunctionID metadata list into a set, preserving empty-as-unrestricted.
 std::set<std::string> split_metadata(std::string_view text) {
     std::set<std::string> result;
     std::size_t start = 0;
-    while (start <= text.size()) {
-        const auto end = text.find(',', start);
-        const auto token_end = end == std::string_view::npos ? text.size() : end;
-        if (token_end > start) {
-            result.emplace(text.substr(start, token_end - start));
-        }
-        if (end == std::string_view::npos)
-            break;
-        start = end + 1;
+    while (start < text.size()) {
+        while (start < text.size() && (text[start] == ',' || std::isspace(static_cast<unsigned char>(text[start]))))
+            ++start;
+        const auto token_start = start;
+        while (start < text.size() && text[start] != ',' && !std::isspace(static_cast<unsigned char>(text[start])))
+            ++start;
+        if (token_start < start)
+            result.emplace(text.substr(token_start, start - token_start));
     }
     return result;
 }
@@ -518,9 +592,11 @@ bool library_matches(const fid::LibraryRecord& library, const fid::ProgramInfo& 
         !library.compiler_specs.contains(*program.compiler_spec)) {
         return false;
     }
-    if (!library.source_languages.empty() && !program.source_languages.empty()) {
+    if (!library.source_languages.empty() && program.source_languages.has_value()) {
+        if (program.source_languages->empty())
+            return false;
         bool intersects = false;
-        for (const auto& source : program.source_languages) {
+        for (const auto& source : *program.source_languages) {
             intersects |= library.source_languages.contains(source);
         }
         if (!intersects)
@@ -798,7 +874,7 @@ std::expected<HashQuad, Error> Hasher::hash(std::span<const Instruction> instruc
         int call_count = 0;
         int specific_count = 0;
         for (const auto& instruction : instructions) {
-            if (instruction.skip || is_x86_skipped(instruction.bytes)) {
+            if (instruction.skip) {
                 continue;
             }
             require(instruction.bytes.size() <= 110000, ErrorCode::invalid_input,
@@ -885,6 +961,7 @@ std::expected<HashQuad, Error> Hasher::hash_sleigh(std::span<const sleigh_runtim
             Instruction instruction;
             instruction.bytes = decoded.bytes;
             instruction.instruction_mask = decoded.instruction_mask;
+            instruction.skip = decoded.is_x86 && is_x86_skipped(decoded.bytes);
             require(instruction.bytes.size() == decoded.length &&
                         (instruction.instruction_mask.empty() || instruction.instruction_mask.size() == decoded.length),
                     ErrorCode::invalid_input, "Sleigh instruction bytes and mask lengths differ");
@@ -1145,7 +1222,7 @@ std::expected<Database, Error> Database::open(const std::filesystem::path& path)
                            descriptor.version = static_cast<std::int32_t>(integer_value(values[1]));
                            descriptor.root_buffer_id = static_cast<std::int32_t>(integer_value(values[2]));
                            descriptor.key_type = static_cast<std::uint8_t>(integer_value(values[3]));
-                           descriptor.field_types = std::get<std::vector<Byte>>(values[4]);
+                           descriptor.field_types = binary_value(values[4]);
                            descriptor.indexed_column = static_cast<std::int32_t>(integer_value(values[6]));
                            descriptor.record_count = static_cast<std::int32_t>(integer_value(values[8]));
                            (void)key;
@@ -1163,9 +1240,14 @@ std::expected<Database, Error> Database::open(const std::filesystem::path& path)
         const auto& functions_table = find_table("Functions Table");
         const auto& inferior_table = find_table("Inferior Table");
         const auto& superior_table = find_table("Superior Table");
-        require(library_table.version == 6 && functions_table.version == 6 && inferior_table.version == 6 &&
-                    superior_table.version == 6,
+        require(strings_table.version == 6 && library_table.version == 6 && functions_table.version == 6 &&
+                    inferior_table.version == 6 && superior_table.version == 6,
                 ErrorCode::unsupported_schema, "unsupported FunctionID database schema version");
+        validate_table_descriptor(strings_table, {4});
+        validate_table_descriptor(library_table, {4, 4, 4, 4, 4, 2, 2, 4});
+        validate_table_descriptor(functions_table, {1, 3, 0, 3, 3, 3, 3, 3, 0});
+        validate_table_descriptor(inferior_table, {});
+        validate_table_descriptor(superior_table, {});
 
         std::unordered_map<std::int64_t, std::string> strings;
         const std::vector<std::uint8_t> string_fields = {4};
@@ -1285,12 +1367,12 @@ std::expected<IdentificationResult, Error> Database::identify(const FunctionCont
         IdentificationResult result;
         result.hash = context.hash;
         std::vector<Match> candidates;
-        std::set<std::uint64_t> child_hashes;
-        std::set<std::uint64_t> parent_hashes;
+        std::map<std::uint64_t, HashQuad> child_hashes;
+        std::map<std::uint64_t, HashQuad> parent_hashes;
         for (const auto& child : context.children)
-            child_hashes.insert(child.full_hash);
+            child_hashes[child.full_hash] = child;
         for (const auto& parent : context.parents)
-            parent_hashes.insert(parent.full_hash);
+            parent_hashes[parent.full_hash] = parent;
         const auto candidates_by_hash = find_full_hash(context.hash.full_hash);
         for (const auto& function : candidates_by_hash) {
             if (function.auto_fail() ||
@@ -1303,8 +1385,8 @@ std::expected<IdentificationResult, Error> Database::identify(const FunctionCont
                 continue;
             }
             int child_units = 0;
-            for (const auto& child : context.children) {
-                if (storage_->superior_relations.contains(superior_relation_key(function.id, child.full_hash))) {
+            for (const auto& [child_hash, child] : child_hashes) {
+                if (storage_->superior_relations.contains(superior_relation_key(function.id, child_hash))) {
                     child_units += child.code_unit_size;
                 }
             }
@@ -1312,8 +1394,8 @@ std::expected<IdentificationResult, Error> Database::identify(const FunctionCont
                 continue;
             int parent_units = 0;
             if (parent_hashes.size() < 500) {
-                for (const auto& parent : context.parents) {
-                    if (storage_->inferior_relations.contains(inferior_relation_key(parent.full_hash, function.id))) {
+                for (const auto& [parent_hash, parent] : parent_hashes) {
+                    if (storage_->inferior_relations.contains(inferior_relation_key(parent_hash, function.id))) {
                         parent_units += parent.code_unit_size;
                     }
                 }

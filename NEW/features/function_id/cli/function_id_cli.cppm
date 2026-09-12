@@ -13,8 +13,8 @@ struct Options {
     std::string language_id{"x86:LE:64:default"};
     std::optional<std::string> compiler_spec;
     float score_threshold{14.6F};
-    sleigh_runtime::ProcessorContext context{{{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1},
-                                               {"bit64", 1}, {"protectedMode", 1}}};
+    sleigh_runtime::ProcessorContext context{
+        {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}, {"bit64", 1}, {"protectedMode", 1}}};
 };
 
 /// Prints the supported FunctionID query syntax.
@@ -39,7 +39,8 @@ std::uint64_t parse_integer(std::string_view text, std::string_view option) {
         text.remove_prefix(2);
         base = 16;
     }
-    if (text.empty()) throw std::invalid_argument(std::format("{} requires a value", option));
+    if (text.empty())
+        throw std::invalid_argument(std::format("{} requires a value", option));
     std::uint64_t value = 0;
     const auto [end, error] = std::from_chars(text.data(), text.data() + text.size(), value, base);
     if (error != std::errc{} || end != text.data() + text.size()) {
@@ -52,7 +53,8 @@ std::uint64_t parse_integer(std::string_view text, std::string_view option) {
 std::vector<std::uint8_t> parse_hex_bytes(std::string_view text) {
     std::string compact;
     for (const char character : text) {
-        if (std::isxdigit(static_cast<unsigned char>(character))) compact.push_back(character);
+        if (std::isxdigit(static_cast<unsigned char>(character)))
+            compact.push_back(character);
     }
     if (compact.empty() || compact.size() % 2 != 0) {
         throw std::invalid_argument("--hex must contain one or more complete byte pairs");
@@ -77,7 +79,8 @@ Options parse_options(int argc, char* argv[]) {
     for (int index = 1; index < argc; ++index) {
         const std::string_view argument = argv[index];
         const auto require_value = [&](std::string_view option) {
-            if (index + 1 >= argc) throw std::invalid_argument(std::format("{} requires a value", option));
+            if (index + 1 >= argc)
+                throw std::invalid_argument(std::format("{} requires a value", option));
             return std::string_view(argv[++index]);
         };
         if (argument == "--help" || argument == "-h") {
@@ -136,7 +139,8 @@ bool wildcard_match(std::string_view pattern, std::string_view value) {
             return false;
         }
     }
-    while (pattern_index < pattern.size() && pattern[pattern_index] == '*') ++pattern_index;
+    while (pattern_index < pattern.size() && pattern[pattern_index] == '*')
+        ++pattern_index;
     return pattern_index == pattern.size();
 }
 
@@ -162,22 +166,22 @@ std::vector<std::filesystem::path> expand_databases(const std::vector<std::strin
     }
     std::sort(result.begin(), result.end());
     result.erase(std::unique(result.begin(), result.end()), result.end());
-    if (result.empty()) throw std::runtime_error("the --fidb patterns matched no files");
+    if (result.empty())
+        throw std::runtime_error("the --fidb patterns matched no files");
     return result;
 }
 
 /// Decodes all instructions in one function extent through the existing Sleigh runtime.
 std::vector<sleigh_runtime::Instruction> decode_function(sleigh_runtime::Decoder& decoder,
-                                                         std::span<const std::uint8_t> bytes,
-                                                         std::uint64_t address,
+                                                         std::span<const std::uint8_t> bytes, std::uint64_t address,
                                                          const sleigh_runtime::ProcessorContext& context) {
     std::vector<sleigh_runtime::Instruction> instructions;
     std::size_t offset = 0;
     while (offset < bytes.size()) {
         const auto window = bytes.subspan(offset, std::min<std::size_t>(16, bytes.size() - offset));
         const auto decoded = decoder.decode(address + offset, window, context);
-        if (!decoded) throw std::runtime_error(std::format("decode failed at byte {}: {}", offset,
-                                                            decoded.error().message));
+        if (!decoded)
+            throw std::runtime_error(std::format("decode failed at byte {}: {}", offset, decoded.error().message));
         if (decoded->length == 0 || decoded->length > bytes.size() - offset) {
             throw std::runtime_error("Sleigh returned an invalid instruction length");
         }
@@ -189,18 +193,19 @@ std::vector<sleigh_runtime::Instruction> decode_function(sleigh_runtime::Decoder
 
 /// Resolves the default test SLA from either the NEW directory or its repository root.
 std::filesystem::path resolve_sla_path(const std::filesystem::path& requested) {
-    if (std::filesystem::exists(requested)) return requested;
+    if (std::filesystem::exists(requested))
+        return requested;
     const auto repository_relative = std::filesystem::path("NEW") / requested;
-    if (std::filesystem::exists(repository_relative)) return repository_relative;
+    if (std::filesystem::exists(repository_relative))
+        return repository_relative;
     return requested;
 }
 
 /// Prints one structured FunctionID match.
 void print_match(const std::filesystem::path& database, const fid::Match& match) {
     std::cout << std::format("{}: {}  library='{} {}'  score={:.2f} (function={:.2f}, child={:.2f}, parent={:.2f})\n",
-                             database.string(), match.function.name, match.library.family_name,
-                             match.library.version, match.overall_score(), match.function_score,
-                             match.child_score, match.parent_score);
+                             database.string(), match.function.name, match.library.family_name, match.library.version,
+                             match.overall_score(), match.function_score, match.child_score, match.parent_score);
 }
 
 /// Runs one raw-byte FunctionID query across all expanded databases.
@@ -209,14 +214,15 @@ int run(const Options& options) {
     sleigh_runtime::Decoder decoder(resolve_sla_path(options.sla_path));
     const auto instructions = decode_function(decoder, bytes, options.address, options.context);
     const auto hash = fid::Hasher::hash_sleigh(instructions);
-    if (!hash) throw std::runtime_error(hash.error().message);
+    if (!hash)
+        throw std::runtime_error(hash.error().message);
     std::cout << std::format("fullHash=0x{:016x} specificHash=0x{:016x} codeUnits={} specificUnits={}\n",
                              hash->full_hash, hash->specific_hash, hash->code_unit_size,
                              static_cast<int>(hash->specific_hash_additional_size));
 
     const auto databases = expand_databases(options.database_patterns);
     const fid::FunctionContext context{*hash, {}, {}};
-    const fid::ProgramInfo program{options.language_id, options.compiler_spec, {}, false};
+    const fid::ProgramInfo program{options.language_id, options.compiler_spec, std::nullopt, false};
     bool found = false;
     for (const auto& database_path : databases) {
         auto database = fid::Database::open(database_path);
@@ -234,7 +240,8 @@ int run(const Options& options) {
             print_match(database_path, match);
         }
     }
-    if (!found) std::cout << "No FunctionID matches.\n";
+    if (!found)
+        std::cout << "No FunctionID matches.\n";
     return found ? 0 : 3;
 }
 

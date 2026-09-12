@@ -242,6 +242,8 @@ void combine_symbol_mask(ghidra::ParserWalker& walker, ghidra::ConstructState* s
 void combine_operand_mask(ghidra::ParserWalker& walker, ghidra::ConstructState* state, ghidra::OperandSymbol* symbol,
                           std::vector<std::uint8_t>& mask) {
     ghidra::PatternExpression* expression = nullptr;
+    if (state == nullptr || state->ct == nullptr || symbol == nullptr)
+        return;
     const int handle = symbol->getIndex();
     if (handle < 0 || handle >= state->ct->getNumOperands())
         return;
@@ -286,6 +288,8 @@ void combine_pattern_mask(ghidra::ParserWalker& walker, ghidra::ConstructState* 
     }
     if (const auto* operand = dynamic_cast<const ghidra::OperandValue*>(expression)) {
         auto* constructor = operand->getConstructor();
+        if (constructor == nullptr || operand->getIndex() < 0 || operand->getIndex() >= constructor->getNumOperands())
+            return;
         combine_operand_mask(walker, state, constructor->getOperand(operand->getIndex()), mask);
         return;
     }
@@ -299,10 +303,18 @@ void combine_pattern_mask(ghidra::ParserWalker& walker, ghidra::ConstructState* 
     for (int index = start; index <= end; ++index) {
         int first_bit = 0;
         int last_bit = 7;
-        if (index == end)
-            last_bit = field->isBigEndian() ? start_bit : end_bit;
-        if (index == start)
-            first_bit = field->isBigEndian() ? end_bit : start_bit;
+        if (index == end) {
+            if (field->isBigEndian())
+                first_bit = start_bit;
+            else
+                last_bit = end_bit;
+        }
+        if (index == start) {
+            if (field->isBigEndian())
+                last_bit = end_bit;
+            else
+                first_bit = start_bit;
+        }
         const auto width = 7 - last_bit + first_bit;
         const auto byte_mask = static_cast<std::uint8_t>((0xffU >> width) << first_bit);
         if (index + offset >= 0 && static_cast<std::size_t>(index + offset) < mask.size()) {
@@ -315,10 +327,13 @@ void combine_pattern_mask(ghidra::ParserWalker& walker, ghidra::ConstructState* 
 // Ghidra reference:
 // Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighInstructionPrototype.java
 void combine_symbol_mask(ghidra::ParserWalker& walker, ghidra::ConstructState* state, std::vector<std::uint8_t>& mask) {
+    if (state == nullptr || state->ct == nullptr)
+        return;
     for (const auto& piece : state->ct->getPrintPieces()) {
         if (piece.size() > 1 && piece[0] == '\n') {
             const auto index = static_cast<int>(piece[1] - 'A');
-            combine_operand_mask(walker, state, state->ct->getOperand(index), mask);
+            if (index >= 0 && index < state->ct->getNumOperands())
+                combine_operand_mask(walker, state, state->ct->getOperand(index), mask);
         }
     }
 }
@@ -333,9 +348,13 @@ void collect_operand_handles(ghidra::ParserWalker& walker, ghidra::OperandSymbol
 // Ghidra reference:
 // Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighInstructionPrototype.java
 void collect_constructor_handles(ghidra::ParserWalker& walker, std::vector<ghidra::FixedHandle>& handles) {
+    if (walker.getConstructor() == nullptr)
+        return;
     for (const auto& piece : walker.getConstructor()->getPrintPieces()) {
         if (piece.size() > 1 && piece[0] == '\n') {
-            collect_operand_handles(walker, walker.getConstructor()->getOperand(piece[1] - 'A'), handles);
+            const auto index = static_cast<int>(piece[1] - 'A');
+            if (index >= 0 && index < walker.getConstructor()->getNumOperands())
+                collect_operand_handles(walker, walker.getConstructor()->getOperand(index), handles);
         }
     }
 }
@@ -345,7 +364,12 @@ void collect_constructor_handles(ghidra::ParserWalker& walker, std::vector<ghidr
 // Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighInstructionPrototype.java
 void collect_operand_handles(ghidra::ParserWalker& walker, ghidra::OperandSymbol* symbol,
                              std::vector<ghidra::FixedHandle>& handles) {
+    if (symbol == nullptr || walker.getConstructor() == nullptr || symbol->getIndex() < 0 ||
+        symbol->getIndex() >= walker.getConstructor()->getNumOperands())
+        return;
     walker.pushOperand(symbol->getIndex());
+    if (!walker.isState())
+        return;
     if (auto* triple = symbol->getDefiningSymbol();
         triple && triple->getType() == ghidra::SleighSymbol::subtable_symbol) {
         collect_constructor_handles(walker, handles);
@@ -360,19 +384,21 @@ void collect_operand_handles(ghidra::ParserWalker& walker, ghidra::OperandSymbol
 // Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/symbol/OperandSymbol.java
 void collect_state_handles(ghidra::ConstructState* state, ghidra::OperandSymbol* symbol,
                            std::vector<ghidra::FixedHandle>& handles) {
-    if (state == nullptr || symbol == nullptr)
+    if (state == nullptr || state->ct == nullptr || symbol == nullptr)
         return;
     const auto index = symbol->getIndex();
     if (index < 0 || index >= state->ct->getNumOperands())
         return;
     auto* child = state->resolve[index];
-    if (child == nullptr)
+    if (child == nullptr || child->ct == nullptr)
         return;
     if (auto* triple = symbol->getDefiningSymbol();
         triple && triple->getType() == ghidra::SleighSymbol::subtable_symbol) {
         for (const auto& piece : child->ct->getPrintPieces()) {
             if (piece.size() > 1 && piece[0] == '\n') {
-                collect_state_handles(child, child->ct->getOperand(piece[1] - 'A'), handles);
+                const auto nested_index = static_cast<int>(piece[1] - 'A');
+                if (nested_index >= 0 && nested_index < child->ct->getNumOperands())
+                    collect_state_handles(child, child->ct->getOperand(nested_index), handles);
             }
         }
     } else {
@@ -423,8 +449,6 @@ void append_hash_handle(const ghidra::Sleigh& translator, const ghidra::Address&
     if (handle.space == nullptr)
         return;
     const auto type = handle.space->getType();
-    if (type == ghidra::IPTR_SPACEBASE)
-        return;
     if (type == ghidra::IPTR_CONSTANT) {
         auto value = static_cast<std::int64_t>(handle.offset_offset);
         const auto effective_size =
@@ -454,28 +478,61 @@ void append_hash_handle(const ghidra::Sleigh& translator, const ghidra::Address&
     (void)current;
 }
 
-/// Builds the exact FunctionID instruction and operand masks from the matched Sleigh constructor tree.
-// Ghidra references:
-// Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighDebugLogger.java and
-// Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighInstructionPrototype.java
-void materialize_hash_metadata(const ghidra::Sleigh& translator, ghidra::ParserContext* parser,
-                               std::vector<Operand>& operands, std::vector<std::uint8_t>& instruction_mask) {
-    // FunctionID's rich fixed-handle projection is optional for a language.  Keep
-    // non-x86 Sleigh decoding on its established safe path until that language's
-    // register/address object map is exposed; callers can still supply abstract
-    // FunctionID instructions directly.
-    bool has_x86_registers = false;
+/// Appends a hash object while excluding non-address Sleigh spaces for generic architectures.
+void append_generic_hash_handle(const ghidra::Sleigh& translator, const ghidra::FixedHandle& handle, bool whole_scalar,
+                                bool address_scalar, std::vector<Operand::HashObject>& objects) {
+    if (handle.space == nullptr)
+        return;
+    const auto type = handle.space->getType();
+    if (type == ghidra::IPTR_CONSTANT) {
+        auto value = static_cast<std::int64_t>(handle.offset_offset);
+        const auto effective_size =
+            handle.size != 0
+                ? handle.size
+                : (handle.offset_size != 0 ? handle.offset_size : translator.getDefaultCodeSpace()->getAddrSize());
+        const auto width = static_cast<unsigned>(effective_size) * 8U;
+        if (width != 0 && width < 64U && (handle.offset_offset & (static_cast<ghidra::uintb>(1) << (width - 1U))) != 0)
+            value |= static_cast<std::int64_t>(~((static_cast<ghidra::uintb>(1) << width) - 1U));
+        objects.push_back({Operand::HashObject::Kind::scalar, value, whole_scalar, address_scalar, false});
+        return;
+    }
+    if (type != ghidra::IPTR_PROCESSOR)
+        return;
+    if (!translator.getRegisterName(handle.space, handle.offset_offset, handle.size).empty()) {
+        objects.push_back({Operand::HashObject::Kind::register_value, static_cast<std::int64_t>(handle.offset_offset),
+                           true, false, false});
+    } else if (handle.offset_space == nullptr) {
+        objects.push_back(
+            {Operand::HashObject::Kind::address, static_cast<std::int64_t>(handle.offset_offset), false, true, false});
+    } else if (handle.offset_space->getType() == ghidra::IPTR_PROCESSOR &&
+               !translator.getRegisterName(handle.offset_space, handle.offset_offset, handle.offset_size).empty()) {
+        objects.push_back({Operand::HashObject::Kind::register_value, static_cast<std::int64_t>(handle.offset_offset),
+                           true, false, false});
+    }
+}
+
+/// Returns whether a Sleigh translator exposes the canonical x86 register names.
+bool is_x86_translator(const ghidra::Sleigh& translator) {
     try {
         (void)translator.getRegister("RAX");
-        has_x86_registers = true;
+        return true;
     } catch (...) {
         try {
             (void)translator.getRegister("EAX");
-            has_x86_registers = true;
+            return true;
         } catch (...) {
+            return false;
         }
     }
-    if (!has_x86_registers)
+}
+
+/// Builds the exact FunctionID instruction and operand masks from the matched Sleigh constructor tree.
+// Ghidra references:
+// Ghidra/Features/FunctionID/src/main/java/ghidra/feature/fid/hash/MessageDigestFidHasher.java and
+// Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighInstructionPrototype.java
+void materialize_hash_metadata(const ghidra::Sleigh& translator, ghidra::ParserContext* parser,
+                               std::vector<Operand>& operands, std::vector<std::uint8_t>& instruction_mask) {
+    if (parser == nullptr)
         return;
     auto* root = parser->getBaseState();
     if (root == nullptr || root->ct == nullptr)
@@ -499,24 +556,29 @@ void materialize_hash_metadata(const ghidra::Sleigh& translator, ghidra::ParserC
     auto* mnemonic_state = root;
     while (mnemonic_state->ct->getFlowthruIndex() >= 0) {
         const auto flow_index = mnemonic_state->ct->getFlowthruIndex();
+        if (flow_index >= mnemonic_state->ct->getNumOperands())
+            return;
         walker.pushOperand(flow_index);
         mnemonic_state = mnemonic_state->resolve[flow_index];
-        if (mnemonic_state == nullptr)
+        if (mnemonic_state == nullptr || mnemonic_state->ct == nullptr)
             return;
     }
     const auto textual_operands = operands;
+    const bool x86 = is_x86_translator(translator);
     operands.clear();
     std::vector<int> visible_indices;
     for (const auto& piece : mnemonic_state->ct->getPrintPieces()) {
         if (piece.size() > 1 && piece[0] == '\n') {
-            visible_indices.push_back(piece[1] - 'A');
+            const auto index = static_cast<int>(piece[1] - 'A');
+            if (index >= 0 && index < mnemonic_state->ct->getNumOperands())
+                visible_indices.push_back(index);
         }
     }
     for (const int constructor_index : visible_indices) {
         auto* symbol = mnemonic_state->ct->getOperand(constructor_index);
         std::vector<ghidra::FixedHandle> handles;
         collect_state_handles(mnemonic_state, symbol, handles);
-        if (handles.empty())
+        if (handles.empty() && x86)
             collect_operand_handles(walker, symbol, handles);
         if (handles.empty()) {
             continue;
@@ -532,7 +594,7 @@ void materialize_hash_metadata(const ghidra::Sleigh& translator, ghidra::ParserC
             if (auto* triple = symbol->getDefiningSymbol();
                 triple && triple->getType() == ghidra::SleighSymbol::subtable_symbol) {
                 if (auto* child = mnemonic_state->resolve[symbol->getIndex()];
-                    child != nullptr && child->ct->getParent() != nullptr) {
+                    child != nullptr && child->ct != nullptr && child->ct->getParent() != nullptr) {
                     std::vector<ghidra::uint1> fallback_mask;
                     std::vector<ghidra::uint1> fallback_value;
                     child->ct->getParent()->getConstructorMask(child->ct, fallback_mask, fallback_value, child->offset);
@@ -545,7 +607,10 @@ void materialize_hash_metadata(const ghidra::Sleigh& translator, ghidra::ParserC
         for (std::size_t index = 0; index < length; ++index) {
             instruction_mask[index] &= static_cast<std::uint8_t>(~operand.value_mask[index]);
         }
-        const auto parent_handle = mnemonic_state->resolve[symbol->getIndex()]->hand;
+        const auto* parent_state = mnemonic_state->resolve[symbol->getIndex()];
+        if (parent_state == nullptr)
+            continue;
+        const auto parent_handle = parent_state->hand;
         const bool whole_scalar =
             parent_handle.space != nullptr && parent_handle.space->getType() == ghidra::IPTR_CONSTANT;
         const bool address_scalar =
@@ -553,8 +618,11 @@ void materialize_hash_metadata(const ghidra::Sleigh& translator, ghidra::ParserC
             parent_handle.space->getType() != ghidra::IPTR_CONSTANT &&
             translator.getRegisterName(parent_handle.space, parent_handle.offset_offset, parent_handle.size).empty();
         for (const auto& handle : handles) {
-            append_hash_handle(translator, parser->getAddr(), handle, whole_scalar, address_scalar,
-                               operand.hash_objects);
+            if (x86)
+                append_hash_handle(translator, parser->getAddr(), handle, whole_scalar, address_scalar,
+                                   operand.hash_objects);
+            else
+                append_generic_hash_handle(translator, handle, whole_scalar, address_scalar, operand.hash_objects);
         }
         operands.push_back(std::move(operand));
     }
@@ -696,6 +764,7 @@ public:
             result.address = address;
             result.length = static_cast<std::size_t>(length);
             result.bytes.assign(bytes.begin(), bytes.begin() + static_cast<std::ptrdiff_t>(length));
+            result.is_x86 = is_x86_translator(*translator_);
             result.mnemonic = assembly.mnemonic();
             result.assembly = assembly.body();
             for (std::string operand : split_operands(assembly.body())) {

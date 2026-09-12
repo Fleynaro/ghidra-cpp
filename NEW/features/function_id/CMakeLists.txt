@@ -1,4 +1,3 @@
-find_package(GTest CONFIG REQUIRED)
 find_package(ZLIB REQUIRED)
 
 add_library(function_id STATIC)
@@ -24,4 +23,6 @@ else()
     target_compile_options(function_id PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-add_subdirectory(tests)
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()

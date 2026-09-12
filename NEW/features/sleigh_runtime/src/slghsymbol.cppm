@@ -2442,6 +2442,36 @@ public:
         }
         return true;
     }
+    /// Follows the parser-selected decision branch using the immutable instruction context.
+    // Ghidra reference:
+    // Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/DecisionNode.java
+    bool findResolvedPathMask(const ParserContext& context, const Constructor* target, vector<uint1>& mask,
+                              vector<uint1>& value, int4 base_offset = 0) const {
+        const auto selected = contextdecision
+                                  ? context.getContextBits(startbit, bitsize)
+                                  : context.getInstructionBits(startbit, bitsize, static_cast<uint4>(base_offset));
+        if (selected >= children.size() || children[selected] == nullptr)
+            return false;
+        if (!children[selected]->findResolvedPathMask(context, target, mask, value, base_offset))
+            return false;
+        if (!contextdecision) {
+            const auto last_bit = startbit + bitsize + base_offset * 8;
+            if (mask.size() < static_cast<std::size_t>((last_bit + 7) / 8)) {
+                mask.resize(static_cast<std::size_t>((last_bit + 7) / 8), 0);
+                value.resize(mask.size(), 0);
+            }
+            const auto selected_index = static_cast<uintm>(selected);
+            for (int4 bit = 0; bit < bitsize; ++bit) {
+                const auto global_bit = startbit + bit + base_offset * 8;
+                const auto byte_index = static_cast<std::size_t>(global_bit / 8);
+                const auto bit_mask = static_cast<uint1>(1U << (7 - (global_bit % 8)));
+                mask[byte_index] |= bit_mask;
+                if ((selected_index & (static_cast<uintm>(1) << (bitsize - 1 - bit))) != 0)
+                    value[byte_index] |= bit_mask;
+            }
+        }
+        return true;
+    }
     void addConstructorPair(const DisjointPattern* pat, Constructor* ct) {
         DisjointPattern* clone = (DisjointPattern*)pat->simplifyClone(); // We need to own pattern
         list.push_back(pair<DisjointPattern*, Constructor*>(clone, ct));
@@ -2713,6 +2743,11 @@ public:
     bool getResolvedConstructorMask(ParserWalker& walker, const Constructor* target, vector<uint1>& mask,
                                     vector<uint1>& value, int4 base_offset = 0) const {
         return decisiontree != nullptr && decisiontree->findResolvedPathMask(walker, target, mask, value, base_offset);
+    }
+    /// Returns the mask collected along the parser-selected decision branch using a parser context.
+    bool getResolvedConstructorMask(const ParserContext& context, const Constructor* target, vector<uint1>& mask,
+                                    vector<uint1>& value, int4 base_offset = 0) const {
+        return decisiontree != nullptr && decisiontree->findResolvedPathMask(context, target, mask, value, base_offset);
     }
     int4 getNumConstructors(void) const {
         return construct.size();
