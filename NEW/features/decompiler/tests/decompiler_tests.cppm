@@ -1028,6 +1028,284 @@ void __cdecl FUN_141501684(longlong param_1,ulonglong param_2,undefined8 param_3
     EXPECT_EQ(result.c_source, expected_c);
 }
 
+/// Runs the MetricSpentOnBankInterest constructor/destructor example through
+/// the complete native pipeline and locks the current native C-printer output.
+TEST(DecompilerExamples, Example6MetricSpentOnBankInterestEndToEnd) {
+    /// Supplies symbols, types, prototypes, and stack-local metadata from Example 6.
+    class TestProviders final : public SymbolProvider,
+                                public TypeProvider,
+                                public PrototypeProvider,
+                                public VariableProvider {
+    public:
+        /// Names the root function and every direct call target in the listing.
+        [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
+            if (address == 0x140a6d118) {
+                return SymbolDescription{
+                    address, "MetricSpentOnBankInterest::MetricSpentOnBankInterest_Constructor_or_Destructor", ""};
+            }
+            if (address == 0x14132745c) {
+                return SymbolDescription{address, "FUN_14132745c", ""};
+            }
+            if (address == 0x14015dcec) {
+                return SymbolDescription{address, "FUN_14015dcec", ""};
+            }
+            if (address == 0x14015dd88) {
+                return SymbolDescription{address, "FUN_14015dd88", ""};
+            }
+            if (address == 0x140a6c838) {
+                return SymbolDescription{address, "rage::fwEvent::~fwEvent", ""};
+            }
+            if (address == 0x1413290b8) {
+                return SymbolDescription{address, "FUN_1413290b8", ""};
+            }
+            return std::nullopt;
+        }
+
+        /// Resolves the primitive, pointer, and temporary array types used by Example 6.
+        [[nodiscard]] std::optional<TypeDescription> type_named(std::string_view name) const override {
+            TypeDescription type;
+            type.name = std::string(name);
+            if (name == "void") {
+                type.size = 1;
+                type.kind = TypeKind::void_type;
+            } else if (name == "int") {
+                type.size = 4;
+                type.kind = TypeKind::signed_integer;
+            } else if (name == "undefined") {
+                type.size = 1;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "undefined1") {
+                type.size = 1;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "undefined4") {
+                type.size = 4;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "undefined8") {
+                type.size = 8;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "undefined4[2]") {
+                type.size = 8;
+                type.kind = TypeKind::array;
+                type.element_type = "undefined4";
+                type.element_count = 2;
+            } else if (name == "undefined1[56]") {
+                type.size = 56;
+                type.kind = TypeKind::array;
+                type.element_type = "undefined1";
+                type.element_count = 56;
+            } else if (name == "undefined1[48]") {
+                type.size = 48;
+                type.kind = TypeKind::array;
+                type.element_type = "undefined1";
+                type.element_count = 48;
+            } else if (name == "MetricSpentOnBankInterest_vftable *[3]") {
+                type.size = 24;
+                type.kind = TypeKind::array;
+                type.element_type = "MetricSpentOnBankInterest_vftable *";
+                type.element_count = 3;
+            } else if (name == "MetricSpentOnBankInterest_vftable *") {
+                type.size = 8;
+                type.kind = TypeKind::pointer;
+                type.element_type = "MetricSpentOnBankInterest_vftable";
+            } else if (name == "fwEvent *") {
+                type.size = 8;
+                type.kind = TypeKind::pointer;
+                type.element_type = "fwEvent";
+            } else {
+                return std::nullopt;
+            }
+            return type;
+        }
+
+        /// Supplies the root fastcall prototype and the typed direct-call signatures.
+        [[nodiscard]] std::optional<PrototypeDescription> prototype_at(std::uint64_t address) const override {
+            PrototypeDescription prototype;
+            if (address == 0x140a6d118) {
+                prototype.calling_convention = "__fastcall";
+                prototype.return_type = "void";
+                prototype.parameters = {
+                    PrototypeParameterDescription{"param_1", "int", Storage{"register", 8, 4}},
+                    PrototypeParameterDescription{"param_2", "undefined1", Storage{"register", 0x10, 1}},
+                    PrototypeParameterDescription{"param_3", "undefined1", Storage{"register", 0x80, 1}},
+                };
+                return prototype;
+            }
+            if (address == 0x14132745c) {
+                prototype.return_type = "void";
+                prototype.parameters = {
+                    PrototypeParameterDescription{"param_1", "MetricSpentOnBankInterest_vftable *",
+                                                  Storage{"register", 8, 8}},
+                };
+                return prototype;
+            }
+            if (address == 0x14015dcec || address == 0x14015dd88) {
+                prototype.return_type = "void";
+                prototype.parameters = {
+                    PrototypeParameterDescription{"param_1", "undefined1 *", Storage{"register", 8, 8}},
+                };
+                return prototype;
+            }
+            if (address == 0x140a6c838) {
+                prototype.return_type = "undefined1";
+                return prototype;
+            }
+            if (address == 0x1413290b8) {
+                prototype.return_type = "void";
+                prototype.parameters = {
+                    PrototypeParameterDescription{"param_1", "MetricSpentOnBankInterest_vftable *",
+                                                  Storage{"register", 8, 8}},
+                };
+                return prototype;
+            }
+            return std::nullopt;
+        }
+
+        /// Supplies the documented local storage ranges and names for the root function.
+        [[nodiscard]] std::vector<VariableDescription> variables_at(std::uint64_t address) const override {
+            if (address != 0x140a6d118) {
+                return {};
+            }
+            return {
+                VariableDescription{"local_res8", "undefined4[2]", Storage{"stack", 0x8, 8}},
+                VariableDescription{"local_a8", "MetricSpentOnBankInterest_vftable *[3]",
+                                    Storage{"stack", static_cast<std::uint64_t>(-0xa8), 24}},
+                VariableDescription{"local_90", "undefined1[56]",
+                                    Storage{"stack", static_cast<std::uint64_t>(-0x90), 56}},
+                VariableDescription{"local_58", "undefined1[48]",
+                                    Storage{"stack", static_cast<std::uint64_t>(-0x58), 48}},
+                VariableDescription{"local_res18", "undefined8", Storage{"stack", 0x18, 8}},
+                VariableDescription{"local_res10", "undefined8", Storage{"stack", 0x10, 8}},
+                VariableDescription{"local_8", "undefined", Storage{"stack", static_cast<std::uint64_t>(-0x8), 1}},
+                VariableDescription{"local_18", "undefined1", Storage{"stack", static_cast<std::uint64_t>(-0x18), 1}},
+                VariableDescription{"local_28", "undefined8", Storage{"stack", static_cast<std::uint64_t>(-0x28), 8}},
+                VariableDescription{"local_b8", "undefined1", Storage{"stack", static_cast<std::uint64_t>(-0xb8), 1}},
+                VariableDescription{"local_c0", "undefined1", Storage{"stack", static_cast<std::uint64_t>(-0xc0), 1}},
+                VariableDescription{"local_c8", "undefined4", Storage{"stack", static_cast<std::uint64_t>(-0xc8), 4}},
+                VariableDescription{"local_d0", "undefined4", Storage{"stack", static_cast<std::uint64_t>(-0xd0), 4}},
+                VariableDescription{"local_d8", "undefined8", Storage{"stack", static_cast<std::uint64_t>(-0xd8), 8}},
+                VariableDescription{"local_e0", "undefined8", Storage{"stack", static_cast<std::uint64_t>(-0xe0), 8}},
+                VariableDescription{"local_e8", "undefined1", Storage{"stack", static_cast<std::uint64_t>(-0xe8), 1}},
+            };
+        }
+    };
+
+    // These bytes reproduce the complete contiguous Example 6 listing.
+    const std::vector<std::uint8_t> function_bytes{
+        0x85, 0xc9,                                     // TEST param_1, param_1.
+        0x0f, 0x88, 0xc2, 0x00, 0x00, 0x00,             // JS LAB_140a6d1e2.
+        0x48, 0x89, 0x5c, 0x24, 0x10,                   // MOV [RSP+local_res10], RBX.
+        0x48, 0x89, 0x74, 0x24, 0x18,                   // MOV [RSP+local_res18], RSI.
+        0x57,                                           // PUSH RDI.
+        0x48, 0x81, 0xec, 0x00, 0x01, 0x00, 0x00,       // SUB RSP, 0x100.
+        0x48, 0x63, 0xd9,                               // MOVSXD RBX, param_1.
+        0x48, 0x8d, 0x4c, 0x24, 0x60,                   // LEA param_1, [RSP+0x60].
+        0x41, 0x8a, 0xf0,                               // MOV SIL, param_3.
+        0x40, 0x8a, 0xfa,                               // MOV DIL, param_2.
+        0xe8, 0x17, 0xa3, 0x8b, 0x00,                   // CALL FUN_14132745c.
+        0x48, 0x8d, 0x4c, 0x24, 0x78,                   // LEA param_1, [RSP+0x78].
+        0xe8, 0x9d, 0x0b, 0x6f, 0xff,                   // CALL FUN_14015dcec.
+        0x48, 0x8d, 0x8c, 0x24, 0xb0, 0x00, 0x00, 0x00, // LEA param_1, [RSP+0xb0].
+        0xe8, 0x2c, 0x0c, 0x6f, 0xff,                   // CALL FUN_14015dd88.
+        0x83, 0xa4, 0x24, 0x10, 0x01, 0x00, 0x00, 0x00, // AND [RSP+local_res8], 0.
+        0xc6, 0x44, 0x24, 0x50, 0x00,                   // MOV [RSP+local_b8], 0.
+        0xc6, 0x44, 0x24, 0x48, 0x00,                   // MOV [RSP+local_c0], 0.
+        0x83, 0x4c, 0x24, 0x40, 0xff,                   // OR [RSP+local_c8], -1.
+        0xc7, 0x44, 0x24, 0x38, 0x5b, 0x12, 0xba, 0x0b, // MOV [RSP+local_d0], 0x0bba125b.
+        0x48, 0x8d, 0x05, 0x36, 0x3f, 0xe8, 0x00,       // LEA RAX, MetricSpentOnBankInterest::vftable.
+        0x48, 0x8b, 0xcb,                               // MOV param_1, RBX.
+        0x45, 0x33, 0xc9,                               // XOR R9D, R9D.
+        0x48, 0x89, 0x44, 0x24, 0x60,                   // MOV [RSP+local_a8], RAX.
+        0x48, 0x8d, 0x84, 0x24, 0x10, 0x01, 0x00, 0x00, // LEA RAX, [RSP+local_res8].
+        0x44, 0x8a, 0xc6,                               // MOV param_3, SIL.
+        0x48, 0x89, 0x44, 0x24, 0x30,                   // MOV [RSP+local_d8], RAX.
+        0x48, 0x8d, 0x44, 0x24, 0x60,                   // LEA RAX, [RSP+local_a8].
+        0x40, 0x8a, 0xd7,                               // MOV param_2, DIL.
+        0x48, 0x89, 0x44, 0x24, 0x28,                   // MOV [RSP+local_e0], RAX.
+        0x48, 0x89, 0x9c, 0x24, 0xe0, 0x00, 0x00, 0x00, // MOV [RSP+local_28], RBX.
+        0x40, 0x88, 0xbc, 0x24, 0xf0, 0x00, 0x00, 0x00, // MOV [RSP+local_18], DIL.
+        0xc6, 0x44, 0x24, 0x20, 0x00,                   // MOV [RSP+local_e8], 0.
+        0xe8, 0x74, 0xf6, 0xff, 0xff,                   // CALL rage::fwEvent::~fwEvent.
+        0x48, 0x8d, 0x4c, 0x24, 0x60,                   // LEA param_1, [RSP+local_a8].
+        0xe8, 0xea, 0xbe, 0x8b, 0x00,                   // CALL FUN_1413290b8.
+        0x4c, 0x8d, 0x9c, 0x24, 0x00, 0x01, 0x00, 0x00, // LEA R11, [RSP+0x100].
+        0x49, 0x8b, 0x5b, 0x18,                         // MOV RBX, [R11+local_res10].
+        0x49, 0x8b, 0x73, 0x20,                         // MOV RSI, [R11+local_res18].
+        0x49, 0x8b, 0xe3,                               // MOV RSP, R11.
+        0x5f,                                           // POP RDI.
+        0xc3,                                           // RET.
+    };
+
+    std::vector<std::uint8_t> image_bytes = function_bytes;
+    image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
+    constexpr std::uint64_t entry = 0x140a6d118;
+    auto memory = std::make_shared<SparseMemory>(entry, std::move(image_bytes));
+    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+                                 {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
+    ArchitectureDescription architecture = test_architecture();
+    architecture.calling_convention = "__fastcall";
+    ProviderContext providers;
+    providers.pcode = std::make_shared<SleighPcodeProvider>(std::move(provider));
+    providers.memory = memory;
+    auto metadata = std::make_shared<TestProviders>();
+    providers.symbols = metadata;
+    providers.types = metadata;
+    providers.prototypes = metadata;
+    providers.variables = metadata;
+    try {
+        Decompiler decompiler(std::move(architecture), std::move(providers));
+        const DecompilationResult result = decompiler.decompile(FunctionDescription{
+            "MetricSpentOnBankInterest_Constructor_or_Destructor", entry, entry + function_bytes.size()});
+
+        ASSERT_FALSE(result.raw_instructions.empty());
+        ASSERT_FALSE(result.c_source.empty());
+        // This is the current output of the native pipeline for the bytes and
+        // provider metadata above. It intentionally records the port's current
+        // stack-variable recovery, which is less typed than TEST/dec_code_examples/6.md.
+        const std::string expected_c = R"(
+void __fastcall
+MetricSpentOnBankInterest::MetricSpentOnBankInterest_Constructor_or_Destructor
+          (int param_1,undefined1 param_2,undefined1 param_3)
+
+{
+  int8 iVar1;
+  BADSPACEBASE *in_RSP;
+  undefined1 *pxVar2;
+  undefined1 local_e8;
+  undefined8 local_28;)"
+                                       "\n  \n"
+                                       R"(  if (-1 < param_1) {
+    iVar1 = (int8)param_1;
+    pxVar2 = &local_e8;
+    FUN_14132745c(&local_28);
+    FUN_14015dcec((undefined1 *)(pxVar2 + 0x80));
+    FUN_14015dd88((undefined1 *)(pxVar2 + 0xb8));
+    *(undefined4 *)(pxVar2 + 0x118) = 0;
+    pxVar2[0x58] = 0;
+    pxVar2[0x50] = 0;
+    *(undefined4 *)(pxVar2 + 0x48) = 0xffffffff;
+    *(undefined4 *)(pxVar2 + 0x40) = 0xbba125b;
+    *(undefined8 *)(pxVar2 + 0x68) = 0x1418f10b8;
+    *(undefined1 **)(pxVar2 + 0x38) = pxVar2 + 0x118;
+    *(undefined1 **)(pxVar2 + 0x30) = pxVar2 + 0x68;
+    *(int8 *)(pxVar2 + 0xe8) = iVar1;
+    pxVar2[0xf8] = param_2;
+    pxVar2[0x28] = 0;
+    rage::fwEvent::~fwEvent();
+    FUN_1413290b8((MetricSpentOnBankInterest_vftable *)(pxVar2 + 0x68));
+  }
+  return;
+}
+)";
+        EXPECT_NE(result.c_source.find("MetricSpentOnBankInterest"), std::string::npos);
+        EXPECT_NE(result.c_source.find("rage::fwEvent::~fwEvent"), std::string::npos);
+        EXPECT_EQ(result.c_source, expected_c);
+    } catch (const ghidra::LowlevelError& error) {
+        FAIL() << error.explain;
+    } catch (const std::exception& error) {
+        FAIL() << error.what();
+    }
+}
+
 /// Verifies that the production p-code provider consumes bytes through NEW's
 /// compiled Sleigh runtime rather than a decoder embedded in this module.
 TEST(SleighProvider, DecodesX86BytesIntoProviderPcode) {
