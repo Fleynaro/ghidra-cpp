@@ -404,12 +404,23 @@ void UserOpManage::initialize(Architecture* g)
 /// \param i is the index
 /// \return the indicated user-op description
 UserPcodeOp* UserOpManage::getOp(uint4 i) const {
-    if (i < useroplist.size())
+    if (i < useroplist.size() && useroplist[i] != (UserPcodeOp*)0)
         return useroplist[i];
     map<uint4, UserPcodeOp*>::const_iterator iter = builtinmap.find(i);
-    if (iter == builtinmap.end())
+    if (iter != builtinmap.end())
+        return ((*iter).second);
+
+    // Provider-backed architectures can decode a CALLOTHER operation whose
+    // Sleigh translator is not the translator used to initialize this manager.
+    // Keep such an operation analyzable as an unspecialized user-op instead of
+    // dereferencing a null description during flow or C-printer analysis.
+    if (glb == (Architecture*)0 || i >= 4096)
         return (UserPcodeOp*)0;
-    return ((*iter).second);
+    UserOpManage* manager = const_cast<UserOpManage*>(this);
+    ostringstream name;
+    name << "userop_" << i;
+    manager->registerOp(new UnspecializedPcodeOp(name.str(), glb, i));
+    return manager->useroplist[i];
 }
 
 /// \param nm is the low-level operation name

@@ -63,6 +63,29 @@ static ArchitectureDescription test_architecture() {
     return description;
 }
 
+/// Removes formatting-only spaces at the ends of generated C source lines.
+///
+/// The native printer emits two trailing spaces on some blank lines. Golden
+/// tests compare generated structure and expressions without depending on
+/// that presentation detail.
+static std::string without_trailing_whitespace(std::string value) {
+    std::size_t line_start = 0;
+    while (line_start < value.size()) {
+        const std::size_t newline = value.find('\n', line_start);
+        const std::size_t line_end = newline == std::string::npos ? value.size() : newline;
+        std::size_t trim_end = line_end;
+        while (trim_end > line_start && (value[trim_end - 1] == ' ' || value[trim_end - 1] == '\t')) {
+            --trim_end;
+        }
+        value.erase(trim_end, line_end - trim_end);
+        if (newline == std::string::npos) {
+            break;
+        }
+        line_start = trim_end + 1;
+    }
+    return value;
+}
+
 /// Verifies the entire provider contract and the native engine's raw-flow path.
 TEST(DecompilerFrontend, MaterializesProviderPcodeAndFlow) {
     try {
@@ -291,207 +314,6 @@ long __cdecl StringLengthWorkerW(wchar_t * param_1,__uint64 param_2,__uint64 * p
     EXPECT_NE(result.c_source.find("__uint64 * param_3"), std::string::npos);
     EXPECT_NE(result.c_source.find("int local_10"), std::string::npos);
     EXPECT_EQ(result.c_source.find("in_register_"), std::string::npos);
-    EXPECT_EQ(result.c_source, expected_c);
-}
-
-/// Runs Example 3 through the complete native pipeline, including typed child
-/// calls to the two helpers and the external `rand()` function.
-TEST(DecompilerExamples, Example3TypedChildCallEndToEnd) {
-    /// Supplies symbols for the root function and every direct child call.
-    class TestSymbolProvider final : public SymbolProvider {
-    public:
-        /// Resolves the known Example 3 symbols by their machine-code address.
-        [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
-            if (address == 0x140333210) {
-                return SymbolDescription{address, "FUN_140333210", ""};
-            }
-            if (address == 0x14032b6f4) {
-                return SymbolDescription{address, "FUN_14032b6f4", ""};
-            }
-            if (address == 0x14032b5e0) {
-                return SymbolDescription{address, "FUN_14032b5e0", ""};
-            }
-            if (address == 0x141705a10) {
-                return SymbolDescription{address, "rand", ""};
-            }
-            return std::nullopt;
-        }
-    };
-
-    /// Supplies the primitive, floating-point, and saved-register types.
-    class TestTypeProvider final : public TypeProvider {
-    public:
-        /// Resolves the type names used by Example 3's prototype and locals.
-        [[nodiscard]] std::optional<TypeDescription> type_named(std::string_view name) const override {
-            TypeDescription type;
-            type.name = std::string(name);
-            if (name == "undefined1") {
-                type.size = 1;
-                type.kind = TypeKind::unsigned_integer;
-            } else if (name == "undefined8") {
-                type.size = 8;
-                type.kind = TypeKind::unsigned_integer;
-            } else if (name == "undefined1[16]") {
-                type.size = 16;
-                type.kind = TypeKind::array;
-                type.element_type = "undefined1";
-                type.element_count = 16;
-            } else if (name == "int") {
-                type.size = 4;
-                type.kind = TypeKind::signed_integer;
-            } else if (name == "uint") {
-                type.size = 4;
-                type.kind = TypeKind::unsigned_integer;
-            } else if (name == "float") {
-                type.size = 4;
-                type.kind = TypeKind::floating_point;
-            } else {
-                return std::nullopt;
-            }
-            return type;
-        }
-    };
-
-    /// Supplies root, helper, and rand prototypes so call return values are typed.
-    class TestPrototypeProvider final : public PrototypeProvider {
-    public:
-        /// Returns the ABI storage and return type for a known Example 3 function.
-        [[nodiscard]] std::optional<PrototypeDescription> prototype_at(std::uint64_t address) const override {
-            PrototypeDescription prototype;
-            if (address == 0x140333210) {
-                prototype.calling_convention = "__fastcall";
-                prototype.return_type = "int";
-                prototype.return_storage = Storage{"register", 0, 4};
-                prototype.parameters = {
-                    PrototypeParameterDescription{"param_1", "undefined8", Storage{"register", 8, 8}},
-                    PrototypeParameterDescription{"param_2", "int", Storage{"register", 0x10, 4}},
-                };
-                return prototype;
-            }
-            if (address == 0x14032b6f4) {
-                prototype.return_type = "void";
-                return prototype;
-            }
-            if (address == 0x14032b5e0) {
-                prototype.return_type = "void";
-                prototype.parameters = {
-                    PrototypeParameterDescription{"param_1", "undefined8", Storage{"register", 8, 8}},
-                };
-                return prototype;
-            }
-            if (address == 0x141705a10) {
-                prototype.return_type = "int";
-                prototype.return_storage = Storage{"register", 0, 4};
-                return prototype;
-            }
-            return std::nullopt;
-        }
-    };
-
-    /// Supplies the saved nonvolatile register locals from Example 3.
-    class TestVariableProvider final : public VariableProvider {
-    public:
-        /// Returns stack locals with the documented storage and types.
-        [[nodiscard]] std::vector<VariableDescription> variables_at(std::uint64_t address) const override {
-            if (address != 0x140333210) {
-                return {};
-            }
-            return {
-                VariableDescription{"local_res8", "undefined8", Storage{"stack", 8, 8}},
-                VariableDescription{"local_18", "undefined1[16]",
-                                    Storage{"stack", static_cast<std::uint64_t>(-0x18), 16}},
-                VariableDescription{"local_28", "undefined1[16]",
-                                    Storage{"stack", static_cast<std::uint64_t>(-0x28), 16}},
-            };
-        }
-    };
-
-    // These bytes are the complete contiguous function from Example 3.
-    // The prologue saves RBX/RDI and reserves 0x40 bytes; MOVAPS saves XMM6
-    // and XMM7; the first two CALL instructions target the supplied helper
-    // symbols; the conditional body blends floating-point values; the second
-    // branch calls rand(); and the epilogue restores all nonvolatile state.
-    const std::vector<std::uint8_t> function_bytes{
-        0x48, 0x89, 0x5c, 0x24, 0x08,                   // MOV [RSP+8], RBX: save local_res8.
-        0x57,                                           // PUSH RDI: save the nonvolatile integer register.
-        0x48, 0x83, 0xec, 0x40,                         // SUB RSP, 0x40: allocate the stack frame.
-        0x0f, 0x29, 0x74, 0x24, 0x30,                   // MOVAPS [RSP+0x30], XMM6: save local_18.
-        0x8b, 0xfa,                                     // MOV EDI, EDX: copy param_2 into the selector register.
-        0x48, 0x8b, 0xd9,                               // MOV RBX, RCX: copy param_1 into the saved context.
-        0x0f, 0x29, 0x7c, 0x24, 0x20,                   // MOVAPS [RSP+0x20], XMM7: save local_28.
-        0xe8, 0xc6, 0x84, 0xff, 0xff,                   // CALL FUN_14032b6f4: first helper call.
-        0x48, 0x8b, 0xcb,                               // MOV RCX, RBX: pass param_1 to the second helper.
-        0x0f, 0x28, 0xf8,                               // MOVAPS XMM7, XMM0: preserve the helper result.
-        0xe8, 0xa7, 0x83, 0xff, 0xff,                   // CALL FUN_14032b5e0: second helper call.
-        0x0f, 0x28, 0xf0,                               // MOVAPS XMM6, XMM0: preserve the second result.
-        0x85, 0xff,                                     // TEST EDI, EDI: select the random/direct branch.
-        0x74, 0x24,                                     // JZ LAB_140333264: use rand when param_2 is zero.
-        0xf3, 0x0f, 0x5c, 0xf7,                         // SUBSS XMM6, XMM7: subtract helper results.
-        0x40, 0x0f, 0xb6, 0xc7,                         // MOVZX EAX, DIL: reduce param_2 to one byte.
-        0x66, 0x0f, 0x6e, 0xc8,                         // MOVD XMM1, EAX: move selector into an XMM register.
-        0x0f, 0x5b, 0xc9,                               // CVTDQ2PS XMM1, XMM1: convert selector to float.
-        0xf3, 0x0f, 0x59, 0x0d, 0x79, 0xfd, 0x50, 0x01, // MULSS XMM1, [DAT_141842fd0].
-        0xf3, 0x0f, 0x59, 0xf1,                         // MULSS XMM6, XMM1: scale the difference.
-        0xf3, 0x0f, 0x58, 0xf7,                         // ADDSS XMM6, XMM7: add the base value.
-        0x0f, 0x28, 0xc6,                               // MOVAPS XMM0, XMM6: select the direct result.
-        0xeb, 0x20,                                     // JMP LAB_140333284: join both branches.
-        0xe8, 0xa7, 0x27, 0x3d, 0x01,                   // CALL rand: typed child call returning int in EAX.
-        0xf3, 0x0f, 0x5c, 0xf7,                         // SUBSS XMM6, XMM7: subtract helper results.
-        0x66, 0x0f, 0x6e, 0xc0,                         // MOVD XMM0, EAX: convert rand result input.
-        0x0f, 0x5b, 0xc0,                               // CVTDQ2PS XMM0, XMM0: convert rand result to float.
-        0xf3, 0x0f, 0x59, 0x05, 0xfc, 0xd1, 0x53, 0x01, // MULSS XMM0, [DAT_141870478].
-        0xf3, 0x0f, 0x59, 0xc6,                         // MULSS XMM0, XMM6: scale the random result.
-        0xf3, 0x0f, 0x58, 0xc7,                         // ADDSS XMM0, XMM7: add the base value.
-        0x48, 0x8b, 0x5c, 0x24, 0x50,                   // MOV RBX, [RSP+0x50]: restore local_res8.
-        0x0f, 0x28, 0x74, 0x24, 0x30,                   // MOVAPS XMM6, [RSP+0x30]: restore local_18.
-        0x0f, 0x28, 0x7c, 0x24, 0x20,                   // MOVAPS XMM7, [RSP+0x20]: restore local_28.
-        0x48, 0x83, 0xc4, 0x40,                         // ADD RSP, 0x40: release the stack frame.
-        0x5f,                                           // POP RDI: restore the nonvolatile integer register.
-        0xc3,                                           // RET: return the selected value.
-    };
-
-    std::vector<std::uint8_t> image_bytes = function_bytes;
-    image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
-    auto memory = std::make_shared<SparseMemory>(0x140333210, std::move(image_bytes));
-    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
-                                 {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
-    ArchitectureDescription architecture = test_architecture();
-    architecture.calling_convention = "__fastcall";
-    ProviderContext providers;
-    providers.pcode = std::make_shared<SleighPcodeProvider>(std::move(provider));
-    providers.memory = memory;
-    providers.symbols = std::make_shared<TestSymbolProvider>();
-    providers.types = std::make_shared<TestTypeProvider>();
-    providers.prototypes = std::make_shared<TestPrototypeProvider>();
-    providers.variables = std::make_shared<TestVariableProvider>();
-    Decompiler decompiler(std::move(architecture), std::move(providers));
-    const DecompilationResult result =
-        decompiler.decompile(FunctionDescription{"FUN_140333210", 0x140333210, 0x140333210 + function_bytes.size()});
-
-    ASSERT_FALSE(result.raw_instructions.empty());
-    ASSERT_FALSE(result.c_source.empty());
-    const std::string expected_c = R"(
-int __fastcall FUN_140333210(undefined8 param_1,int param_2)
-
-{
-  uint4 uVar1;
-  
-  FUN_14032b6f4();
-  FUN_14032b5e0(param_1);
-  if (param_2 == 0) {
-    uVar1 = rand();
-  }
-  else {
-    uVar1 = param_2 & 0xff;
-  }
-  return uVar1;
-}
-)";
-    EXPECT_NE(result.c_source.find("FUN_14032b6f4"), std::string::npos);
-    EXPECT_NE(result.c_source.find("FUN_14032b5e0(param_1)"), std::string::npos);
-    EXPECT_NE(result.c_source.find("rand()"), std::string::npos);
-    EXPECT_NE(result.c_source.find("param_2 == 0"), std::string::npos);
-    EXPECT_NE(result.c_source.find("param_2 & 0xff"), std::string::npos);
     EXPECT_EQ(result.c_source, expected_c);
 }
 
@@ -754,6 +576,207 @@ bsearch(void * _Key,void * _Base,size_t _NumOfElements,size_t _SizeOfElements,
     EXPECT_NE(result.c_source.find("FUN_141715f74"), std::string::npos);
     EXPECT_NE(result.c_source.find("_PtFuncCompare"), std::string::npos);
     EXPECT_NE(result.c_source.find("while"), std::string::npos);
+    EXPECT_EQ(result.c_source, expected_c);
+}
+
+/// Runs Example 3 through the complete native pipeline, including typed child
+/// calls to the two helpers and the external `rand()` function.
+TEST(DecompilerExamples, Example3TypedChildCallEndToEnd) {
+    /// Supplies symbols for the root function and every direct child call.
+    class TestSymbolProvider final : public SymbolProvider {
+    public:
+        /// Resolves the known Example 3 symbols by their machine-code address.
+        [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
+            if (address == 0x140333210) {
+                return SymbolDescription{address, "FUN_140333210", ""};
+            }
+            if (address == 0x14032b6f4) {
+                return SymbolDescription{address, "FUN_14032b6f4", ""};
+            }
+            if (address == 0x14032b5e0) {
+                return SymbolDescription{address, "FUN_14032b5e0", ""};
+            }
+            if (address == 0x141705a10) {
+                return SymbolDescription{address, "rand", ""};
+            }
+            return std::nullopt;
+        }
+    };
+
+    /// Supplies the primitive, floating-point, and saved-register types.
+    class TestTypeProvider final : public TypeProvider {
+    public:
+        /// Resolves the type names used by Example 3's prototype and locals.
+        [[nodiscard]] std::optional<TypeDescription> type_named(std::string_view name) const override {
+            TypeDescription type;
+            type.name = std::string(name);
+            if (name == "undefined1") {
+                type.size = 1;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "undefined8") {
+                type.size = 8;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "undefined1[16]") {
+                type.size = 16;
+                type.kind = TypeKind::array;
+                type.element_type = "undefined1";
+                type.element_count = 16;
+            } else if (name == "int") {
+                type.size = 4;
+                type.kind = TypeKind::signed_integer;
+            } else if (name == "uint") {
+                type.size = 4;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "float") {
+                type.size = 4;
+                type.kind = TypeKind::floating_point;
+            } else {
+                return std::nullopt;
+            }
+            return type;
+        }
+    };
+
+    /// Supplies root, helper, and rand prototypes so call return values are typed.
+    class TestPrototypeProvider final : public PrototypeProvider {
+    public:
+        /// Returns the ABI storage and return type for a known Example 3 function.
+        [[nodiscard]] std::optional<PrototypeDescription> prototype_at(std::uint64_t address) const override {
+            PrototypeDescription prototype;
+            if (address == 0x140333210) {
+                prototype.calling_convention = "__fastcall";
+                prototype.return_type = "int";
+                prototype.return_storage = Storage{"register", 0, 4};
+                prototype.parameters = {
+                    PrototypeParameterDescription{"param_1", "undefined8", Storage{"register", 8, 8}},
+                    PrototypeParameterDescription{"param_2", "int", Storage{"register", 0x10, 4}},
+                };
+                return prototype;
+            }
+            if (address == 0x14032b6f4) {
+                prototype.return_type = "void";
+                return prototype;
+            }
+            if (address == 0x14032b5e0) {
+                prototype.return_type = "void";
+                prototype.parameters = {
+                    PrototypeParameterDescription{"param_1", "undefined8", Storage{"register", 8, 8}},
+                };
+                return prototype;
+            }
+            if (address == 0x141705a10) {
+                prototype.return_type = "int";
+                prototype.return_storage = Storage{"register", 0, 4};
+                return prototype;
+            }
+            return std::nullopt;
+        }
+    };
+
+    /// Supplies the saved nonvolatile register locals from Example 3.
+    class TestVariableProvider final : public VariableProvider {
+    public:
+        /// Returns stack locals with the documented storage and types.
+        [[nodiscard]] std::vector<VariableDescription> variables_at(std::uint64_t address) const override {
+            if (address != 0x140333210) {
+                return {};
+            }
+            return {
+                VariableDescription{"local_res8", "undefined8", Storage{"stack", 8, 8}},
+                VariableDescription{"local_18", "undefined1[16]",
+                                    Storage{"stack", static_cast<std::uint64_t>(-0x18), 16}},
+                VariableDescription{"local_28", "undefined1[16]",
+                                    Storage{"stack", static_cast<std::uint64_t>(-0x28), 16}},
+            };
+        }
+    };
+
+    // These bytes are the complete contiguous function from Example 3.
+    // The prologue saves RBX/RDI and reserves 0x40 bytes; MOVAPS saves XMM6
+    // and XMM7; the first two CALL instructions target the supplied helper
+    // symbols; the conditional body blends floating-point values; the second
+    // branch calls rand(); and the epilogue restores all nonvolatile state.
+    const std::vector<std::uint8_t> function_bytes{
+        0x48, 0x89, 0x5c, 0x24, 0x08,                   // MOV [RSP+8], RBX: save local_res8.
+        0x57,                                           // PUSH RDI: save the nonvolatile integer register.
+        0x48, 0x83, 0xec, 0x40,                         // SUB RSP, 0x40: allocate the stack frame.
+        0x0f, 0x29, 0x74, 0x24, 0x30,                   // MOVAPS [RSP+0x30], XMM6: save local_18.
+        0x8b, 0xfa,                                     // MOV EDI, EDX: copy param_2 into the selector register.
+        0x48, 0x8b, 0xd9,                               // MOV RBX, RCX: copy param_1 into the saved context.
+        0x0f, 0x29, 0x7c, 0x24, 0x20,                   // MOVAPS [RSP+0x20], XMM7: save local_28.
+        0xe8, 0xc6, 0x84, 0xff, 0xff,                   // CALL FUN_14032b6f4: first helper call.
+        0x48, 0x8b, 0xcb,                               // MOV RCX, RBX: pass param_1 to the second helper.
+        0x0f, 0x28, 0xf8,                               // MOVAPS XMM7, XMM0: preserve the helper result.
+        0xe8, 0xa7, 0x83, 0xff, 0xff,                   // CALL FUN_14032b5e0: second helper call.
+        0x0f, 0x28, 0xf0,                               // MOVAPS XMM6, XMM0: preserve the second result.
+        0x85, 0xff,                                     // TEST EDI, EDI: select the random/direct branch.
+        0x74, 0x24,                                     // JZ LAB_140333264: use rand when param_2 is zero.
+        0xf3, 0x0f, 0x5c, 0xf7,                         // SUBSS XMM6, XMM7: subtract helper results.
+        0x40, 0x0f, 0xb6, 0xc7,                         // MOVZX EAX, DIL: reduce param_2 to one byte.
+        0x66, 0x0f, 0x6e, 0xc8,                         // MOVD XMM1, EAX: move selector into an XMM register.
+        0x0f, 0x5b, 0xc9,                               // CVTDQ2PS XMM1, XMM1: convert selector to float.
+        0xf3, 0x0f, 0x59, 0x0d, 0x79, 0xfd, 0x50, 0x01, // MULSS XMM1, [DAT_141842fd0].
+        0xf3, 0x0f, 0x59, 0xf1,                         // MULSS XMM6, XMM1: scale the difference.
+        0xf3, 0x0f, 0x58, 0xf7,                         // ADDSS XMM6, XMM7: add the base value.
+        0x0f, 0x28, 0xc6,                               // MOVAPS XMM0, XMM6: select the direct result.
+        0xeb, 0x20,                                     // JMP LAB_140333284: join both branches.
+        0xe8, 0xa7, 0x27, 0x3d, 0x01,                   // CALL rand: typed child call returning int in EAX.
+        0xf3, 0x0f, 0x5c, 0xf7,                         // SUBSS XMM6, XMM7: subtract helper results.
+        0x66, 0x0f, 0x6e, 0xc0,                         // MOVD XMM0, EAX: convert rand result input.
+        0x0f, 0x5b, 0xc0,                               // CVTDQ2PS XMM0, XMM0: convert rand result to float.
+        0xf3, 0x0f, 0x59, 0x05, 0xfc, 0xd1, 0x53, 0x01, // MULSS XMM0, [DAT_141870478].
+        0xf3, 0x0f, 0x59, 0xc6,                         // MULSS XMM0, XMM6: scale the random result.
+        0xf3, 0x0f, 0x58, 0xc7,                         // ADDSS XMM0, XMM7: add the base value.
+        0x48, 0x8b, 0x5c, 0x24, 0x50,                   // MOV RBX, [RSP+0x50]: restore local_res8.
+        0x0f, 0x28, 0x74, 0x24, 0x30,                   // MOVAPS XMM6, [RSP+0x30]: restore local_18.
+        0x0f, 0x28, 0x7c, 0x24, 0x20,                   // MOVAPS XMM7, [RSP+0x20]: restore local_28.
+        0x48, 0x83, 0xc4, 0x40,                         // ADD RSP, 0x40: release the stack frame.
+        0x5f,                                           // POP RDI: restore the nonvolatile integer register.
+        0xc3,                                           // RET: return the selected value.
+    };
+
+    std::vector<std::uint8_t> image_bytes = function_bytes;
+    image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
+    auto memory = std::make_shared<SparseMemory>(0x140333210, std::move(image_bytes));
+    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+                                 {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
+    ArchitectureDescription architecture = test_architecture();
+    architecture.calling_convention = "__fastcall";
+    ProviderContext providers;
+    providers.pcode = std::make_shared<SleighPcodeProvider>(std::move(provider));
+    providers.memory = memory;
+    providers.symbols = std::make_shared<TestSymbolProvider>();
+    providers.types = std::make_shared<TestTypeProvider>();
+    providers.prototypes = std::make_shared<TestPrototypeProvider>();
+    providers.variables = std::make_shared<TestVariableProvider>();
+    Decompiler decompiler(std::move(architecture), std::move(providers));
+    const DecompilationResult result =
+        decompiler.decompile(FunctionDescription{"FUN_140333210", 0x140333210, 0x140333210 + function_bytes.size()});
+
+    ASSERT_FALSE(result.raw_instructions.empty());
+    ASSERT_FALSE(result.c_source.empty());
+    const std::string expected_c = R"(
+int __fastcall FUN_140333210(undefined8 param_1,int param_2)
+
+{
+  uint4 uVar1;
+  
+  FUN_14032b6f4();
+  FUN_14032b5e0(param_1);
+  if (param_2 == 0) {
+    uVar1 = rand();
+  }
+  else {
+    uVar1 = param_2 & 0xff;
+  }
+  return uVar1;
+}
+)";
+    EXPECT_NE(result.c_source.find("FUN_14032b6f4"), std::string::npos);
+    EXPECT_NE(result.c_source.find("FUN_14032b5e0(param_1)"), std::string::npos);
+    EXPECT_NE(result.c_source.find("rand()"), std::string::npos);
+    EXPECT_NE(result.c_source.find("param_2 == 0"), std::string::npos);
+    EXPECT_NE(result.c_source.find("param_2 & 0xff"), std::string::npos);
     EXPECT_EQ(result.c_source, expected_c);
 }
 
@@ -1299,6 +1322,834 @@ MetricSpentOnBankInterest::MetricSpentOnBankInterest_Constructor_or_Destructor
         EXPECT_NE(result.c_source.find("MetricSpentOnBankInterest"), std::string::npos);
         EXPECT_NE(result.c_source.find("rage::fwEvent::~fwEvent"), std::string::npos);
         EXPECT_EQ(result.c_source, expected_c);
+    } catch (const ghidra::LowlevelError& error) {
+        FAIL() << error.explain;
+    } catch (const std::exception& error) {
+        FAIL() << error.what();
+    }
+}
+
+/// Runs the Visual Studio malloc implementation through the native decompiler pipeline.
+TEST(DecompilerExamples, Example7MallocEndToEnd) {
+    /// Supplies the malloc symbols, ABI types, and direct-call prototypes from Example 7.
+    class TestProviders final : public SymbolProvider,
+                                public TypeProvider,
+                                public PrototypeProvider,
+                                public VariableProvider {
+    public:
+        /// Resolves malloc and every direct library call target in the listing.
+        [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
+            if (address == 0x14170f4e8) {
+                return SymbolDescription{address, "malloc", ""};
+            }
+            if (address == 0x141714a00) {
+                return SymbolDescription{address, "_FF_MSGBANNER", ""};
+            }
+            if (address == 0x141714a74) {
+                return SymbolDescription{address, "FUN_141714a74", ""};
+            }
+            if (address == 0x1417112e4) {
+                return SymbolDescription{address, "__crtExitProcess", ""};
+            }
+            if (address == 0x14171eb00) {
+                return SymbolDescription{address, "_callnewh", ""};
+            }
+            if (address == 0x141711004) {
+                return SymbolDescription{address, "__doserrno", ""};
+            }
+            return std::nullopt;
+        }
+
+        /// Resolves the primitive and Windows allocation types used by malloc.
+        [[nodiscard]] std::optional<TypeDescription> type_named(std::string_view name) const override {
+            TypeDescription type;
+            type.name = std::string(name);
+            if (name == "void") {
+                type.size = 1;
+                type.kind = TypeKind::void_type;
+            } else if (name == "int") {
+                type.size = 4;
+                type.kind = TypeKind::signed_integer;
+            } else if (name == "size_t" || name == "SIZE_T") {
+                type.size = 8;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "ulong") {
+                type.size = 8;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "ulong *") {
+                type.size = 8;
+                type.kind = TypeKind::pointer;
+                type.element_type = "ulong";
+            } else if (name == "void *" || name == "LPVOID" || name == "HANDLE") {
+                type.size = 8;
+                type.kind = TypeKind::pointer;
+                type.element_type = "void";
+            } else {
+                return std::nullopt;
+            }
+            return type;
+        }
+
+        /// Supplies malloc, CRT helper, new-handler, and DOS-error prototypes.
+        [[nodiscard]] std::optional<PrototypeDescription> prototype_at(std::uint64_t address) const override {
+            PrototypeDescription prototype;
+            if (address == 0x14170f4e8) {
+                prototype.calling_convention = "__cdecl";
+                prototype.return_type = "void *";
+                prototype.return_storage = Storage{"register", 0, 8};
+                prototype.parameters = {
+                    PrototypeParameterDescription{"_Size", "size_t", Storage{"register", 8, 8}},
+                };
+                return prototype;
+            }
+            if (address == 0x141714a00) {
+                prototype.return_type = "void";
+                return prototype;
+            }
+            if (address == 0x141714a74 || address == 0x1417112e4) {
+                prototype.return_type = "void";
+                prototype.parameters = {
+                    PrototypeParameterDescription{"param_1", "int", Storage{"register", 8, 4}},
+                };
+                return prototype;
+            }
+            if (address == 0x14171eb00) {
+                prototype.return_type = "int";
+                prototype.return_storage = Storage{"register", 0, 4};
+                prototype.parameters = {
+                    PrototypeParameterDescription{"_Size", "size_t", Storage{"register", 8, 8}},
+                };
+                return prototype;
+            }
+            if (address == 0x141711004) {
+                prototype.return_type = "ulong *";
+                prototype.return_storage = Storage{"register", 0, 8};
+                return prototype;
+            }
+            return std::nullopt;
+        }
+
+        /// Supplies the two saved-register locals listed for malloc.
+        [[nodiscard]] std::vector<VariableDescription> variables_at(std::uint64_t address) const override {
+            if (address != 0x14170f4e8) {
+                return {};
+            }
+            return {
+                VariableDescription{"local_res8", "undefined8", Storage{"stack", 0x8, 8}},
+                VariableDescription{"local_res10", "undefined8", Storage{"stack", 0x10, 8}},
+            };
+        }
+    };
+
+    // These bytes reproduce the address-ordered Example 7 listing. The LAB_14170f57c
+    // block is placed before the common epilogue because its branch target precedes
+    // LAB_14170f58e in the original address space.
+    const std::vector<std::uint8_t> function_bytes{
+        0x48, 0x89, 0x5c, 0x24, 0x08,             // MOV [RSP+local_res8], RBX.
+        0x48, 0x89, 0x74, 0x24, 0x10,             // MOV [RSP+local_res10], RSI.
+        0x57,                                     // PUSH RDI.
+        0x48, 0x83, 0xec, 0x20,                   // SUB RSP, 0x20.
+        0x48, 0x8b, 0xd9,                         // MOV RBX, _Size.
+        0x48, 0x83, 0xf9, 0xe0,                   // CMP _Size, -0x20.
+        0x77, 0x7c,                               // JA LAB_14170f57c.
+        0xbf, 0x01, 0x00, 0x00, 0x00,             // MOV EDI, 0x1.
+        0x48, 0x85, 0xc9,                         // TEST _Size, _Size.
+        0x48, 0x0f, 0x45, 0xf9,                   // CMOVNZ RDI, _Size.
+        0x48, 0x8b, 0x0d, 0xf5, 0x93, 0x5d, 0x01, // MOV _Size, [DAT_142ce8908].
+        0x48, 0x85, 0xc9,                         // TEST _Size, _Size.
+        0x75, 0x20,                               // JNZ LAB_14170f538.
+        0xe8, 0xe3, 0x54, 0x00, 0x00,             // CALL _FF_MSGBANNER.
+        0xb9, 0x1e, 0x00, 0x00, 0x00,             // MOV ECX, 0x1e.
+        0xe8, 0x4d, 0x55, 0x00, 0x00,             // CALL FUN_141714a74.
+        0xb9, 0xff, 0x00, 0x00, 0x00,             // MOV ECX, 0xff.
+        0xe8, 0xb3, 0x1d, 0x00, 0x00,             // CALL __crtExitProcess.
+        0x48, 0x8b, 0x0d, 0xd0, 0x93, 0x5d, 0x01, // MOV _Size, [DAT_142ce8908].
+        0x4c, 0x8b, 0xc7,                         // MOV R8, RDI.
+        0x33, 0xd2,                               // XOR EDX, EDX.
+        0xff, 0x15, 0xe5, 0x6d, 0x07, 0x00,       // CALL [KERNEL32.DLL::HeapAlloc].
+        0x48, 0x8b, 0xf0,                         // MOV RSI, RAX.
+        0x48, 0x85, 0xc0,                         // TEST RAX, RAX.
+        0x75, 0x2c,                               // JNZ LAB_14170f577.
+        0x39, 0x05, 0xef, 0x9e, 0x5d, 0x01,       // CMP [DAT_142ce9440], EAX.
+        0x74, 0x0e,                               // JZ LAB_14170f561.
+        0x48, 0x8b, 0xcb,                         // MOV _Size, RBX.
+        0xe8, 0xa5, 0xf5, 0x00, 0x00,             // CALL _callnewh.
+        0x85, 0xc0,                               // TEST EAX, EAX.
+        0x74, 0x0d,                               // JZ LAB_14170f56c.
+        0xeb, 0xab,                               // JMP LAB_14170f50c.
+        0xe8, 0x9e, 0x1a, 0x00, 0x00,             // CALL __doserrno.
+        0xc7, 0x00, 0x0c, 0x00, 0x00, 0x00,       // MOV [RAX], 0xc.
+        0xe8, 0x93, 0x1a, 0x00, 0x00,             // CALL __doserrno.
+        0xc7, 0x00, 0x0c, 0x00, 0x00, 0x00,       // MOV [RAX], 0xc.
+        0x48, 0x8b, 0xc6,                         // MOV RAX, RSI.
+        0xeb, 0x12,                               // JMP LAB_14170f58e.
+        0xe8, 0x7f, 0xf5, 0x00, 0x00,             // CALL _callnewh.
+        0xe8, 0x7e, 0x1a, 0x00, 0x00,             // CALL __doserrno.
+        0xc7, 0x00, 0x0c, 0x00, 0x00, 0x00,       // MOV [RAX], 0xc.
+        0x33, 0xc0,                               // XOR EAX, EAX.
+        0x48, 0x8b, 0x5c, 0x24, 0x30,             // MOV RBX, [RSP+local_res8].
+        0x48, 0x8b, 0x74, 0x24, 0x38,             // MOV RSI, [RSP+local_res10].
+        0x48, 0x83, 0xc4, 0x20,                   // ADD RSP, 0x20.
+        0x5f,                                     // POP RDI.
+        0xc3,                                     // RET.
+    };
+
+    std::vector<std::uint8_t> image_bytes = function_bytes;
+    image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
+    constexpr std::uint64_t entry = 0x14170f4e8;
+    auto memory = std::make_shared<SparseMemory>(entry, std::move(image_bytes));
+    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+                                 {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
+    ArchitectureDescription architecture = test_architecture();
+    architecture.calling_convention = "__cdecl";
+    ProviderContext providers;
+    providers.pcode = std::make_shared<SleighPcodeProvider>(std::move(provider));
+    providers.memory = memory;
+    auto metadata = std::make_shared<TestProviders>();
+    providers.symbols = metadata;
+    providers.types = metadata;
+    providers.prototypes = metadata;
+    providers.variables = metadata;
+    try {
+        Decompiler decompiler(std::move(architecture), std::move(providers));
+        const DecompilationResult result =
+            decompiler.decompile(FunctionDescription{"malloc", entry, entry + function_bytes.size()});
+        ASSERT_FALSE(result.raw_instructions.empty());
+        ASSERT_FALSE(result.c_source.empty());
+        // The current port represents the indirect HeapAlloc import as a
+        // call-indirect expression and therefore returns its recovered int8
+        // result instead of the LPVOID shown in TEST/dec_code_examples/7.md.
+        const std::string expected_c = R"(
+void * __cdecl malloc(size_t _Size)
+
+{
+  int iVar1;
+  int8 iVar2;
+  ulong * puVar3;
+  size_t sVar4;
+
+  if (_Size < 0xffffffffffffffe1) {
+    sVar4 = 1;
+    if (_Size != 0) {
+      sVar4 = _Size;
+    }
+    do {
+      if (iRam0000000142ce8908 == 0) {
+        _FF_MSGBANNER();
+        FUN_141714a74(0x1e);
+        __crtExitProcess(0xff);
+      }
+      iVar2 = (*pcRam0000000141786328)(iRam0000000142ce8908,0,sVar4);
+      if (iVar2 != 0) goto code_r0x00014170f58e;
+      if (iRam0000000142ce9440 == 0) {
+        puVar3 = __doserrno();
+        *(undefined4 *)puVar3 = 0xc;
+        break;
+      }
+      iVar1 = _callnewh(_Size);
+    } while (iVar1 != 0);
+    puVar3 = __doserrno();
+    *(undefined4 *)puVar3 = 0xc;
+  }
+  else {
+    _callnewh(_Size);
+    puVar3 = __doserrno();
+    *(undefined4 *)puVar3 = 0xc;
+    iVar2 = 0;
+  }
+code_r0x00014170f58e:
+  return iVar2;
+}
+)";
+        EXPECT_EQ(without_trailing_whitespace(result.c_source), expected_c);
+    } catch (const ghidra::LowlevelError& error) {
+        FAIL() << error.explain;
+    } catch (const std::exception& error) {
+        FAIL() << error.what();
+    }
+}
+
+/// Runs the SIMD floating-point rounding helper through the native decompiler pipeline.
+TEST(DecompilerExamples, Example8FloatingPointRoundEndToEnd) {
+    /// Supplies the root symbol and pointer prototype from Example 8.
+    class TestProviders final : public SymbolProvider,
+                                public TypeProvider,
+                                public PrototypeProvider,
+                                public VariableProvider {
+    public:
+        /// Names the Example 8 root function.
+        [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
+            if (address == 0x141500d88) {
+                return SymbolDescription{address, "UndefinedFunction_141500d88", ""};
+            }
+            return std::nullopt;
+        }
+
+        /// Resolves scalar, floating-point, pointer, and SIMD temporary types.
+        [[nodiscard]] std::optional<TypeDescription> type_named(std::string_view name) const override {
+            TypeDescription type;
+            type.name = std::string(name);
+            if (name == "void") {
+                type.size = 1;
+                type.kind = TypeKind::void_type;
+            } else if (name == "int") {
+                type.size = 4;
+                type.kind = TypeKind::signed_integer;
+            } else if (name == "uint") {
+                type.size = 4;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "undefined8") {
+                type.size = 8;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "undefined8 *") {
+                type.size = 8;
+                type.kind = TypeKind::pointer;
+                type.element_type = "undefined8";
+            } else {
+                return std::nullopt;
+            }
+            return type;
+        }
+
+        /// Supplies the void prototype and the documented RCX pointer parameter.
+        [[nodiscard]] std::optional<PrototypeDescription> prototype_at(std::uint64_t address) const override {
+            if (address != 0x141500d88) {
+                return std::nullopt;
+            }
+            PrototypeDescription prototype;
+            prototype.return_type = "void";
+            prototype.parameters = {
+                PrototypeParameterDescription{"param_1", "undefined8 *", Storage{"register", 8, 8}},
+            };
+            return prototype;
+        }
+
+        /// Example 8 has no externally named stack locals.
+        [[nodiscard]] std::vector<VariableDescription> variables_at(std::uint64_t) const override {
+            return {};
+        }
+    };
+
+    // These bytes reproduce the complete Example 8 SIMD instruction listing.
+    const std::vector<std::uint8_t> function_bytes{
+        0x48, 0x8b, 0x41, 0x10,                         // MOV RAX, [RCX+0x10].
+        0x4c, 0x8b, 0xc1,                               // MOV R8, RCX.
+        0xf3, 0x0f, 0x10, 0x08,                         // MOVSS XMM1, [RAX].
+        0xf3, 0x0f, 0x58, 0x0d, 0x41, 0xc8, 0x33, 0x00, // ADDSS XMM1, [DAT_14183d5dc].
+        0xf3, 0x0f, 0x2c, 0xd1,                         // CVTTSS2SI EDX, XMM1.
+        0x81, 0xfa, 0x00, 0x00, 0x00, 0x80,             // CMP EDX, 0x80000000.
+        0x74, 0x1e,                                     // JZ LAB_141500dc5.
+        0x66, 0x0f, 0x6e, 0xc2,                         // MOVD XMM0, EDX.
+        0x0f, 0x5b, 0xc0,                               // CVTDQ2PS XMM0, XMM0.
+        0x0f, 0x2e, 0xc1,                               // UCOMISS XMM0, XMM1.
+        0x74, 0x12,                                     // JZ LAB_141500dc5.
+        0x0f, 0x14, 0xc9,                               // UNPCKLPS XMM1, XMM1.
+        0x0f, 0x50, 0xc1,                               // MOVMSKPS EAX, XMM1.
+        0x83, 0xe0, 0x01,                               // AND EAX, 0x1.
+        0x2b, 0xd0,                                     // SUB EDX, EAX.
+        0x66, 0x0f, 0x6e, 0xca,                         // MOVD XMM1, EDX.
+        0x0f, 0x5b, 0xc9,                               // CVTDQ2PS XMM1, XMM1.
+        0x49, 0x8b, 0x00,                               // MOV RAX, [R8].
+        0xf3, 0x0f, 0x2c, 0xc9,                         // CVTTSS2SI ECX, XMM1.
+        0x89, 0x08,                                     // MOV [RAX], ECX.
+        0xc3,                                           // RET.
+    };
+
+    std::vector<std::uint8_t> image_bytes = function_bytes;
+    image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
+    constexpr std::uint64_t entry = 0x141500d88;
+    auto memory = std::make_shared<SparseMemory>(entry, std::move(image_bytes));
+    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+                                 {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
+    ArchitectureDescription architecture = test_architecture();
+    ProviderContext providers;
+    providers.pcode = std::make_shared<SleighPcodeProvider>(std::move(provider));
+    providers.memory = memory;
+    auto metadata = std::make_shared<TestProviders>();
+    providers.symbols = metadata;
+    try {
+        Decompiler decompiler(std::move(architecture), std::move(providers));
+        const DecompilationResult result = decompiler.decompile(
+            FunctionDescription{"UndefinedFunction_141500d88", entry, entry + function_bytes.size()});
+        ASSERT_FALSE(result.raw_instructions.empty());
+        ASSERT_FALSE(result.c_source.empty());
+        // MOVMSKPS is exposed by the minimal architecture as an unknown
+        // user-op, so the safe fallback name userop_162 is retained here.
+        const std::string expected_c = R"(
+void __cdecl UndefinedFunction_141500d88(undefined8 *param_1)
+
+{
+  uint4 uVar1;
+  int4 iVar2;
+  undefined1 axVar3 [16];
+
+  axVar3._0_4_ = *(float4 *)param_1[2] + fRam000000014183d5dc;
+  iVar2 = (int4)axVar3._0_4_;
+  if ((iVar2 != -0x80000000) && ((float4)iVar2 != axVar3._0_4_)) {
+    axVar3._4_4_ = axVar3._0_4_;
+    axVar3._8_8_ = 0;
+    uVar1 = userop_162((int4)(float4 *)param_1[2],axVar3);
+    axVar3._0_4_ = (float4)(int4)(iVar2 - (uVar1 & 1));
+  }
+  *(int4 *)*param_1 = (int4)axVar3._0_4_;
+  return;
+}
+)";
+        EXPECT_EQ(without_trailing_whitespace(result.c_source), expected_c);
+    } catch (const ghidra::LowlevelError& error) {
+        FAIL() << error.explain;
+    } catch (const std::exception& error) {
+        FAIL() << error.what();
+    }
+}
+
+/// Runs the TLS-backed event context update through the native decompiler pipeline.
+TEST(DecompilerExamples, Example9TlsContextUpdateEndToEnd) {
+    /// Supplies the root symbol, longlong type, and RCX source-object prototype.
+    class TestProviders final : public SymbolProvider,
+                                public TypeProvider,
+                                public PrototypeProvider,
+                                public VariableProvider {
+    public:
+        /// Names the Example 9 root function.
+        [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
+            if (address == 0x141500e30) {
+                return SymbolDescription{address, "UndefinedFunction_141500e30", ""};
+            }
+            return std::nullopt;
+        }
+
+        /// Resolves the signed 64-bit source-object type.
+        [[nodiscard]] std::optional<TypeDescription> type_named(std::string_view name) const override {
+            if (name != "longlong") {
+                return std::nullopt;
+            }
+            TypeDescription type;
+            type.name = "longlong";
+            type.size = 8;
+            type.kind = TypeKind::signed_integer;
+            return type;
+        }
+
+        /// Supplies the void prototype and the documented source-object parameter.
+        [[nodiscard]] std::optional<PrototypeDescription> prototype_at(std::uint64_t address) const override {
+            if (address != 0x141500e30) {
+                return std::nullopt;
+            }
+            PrototypeDescription prototype;
+            prototype.return_type = "void";
+            prototype.parameters = {
+                PrototypeParameterDescription{"param_1", "longlong", Storage{"register", 8, 8}},
+            };
+            return prototype;
+        }
+
+        /// Example 9 has no externally named stack locals.
+        [[nodiscard]] std::vector<VariableDescription> variables_at(std::uint64_t) const override {
+            return {};
+        }
+    };
+
+    // These bytes reproduce the complete Example 9 TLS instruction listing.
+    const std::vector<std::uint8_t> function_bytes{
+        0x48, 0x8b, 0x51, 0x10,                               // MOV RDX, [RCX+0x10].
+        0x65, 0x48, 0x8b, 0x0c, 0x25, 0x58, 0x00, 0x00, 0x00, // MOV RCX, GS:[0x58].
+        0x8b, 0x05, 0x29, 0x73, 0x7e, 0x01,                   // MOV EAX, [_tls_index].
+        0x48, 0x8b, 0x04, 0xc1,                               // MOV RAX, [RCX+RAX*8].
+        0x41, 0xb8, 0x30, 0x08, 0x00, 0x00,                   // MOV R8D, 0x830.
+        0x4a, 0x8b, 0x0c, 0x00,                               // MOV RCX, [RAX+R8].
+        0x8b, 0x02,                                           // MOV EAX, [RDX].
+        0x89, 0x41, 0x68,                                     // MOV [RCX+0x68], EAX.
+        0xc3,                                                 // RET.
+    };
+
+    std::vector<std::uint8_t> image_bytes = function_bytes;
+    image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
+    constexpr std::uint64_t entry = 0x141500e30;
+    auto memory = std::make_shared<SparseMemory>(entry, std::move(image_bytes));
+    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+                                 {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
+    ArchitectureDescription architecture = test_architecture();
+    ProviderContext providers;
+    providers.pcode = std::make_shared<SleighPcodeProvider>(std::move(provider));
+    providers.memory = memory;
+    auto metadata = std::make_shared<TestProviders>();
+    providers.symbols = metadata;
+    providers.types = metadata;
+    providers.prototypes = metadata;
+    providers.variables = metadata;
+    try {
+        Decompiler decompiler(std::move(architecture), std::move(providers));
+        const DecompilationResult result = decompiler.decompile(
+            FunctionDescription{"UndefinedFunction_141500e30", entry, entry + function_bytes.size()});
+        ASSERT_FALSE(result.raw_instructions.empty());
+        ASSERT_FALSE(result.c_source.empty());
+        // The minimal architecture has no named GS/TLS or global-data
+        // provider, so those values remain generated memory symbols.
+        const std::string expected_c = R"(
+void __cdecl UndefinedFunction_141500e30(longlong param_1)
+
+{
+  int8 in_register_00000118;
+
+  *(undefined4 *)
+   (*(int8 *)(*(int8 *)(*(int8 *)(in_register_00000118 + 0x58) + (uint8)uRam0000000142ce816c * 8) +
+             0x830) + 0x68) = **(undefined4 **)(param_1 + 0x10);
+  return;
+}
+)";
+        EXPECT_EQ(without_trailing_whitespace(result.c_source), expected_c);
+    } catch (const ghidra::LowlevelError& error) {
+        FAIL() << error.explain;
+    } catch (const std::exception& error) {
+        FAIL() << error.what();
+    }
+}
+
+/// Runs the global table-entry initialization loop through the native decompiler pipeline.
+TEST(DecompilerExamples, Example10GlobalTableInitializationEndToEnd) {
+    /// Supplies the root and allocator symbols, primitive types, and ABI prototypes.
+    class TestProviders final : public SymbolProvider,
+                                public TypeProvider,
+                                public PrototypeProvider,
+                                public VariableProvider {
+    public:
+        /// Names the root function and direct allocation helper.
+        [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
+            if (address == 0x141500bb0) {
+                return SymbolDescription{address, "FUN_141500bb0", ""};
+            }
+            if (address == 0x140001044) {
+                return SymbolDescription{address, "FUN_140001044", ""};
+            }
+            return std::nullopt;
+        }
+
+        /// Resolves the integer, pointer, array, and overflow-helper types used by the loop.
+        [[nodiscard]] std::optional<TypeDescription> type_named(std::string_view name) const override {
+            TypeDescription type;
+            type.name = std::string(name);
+            if (name == "void") {
+                type.size = 1;
+                type.kind = TypeKind::void_type;
+            } else if (name == "int") {
+                type.size = 4;
+                type.kind = TypeKind::signed_integer;
+            } else if (name == "longlong") {
+                type.size = 8;
+                type.kind = TypeKind::signed_integer;
+            } else if (name == "undefined8" || name == "ulonglong") {
+                type.size = 8;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "undefined1") {
+                type.size = 1;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "undefined1[16]") {
+                type.size = 16;
+                type.kind = TypeKind::array;
+                type.element_type = "undefined1";
+                type.element_count = 16;
+            } else {
+                return std::nullopt;
+            }
+            return type;
+        }
+
+        /// Supplies the root two-int prototype and allocator return/argument types.
+        [[nodiscard]] std::optional<PrototypeDescription> prototype_at(std::uint64_t address) const override {
+            PrototypeDescription prototype;
+            if (address == 0x141500bb0) {
+                prototype.return_type = "void";
+                prototype.parameters = {
+                    PrototypeParameterDescription{"param_1", "int", Storage{"register", 8, 4}},
+                    PrototypeParameterDescription{"param_2", "int", Storage{"register", 0x10, 4}},
+                };
+                return prototype;
+            }
+            if (address == 0x140001044) {
+                prototype.return_type = "undefined8";
+                prototype.return_storage = Storage{"register", 0, 8};
+                prototype.parameters = {
+                    PrototypeParameterDescription{"param_1", "undefined8", Storage{"register", 8, 8}},
+                };
+                return prototype;
+            }
+            return std::nullopt;
+        }
+
+        /// Supplies the three saved-register locals from the prologue.
+        [[nodiscard]] std::vector<VariableDescription> variables_at(std::uint64_t address) const override {
+            if (address != 0x141500bb0) {
+                return {};
+            }
+            return {
+                VariableDescription{"local_res8", "undefined8", Storage{"stack", 0x8, 8}},
+                VariableDescription{"local_res10", "undefined8", Storage{"stack", 0x10, 8}},
+                VariableDescription{"local_res18", "undefined8", Storage{"stack", 0x18, 8}},
+            };
+        }
+    };
+
+    // These bytes reproduce the complete Example 10 table initialization listing.
+    const std::vector<std::uint8_t> function_bytes{
+        0x85, 0xc9,                                     // TEST ECX, ECX.
+        0x0f, 0x84, 0x8b, 0x00, 0x00, 0x00,             // JZ LAB_141500c43.
+        0x48, 0x89, 0x5c, 0x24, 0x08,                   // MOV [RSP+local_res8], RBX.
+        0x48, 0x89, 0x6c, 0x24, 0x10,                   // MOV [RSP+local_res10], RBP.
+        0x48, 0x89, 0x74, 0x24, 0x18,                   // MOV [RSP+local_res18], RSI.
+        0x57,                                           // PUSH RDI.
+        0x41, 0x56,                                     // PUSH R14.
+        0x41, 0x57,                                     // PUSH R15.
+        0x48, 0x83, 0xec, 0x20,                         // SUB RSP, 0x20.
+        0x48, 0x63, 0xea,                               // MOVSXD RBP, EDX.
+        0x8b, 0xf1,                                     // MOV ESI, ECX.
+        0x41, 0xbf, 0x01, 0x00, 0x00, 0x00,             // MOV R15D, 0x1.
+        0x4c, 0x8b, 0xf5,                               // MOV R14, RBP.
+        0x44, 0x0f, 0xb7, 0x05, 0x72, 0xb6, 0x6e, 0x01, // MOVZX R8D, [DAT_142bec258].
+        0x48, 0x8b, 0x1d, 0x63, 0xb6, 0x6e, 0x01,       // MOV RBX, [DAT_142bec250].
+        0x48, 0xc7, 0xc1, 0xff, 0xff, 0xff, 0xff,       // MOV RCX, -1.
+        0x4b, 0x8d, 0x3c, 0x40,                         // LEA RDI, [R8+R8*2].
+        0x66, 0x45, 0x03, 0xc7,                         // ADD R8W, R15W.
+        0xb8, 0x08, 0x00, 0x00, 0x00,                   // MOV EAX, 0x8.
+        0x66, 0x44, 0x89, 0x05, 0x4f, 0xb6, 0x6e, 0x01, // MOV [DAT_142bec258], R8W.
+        0x48, 0x83, 0x24, 0xfb, 0x00,                   // AND [RBX+RDI*8], 0.
+        0x89, 0x6c, 0xfb, 0x08,                         // MOV [RBX+RDI*8+8], EBP.
+        0x49, 0xf7, 0xe6,                               // MUL R14.
+        0x48, 0x0f, 0x40, 0xc1,                         // CMOVO RAX, RCX.
+        0x48, 0x8b, 0xc8,                               // MOV RCX, RAX.
+        0xe8, 0x23, 0x04, 0xb0, 0xfe,                   // CALL FUN_140001044.
+        0x48, 0x89, 0x44, 0xfb, 0x10,                   // MOV [RBX+RDI*8+0x10], RAX.
+        0x41, 0x2b, 0xf7,                               // SUB ESI, R15D.
+        0x75, 0xb3,                                     // JNZ LAB_141500bde.
+        0x48, 0x8b, 0x5c, 0x24, 0x40,                   // MOV RBX, [RSP+local_res8].
+        0x48, 0x8b, 0x6c, 0x24, 0x48,                   // MOV RBP, [RSP+local_res10].
+        0x48, 0x8b, 0x74, 0x24, 0x50,                   // MOV RSI, [RSP+local_res18].
+        0x48, 0x83, 0xc4, 0x20,                         // ADD RSP, 0x20.
+        0x41, 0x5f,                                     // POP R15.
+        0x41, 0x5e,                                     // POP R14.
+        0x5f,                                           // POP RDI.
+        0xc3,                                           // RET.
+    };
+
+    std::vector<std::uint8_t> image_bytes = function_bytes;
+    image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
+    constexpr std::uint64_t entry = 0x141500bb0;
+    auto memory = std::make_shared<SparseMemory>(entry, std::move(image_bytes));
+    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+                                 {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
+    ArchitectureDescription architecture = test_architecture();
+    ProviderContext providers;
+    providers.pcode = std::make_shared<SleighPcodeProvider>(std::move(provider));
+    providers.memory = memory;
+    auto metadata = std::make_shared<TestProviders>();
+    providers.symbols = metadata;
+    providers.types = metadata;
+    providers.prototypes = metadata;
+    providers.variables = metadata;
+    try {
+        Decompiler decompiler(std::move(architecture), std::move(providers));
+        const DecompilationResult result =
+            decompiler.decompile(FunctionDescription{"FUN_141500bb0", entry, entry + function_bytes.size()});
+        ASSERT_FALSE(result.raw_instructions.empty());
+        ASSERT_FALSE(result.c_source.empty());
+        // The native port preserves the loop and overflow calculation but
+        // currently recovers narrower temporary integer types than 10.md.
+        const std::string expected_c = R"(
+void __cdecl FUN_141500bb0(int param_1,int param_2)
+
+{
+  undefined8 uVar1;
+  int8 iVar2;
+  uint8 uVar3;
+  int8 iVar4;
+  uint8 uVar5;
+  uint8 uVar6;
+  undefined8 xVar7;
+  undefined1 axVar8 [16];
+
+  if (param_1 != 0) {
+    uVar3 = (uint8)param_2;
+    xVar7 = 1;
+    uVar6 = uVar3;
+    do {
+      uVar5 = (uint8)uRam0000000142bec258;
+      iVar4 = uVar5 * 3;
+      uRam0000000142bec258 = uRam0000000142bec258 + (int2)xVar7;
+      *(undefined8 *)(iRam0000000142bec250 + uVar5 * 0x18) = 0;
+      *(int4 *)(iRam0000000142bec250 + 8 + uVar5 * 0x18) = (int4)uVar3;
+      axVar8._8_8_ = 0;
+      axVar8._0_8_ = uVar6;
+      uVar1 = SUB168(ZEXT816(8) * axVar8,0);
+      if (SUB168(ZEXT816(8) * axVar8,8) != 0) {
+        uVar1 = 0xffffffffffffffff;
+      }
+      iVar2 = iRam0000000142bec250;
+      uVar1 = FUN_140001044(uVar1);
+      *(undefined8 *)(iVar2 + 0x10 + iVar4 * 8) = uVar1;
+      param_1 = param_1 - (int4)xVar7;
+    } while (param_1 != 0);
+  }
+  return;
+}
+)";
+        EXPECT_EQ(without_trailing_whitespace(result.c_source), expected_c);
+    } catch (const ghidra::LowlevelError& error) {
+        FAIL() << error.explain;
+    } catch (const std::exception& error) {
+        FAIL() << error.what();
+    }
+}
+
+/// Runs the first-free global-slot registration helper through the native decompiler pipeline.
+TEST(DecompilerExamples, Example11GlobalSlotRegistrationEndToEnd) {
+    /// Supplies the root symbol, scalar types, and boolean-like return prototype.
+    class TestProviders final : public SymbolProvider,
+                                public TypeProvider,
+                                public PrototypeProvider,
+                                public VariableProvider {
+    public:
+        /// Names the Example 11 root function.
+        [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
+            if (address == 0x141500c44) {
+                return SymbolDescription{address, "FUN_141500c44", ""};
+            }
+            return std::nullopt;
+        }
+
+        /// Resolves all scalar types used by the slot search and return value.
+        [[nodiscard]] std::optional<TypeDescription> type_named(std::string_view name) const override {
+            TypeDescription type;
+            type.name = std::string(name);
+            if (name == "void") {
+                type.size = 1;
+                type.kind = TypeKind::void_type;
+            } else if (name == "int") {
+                type.size = 4;
+                type.kind = TypeKind::signed_integer;
+            } else if (name == "uint") {
+                type.size = 4;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "longlong") {
+                type.size = 8;
+                type.kind = TypeKind::signed_integer;
+            } else if (name == "ulonglong") {
+                type.size = 8;
+                type.kind = TypeKind::unsigned_integer;
+            } else {
+                return std::nullopt;
+            }
+            return type;
+        }
+
+        /// Supplies the ulonglong return and longlong/int parameter ABI locations.
+        [[nodiscard]] std::optional<PrototypeDescription> prototype_at(std::uint64_t address) const override {
+            if (address != 0x141500c44) {
+                return std::nullopt;
+            }
+            PrototypeDescription prototype;
+            prototype.return_type = "ulonglong";
+            prototype.return_storage = Storage{"register", 0, 8};
+            prototype.parameters = {
+                PrototypeParameterDescription{"param_1", "longlong", Storage{"register", 8, 8}},
+                PrototypeParameterDescription{"param_2", "int", Storage{"register", 0x10, 4}},
+            };
+            return prototype;
+        }
+
+        /// Example 11 has no externally named stack locals.
+        [[nodiscard]] std::vector<VariableDescription> variables_at(std::uint64_t) const override {
+            return {};
+        }
+    };
+
+    // These bytes reproduce the complete Example 11 global-slot registration listing.
+    const std::vector<std::uint8_t> function_bytes{
+        0x83, 0x79, 0x58, 0x00,                   // CMP [RCX+0x58], 0.
+        0x4c, 0x8b, 0xc9,                         // MOV R9, RCX.
+        0x75, 0x34,                               // JNZ LAB_141500c81.
+        0x0f, 0xb7, 0x05, 0x04, 0xb6, 0x6e, 0x01, // MOVZX EAX, [DAT_142bec258].
+        0x45, 0x33, 0xc0,                         // XOR R8D, R8D.
+        0x33, 0xc9,                               // XOR ECX, ECX.
+        0x44, 0x8b, 0xd0,                         // MOV R10D, EAX.
+        0x85, 0xc0,                               // TEST EAX, EAX.
+        0x7e, 0x21,                               // JLE LAB_141500c81.
+        0x48, 0x8b, 0x05, 0xe9, 0xb5, 0x6e, 0x01, // MOV RAX, [DAT_142bec250].
+        0x48, 0x83, 0x38, 0x00,                   // CMP [RAX], 0.
+        0x75, 0x05,                               // JNZ LAB_141500c72.
+        0x39, 0x50, 0x08,                         // CMP [RAX+8], EDX.
+        0x74, 0x12,                               // JZ LAB_141500c84.
+        0x48, 0xff, 0xc1,                         // INC RCX.
+        0x41, 0xff, 0xc0,                         // INC R8D.
+        0x48, 0x83, 0xc0, 0x18,                   // ADD RAX, 0x18.
+        0x49, 0x3b, 0xca,                         // CMP RCX, R10.
+        0x7c, 0xe6,                               // JL LAB_141500c67.
+        0x32, 0xc0,                               // XOR AL, AL.
+        0xc3,                                     // RET.
+        0x41, 0x89, 0x51, 0x58,                   // MOV [R9+0x58], EDX.
+        0x48, 0x8b, 0x0d, 0xc1, 0xb5, 0x6e, 0x01, // MOV RCX, [DAT_142bec250].
+        0x4f, 0x8d, 0x04, 0x40,                   // LEA R8, [R8+R8*2].
+        0x4a, 0x8b, 0x54, 0xc1, 0x10,             // MOV RDX, [RCX+R8*8+0x10].
+        0xb0, 0x01,                               // MOV AL, 0x1.
+        0x49, 0x89, 0x91, 0xb0, 0x00, 0x00, 0x00, // MOV [R9+0xb0], RDX.
+        0x48, 0x8b, 0x0d, 0xa8, 0xb5, 0x6e, 0x01, // MOV RCX, [DAT_142bec250].
+        0x4e, 0x89, 0x0c, 0xc1,                   // MOV [RCX+R8*8], R9.
+        0xc3,                                     // RET.
+    };
+
+    std::vector<std::uint8_t> image_bytes = function_bytes;
+    image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
+    constexpr std::uint64_t entry = 0x141500c44;
+    auto memory = std::make_shared<SparseMemory>(entry, std::move(image_bytes));
+    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+                                 {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
+    ArchitectureDescription architecture = test_architecture();
+    ProviderContext providers;
+    providers.pcode = std::make_shared<SleighPcodeProvider>(std::move(provider));
+    providers.memory = memory;
+    auto metadata = std::make_shared<TestProviders>();
+    providers.symbols = metadata;
+    providers.types = metadata;
+    providers.prototypes = metadata;
+    providers.variables = metadata;
+    try {
+        Decompiler decompiler(std::move(architecture), std::move(providers));
+        const DecompilationResult result =
+            decompiler.decompile(FunctionDescription{"FUN_141500c44", entry, entry + function_bytes.size()});
+        ASSERT_FALSE(result.raw_instructions.empty());
+        ASSERT_FALSE(result.c_source.empty());
+        // The slot-search control flow matches 11.md; generated global
+        // symbols and narrowed temporaries reflect the current port metadata.
+        const std::string expected_c = R"(
+ulonglong __cdecl FUN_141500c44(longlong param_1,int param_2)
+
+{
+  int8 *in_RAX;
+  int8 iVar1;
+  uint8 uVar2;
+
+  if (*(int4 *)(param_1 + 0x58) == 0) {
+    in_RAX = (int8 *)(uint8)uRam0000000142bec258;
+    uVar2 = 0;
+    iVar1 = 0;
+    if ((uint4)uRam0000000142bec258 != 0) {
+      in_RAX = piRam0000000142bec250;
+      do {
+        if ((*in_RAX == 0) && ((int4)in_RAX[1] == param_2)) {
+          *(int *)(param_1 + 0x58) = param_2;
+          *(int8 *)(param_1 + 0xb0) = piRam0000000142bec250[uVar2 * 3 + 2];
+          piRam0000000142bec250[uVar2 * 3] = param_1;
+          return CONCAT71((unkint7)((uint8)in_RAX >> 8),1);
+        }
+        iVar1 = iVar1 + 1;
+        uVar2 = (uint8)((int4)uVar2 + 1);
+        in_RAX = in_RAX + 3;
+      } while (iVar1 < (int8)(uint8)(uint4)uRam0000000142bec258);
+    }
+  }
+  return (uint8)in_RAX & 0xffffffffffffff00;
+}
+)";
+        EXPECT_EQ(without_trailing_whitespace(result.c_source), expected_c);
     } catch (const ghidra::LowlevelError& error) {
         FAIL() << error.explain;
     } catch (const std::exception& error) {
