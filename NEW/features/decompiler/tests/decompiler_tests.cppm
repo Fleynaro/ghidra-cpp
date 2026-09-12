@@ -42,6 +42,87 @@ public:
     }
 };
 
+/// Supplies the externally known name for Example 1's function entry.
+class Example1SymbolProvider final : public SymbolProvider {
+public:
+    /// Returns the documented function symbol at the test image entry.
+    [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
+        if (address != 0x1000) {
+            return std::nullopt;
+        }
+        return SymbolDescription{address, "StringLengthWorkerW", ""};
+    }
+};
+
+/// Supplies the primitive and pointer types used by Example 1.
+class Example1TypeProvider final : public TypeProvider {
+public:
+    /// Resolves the requested Example 1 type without embedding it in the engine.
+    [[nodiscard]] std::optional<TypeDescription> type_named(std::string_view name) const override {
+        TypeDescription type;
+        type.name = std::string(name);
+        if (name == "wchar_t") {
+            type.size = 2;
+            type.kind = TypeKind::unicode_character;
+        } else if (name == "wchar_t *" || name == "__uint64 *") {
+            type.size = 8;
+            type.kind = TypeKind::pointer;
+            type.element_type = name == "wchar_t *" ? "wchar_t" : "__uint64";
+        } else if (name == "__uint64") {
+            type.size = 8;
+            type.kind = TypeKind::unsigned_integer;
+        } else if (name == "long") {
+            type.size = 4;
+            type.kind = TypeKind::signed_integer;
+        } else if (name == "int") {
+            type.size = 4;
+            type.kind = TypeKind::signed_integer;
+        } else {
+            return std::nullopt;
+        }
+        return type;
+    }
+};
+
+/// Supplies the typed ABI storage for Example 1's parameters and result.
+class Example1PrototypeProvider final : public PrototypeProvider {
+public:
+    /// Returns the documented x86-64 register prototype at the function entry.
+    [[nodiscard]] std::optional<PrototypeDescription>
+    prototype_at(std::uint64_t address) const override {
+        if (address != 0x1000) {
+            return std::nullopt;
+        }
+        PrototypeDescription prototype;
+        prototype.calling_convention = "__cdecl";
+        prototype.return_type = "long";
+        prototype.return_storage = Storage{"register", 0, 4};
+        prototype.parameters = {
+            PrototypeParameterDescription{"param_1", "wchar_t *", Storage{"register", 8, 8}},
+            PrototypeParameterDescription{"param_2", "__uint64", Storage{"register", 0x10, 8}},
+            PrototypeParameterDescription{"param_3", "__uint64 *", Storage{"register", 0x80, 8}},
+        };
+        return prototype;
+    }
+};
+
+/// Supplies the documented stack-local names and types for Example 1.
+class Example1VariableProvider final : public VariableProvider {
+public:
+    /// Returns typed locals at their stack-frame storage locations.
+    [[nodiscard]] std::vector<VariableDescription> variables_at(std::uint64_t address) const override {
+        if (address != 0x1000) {
+            return {};
+        }
+        return {
+            VariableDescription{"local_res8", "wchar_t *", Storage{"stack", 8, 8}},
+            VariableDescription{"local_res10", "__uint64", Storage{"stack", 0x10, 8}},
+            VariableDescription{"local_10", "int", Storage{"stack", static_cast<std::uint64_t>(-0x10), 4}},
+            VariableDescription{"local_res18", "__uint64", Storage{"stack", static_cast<std::uint64_t>(-0x18), 8}},
+        };
+    }
+};
+
 /// Builds the minimal x86-like provider architecture used by frontend tests.
 static ArchitectureDescription test_architecture() {
     ArchitectureDescription description;
@@ -52,7 +133,11 @@ static ArchitectureDescription test_architecture() {
     };
     description.registers = {
         RegisterDescription{"RAX", Storage{"register", 0, 8}},
-        RegisterDescription{"RSP", Storage{"register", 8, 8}},
+        RegisterDescription{"RCX", Storage{"register", 8, 8}},
+        RegisterDescription{"RDX", Storage{"register", 0x10, 8}},
+        RegisterDescription{"RBX", Storage{"register", 0x18, 8}},
+        RegisterDescription{"RSP", Storage{"register", 0x20, 8}},
+        RegisterDescription{"R8", Storage{"register", 0x80, 8}},
     };
     return description;
 }
@@ -149,37 +234,36 @@ TEST(DecompilerExamples, Example1StringLengthWorkerWEndToEnd) {
     // the bytes above. It is intentionally kept as a complete source string
     // so later decompiler improvements produce a deliberate test diff.
     const std::string expected_c = R"(
-unkbyte4 StringLengthWorkerW(void)
+long StringLengthWorkerW(wchar_t * param_1,__uint64 param_2,__uint64 * param_3)
 
 {
   BADSPACEBASE *in_RSP;
-  unkbyte8 in_register_00000010;
-  unkint8 in_register_00000020;
-  unkbyte8 in_register_00000080;
+  __uint64 local_res18;
+  int local_10;
   
-  *(unkbyte8 *)(in_register_00000020 + 0x18) = in_register_00000080;
-  *(unkbyte8 *)(in_register_00000020 + 0x10) = in_register_00000010;
-  *(BADSPACEBASE **)(in_register_00000020 + 8) = in_RSP;
-  *(unkbyte4 *)(in_register_00000020 + -0x10) = 0;
-  *(unkint8 *)(in_register_00000020 + -0x18) = *(unkint8 *)(in_register_00000020 + 0x10);
-  while ((*(unkint8 *)(in_register_00000020 + 0x10) != 0 &&
-         (**(unkint2 **)(in_register_00000020 + 8) != 0))) {
-    *(unkint8 *)(in_register_00000020 + 8) = *(unkint8 *)(in_register_00000020 + 8) + 2;
-    *(unkint8 *)(in_register_00000020 + 0x10) = *(unkint8 *)(in_register_00000020 + 0x10) + -1;
+  *(__uint64 * *)((unkint8)in_RSP + 0x18) = param_3;
+  *(__uint64 *)((unkint8)in_RSP + 0x10) = param_2;
+  *(wchar_t * *)((unkint8)in_RSP + 8) = param_1;
+  *(unkbyte4 *)((unkint8)in_RSP + -0x10) = 0;
+  *(unkbyte8 *)((unkint8)in_RSP + -0x18) = *(unkbyte8 *)((unkint8)in_RSP + 0x10);
+  while ((*(unkint8 *)((unkint8)in_RSP + 0x10) != 0 && (**(unkint2 **)((unkint8)in_RSP + 8) != 0)))
+  {
+    *(unkint8 *)((unkint8)in_RSP + 8) = *(unkint8 *)((unkint8)in_RSP + 8) + 2;
+    *(unkint8 *)((unkint8)in_RSP + 0x10) = *(unkint8 *)((unkint8)in_RSP + 0x10) + -1;
   }
-  if (*(unkint8 *)(in_register_00000020 + 0x10) == 0) {
-    *(unkbyte4 *)(in_register_00000020 + -0x10) = 0x80070057;
+  if (*(unkint8 *)((unkint8)in_RSP + 0x10) == 0) {
+    *(unkbyte4 *)((unkint8)in_RSP + -0x10) = 0x80070057;
   }
-  if (*(unkint8 *)(in_register_00000020 + 0x18) != 0) {
-    if (*(unkint4 *)(in_register_00000020 + -0x10) < 0) {
-      **(unkbyte8 **)(in_register_00000020 + 0x18) = 0;
+  if (*(unkint8 *)((unkint8)in_RSP + 0x18) != 0) {
+    if (*(unkint4 *)((unkint8)in_RSP + -0x10) < 0) {
+      **(unkbyte8 **)((unkint8)in_RSP + 0x18) = 0;
     }
     else {
-      *(unkint8 *)*(unkbyte8 *)(in_register_00000020 + 0x18) =
-           *(unkint8 *)(in_register_00000020 + -0x18) - *(unkint8 *)(in_register_00000020 + 0x10);
+      **(unkint8 **)((unkint8)in_RSP + 0x18) =
+           *(unkint8 *)((unkint8)in_RSP + -0x18) - *(unkint8 *)((unkint8)in_RSP + 0x10);
     }
   }
-  return *(unkbyte4 *)(in_register_00000020 + -0x10);
+  return *(unkbyte4 *)((unkint8)in_RSP + -0x10);
 }
 )";
 
@@ -192,7 +276,14 @@ unkbyte4 StringLengthWorkerW(void)
     SleighPcodeProvider provider(
         std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
         {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
-    Decompiler decompiler(test_architecture(), std::make_shared<SleighPcodeProvider>(std::move(provider)), memory);
+    ProviderContext providers;
+    providers.pcode = std::make_shared<SleighPcodeProvider>(std::move(provider));
+    providers.memory = memory;
+    providers.symbols = std::make_shared<Example1SymbolProvider>();
+    providers.types = std::make_shared<Example1TypeProvider>();
+    providers.prototypes = std::make_shared<Example1PrototypeProvider>();
+    providers.variables = std::make_shared<Example1VariableProvider>();
+    Decompiler decompiler(test_architecture(), std::move(providers));
     const DecompilationResult result =
         decompiler.decompile(FunctionDescription{"StringLengthWorkerW", 0x1000,
                                                  0x1000 + function_bytes.size()});
@@ -200,6 +291,12 @@ unkbyte4 StringLengthWorkerW(void)
     ASSERT_FALSE(result.raw_instructions.empty());
     EXPECT_EQ(result.raw_instructions.back().mnemonic, "RET");
     ASSERT_FALSE(result.c_source.empty());
+    EXPECT_NE(result.c_source.find("long StringLengthWorkerW"), std::string::npos);
+    EXPECT_NE(result.c_source.find("wchar_t * param_1"), std::string::npos);
+    EXPECT_NE(result.c_source.find("__uint64 param_2"), std::string::npos);
+    EXPECT_NE(result.c_source.find("__uint64 * param_3"), std::string::npos);
+    EXPECT_NE(result.c_source.find("int local_10"), std::string::npos);
+    EXPECT_EQ(result.c_source.find("in_register_"), std::string::npos);
     EXPECT_EQ(result.c_source, expected_c);
 }
 

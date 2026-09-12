@@ -277,6 +277,8 @@ public:
   void applyTypeRecommendations(void);		///< Try to apply recommended data-type information
   bool hasTypeRecommendations(void) const { return !typeRecommend.empty(); }	///< Are there data-type recommendations
   void addTypeRecommendation(const Address &addr,Datatype *dt);		///< Add a new data-type recommendation
+  void addNameRecommendation(const Address &addr,const Address &useaddr,int4 size,const string &name);
+											///< Add a provider-supplied local name recommendation
 };
 
 } // End namespace ghidra

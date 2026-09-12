@@ -1734,6 +1734,13 @@ void ScopeLocal::addTypeRecommendation(const Address &addr,Datatype *dt)
   typeRecommend.push_back(TypeRecommend(addr,dt));
 }
 
+/// Add a source-level name recommendation for a local storage location.
+void ScopeLocal::addNameRecommendation(const Address &addr,const Address &useaddr,int4 size,const string &name)
+
+{
+  nameRecommend.push_back(NameRecommend(addr,useaddr,size,name,0));
+}
+
 /// The symbol is stored as a name recommendation and then removed from the scope.
 /// Name recommendations are associated either with a storage address and usepoint, or a dynamic hash.
 /// The name may be reattached to a Symbol after decompilation.

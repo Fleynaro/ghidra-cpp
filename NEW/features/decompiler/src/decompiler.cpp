@@ -413,20 +413,68 @@ static PcodeOperation convert_operation(const sleigh_runtime::PcodeOp& value) {
 /// Resolves a provider type into the native type factory while retaining a
 /// stable integer fallback for declarations not yet imported as structures.
 static ghidra::Datatype* resolve_provider_type(const ProviderContext& context, ghidra::TypeFactory* types,
-                                               const std::string& name) {
+                                               const std::string& name,
+                                               std::map<std::string, ghidra::Datatype*>& cache) {
+    const auto cached = cache.find(name);
+    if (cached != cache.end()) {
+        return cached->second;
+    }
     if (name == "void") {
         return types->getTypeVoid();
     }
-    std::uint32_t size = 8;
+
+    TypeDescription description;
+    description.name = name;
+    description.size = 8;
+    description.kind = name == "wchar_t"
+                           ? TypeKind::unicode_character
+                           : (name.find("unsigned") != std::string::npos ? TypeKind::unsigned_integer
+                                                                            : TypeKind::signed_integer);
     if (context.types) {
-        const std::optional<TypeDescription> description = context.types->type_named(name);
-        if (description && description->size != 0) {
-            size = description->size;
+        if (const std::optional<TypeDescription> supplied = context.types->type_named(name)) {
+            description = *supplied;
         }
     }
+
+    if (description.kind == TypeKind::pointer) {
+        ghidra::Datatype* pointed_to =
+            resolve_provider_type(context, types, description.element_type, cache);
+        ghidra::TypePointer* pointer = types->getTypePointer(
+            static_cast<ghidra::int4>(description.size == 0 ? 8 : description.size), pointed_to, 1, name);
+        cache.emplace(name, pointer);
+        return pointer;
+    }
+    if (description.kind == TypeKind::array) {
+        ghidra::Datatype* element =
+            resolve_provider_type(context, types, description.element_type, cache);
+        ghidra::TypeArray* array =
+            types->getTypeArray(static_cast<ghidra::int4>(description.element_count), element);
+        cache.emplace(name, array);
+        return array;
+    }
+    if (description.kind == TypeKind::structure) {
+        ghidra::TypeStruct* structure = types->getTypeStruct(name);
+        cache.emplace(name, structure);
+        std::vector<ghidra::TypeField> fields;
+        ghidra::int4 field_id = 0;
+        for (const TypeFieldDescription& field : description.fields) {
+            fields.emplace_back(field_id++, static_cast<ghidra::int4>(field.offset), field.name,
+                                resolve_provider_type(context, types, field.type_name, cache));
+        }
+        std::vector<ghidra::TypeBitField> bitfields;
+        types->assignRawFields(structure, fields, bitfields);
+        return structure;
+    }
+
     const ghidra::type_metatype metatype =
-        name.find("unsigned") != std::string::npos ? ghidra::TYPE_UINT : ghidra::TYPE_INT;
-    return types->getBase(static_cast<ghidra::int4>(size), metatype, name);
+        description.kind == TypeKind::unsigned_integer ? ghidra::TYPE_UINT
+        : description.kind == TypeKind::boolean           ? ghidra::TYPE_BOOL
+        : description.kind == TypeKind::floating_point    ? ghidra::TYPE_FLOAT
+                                                          : ghidra::TYPE_INT;
+    const ghidra::int4 size = static_cast<ghidra::int4>(description.size == 0 ? 1 : description.size);
+    ghidra::Datatype* result = types->getBase(size, metatype, description.name);
+    cache.emplace(name, result);
+    return result;
 }
 
 } // namespace detail
@@ -509,7 +557,7 @@ Decompiler::Decompiler(ArchitectureDescription description, std::shared_ptr<Pcod
     static std::once_flag capability_initialization;
     std::call_once(capability_initialization, [] { ghidra::CapabilityPoint::initializeAll(); });
     state_ = std::make_unique<State>(std::move(description),
-                                     ProviderContext{std::move(provider), std::move(memory), {}, {}, {}, {}});
+                                     ProviderContext{std::move(provider), std::move(memory), {}, {}, {}, {}, {}});
 }
 
 /// Constructs the provider-backed native decompiler with all external services.
@@ -566,18 +614,54 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
     if (state_->context.prototypes) {
         const std::optional<PrototypeDescription> prototype = state_->context.prototypes->prototype_at(function.entry);
         if (prototype) {
+            std::map<std::string, ghidra::Datatype*> type_cache;
             ghidra::PrototypePieces pieces{};
             pieces.model = state_->architecture->defaultfp;
             pieces.name = function_name;
-            pieces.outtype =
-                detail::resolve_provider_type(state_->context, state_->architecture->types, prototype->return_type);
+            pieces.outtype = detail::resolve_provider_type(state_->context, state_->architecture->types,
+                                                           prototype->return_type, type_cache);
             pieces.firstVarArgSlot = -1;
             for (const auto& parameter : prototype->parameters) {
-                pieces.innames.push_back(parameter.first);
-                pieces.intypes.push_back(
-                    detail::resolve_provider_type(state_->context, state_->architecture->types, parameter.second));
+                pieces.innames.push_back(parameter.name);
+                pieces.intypes.push_back(detail::resolve_provider_type(state_->context,
+                                                                       state_->architecture->types,
+                                                                       parameter.type_name, type_cache));
             }
             data->getFuncProto().setPieces(pieces);
+            for (std::size_t index = 0; index < prototype->parameters.size(); ++index) {
+                const PrototypeParameterDescription& parameter = prototype->parameters[index];
+                if (!parameter.storage) {
+                    continue;
+                }
+                ghidra::AddrSpace* parameter_space = state_->architecture->getSpaceByName(parameter.storage->space);
+                if (parameter_space == nullptr) {
+                    throw std::runtime_error("Prototype parameter references an unknown storage space: " +
+                                             parameter.storage->space);
+                }
+                ghidra::ParameterPieces parameter_pieces{};
+                parameter_pieces.addr = ghidra::Address(parameter_space, parameter.storage->offset);
+                parameter_pieces.type = pieces.intypes[index];
+                parameter_pieces.flags = ghidra::ParameterPieces::typelock |
+                                         ghidra::ParameterPieces::namelock |
+                                         ghidra::ParameterPieces::sizelock;
+                data->getFuncProto().setParam(static_cast<ghidra::int4>(index), parameter.name,
+                                              parameter_pieces);
+            }
+            if (prototype->return_storage) {
+                ghidra::AddrSpace* output_space =
+                    state_->architecture->getSpaceByName(prototype->return_storage->space);
+                if (output_space == nullptr) {
+                    throw std::runtime_error("Prototype return references an unknown storage space: " +
+                                             prototype->return_storage->space);
+                }
+                ghidra::ParameterPieces output_pieces{};
+                output_pieces.addr = ghidra::Address(output_space, prototype->return_storage->offset);
+                output_pieces.type = pieces.outtype;
+                output_pieces.flags = ghidra::ParameterPieces::typelock | ghidra::ParameterPieces::sizelock;
+                data->getFuncProto().setOutput(output_pieces);
+            }
+            data->getFuncProto().setCustomStorage(true);
+            data->getFuncProto().clearProviderErrors();
         }
     }
     if (state_->context.comments) {
@@ -591,6 +675,23 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
     }
     data->followFlow(entry, ghidra::Address(code_space, function.end));
 
+    if (state_->context.variables) {
+        std::map<std::string, ghidra::Datatype*> type_cache;
+        for (const VariableDescription& variable : state_->context.variables->variables_at(function.entry)) {
+            ghidra::AddrSpace* variable_space = state_->architecture->getSpaceByName(variable.storage.space);
+            if (variable_space == nullptr) {
+                throw std::runtime_error("Variable references an unknown storage space: " + variable.storage.space);
+            }
+            ghidra::Address variable_address(variable_space, variable.storage.offset);
+            ghidra::Datatype* variable_type = detail::resolve_provider_type(
+                state_->context, state_->architecture->types, variable.type_name, type_cache);
+            data->getScopeLocal()->addTypeRecommendation(variable_address, variable_type);
+            data->getScopeLocal()->addNameRecommendation(variable_address, entry,
+                                                          variable_type->getSize(), variable.name);
+        }
+        data->getScopeLocal()->applyTypeRecommendations();
+    }
+
     std::ostringstream raw;
     data->printRaw(raw);
     result.raw_pcode = raw.str();
@@ -599,6 +700,32 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
     if (action != nullptr) {
         action->reset(*data);
         action->perform(*data);
+    }
+    if (state_->context.variables) {
+        data->getScopeLocal()->applyTypeRecommendations();
+        data->getScopeLocal()->recoverNameRecommendationsForSymbols();
+        std::map<std::string, ghidra::Datatype*> type_cache;
+        for (const VariableDescription& variable : state_->context.variables->variables_at(function.entry)) {
+            ghidra::AddrSpace* variable_space = state_->architecture->getSpaceByName(variable.storage.space);
+            if (variable_space == nullptr) {
+                continue;
+            }
+            ghidra::Datatype* variable_type = detail::resolve_provider_type(
+                state_->context, state_->architecture->types, variable.type_name, type_cache);
+            if (ghidra::MapEntry* map = data->getScopeLocal()->findOverlap(
+                    ghidra::Address(variable_space, variable.storage.offset), variable_type->getSize())) {
+                map->getSymbol()->setProviderInfo(variable.name, variable_type);
+            }
+        }
+    }
+    if (state_->context.prototypes) {
+        const std::optional<PrototypeDescription> prototype = state_->context.prototypes->prototype_at(function.entry);
+        if (prototype) {
+            std::map<std::string, ghidra::Datatype*> type_cache;
+            ghidra::Datatype* return_type = detail::resolve_provider_type(
+                state_->context, state_->architecture->types, prototype->return_type, type_cache);
+            data->getFuncProto().getOutput()->overrideSizeLockType(return_type);
+        }
     }
 
     std::ostringstream high;

@@ -301,6 +301,17 @@ bool Symbol::isNameUndefined(void) const
   return ((name.size()==15)&&(0==name.compare(0,7,"$$undef")));
 }
 
+/// Apply provider-owned local naming and typing while preserving the symbol's
+/// mapping and preventing later speculative recovery from replacing it.
+void Symbol::setProviderInfo(const string &nm,Datatype *ct)
+
+{
+  name = nm;
+  displayName = nm;
+  type = ct;
+  flags |= Varnode::typelock | Varnode::namelock;
+}
+
 /// If the given value is \b true, any Varnodes that map directly to \b this Symbol,
 /// will not be speculatively merged with other Varnodes.  (Required merges will still happen).
 /// \param val is the given boolean value

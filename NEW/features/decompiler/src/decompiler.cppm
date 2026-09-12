@@ -70,11 +70,38 @@ public:
     [[nodiscard]] virtual std::optional<SymbolDescription> symbol_at(std::uint64_t address) const = 0;
 };
 
+/// Classifies an externally supplied type declaration.
+enum class TypeKind {
+    void_type,
+    boolean,
+    signed_integer,
+    unsigned_integer,
+    floating_point,
+    unicode_character,
+    pointer,
+    array,
+    structure,
+    union_type,
+    typedef_type,
+};
+
+/// Describes one field in an externally supplied structure or union.
+struct TypeFieldDescription {
+    std::string name;
+    std::string type_name;
+    std::uint32_t offset = 0;
+};
+
 /// Describes an externally supplied type declaration.
 struct TypeDescription {
     std::string name;
     std::uint32_t size = 0;
     std::string declaration;
+    TypeKind kind = TypeKind::signed_integer;
+    bool signed_value = true;
+    std::string element_type;
+    std::uint32_t element_count = 0;
+    std::vector<TypeFieldDescription> fields;
 };
 
 /// Supplies primitive, typedef, array, and structure declarations.
@@ -87,11 +114,19 @@ public:
     [[nodiscard]] virtual std::optional<TypeDescription> type_named(std::string_view name) const = 0;
 };
 
+/// Describes one externally supplied parameter and its native storage.
+struct PrototypeParameterDescription {
+    std::string name;
+    std::string type_name;
+    std::optional<Storage> storage;
+};
+
 /// Describes a function prototype independently of compiler-spec XML.
 struct PrototypeDescription {
     std::string calling_convention = "default";
     std::string return_type = "void";
-    std::vector<std::pair<std::string, std::string>> parameters;
+    std::optional<Storage> return_storage;
+    std::vector<PrototypeParameterDescription> parameters;
 };
 
 /// Supplies calling conventions, parameters, and return-value declarations.
@@ -114,6 +149,24 @@ public:
     [[nodiscard]] virtual std::optional<std::string> comment_at(std::uint64_t address) const = 0;
 };
 
+/// Describes an externally supplied local variable and its storage location.
+struct VariableDescription {
+    std::string name;
+    std::string type_name;
+    Storage storage;
+};
+
+/// Supplies source-level local names and types for a function.
+class VariableProvider {
+public:
+    /// Releases the provider through its interface.
+    virtual ~VariableProvider() = default;
+
+    /// Returns variables associated with a function entry.
+    [[nodiscard]] virtual std::vector<VariableDescription>
+    variables_at(std::uint64_t address) const = 0;
+};
+
 /// Groups all external services used by one decompilation session.
 struct ProviderContext {
     std::shared_ptr<PcodeProvider> pcode;
@@ -122,6 +175,7 @@ struct ProviderContext {
     std::shared_ptr<TypeProvider> types;
     std::shared_ptr<PrototypeProvider> prototypes;
     std::shared_ptr<CommentProvider> comments;
+    std::shared_ptr<VariableProvider> variables;
 };
 
 /// Stores one address-space description used to construct the engine model.

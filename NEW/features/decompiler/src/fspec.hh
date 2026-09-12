@@ -1387,6 +1387,8 @@ public:
   void copyFlowEffects(const FuncProto &op2);	 			///< Copy properties that affect data-flow
   void getPieces(PrototypePieces &pieces) const;			///< Get the raw pieces of the prototype
   void setPieces(const PrototypePieces &pieces);			///< Set \b this prototype based on raw pieces
+  void setCustomPieces(const PrototypePieces &pieces,const vector<ParameterPieces> &storage);
+											///< Set provider-supplied types and explicit storage without model assignment
   void setScope(Scope *s,const Address &startpoint);			///< Set a backing symbol Scope for \b this
   void setInternal(ProtoModel *m,Datatype *vt);				///< Set internal backing storage for \b this
   void setModel(ProtoModel *m);						///< Set the prototype model for \b this
@@ -1411,6 +1413,11 @@ public:
   /// recovery will follow the rules of the locked model.
   /// \param val is \b true to indicate a lock, \b false for unlocked
   void setModelLock(bool val) { flags = val ? (flags|modellock) : (flags & ~((uint4)modellock)); }
+
+  /// Toggle whether parameter and return storage was supplied explicitly.
+  void setCustomStorage(bool val) { flags = val ? (flags|custom_storage) : (flags & ~((uint4)custom_storage)); }
+  /// Clear ABI placement errors after an external provider has supplied storage.
+  void clearProviderErrors(void) { flags &= ~((uint4)(error_inputparam|error_outputparam)); }
 
   bool isInline(void) const { return ((flags & is_inline)!=0); }	///< Does this function get \e in-lined during decompilation.
 

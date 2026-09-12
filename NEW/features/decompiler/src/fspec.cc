@@ -3846,6 +3846,32 @@ void FuncProto::setPieces(const PrototypePieces &pieces)
   setModelLock(true);
 }
 
+/// Set a complete prototype whose storage locations were supplied by an
+/// external program database. The normal model assignment path is skipped so
+/// architectures with a provider-defined ABI do not report false parameter
+/// placement errors when their model is intentionally minimal.
+void FuncProto::setCustomPieces(const PrototypePieces &pieces,const vector<ParameterPieces> &storage)
+
+{
+  if (storage.empty() || store == (ProtoStore *)0)
+    throw LowlevelError("Provider prototype has no storage entries");
+  if (pieces.model != (ProtoModel *)0)
+    setModel(pieces.model);
+  store->clearAllInputs();
+  store->clearOutput();
+  store->setOutput(storage[0]);
+  for (uint4 i=1;i<storage.size();++i) {
+    string nm = (i-1 < pieces.innames.size()) ? pieces.innames[i-1] : "";
+    store->setInput(i-1,nm,storage[i]);
+  }
+  flags &= ~((uint4)error_inputparam|error_outputparam);
+  flags |= custom_storage;
+  setInputLock(true);
+  setOutputLock(true);
+  setModelLock(true);
+  updateThisPointer();
+}
+
 /// Copy out the raw pieces of \b this prototype as stand-alone objects,
 /// includings model, names, and data-types
 /// \param pieces will hold the raw pieces
