@@ -397,8 +397,10 @@ TEST(DecompilerExamples, Example3TypedChildCallEndToEnd) {
             }
             return {
                 VariableDescription{"local_res8", "undefined8", Storage{"stack", 8, 8}},
-                VariableDescription{"local_18", "undefined1[16]", Storage{"stack", static_cast<std::uint64_t>(-0x18), 16}},
-                VariableDescription{"local_28", "undefined1[16]", Storage{"stack", static_cast<std::uint64_t>(-0x28), 16}},
+                VariableDescription{"local_18", "undefined1[16]",
+                                    Storage{"stack", static_cast<std::uint64_t>(-0x18), 16}},
+                VariableDescription{"local_28", "undefined1[16]",
+                                    Storage{"stack", static_cast<std::uint64_t>(-0x28), 16}},
             };
         }
     };
@@ -409,42 +411,42 @@ TEST(DecompilerExamples, Example3TypedChildCallEndToEnd) {
     // symbols; the conditional body blends floating-point values; the second
     // branch calls rand(); and the epilogue restores all nonvolatile state.
     const std::vector<std::uint8_t> function_bytes{
-        0x48, 0x89, 0x5c, 0x24, 0x08,             // MOV [RSP+8], RBX: save local_res8.
-        0x57,                                     // PUSH RDI: save the nonvolatile integer register.
-        0x48, 0x83, 0xec, 0x40,                   // SUB RSP, 0x40: allocate the stack frame.
-        0x0f, 0x29, 0x74, 0x24, 0x30,             // MOVAPS [RSP+0x30], XMM6: save local_18.
-        0x8b, 0xfa,                               // MOV EDI, EDX: copy param_2 into the selector register.
-        0x48, 0x8b, 0xd9,                         // MOV RBX, RCX: copy param_1 into the saved context.
-        0x0f, 0x29, 0x7c, 0x24, 0x20,             // MOVAPS [RSP+0x20], XMM7: save local_28.
-        0xe8, 0xc6, 0x84, 0xff, 0xff,             // CALL FUN_14032b6f4: first helper call.
-        0x48, 0x8b, 0xcb,                         // MOV RCX, RBX: pass param_1 to the second helper.
-        0x0f, 0x28, 0xf8,                         // MOVAPS XMM7, XMM0: preserve the helper result.
-        0xe8, 0xa7, 0x83, 0xff, 0xff,             // CALL FUN_14032b5e0: second helper call.
-        0x0f, 0x28, 0xf0,                         // MOVAPS XMM6, XMM0: preserve the second result.
-        0x85, 0xff,                               // TEST EDI, EDI: select the random/direct branch.
-        0x74, 0x24,                               // JZ LAB_140333264: use rand when param_2 is zero.
-        0xf3, 0x0f, 0x5c, 0xf7,                   // SUBSS XMM6, XMM7: subtract helper results.
-        0x40, 0x0f, 0xb6, 0xc7,                   // MOVZX EAX, DIL: reduce param_2 to one byte.
-        0x66, 0x0f, 0x6e, 0xc8,                   // MOVD XMM1, EAX: move selector into an XMM register.
-        0x0f, 0x5b, 0xc9,                         // CVTDQ2PS XMM1, XMM1: convert selector to float.
+        0x48, 0x89, 0x5c, 0x24, 0x08,                   // MOV [RSP+8], RBX: save local_res8.
+        0x57,                                           // PUSH RDI: save the nonvolatile integer register.
+        0x48, 0x83, 0xec, 0x40,                         // SUB RSP, 0x40: allocate the stack frame.
+        0x0f, 0x29, 0x74, 0x24, 0x30,                   // MOVAPS [RSP+0x30], XMM6: save local_18.
+        0x8b, 0xfa,                                     // MOV EDI, EDX: copy param_2 into the selector register.
+        0x48, 0x8b, 0xd9,                               // MOV RBX, RCX: copy param_1 into the saved context.
+        0x0f, 0x29, 0x7c, 0x24, 0x20,                   // MOVAPS [RSP+0x20], XMM7: save local_28.
+        0xe8, 0xc6, 0x84, 0xff, 0xff,                   // CALL FUN_14032b6f4: first helper call.
+        0x48, 0x8b, 0xcb,                               // MOV RCX, RBX: pass param_1 to the second helper.
+        0x0f, 0x28, 0xf8,                               // MOVAPS XMM7, XMM0: preserve the helper result.
+        0xe8, 0xa7, 0x83, 0xff, 0xff,                   // CALL FUN_14032b5e0: second helper call.
+        0x0f, 0x28, 0xf0,                               // MOVAPS XMM6, XMM0: preserve the second result.
+        0x85, 0xff,                                     // TEST EDI, EDI: select the random/direct branch.
+        0x74, 0x24,                                     // JZ LAB_140333264: use rand when param_2 is zero.
+        0xf3, 0x0f, 0x5c, 0xf7,                         // SUBSS XMM6, XMM7: subtract helper results.
+        0x40, 0x0f, 0xb6, 0xc7,                         // MOVZX EAX, DIL: reduce param_2 to one byte.
+        0x66, 0x0f, 0x6e, 0xc8,                         // MOVD XMM1, EAX: move selector into an XMM register.
+        0x0f, 0x5b, 0xc9,                               // CVTDQ2PS XMM1, XMM1: convert selector to float.
         0xf3, 0x0f, 0x59, 0x0d, 0x79, 0xfd, 0x50, 0x01, // MULSS XMM1, [DAT_141842fd0].
-        0xf3, 0x0f, 0x59, 0xf1,                   // MULSS XMM6, XMM1: scale the difference.
-        0xf3, 0x0f, 0x58, 0xf7,                   // ADDSS XMM6, XMM7: add the base value.
-        0x0f, 0x28, 0xc6,                         // MOVAPS XMM0, XMM6: select the direct result.
-        0xeb, 0x20,                               // JMP LAB_140333284: join both branches.
-        0xe8, 0xa7, 0x27, 0x3d, 0x01,             // CALL rand: typed child call returning int in EAX.
-        0xf3, 0x0f, 0x5c, 0xf7,                   // SUBSS XMM6, XMM7: subtract helper results.
-        0x66, 0x0f, 0x6e, 0xc0,                   // MOVD XMM0, EAX: convert rand result input.
-        0x0f, 0x5b, 0xc0,                         // CVTDQ2PS XMM0, XMM0: convert rand result to float.
+        0xf3, 0x0f, 0x59, 0xf1,                         // MULSS XMM6, XMM1: scale the difference.
+        0xf3, 0x0f, 0x58, 0xf7,                         // ADDSS XMM6, XMM7: add the base value.
+        0x0f, 0x28, 0xc6,                               // MOVAPS XMM0, XMM6: select the direct result.
+        0xeb, 0x20,                                     // JMP LAB_140333284: join both branches.
+        0xe8, 0xa7, 0x27, 0x3d, 0x01,                   // CALL rand: typed child call returning int in EAX.
+        0xf3, 0x0f, 0x5c, 0xf7,                         // SUBSS XMM6, XMM7: subtract helper results.
+        0x66, 0x0f, 0x6e, 0xc0,                         // MOVD XMM0, EAX: convert rand result input.
+        0x0f, 0x5b, 0xc0,                               // CVTDQ2PS XMM0, XMM0: convert rand result to float.
         0xf3, 0x0f, 0x59, 0x05, 0xfc, 0xd1, 0x53, 0x01, // MULSS XMM0, [DAT_141870478].
-        0xf3, 0x0f, 0x59, 0xc6,                   // MULSS XMM0, XMM6: scale the random result.
-        0xf3, 0x0f, 0x58, 0xc7,                   // ADDSS XMM0, XMM7: add the base value.
-        0x48, 0x8b, 0x5c, 0x24, 0x50,             // MOV RBX, [RSP+0x50]: restore local_res8.
-        0x0f, 0x28, 0x74, 0x24, 0x30,             // MOVAPS XMM6, [RSP+0x30]: restore local_18.
-        0x0f, 0x28, 0x7c, 0x24, 0x20,             // MOVAPS XMM7, [RSP+0x20]: restore local_28.
-        0x48, 0x83, 0xc4, 0x40,                   // ADD RSP, 0x40: release the stack frame.
-        0x5f,                                     // POP RDI: restore the nonvolatile integer register.
-        0xc3,                                     // RET: return the selected value.
+        0xf3, 0x0f, 0x59, 0xc6,                         // MULSS XMM0, XMM6: scale the random result.
+        0xf3, 0x0f, 0x58, 0xc7,                         // ADDSS XMM0, XMM7: add the base value.
+        0x48, 0x8b, 0x5c, 0x24, 0x50,                   // MOV RBX, [RSP+0x50]: restore local_res8.
+        0x0f, 0x28, 0x74, 0x24, 0x30,                   // MOVAPS XMM6, [RSP+0x30]: restore local_18.
+        0x0f, 0x28, 0x7c, 0x24, 0x20,                   // MOVAPS XMM7, [RSP+0x20]: restore local_28.
+        0x48, 0x83, 0xc4, 0x40,                         // ADD RSP, 0x40: release the stack frame.
+        0x5f,                                           // POP RDI: restore the nonvolatile integer register.
+        0xc3,                                           // RET: return the selected value.
     };
 
     std::vector<std::uint8_t> image_bytes = function_bytes;
@@ -462,8 +464,8 @@ TEST(DecompilerExamples, Example3TypedChildCallEndToEnd) {
     providers.prototypes = std::make_shared<TestPrototypeProvider>();
     providers.variables = std::make_shared<TestVariableProvider>();
     Decompiler decompiler(std::move(architecture), std::move(providers));
-    const DecompilationResult result = decompiler.decompile(
-        FunctionDescription{"FUN_140333210", 0x140333210, 0x140333210 + function_bytes.size()});
+    const DecompilationResult result =
+        decompiler.decompile(FunctionDescription{"FUN_140333210", 0x140333210, 0x140333210 + function_bytes.size()});
 
     ASSERT_FALSE(result.raw_instructions.empty());
     ASSERT_FALSE(result.c_source.empty());
@@ -498,6 +500,215 @@ int __fastcall FUN_140333210(undefined8 param_1,int param_2)
     EXPECT_NE(result.c_source.find("rand()"), std::string::npos);
     EXPECT_NE(result.c_source.find("param_2 == 0"), std::string::npos);
     EXPECT_NE(result.c_source.find("param_2 & 0xff"), std::string::npos);
+    EXPECT_EQ(result.c_source, expected_c);
+}
+
+/// Runs the Visual Studio `bsearch` example through the real decoder and
+/// decompiler, including provider-backed `__doserrno` and callback metadata.
+TEST(DecompilerExamples, Example2BsearchEndToEnd) {
+    /// Supplies Example 2 symbols and remembers child addresses discovered from CALL p-code.
+    class TestProviders final : public SymbolProvider, public TypeProvider,
+                                public PrototypeProvider, public VariableProvider {
+    public:
+        /// Resolves the root and discovered external function symbols.
+        [[nodiscard]] std::optional<SymbolDescription> symbol_at(std::uint64_t address) const override {
+            if (address == 0x14170ca74) {
+                return SymbolDescription{address, "bsearch", ""};
+            }
+            if (address != 0) {
+                if (children_.empty()) {
+                    children_[address] = "__doserrno";
+                } else if (children_.find(address) == children_.end()) {
+                    children_[address] = "FUN_141715f74";
+                }
+                return SymbolDescription{address, children_[address], ""};
+            }
+            return std::nullopt;
+        }
+
+        /// Resolves the primitive and callback pointer types used by bsearch.
+        [[nodiscard]] std::optional<TypeDescription> type_named(std::string_view name) const override {
+            TypeDescription type;
+            type.name = std::string(name);
+            if (name == "void") {
+                type.size = 1;
+                type.kind = TypeKind::void_type;
+            } else if (name == "int") {
+                type.size = 4;
+                type.kind = TypeKind::signed_integer;
+            } else if (name == "size_t" || name == "ulonglong" || name == "ulong") {
+                type.size = 8;
+                type.kind = TypeKind::unsigned_integer;
+            } else if (name == "void *" || name == "ulong *" || name == "_PtFuncCompare *") {
+                type.size = 8;
+                type.kind = TypeKind::pointer;
+                type.element_type = name == "void *" ? "void" : (name == "ulong *" ? "ulong" : "void");
+            } else {
+                return std::nullopt;
+            }
+            return type;
+        }
+
+        /// Supplies bsearch, __doserrno, and the library helper prototypes.
+        [[nodiscard]] std::optional<PrototypeDescription> prototype_at(std::uint64_t address) const override {
+            PrototypeDescription prototype;
+            if (address == 0x14170ca74) {
+                prototype.calling_convention = "__cdecl";
+                prototype.return_type = "void *";
+                prototype.return_storage = Storage{"register", 0, 8};
+                prototype.parameters = {
+                    PrototypeParameterDescription{"_Key", "void *", Storage{"register", 8, 8}},
+                    PrototypeParameterDescription{"_Base", "void *", Storage{"register", 0x10, 8}},
+                    PrototypeParameterDescription{"_NumOfElements", "size_t", Storage{"register", 0x80, 8}},
+                    PrototypeParameterDescription{"_SizeOfElements", "size_t", Storage{"register", 0x88, 8}},
+                    PrototypeParameterDescription{"_PtFuncCompare", "_PtFuncCompare *", Storage{"stack", 0x60, 8}},
+                };
+                return prototype;
+            }
+            const auto child = children_.find(address);
+            if (child != children_.end() && child->second == "__doserrno") {
+                prototype.return_type = "ulong *";
+                prototype.return_storage = Storage{"register", 0, 8};
+                return prototype;
+            }
+            prototype.return_type = "void";
+            return prototype;
+        }
+
+        /// Supplies the four saved register locals from the x64 prologue.
+        [[nodiscard]] std::vector<VariableDescription> variables_at(std::uint64_t address) const override {
+            if (address != 0x14170ca74) {
+                return {};
+            }
+            return {
+                VariableDescription{"local_res8", "undefined8", Storage{"stack", 8, 8}},
+                VariableDescription{"local_res10", "undefined8", Storage{"stack", 0x10, 8}},
+                VariableDescription{"local_res18", "undefined8", Storage{"stack", 0x18, 8}},
+                VariableDescription{"local_res20", "undefined8", Storage{"stack", 0x20, 8}},
+            };
+        }
+
+    private:
+        mutable std::map<std::uint64_t, std::string> children_;
+    };
+
+    // Complete bsearch machine code. Each comment identifies the instruction
+    // group represented by the following bytes; labels are represented by the
+    // unchanged relative branch displacements in the byte stream.
+    const std::vector<std::uint8_t> function_bytes{
+        0x48,0x8b,0xc4, 0x48,0x89,0x58,0x08, 0x48,0x89,0x68,0x10, 0x48,0x89,0x70,0x18, 0x48,0x89,0x78,0x20, // prologue saves
+        0x41,0x55, 0x41,0x56, 0x41,0x57, 0x48,0x83,0xec,0x20, // nonvolatile saves and frame
+        0x49,0x8d,0x78,0xff, 0x45,0x33,0xf6, 0x4d,0x8b,0xf9, 0x49,0x8b,0xf0, 0x48,0x8b,0xda, 0x4c,0x8b,0xe9, // argument setup
+        0x49,0x0f,0xaf,0xf9, 0x48,0x03,0xfa, 0x48,0x85,0xd2, 0x75,0x36, 0x4d,0x85,0xc0, 0x74,0x31, // upper bound checks
+        0xe8,0x4a,0x45,0x00,0x00, 0xc7,0x00,0x16,0x00,0x00,0x00, 0xe8,0xaf,0x94,0x00,0x00, // __doserrno and invalid-parameter helper
+        0x33,0xc0, 0x48,0x8b,0x5c,0x24,0x40, 0x48,0x8b,0x6c,0x24,0x48, 0x48,0x8b,0x74,0x24,0x50, 0x48,0x8b,0x7c,0x24,0x58, // error return epilogue
+        0x48,0x83,0xc4,0x20, 0x41,0x5f, 0x41,0x5e, 0x41,0x5d, 0xc3, // return null path
+        0x4d,0x85,0xc9, 0x74,0xca, 0x4c,0x39,0x74,0x24,0x60, 0x74,0xc3, 0x48,0x3b,0xd7, 0x77,0xce, // main loop guards
+        0x48,0x8b,0xee, 0x48,0xd1,0xed, 0x74,0x41, 0x40,0xf6,0xc6,0x01, 0x48,0x8d,0x75,0xff, 0x49,0x8b,0xcd, 0x48,0x0f,0x45,0xf5, // midpoint
+        0x4c,0x8b,0xf6, 0x4d,0x0f,0xaf,0xf7, 0x4c,0x03,0xf3, 0x49,0x8b,0xd6, 0xff,0x54,0x24,0x60, // callback comparison
+        0x85,0xc0, 0x74,0x18, 0x79,0x08, 0x49,0x8b,0xfe, 0x49,0x2b,0xff, 0xeb,0x07, 0x4b,0x8d,0x1c,0x3e, 0x48,0x8b,0xf5, // probe update
+        0x48,0x3b,0xdf, 0x76,0xbe, 0xeb,0x8a, 0x49,0x8b,0xc6, 0xeb,0x87, // loop and return probe
+        0x45,0x33,0xf6, 0x48,0x85,0xf6, 0x0f,0x84,0x79,0xff,0xff,0xff, 0x48,0x8b,0xd3, 0x49,0x8b,0xcd, 0xff,0x54,0x24,0x60, 0x85,0xc0, 0x49,0x0f,0x45,0xde, 0x48,0x8b,0xc3, 0xe9,0x63,0xff,0xff,0xff, // one-element callback path
+    };
+    std::vector<std::uint8_t> image_bytes = function_bytes;
+    image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
+    auto memory = std::make_shared<SparseMemory>(0x14170ca74, std::move(image_bytes));
+    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+                                 {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
+    ArchitectureDescription architecture = test_architecture();
+    architecture.calling_convention = "__cdecl";
+    ProviderContext providers;
+    providers.pcode = std::make_shared<SleighPcodeProvider>(std::move(provider));
+    providers.memory = memory;
+    auto metadata = std::make_shared<TestProviders>();
+    providers.symbols = metadata;
+    providers.types = metadata;
+    providers.prototypes = metadata;
+    providers.variables = metadata;
+    Decompiler decompiler(std::move(architecture), std::move(providers));
+    const DecompilationResult result = decompiler.decompile(
+        FunctionDescription{"bsearch", 0x14170ca74, 0x14170ca74 + function_bytes.size()});
+
+    ASSERT_FALSE(result.raw_instructions.empty());
+    ASSERT_FALSE(result.c_source.empty());
+    const std::string expected_c = R"(
+void * __cdecl
+bsearch(void * _Key,void * _Base,size_t _NumOfElements,size_t _SizeOfElements,
+       _PtFuncCompare * _PtFuncCompare)
+
+{
+  int4 iVar1;
+  ulong * puVar2;
+  BADSPACEBASE *in_RSP;
+  xunknown8 *pxVar3;
+  xunknown8 *pxVar5;
+  xunknown1 *pxVar4;
+  uint8 uVar6;
+  uint8 uVar7;
+  void * pvVar8;
+  void * pvVar9;
+  xunknown8 *pxVar10;
+  int8 in_stack_00000028;
+  xunknown8 xStack_40;
+  xunknown1 axStack_38 [56];
+  
+  pxVar4 = axStack_38;
+  pvVar8 = (void *)((_NumOfElements - 1) * _SizeOfElements + (int8)_Base);
+  if ((((_Base == (void *)0x0) && (_NumOfElements != 0)) || (_SizeOfElements == 0)) ||
+     (in_stack_00000028 == 0)) {
+    pxVar3 = &xStack_40;
+    xStack_40 = 0x14170caba;
+    puVar2 = __doserrno();
+    *(xunknown4 *)puVar2 = 0x16;
+    *(xunknown8 *)((int8)pxVar3 + -8) = 0x14170cac5;
+    FUN_141715f74();
+  }
+  else if (_Base <= pvVar8) {
+    do {
+      uVar6 = _NumOfElements >> 1;
+      if (uVar6 == 0) {
+        pvVar8 = (void *)0x0;
+        if (_NumOfElements == 0) {
+          return 0;
+        }
+        *(xunknown8 *)(pxVar4 + -8) = 0x14170cb56;
+        iVar1 = (**(code **)(pxVar4 + 0x60))();
+        if (iVar1 != 0) {
+          _Base = pvVar8;
+        }
+        return _Base;
+      }
+      uVar7 = uVar6 - 1;
+      if ((_NumOfElements & 1) != 0) {
+        uVar7 = uVar6;
+      }
+      pvVar9 = (void *)(uVar7 * _SizeOfElements + (int8)_Base);
+      pxVar10 = (xunknown8 *)(pxVar4 + 0x60);
+      pxVar5 = (xunknown8 *)(pxVar4 + -8);
+      pxVar4 = pxVar4 + -8;
+      *pxVar5 = 0x14170cb1f;
+      iVar1 = (*(code *)*pxVar10)();
+      if (iVar1 == 0) {
+        return pvVar9;
+      }
+      if (iVar1 < 0) {
+        pvVar8 = (void *)((int8)pvVar9 - _SizeOfElements);
+        uVar6 = uVar7;
+      }
+      else {
+        _Base = (void *)((int8)pvVar9 + _SizeOfElements);
+      }
+      _NumOfElements = uVar6;
+    } while (_Base <= pvVar8);
+  }
+  return 0;
+}
+)";
+    EXPECT_NE(result.c_source.find("bsearch"), std::string::npos);
+    EXPECT_NE(result.c_source.find("__doserrno"), std::string::npos);
+    EXPECT_NE(result.c_source.find("FUN_141715f74"), std::string::npos);
+    EXPECT_NE(result.c_source.find("_PtFuncCompare"), std::string::npos);
+    EXPECT_NE(result.c_source.find("while"), std::string::npos);
     EXPECT_EQ(result.c_source, expected_c);
 }
 

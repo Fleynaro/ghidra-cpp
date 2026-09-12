@@ -23,6 +23,6 @@ Build the complete project through the repository entry point so MSVC modules, v
 cmd /c NEW/build.bat
 ```
 
-The outputs are `new_ghidra_decompiler.lib`, `new_ghidra_decompiler_frontend.lib`, and `decompiler_tests.exe`. The tests cover provider p-code materialization, native flow/SSA/printer execution, and one explicit machine-code-to-C end-to-end case based on `TEST/dec_code_examples/1.md`. The PE fixture tests require the repository's optional `TEST/test.exe` fixture; synthetic PE tests remain independent of it.
+The outputs are `new_ghidra_decompiler.lib`, `new_ghidra_decompiler_frontend.lib`, and `decompiler_tests.exe`. The tests cover provider p-code materialization, native flow/SSA/printer execution, and explicit machine-code-to-C end-to-end cases based on `TEST/dec_code_examples/1.md`, `2.md`, and `3.md`. The PE fixture tests require the repository's optional `TEST/test.exe` fixture; synthetic PE tests remain independent of it.
 
 The imported Ghidra source is licensed under Apache 2.0. Each copied source retains the upstream banner and an explicit relative provenance comment.

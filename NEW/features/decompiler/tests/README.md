@@ -2,9 +2,10 @@
 
 This directory contains Google Test coverage for the standalone provider frontend and the
 ported native engine. [`decompiler_tests.cppm`](decompiler_tests.cppm) uses a deterministic
-provider to exercise raw p-code materialization, and `Example1StringLengthWorkerWEndToEnd`
-uses the explicit machine-code bytes and expected C from `TEST/dec_code_examples/1.md` without
-reading Markdown at runtime. The test feeds those bytes through the compiled Sleigh fixture at
+provider to exercise raw p-code materialization. `Example1StringLengthWorkerWEndToEnd`,
+`Example2BsearchEndToEnd`, and `Example3TypedChildCallEndToEnd` use explicit machine-code
+bytes and expected C from their corresponding examples without reading Markdown at runtime.
+The tests feed those bytes through the compiled Sleigh fixture at
 [`../../sleigh_runtime/test_data/x86-64.sla`](../../sleigh_runtime/test_data/x86-64.sla), then
 runs the real native flow, SSA, actions, and C printer.
 
