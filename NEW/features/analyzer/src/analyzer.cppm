@@ -112,6 +112,8 @@ struct Function {
     std::uint32_t stack_frame_size{};
     std::int64_t stack_pointer_delta{};
     std::optional<std::string> frame_pointer;
+    std::vector<AddressRange> body_ranges;
+    std::set<Address> instruction_starts;
 };
 
 /// Represents one explicitly defined data object in program memory.
@@ -144,6 +146,7 @@ struct ConstantFact {
     sleigh_runtime::Varnode location;
     std::uint64_t value{};
     bool path_stable{};
+    Address function_entry{};
 };
 
 /// Controls optional analyzers and their Ghidra-compatible thresholds.
@@ -436,6 +439,7 @@ struct GoldenDelta {
     std::vector<GoldenFunctionRow> removed_functions;
     std::vector<GoldenFunctionRow> changed_functions_after;
     std::vector<Reference> references;
+    bool strict_references{};
 };
 
 /// Parses normalized function/reference rows from a checked-in Ghidra report.
@@ -605,6 +609,16 @@ public:
     [[nodiscard]] AnalyzerDescriptor descriptor() const override;
 
     /// Runs bounded fixed-point symbolic propagation over affected functions.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+};
+
+/// Applies the early processor/runtime no-return name database.
+class KnownNoReturnFunctionsAnalyzer final : public Analyzer {
+public:
+    /// Returns the early no-return priority and metadata event contract.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override;
+
+    /// Marks known local and imported no-return symbols before flow discovery.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
 

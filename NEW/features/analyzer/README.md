@@ -44,11 +44,12 @@ second PE parser or instruction decoder is present here.
 
 ## Pipeline
 
-The built-in priorities are: pre-function patterns `199`, entry disassembly
-`200`, no-return detection `302`, subroutine/function creation `399`, body/CFG
-`400`, ordinary pattern search `402`, function-constrained patterns `498`,
-constant propagation `596`, scalar references `598`, references `600`, data
-references `602`, post-code/data pattern phases `898`, and stack `903`.
+The built-in priorities are: known no-return names `90`, pre-function patterns
+`199`, entry disassembly `200`, discovered no-return detection `302`,
+subroutine/function creation `399`, body/CFG `400`, ordinary pattern search
+`402`, function-constrained patterns `498`, constant propagation `596`, scalar
+references `598`, references `600`, data references `602`, post-code/data
+pattern phases `898`, and stack `903`.
 Options can disable any phase without changing registration or scheduling.
 
 ## Provenance and fidelity

@@ -23,6 +23,10 @@ struct BytePattern {
     std::vector<MaskedByte> bytes;
     if (token.starts_with("0x") || token.starts_with("0X")) {
         token.erase(0, 2);
+        if (std::any_of(token.begin(), token.end(), [](char value) {
+                return value != '.' && std::isxdigit(static_cast<unsigned char>(value)) == 0;
+            }))
+            return {};
         if (token.size() % 2 != 0) {
             token.insert(token.begin(), '0');
         }
@@ -190,33 +194,47 @@ struct BytePattern {
             const auto post_end = xml.find("</postpatterns>", post_begin);
             if (pre_begin != std::string::npos && pre_begin < pair_end && post_begin != std::string::npos &&
                 post_begin < pair_end && pre_end != std::string::npos && post_end != std::string::npos) {
-                const auto pre_data = xml.find("<data", pre_begin);
-                const auto post_data = xml.find("<data", post_begin);
-                if (pre_data != std::string::npos && pre_data < pre_end && post_data != std::string::npos &&
-                    post_data < post_end) {
-                    const auto pre_start = xml.find('>', pre_data);
-                    const auto post_start = xml.find('>', post_data);
-                    const auto pre_close = xml.find("</data>", pre_start);
-                    const auto post_close = xml.find("</data>", post_start);
-                    if (pre_start != std::string::npos && post_start != std::string::npos &&
-                        pre_close != std::string::npos && post_close != std::string::npos) {
-                        auto [prefix, ignored_mark] =
-                            parse_data_body(std::string_view(xml).substr(pre_start + 1, pre_close - pre_start - 1));
-                        auto [suffix, suffix_mark] =
-                            parse_data_body(std::string_view(xml).substr(post_start + 1, post_close - post_start - 1));
-                        const auto action = xml.find("<funcstart", post_close);
-                        const auto possible = xml.find("<possiblefuncstart", post_close);
-                        const auto action_begin =
-                            action != std::string::npos && action < pair_end
-                                ? action
-                                : (possible != std::string::npos && possible < pair_end ? possible : std::string::npos);
-                        if (!prefix.empty() && !suffix.empty() && action_begin != std::string::npos) {
-                            const auto action_end = xml.find('>', action_begin);
-                            if (action_end != std::string::npos) {
+                std::vector<std::pair<std::vector<MaskedByte>, std::size_t>> prefixes;
+                std::vector<std::pair<std::vector<MaskedByte>, std::size_t>> suffixes;
+                for (std::size_t data = pre_begin; data < pre_end;) {
+                    const auto begin = xml.find("<data", data);
+                    if (begin == std::string::npos || begin >= pre_end)
+                        break;
+                    const auto start = xml.find('>', begin);
+                    const auto close = xml.find("</data>", start);
+                    if (start == std::string::npos || close == std::string::npos || close > pre_end)
+                        break;
+                    prefixes.push_back(parse_data_body(std::string_view(xml).substr(start + 1, close - start - 1)));
+                    data = close + 7;
+                }
+                for (std::size_t data = post_begin; data < post_end;) {
+                    const auto begin = xml.find("<data", data);
+                    if (begin == std::string::npos || begin >= post_end)
+                        break;
+                    const auto start = xml.find('>', begin);
+                    const auto close = xml.find("</data>", start);
+                    if (start == std::string::npos || close == std::string::npos || close > post_end)
+                        break;
+                    suffixes.push_back(parse_data_body(std::string_view(xml).substr(start + 1, close - start - 1)));
+                    data = close + 7;
+                }
+                const auto action = xml.find("<funcstart", post_end);
+                const auto possible = xml.find("<possiblefuncstart", post_end);
+                const auto action_begin =
+                    action != std::string::npos && action < pair_end
+                        ? action
+                        : (possible != std::string::npos && possible < pair_end ? possible : std::string::npos);
+                if (action_begin != std::string::npos) {
+                    const auto action_end = xml.find('>', action_begin);
+                    if (action_end != std::string::npos) {
+                        for (const auto& prefix : prefixes) {
+                            for (const auto& suffix : suffixes) {
+                                if (prefix.first.empty() || suffix.first.empty())
+                                    continue;
                                 BytePattern pattern;
-                                pattern.bytes = std::move(prefix);
-                                pattern.mark_offset = pattern.bytes.size() + suffix_mark;
-                                pattern.bytes.insert(pattern.bytes.end(), suffix.begin(), suffix.end());
+                                pattern.bytes = prefix.first;
+                                pattern.mark_offset = pattern.bytes.size() + suffix.second;
+                                pattern.bytes.insert(pattern.bytes.end(), suffix.first.begin(), suffix.first.end());
                                 pattern.properties = parse_action(
                                     std::string_view(xml).substr(action_begin, action_end - action_begin + 1),
                                     pattern.mark_offset, std::nullopt);
@@ -370,29 +388,6 @@ void collect_candidates(AnalysisContext& context, std::span<const AnalysisEvent>
             }
         }
     }
-    if (patterns.empty()) {
-        for (const auto& region : context.image().memory_regions()) {
-            if (!region.executable || region.size == 0) {
-                continue;
-            }
-            const auto first = region.start;
-            if (matches_function_pattern(context, first)) {
-                candidates.insert(first);
-            }
-            // Pattern search examines filler boundaries, not every byte as code.
-            for (std::uint64_t offset = 1; offset < region.size; ++offset) {
-                if (cancellation.is_cancelled()) {
-                    return;
-                }
-                const Address address = region.start + offset;
-                const auto byte = context.image().read_byte(address - 1);
-                if (byte && (*byte == 0xcc || *byte == 0x90 || *byte == 0xc3) &&
-                    matches_function_pattern(context, address)) {
-                    candidates.insert(address);
-                }
-            }
-        }
-    }
     std::size_t pattern_index = 0;
     for (const Address candidate : candidates) {
         if (!context.functions().contains(candidate) && context.executable_region(candidate)) {
@@ -413,7 +408,7 @@ void collect_candidates(AnalysisContext& context, std::span<const AnalysisEvent>
     const bool instruction = std::any_of(context.instructions().begin(), context.instructions().end(),
                                          [&](const auto& item) { return ends_at(item.first); });
     const bool function = std::any_of(context.functions().begin(), context.functions().end(), [&](const auto& item) {
-        return std::any_of(item.second.body.begin(), item.second.body.end(),
+        return std::any_of(item.second.instruction_starts.begin(), item.second.instruction_starts.end(),
                            [&](Address start) { return ends_at(start); });
     });
     const bool data = std::any_of(context.data().begin(), context.data().end(),

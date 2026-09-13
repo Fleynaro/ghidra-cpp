@@ -359,6 +359,8 @@ TEST(AnalyzerPipelineTest, KnownNoReturnFunctionsAreMarked) {
     EXPECT_TRUE(std::any_of(context.bookmarks().begin(), context.bookmarks().end(), [](const Bookmark& bookmark) {
         return bookmark.address == 0x140001000 && bookmark.category == "Non-Returning Function";
     }));
+    EXPECT_TRUE(std::all_of(context.functions().begin(), context.functions().end(),
+                            [](const auto& pair) { return pair.first == 0x140001000 || !pair.second.no_return; }));
 }
 
 /// Verifies p-code COPY and integer addition produce a stable constant fact.
@@ -385,8 +387,25 @@ TEST(AnalyzerPipelineTest, PropagatesPcodeArithmetic) {
                                 sleigh_runtime::Varnode{"register", 0, 8},
                                 {sleigh_runtime::Varnode{"register", 0, 8}, sleigh_runtime::Varnode{"const", 3, 8}},
                                 std::nullopt});
+    sleigh_runtime::Instruction third;
+    third.address = first_address + 2;
+    third.length = 1;
+    third.pcode.push_back(sleigh_runtime::PcodeOp{sleigh_runtime::PcodeOpcode::int_negate,
+                                                  sleigh_runtime::Varnode{"register", 8, 8},
+                                                  {sleigh_runtime::Varnode{"const", 0x0f, 8}},
+                                                  std::nullopt});
+    sleigh_runtime::Instruction fourth;
+    fourth.address = first_address + 3;
+    fourth.length = 1;
+    fourth.pcode.push_back(
+        sleigh_runtime::PcodeOp{sleigh_runtime::PcodeOpcode::int_left,
+                                sleigh_runtime::Varnode{"register", 16, 8},
+                                {sleigh_runtime::Varnode{"const", 1, 8}, sleigh_runtime::Varnode{"const", 64, 8}},
+                                std::nullopt});
     ASSERT_TRUE(context.define_instruction(std::move(first)));
     ASSERT_TRUE(context.define_instruction(std::move(second)));
+    ASSERT_TRUE(context.define_instruction(std::move(third)));
+    ASSERT_TRUE(context.define_instruction(std::move(fourth)));
     ASSERT_TRUE(context.create_function(first_address));
     context.options() = {};
     AutoAnalysisManager manager(context);
@@ -397,6 +416,12 @@ TEST(AnalyzerPipelineTest, PropagatesPcodeArithmetic) {
     ASSERT_TRUE(result.completed);
     EXPECT_TRUE(std::any_of(context.constant_facts().begin(), context.constant_facts().end(),
                             [](const ConstantFact& fact) { return fact.value == 10; }));
+    EXPECT_TRUE(
+        std::any_of(context.constant_facts().begin(), context.constant_facts().end(), [](const ConstantFact& fact) {
+            return fact.location.offset == 8 && fact.value == ~std::uint64_t{0x0f};
+        }));
+    EXPECT_TRUE(std::any_of(context.constant_facts().begin(), context.constant_facts().end(),
+                            [](const ConstantFact& fact) { return fact.location.offset == 16 && fact.value == 0; }));
 }
 
 /// Verifies stack analysis consumes real PE/Sleigh operands and reports golden local names.
@@ -420,6 +445,19 @@ TEST(AnalyzerPipelineTest, FindsStackVariablesAndReferences) {
                             [](const auto& pair) { return !pair.second.stack_variables.empty(); }));
     EXPECT_TRUE(std::any_of(context.references().begin(), context.references().end(),
                             [](const Reference& reference) { return reference.kind == ReferenceKind::stack; }));
+    const std::array<std::pair<Address, std::int64_t>, 6> expected_stack{{{0x140001003, 0x10},
+                                                                          {0x140001007, 0x10},
+                                                                          {0x14000100E, 0x8},
+                                                                          {0x140001018, 0x8},
+                                                                          {0x140001024, 0x8},
+                                                                          {0x140001028, 0x10}}};
+    for (const auto& [source, offset] : expected_stack) {
+        EXPECT_TRUE(
+            std::any_of(context.references().begin(), context.references().end(), [&](const Reference& reference) {
+                return reference.kind == ReferenceKind::stack && reference.source == source &&
+                       reference.stack_offset == offset;
+            }));
+    }
 }
 
 /// Verifies Data Reference scans pointer-sized PE data cells after its prerequisite event.
@@ -439,10 +477,17 @@ TEST(AnalyzerPipelineTest, FollowsDataSectionPointers) {
     manager.register_builtin_analyzers();
     const auto result = manager.analyze();
     ASSERT_TRUE(result.completed);
+    const auto delta = load_golden_delta("data_reference");
+    const auto compared = compare_golden_delta(context, delta);
+    ASSERT_TRUE(compared.has_value()) << compared.error();
     const auto report = read_golden_report("data_reference");
     EXPECT_NE(report.find("0x0000000140002058"), std::string::npos);
     EXPECT_TRUE(std::any_of(context.references().begin(), context.references().end(), [](const Reference& reference) {
         return reference.source == 0x140002058 && reference.target == 0x140002048 &&
+               reference.kind == ReferenceKind::data;
+    }));
+    EXPECT_TRUE(std::any_of(context.references().begin(), context.references().end(), [](const Reference& reference) {
+        return reference.source == 0x140002060 && reference.target == 0x140002050 &&
                reference.kind == ReferenceKind::data;
     }));
 }
@@ -472,12 +517,13 @@ TEST(AnalyzerPipelineTest, MaterializesMemoryReferences) {
 
 /// Verifies every normal and delay import is represented by the PE-backed external namespace.
 TEST(AnalyzerPipelineTest, PreservesImportedExternalSymbols) {
-    auto context = load_fixture("reference");
+    auto context = load_fixture("windows_resource_reference");
     std::size_t expected = 0;
     for (const auto& descriptor : context.image().imports())
         expected += descriptor.symbols.size();
     for (const auto& descriptor : context.image().delay_imports())
         expected += descriptor.symbols.size();
+    ASSERT_GT(expected, 0U);
     EXPECT_EQ(context.external_symbols().size(), expected);
     EXPECT_TRUE(
         std::all_of(context.external_symbols().begin(), context.external_symbols().end(),
@@ -527,8 +573,22 @@ TEST(AnalyzerPipelineTest, ScalarReferencesOnlyUseMappedLargeValues) {
     manager.register_builtin_analyzers();
     const auto result = manager.analyze();
     ASSERT_TRUE(result.completed);
-    EXPECT_TRUE(std::all_of(context.references().begin(), context.references().end(), [](const Reference& reference) {
-        return reference.kind != ReferenceKind::scalar || reference.target >= 0x1000;
+    const auto scalar =
+        std::count_if(context.references().begin(), context.references().end(),
+                      [](const Reference& reference) { return reference.kind == ReferenceKind::scalar; });
+    EXPECT_EQ(scalar, 2);
+    EXPECT_TRUE(std::any_of(context.references().begin(), context.references().end(), [](const Reference& reference) {
+        return reference.kind == ReferenceKind::scalar && reference.source == 0x140001000 &&
+               reference.target == 0x140003000;
+    }));
+    EXPECT_TRUE(std::any_of(context.references().begin(), context.references().end(), [](const Reference& reference) {
+        return reference.kind == ReferenceKind::scalar && reference.source == 0x140001014 &&
+               reference.target == 0x140001000;
+    }));
+    EXPECT_TRUE(std::none_of(context.references().begin(), context.references().end(), [](const Reference& reference) {
+        return reference.kind == ReferenceKind::scalar &&
+               (reference.source == 0x140001028 || reference.source == 0x140001034 || reference.source == 0x140001040 ||
+                reference.source == 0x1400010A9);
     }));
 }
 

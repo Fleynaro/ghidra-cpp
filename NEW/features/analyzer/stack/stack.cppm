@@ -59,10 +59,10 @@ namespace {
                    [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
     if (text.find("byte ptr") != std::string::npos)
         return 1;
-    if (text.find("word ptr") != std::string::npos)
-        return 2;
     if (text.find("qword ptr") != std::string::npos)
         return 8;
+    if (text.find("word ptr") != std::string::npos)
+        return 2;
     return 4;
 }
 
@@ -104,8 +104,9 @@ void StackAnalyzer::analyze(AnalysisContext& context, std::span<const AnalysisEv
     for (const auto& [entry, function] : context.functions()) {
         std::uint32_t frame_size = 0;
         std::int64_t stack_pointer_delta = 0;
+        std::int64_t frame_pointer_delta = 0;
         std::optional<std::string> frame_pointer;
-        for (const Address address : function.body) {
+        for (const Address address : function.instruction_starts) {
             if (cancellation.is_cancelled())
                 return;
             const auto instruction = context.instructions().find(address);
@@ -128,8 +129,10 @@ void StackAnalyzer::analyze(AnalysisContext& context, std::span<const AnalysisEv
                 stack_pointer_delta -= 8;
             if (assembly.find("pop rbp") != std::string::npos)
                 stack_pointer_delta += 8;
-            if (assembly.find("mov rbp, rsp") != std::string::npos)
+            if (assembly.find("mov rbp, rsp") != std::string::npos) {
                 frame_pointer = "rbp";
+                frame_pointer_delta = stack_pointer_delta;
+            }
             bool found_stack_storage = false;
             const auto record_storage = [&](std::string_view storage_text,
                                             const std::pair<std::string, std::int64_t>& parsed) {
@@ -152,11 +155,19 @@ void StackAnalyzer::analyze(AnalysisContext& context, std::span<const AnalysisEv
                 const auto parsed = parse_stack_operand(operand.text);
                 if (!parsed)
                     continue;
-                record_storage(operand.text, *parsed);
+                auto adjusted = *parsed;
+                adjusted.second += adjusted.first.starts_with("rbp") || adjusted.first.starts_with("ebp")
+                                       ? frame_pointer_delta
+                                       : stack_pointer_delta;
+                record_storage(operand.text, adjusted);
             }
             if (!found_stack_storage) {
                 if (const auto parsed = parse_stack_operand(assembly)) {
-                    record_storage(assembly, *parsed);
+                    auto adjusted = *parsed;
+                    adjusted.second += adjusted.first.starts_with("rbp") || adjusted.first.starts_with("ebp")
+                                           ? frame_pointer_delta
+                                           : stack_pointer_delta;
+                    record_storage(assembly, adjusted);
                 }
             }
         }

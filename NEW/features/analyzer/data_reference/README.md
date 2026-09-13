@@ -11,7 +11,9 @@ Ports `DataOperandReferenceAnalyzer` from
 - Priority: `602`.
 - Consumer: state/reporting clients; it never creates functions.
 
-Pointer width follows PE32 versus PE32+. Values are read from the loader's
-mapped image and accepted only when the complete target is mapped.
+Pointer width follows PE32 versus PE32+. Relocation-bearing non-executable
+cells are used as loader evidence for pointer data; arbitrary section bytes are
+not automatically promoted to data. Values are read from the loader's mapped
+image and accepted only when the complete target is mapped.
 
 Golden evidence: [`../test_data/data_reference/`](../test_data/data_reference/).

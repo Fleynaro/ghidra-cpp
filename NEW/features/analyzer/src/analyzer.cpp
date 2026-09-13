@@ -89,6 +89,9 @@ namespace {
             checked_add(address, instruction->second.instruction.length - 1) > function->provider_end) {
             continue;
         }
+        if (instruction == context.instructions().end()) {
+            continue;
+        }
         if (!body.insert(address).second) {
             continue;
         }
@@ -121,6 +124,25 @@ namespace {
         }
     }
     return body;
+}
+
+/// Converts instruction-start members into the complete byte AddressSet used by Ghidra bodies.
+[[nodiscard]] std::vector<AddressRange> build_body_ranges(const AnalysisContext& context,
+                                                          const std::set<Address>& body) {
+    std::vector<AddressRange> ranges;
+    for (const Address start : body) {
+        const auto instruction = context.instructions().find(start);
+        const auto length = instruction == context.instructions().end() || instruction->second.instruction.length == 0
+                                ? 1U
+                                : instruction->second.instruction.length;
+        const Address end = start + length - 1;
+        if (!ranges.empty() && start <= ranges.back().end + 1) {
+            ranges.back().end = std::max(ranges.back().end, end);
+        } else {
+            ranges.push_back(AddressRange{start, end});
+        }
+    }
+    return ranges;
 }
 
 /// Adds an address to a vector only once while preserving deterministic order.
@@ -182,15 +204,19 @@ AnalysisContext::AnalysisContext(pe::LoadedPeImage image, std::filesystem::path 
     }
     for (const auto& descriptor : image_.imports()) {
         for (const auto& symbol : descriptor.symbols) {
+            const std::string name =
+                symbol.name.empty() && symbol.ordinal ? "Ordinal_" + std::to_string(*symbol.ordinal) : symbol.name;
             external_symbols_.push_back(
-                ExternalSymbol{descriptor.dll_name, symbol.name, symbol.iat_slot_va, symbol.ordinal, false});
+                ExternalSymbol{descriptor.dll_name, name, symbol.iat_slot_va, symbol.ordinal, false});
             emit(EventKind::external_added, symbol.iat_slot_va);
         }
     }
     for (const auto& descriptor : image_.delay_imports()) {
         for (const auto& symbol : descriptor.symbols) {
+            const std::string name =
+                symbol.name.empty() && symbol.ordinal ? "Ordinal_" + std::to_string(*symbol.ordinal) : symbol.name;
             external_symbols_.push_back(
-                ExternalSymbol{descriptor.dll_name, symbol.name, symbol.iat_slot_va, symbol.ordinal, true});
+                ExternalSymbol{descriptor.dll_name, name, symbol.iat_slot_va, symbol.ordinal, true});
             emit(EventKind::external_added, symbol.iat_slot_va);
         }
     }
@@ -310,10 +336,17 @@ bool AnalysisContext::create_function(Address entry, std::string name) {
         return false;
     }
     Function function{entry, name.empty() ? address_name(entry) : std::move(name), {}, {}, {}, false, false};
-    function.body = follow_function_body(*this, entry);
-    if (function.body.empty()) {
-        function.body.insert(entry);
+    function.instruction_starts = follow_function_body(*this, entry);
+    if (function.instruction_starts.empty()) {
+        function.instruction_starts.insert(entry);
     }
+    function.body_ranges = build_body_ranges(*this, function.instruction_starts);
+    for (const auto& range : function.body_ranges)
+        for (Address address = range.start;; ++address) {
+            function.body.insert(address);
+            if (address == range.end)
+                break;
+        }
     functions_.emplace(entry, std::move(function));
     emit(EventKind::function_added, entry);
     static_cast<void>(rebuild_function_body(entry));
@@ -328,14 +361,23 @@ bool AnalysisContext::rebuild_function_body(Address entry) {
     }
     const auto body = follow_function_body(*this, entry);
     if (!body.empty()) {
-        function->second.body = body;
+        function->second.instruction_starts = body;
     }
-    function->second.blocks.clear();
-    if (function->second.body.empty()) {
+    if (function->second.instruction_starts.empty())
         return false;
-    }
+    function->second.body_ranges = build_body_ranges(*this, function->second.instruction_starts);
+    function->second.body.clear();
+    for (const auto& range : function->second.body_ranges)
+        for (Address address = range.start;; ++address) {
+            function->second.body.insert(address);
+            if (address == range.end)
+                break;
+        }
+    function->second.blocks.clear();
+    if (function->second.instruction_starts.empty())
+        return false;
     std::set<Address> starts{entry};
-    for (const Address address : function->second.body) {
+    for (const Address address : function->second.instruction_starts) {
         const auto instruction = instructions_.find(address);
         if (instruction == instructions_.end()) {
             continue;
@@ -343,19 +385,20 @@ bool AnalysisContext::rebuild_function_body(Address entry) {
         const auto& decoded = instruction->second.instruction;
         for (const auto reference_index : instruction->second.reference_indices) {
             const auto& reference = references_[reference_index];
-            if (is_flow_reference(reference.kind) && function->second.body.contains(reference.target)) {
+            if (is_flow_reference(reference.kind) && function->second.instruction_starts.contains(reference.target)) {
                 starts.insert(reference.target);
             }
         }
         if (is_basic_block_terminator(instruction->second, references_)) {
-            if (const auto next = checked_add(address, decoded.length); next && function->second.body.contains(*next)) {
+            if (const auto next = checked_add(address, decoded.length);
+                next && function->second.instruction_starts.contains(*next)) {
                 starts.insert(*next);
             }
         }
     }
     BasicBlock current;
     Address previous_end = 0;
-    for (const Address address : function->second.body) {
+    for (const Address address : function->second.instruction_starts) {
         const auto instruction = instructions_.find(address);
         const auto length = instruction == instructions_.end() ? 1U : instruction->second.instruction.length;
         const bool new_block = current.instructions.empty() || starts.contains(address) || address != previous_end;
@@ -391,7 +434,7 @@ bool AnalysisContext::rebuild_function_body(Address entry) {
         const auto& decoded = instruction->second.instruction;
         for (const auto reference_index : instruction->second.reference_indices) {
             const auto& reference = references_[reference_index];
-            if (is_flow_reference(reference.kind) && function->second.body.contains(reference.target)) {
+            if (is_flow_reference(reference.kind) && function->second.instruction_starts.contains(reference.target)) {
                 append_unique(block.successors, reference.target);
             }
         }
@@ -403,7 +446,8 @@ bool AnalysisContext::rebuild_function_body(Address entry) {
                                                         });
         if (!suppressed_call_return &&
             (decoded.flow.has_fallthrough || decoded.flow.kind == sleigh_runtime::FlowKind::none)) {
-            if (const auto next = checked_add(last, decoded.length); next && function->second.body.contains(*next)) {
+            if (const auto next = checked_add(last, decoded.length);
+                next && function->second.instruction_starts.contains(*next)) {
                 append_unique(block.successors, *next);
             }
         }
@@ -442,6 +486,16 @@ bool AnalysisContext::add_reference(Reference reference) {
 bool AnalysisContext::add_data(DataObject data) {
     if (data.size == 0) {
         return false;
+    }
+    if (!image_.find_memory_region(data.address, data.size))
+        return false;
+    const Address end = data.address + data.size - 1;
+    for (const auto& [address, existing] : data_) {
+        if (address == data.address)
+            continue;
+        const Address existing_end = address + existing.size - 1;
+        if (!(end < address || data.address > existing_end))
+            return false;
     }
     if (auto existing = data_.find(data.address); existing != data_.end()) {
         if (existing->second.size >= data.size) {
@@ -569,7 +623,7 @@ bool AnalysisContext::add_bookmark(Bookmark bookmark) {
 bool AnalysisContext::add_constant_fact(ConstantFact fact) {
     const auto duplicate = std::find_if(constant_facts_.begin(), constant_facts_.end(), [&](const ConstantFact& old) {
         return old.instruction == fact.instruction && old.location == fact.location && old.value == fact.value &&
-               old.path_stable == fact.path_stable;
+               old.path_stable == fact.path_stable && old.function_entry == fact.function_entry;
     });
     if (duplicate != constant_facts_.end()) {
         return false;
@@ -639,7 +693,8 @@ const std::map<Address, FunctionStartProperties>& AnalysisContext::potential_fun
 /// Finds a containing function body by deterministic entry order.
 const Function* AnalysisContext::function_containing(Address address) const noexcept {
     for (const auto& [entry, function] : functions_) {
-        if (function.body.contains(address)) {
+        if (std::any_of(function.body_ranges.begin(), function.body_ranges.end(),
+                        [&](const AddressRange& range) { return range.contains(address); })) {
             return &function;
         }
     }
@@ -677,6 +732,8 @@ void AnalysisContext::seed_provider_functions() {
                           false,
                           false,
                           runtime.end_va == 0 ? std::nullopt : std::optional<Address>{runtime.end_va - 1}};
+        function.body_ranges = {AddressRange{runtime.begin_va, runtime.begin_va}};
+        function.instruction_starts = {runtime.begin_va};
         functions_.emplace(runtime.begin_va, std::move(function));
         emit(EventKind::function_added, runtime.begin_va);
     }
@@ -776,21 +833,36 @@ std::expected<GoldenDelta, std::string> parse_golden_delta(const std::filesystem
         return std::unexpected("Unable to open golden Delta report: " + report.string());
     GoldenDelta delta;
     enum class Section { none, functions, added, removed, changed } section = Section::none;
+    bool in_delta = false;
     std::string line;
     while (std::getline(input, line)) {
-        if (line == "### Added rows") {
+        if (line == "## Delta") {
+            in_delta = true;
+            section = Section::none;
+            continue;
+        }
+        if (line.starts_with("## ") && line != "## Delta") {
+            in_delta = false;
+            section = Section::none;
+        }
+        const auto normalized_heading = [&] {
+            std::string value = line;
+            value.erase(std::remove(value.begin(), value.end(), '*'), value.end());
+            return value;
+        }();
+        if (normalized_heading.find("Added rows") != std::string::npos) {
             section = Section::added;
             continue;
         }
-        if (line == "### Removed rows") {
+        if (normalized_heading.find("Removed rows") != std::string::npos) {
             section = Section::removed;
             continue;
         }
-        if (line == "### Changed rows") {
+        if (normalized_heading.find("Changed rows") != std::string::npos) {
             section = Section::changed;
             continue;
         }
-        if (line == "### Functions") {
+        if (normalized_heading.find("Functions") != std::string::npos) {
             section = Section::functions;
             continue;
         }
@@ -806,6 +878,14 @@ std::expected<GoldenDelta, std::string> parse_golden_delta(const std::filesystem
                 if (section == Section::changed)
                     delta.changed_functions_after.push_back(*row);
             }
+            if (in_delta && line.find("->") != std::string::npos) {
+                const auto values = row_addresses(line);
+                if (values.size() >= 2) {
+                    delta.references.push_back(Reference{values[0], values[1], ReferenceKind::data, std::nullopt,
+                                                         std::nullopt, FlowOverride::none, false});
+                    delta.strict_references = true;
+                }
+            }
         }
         if (section == Section::functions && line.starts_with("| `")) {
             const auto values = row_addresses(line);
@@ -818,8 +898,9 @@ std::expected<GoldenDelta, std::string> parse_golden_delta(const std::filesystem
             if (line.find("`Changed`") != std::string::npos)
                 delta.changed_functions_after.push_back(GoldenFunctionRow{values.back(), {}});
         }
-        if (line.starts_with("|") && line.find("0x") != std::string::npos) {
+        if (in_delta && line.starts_with("|") && line.find("0x") != std::string::npos) {
             if (const auto kind = parse_reference_kind(line)) {
+                delta.strict_references = true;
                 const auto values = row_addresses(line);
                 if (values.size() >= 3) {
                     Reference reference{values[0], values[1],          *kind, std::nullopt,
@@ -838,17 +919,9 @@ std::expected<void, std::string> compare_golden_delta(const AnalysisContext& con
     const auto body_matches = [&](const Function& function, const std::vector<AddressRange>& ranges) {
         if (ranges.empty())
             return true;
-        std::vector<AddressRange> actual_ranges;
-        for (const Address address : function.body) {
-            const auto instruction = context.instructions().find(address);
-            const auto length =
-                instruction == context.instructions().end() || instruction->second.instruction.length == 0
-                    ? 1U
-                    : instruction->second.instruction.length;
-            actual_ranges.push_back(AddressRange{address, address + length - 1});
-        }
-        std::sort(actual_ranges.begin(), actual_ranges.end(),
-                  [](const AddressRange& left, const AddressRange& right) { return left.start < right.start; });
+        std::vector<AddressRange> actual_ranges = function.body_ranges;
+        if (actual_ranges.empty())
+            actual_ranges = build_body_ranges(context, function.instruction_starts);
         std::vector<AddressRange> merged;
         for (const auto& range : actual_ranges) {
             if (!merged.empty() && range.start <= merged.back().end + 1) {
@@ -894,6 +967,15 @@ std::expected<void, std::string> compare_golden_delta(const AnalysisContext& con
         if (!found)
             errors.push_back("missing reference from 0x" + address_name(expected.source));
     }
+    if (delta.strict_references) {
+        const auto relevant = [&](const Reference& reference) {
+            return std::any_of(delta.references.begin(), delta.references.end(),
+                               [&](const Reference& expected) { return expected.kind == reference.kind; });
+        };
+        const auto actual_count = std::count_if(context.references().begin(), context.references().end(), relevant);
+        if (actual_count != delta.references.size())
+            errors.push_back("unexpected reference count in strict Delta section");
+    }
     if (!errors.empty()) {
         std::ostringstream message;
         for (const auto& error : errors)
@@ -918,6 +1000,7 @@ void AutoAnalysisManager::register_builtin_analyzers() {
     register_analyzer(std::make_unique<NonReturningFunctionsAnalyzer>());
     register_analyzer(std::make_unique<SubroutineReferencesAnalyzer>());
     register_analyzer(std::make_unique<FunctionBodyAnalyzer>());
+    register_analyzer(std::make_unique<KnownNoReturnFunctionsAnalyzer>());
     register_analyzer(std::make_unique<FunctionStartAnalyzer>());
     register_analyzer(std::make_unique<FunctionStartFunctionAnalyzer>());
     register_analyzer(std::make_unique<ConstantPropagationAnalyzer>());
@@ -1014,8 +1097,13 @@ AnalysisResult AutoAnalysisManager::analyze(std::span<const Address> seeds) {
     std::set<std::size_t> scheduled;
     std::uint64_t schedule_sequence = 1;
     std::size_t processed_events = 0;
+    std::size_t dispatched_events = 0;
     auto dispatch = [&](const std::vector<AnalysisEvent>& events) {
         for (const auto& event : events) {
+            if (++dispatched_events > context_.options().maximum_events) {
+                result.errors.push_back("AutoAnalysisManager: maximum event count exceeded");
+                return;
+            }
             for (std::size_t index = 0; index < registry_.analyzers().size(); ++index) {
                 const auto descriptor = registry_.analyzers()[index]->descriptor();
                 if (!triggered_by(descriptor, event.kind)) {

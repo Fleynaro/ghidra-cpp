@@ -13,9 +13,12 @@ sources under `Ghidra/Features/Base` and `Ghidra/Framework/SoftwareModeling`.
 - Consumers: stack, references, propagation, and no-return repair.
 
 Calls are excluded from body traversal but retain call and fall-through
-semantics. Direct and conditional jumps become CFG edges, returns terminate
-blocks, and block starts include entries and flow destinations. Shared code is
-represented by shared addresses instead of silently deleting an existing body.
-Unresolved indirect flow remains unresolved rather than being guessed.
+semantics. `Function::instruction_starts` preserves traversal units while
+`Function::body` and `body_ranges` expose the complete byte AddressSet. Direct
+and conditional jumps become CFG edges, returns terminate blocks, and block
+starts include entries, flow destinations, and post-terminator fall-through.
+Shared code is represented by shared ranges instead of silently deleting an
+existing body. Unresolved indirect flow remains unresolved rather than being
+guessed.
 
 Golden body evidence: [`../test_data/subroutine_references/`](../test_data/subroutine_references/).

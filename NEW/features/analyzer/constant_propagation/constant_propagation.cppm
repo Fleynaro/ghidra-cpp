@@ -64,6 +64,8 @@ namespace {
             return std::nullopt;
         if (operation.opcode == sleigh_runtime::PcodeOpcode::bool_negate)
             return *value == 0;
+        if (operation.opcode == sleigh_runtime::PcodeOpcode::int_negate)
+            return ~*value;
         return static_cast<std::uint64_t>(-static_cast<std::int64_t>(*value));
     }
     if (operation.opcode == sleigh_runtime::PcodeOpcode::load) {
@@ -100,9 +102,12 @@ namespace {
         case sleigh_runtime::PcodeOpcode::int_xor:
             return *left ^ *right;
         case sleigh_runtime::PcodeOpcode::int_left:
-            return *left << (*right & 63U);
-        case sleigh_runtime::PcodeOpcode::int_right:
-            return *left >> (*right & 63U);
+        case sleigh_runtime::PcodeOpcode::int_right: {
+            const auto width = operation.inputs[operation.inputs.size() - 2].size * 8U;
+            if (width == 0 || *right >= width)
+                return std::uint64_t{0};
+            return operation.opcode == sleigh_runtime::PcodeOpcode::int_left ? *left << *right : *left >> *right;
+        }
         case sleigh_runtime::PcodeOpcode::int_div:
             return *right == 0 ? std::nullopt : std::optional<std::uint64_t>{*left / *right};
         case sleigh_runtime::PcodeOpcode::int_rem:
@@ -148,7 +153,10 @@ namespace {
                     return std::nullopt;
                 return static_cast<std::uint64_t>(left_signed % right_signed);
             }
-            return static_cast<std::uint64_t>(left_signed >> (static_cast<unsigned>(right_signed) & 63U));
+            const auto width = operation.inputs[operation.inputs.size() - 2].size * 8U;
+            if (width == 0 || *right >= width)
+                return left_signed < 0 ? std::numeric_limits<std::uint64_t>::max() : std::uint64_t{0};
+            return static_cast<std::uint64_t>(left_signed >> *right);
         }
         case sleigh_runtime::PcodeOpcode::int_carry: {
             const auto bits = operation.inputs.back().size * 8U;
@@ -255,7 +263,7 @@ void ConstantPropagationAnalyzer::analyze(AnalysisContext& context, std::span<co
                     const auto normalized = truncate_value(*value, operation.output->size);
                     state.values[location_key(*operation.output)] = normalized;
                     static_cast<void>(context.add_constant_fact(
-                        ConstantFact{address, *operation.output, normalized, function.blocks.size() == 1}));
+                        ConstantFact{address, *operation.output, normalized, function.blocks.size() == 1, entry}));
                 }
             }
             for (const Address successor : block_it->successors) {

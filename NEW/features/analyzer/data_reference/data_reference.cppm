@@ -19,11 +19,17 @@ void DataReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const An
         return;
     }
     const std::uint32_t pointer_size = context.image().optional_header().pe32_plus ? 8U : 4U;
-    for (const auto& region : context.image().memory_regions()) {
-        if (!region.executable && region.size != 0 && !context.data().contains(region.start)) {
-            const auto size = static_cast<std::uint32_t>(
-                std::min<std::uint64_t>(region.size, std::numeric_limits<std::uint32_t>::max()));
-            static_cast<void>(context.add_data(DataObject{region.start, size, "PE data section"}));
+    // IMAGE_BASE_RELOCATION entries are the loader's concrete evidence for
+    // pointer-sized data cells; arbitrary non-executable bytes are not data.
+    std::set<Address> relocated_data_cells;
+    for (const auto& block : context.image().relocations()) {
+        for (const auto& relocation : block.entries) {
+            if (relocation.type == 0)
+                continue;
+            const auto rva = block.page_rva + (relocation.raw_value & 0x0fffU);
+            const auto address = context.image().rva_to_va(rva);
+            if (address && !context.image().is_executable(*address))
+                relocated_data_cells.insert(*address);
         }
     }
     const auto process_pointer = [&](Address source) {
@@ -40,7 +46,25 @@ void DataReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const An
                 Reference{source, target, ReferenceKind::data, std::nullopt, std::nullopt, FlowOverride::none, true}));
         }
     };
+    for (const Address source : relocated_data_cells) {
+        if (cancellation.is_cancelled())
+            return;
+        const auto bytes = context.image().read_memory(source, pointer_size);
+        if (!bytes)
+            continue;
+        std::uint64_t target = 0;
+        for (std::size_t index = 0; index < bytes->size(); ++index)
+            target |= static_cast<std::uint64_t>((*bytes)[index]) << (index * 8U);
+        if (relocated_data_cells.contains(target)) {
+            static_cast<void>(context.add_data(DataObject{source, pointer_size, "relocated pointer"}));
+            static_cast<void>(context.add_data(DataObject{target, pointer_size, "relocated pointer target"}));
+            static_cast<void>(context.add_reference(
+                Reference{source, target, ReferenceKind::data, std::nullopt, std::nullopt, FlowOverride::none, true}));
+        }
+    }
     for (const auto& [address, data] : context.data()) {
+        if (relocated_data_cells.contains(address))
+            continue;
         if (cancellation.is_cancelled()) {
             return;
         }

@@ -12,7 +12,8 @@ Ports `FindNoReturnFunctionsAnalyzer.added()`, `detectNoReturn()`,
 - Priority: `302`.
 - Consumers: Function Body and control-flow clients.
 
-Known PE/runtime and imported names are normalized before matching. Discovered
+Known PE/runtime and imported names are normalized before matching by the early
+`Known Non-Returning Functions` phase. Discovered
 no-return functions require the configurable default threshold of three
 independent post-call INT3 or UD2 indicators. Explicit call fall-through
 metadata, including external IAT references, is converted to a `CALL_RETURN`

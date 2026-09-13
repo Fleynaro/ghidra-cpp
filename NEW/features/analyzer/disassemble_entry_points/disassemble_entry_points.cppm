@@ -19,9 +19,10 @@ void DisassembleEntryPointsAnalyzer::analyze(AnalysisContext& context, std::span
         return;
     }
     std::set<Address> seeds;
-    for (const auto& event : events) {
-        seeds.insert(event.addresses.begin(), event.addresses.end());
-    }
+    // Memory events wake this analyzer, but their addresses are section
+    // boundaries rather than entry points. Only PE metadata below is a valid
+    // disassembly seed, matching EntryPointAnalyzer's marker selection.
+    static_cast<void>(events);
     if (const auto entry = context.image().entry_point_va(); entry) {
         seeds.insert(*entry);
     }

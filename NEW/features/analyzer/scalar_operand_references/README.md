@@ -12,7 +12,8 @@ Ports `ScalarOperandAnalyzer.checkOperands()`, `addReference()`,
 - Priority: `598`.
 - Consumer: reference/reporting clients.
 
-Small constants, unmapped values, and duplicate operand references are rejected.
+Small constants, unmapped values, flow operands, and duplicate operand
+references are rejected. Only mapped non-flow scalar operands are considered.
 Mapped large values are retained with their operand index and never replace an
 existing relation. This preserves the positive/negative-control structure of the
 fixture rather than classifying every immediate as an address.

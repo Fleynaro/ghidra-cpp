@@ -22,6 +22,15 @@ void ScalarOperandReferencesAnalyzer::analyze(AnalysisContext& context, std::spa
         if (cancellation.is_cancelled()) {
             return;
         }
+        if (record.instruction.flow.kind == sleigh_runtime::FlowKind::branch ||
+            record.instruction.flow.kind == sleigh_runtime::FlowKind::conditional_branch ||
+            record.instruction.flow.kind == sleigh_runtime::FlowKind::call ||
+            record.instruction.flow.kind == sleigh_runtime::FlowKind::indirect_call ||
+            record.instruction.flow.kind == sleigh_runtime::FlowKind::indirect_branch) {
+            // Flow operands already have a typed code reference and are not
+            // scalar data references in ScalarOperandAnalyzer.
+            continue;
+        }
         for (std::size_t operand_index = 0; operand_index < record.instruction.operands.size(); ++operand_index) {
             const auto& operand = record.instruction.operands[operand_index];
             if (!operand.value || *operand.value < 0x1000) {
