@@ -7,7 +7,7 @@ The runtime returns:
 - The decoded instruction length and address.
 - The mnemonic and rendered operands.
 - Operand kind and immediate/address values when available.
-- Control-flow classification and a concrete p-code target when available.
+- Control-flow classification, concrete p-code targets, and fall-through/terminal flags when available.
 - Materialized p-code operations with concrete input and output varnodes.
 
 The implementation intentionally does not parse `.slaspec`. All instruction patterns, operand renderers, context fields, and p-code templates come from the compiled binary `.sla` file supplied by the caller.

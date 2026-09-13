@@ -322,6 +322,22 @@ TEST(PeLoaderFixture, LoadsHeaders) {
     EXPECT_EQ(image.optional_header().address_of_entry_point, 0x2eebU);
 }
 
+/// Verifies the checked entry-point translation and complete executable-range lookup used by analysis.
+TEST(PeLoaderFixture, ResolvesEntryPointAndExecutableRanges) {
+    const auto image = load_fixture();
+    ASSERT_TRUE(image.entry_point_va().has_value());
+    EXPECT_EQ(*image.entry_point_va(), 0x140002EEBULL);
+    const auto executable = image.find_memory_region(0x140001000, 16);
+    ASSERT_TRUE(executable.has_value());
+    EXPECT_TRUE(executable->executable);
+    EXPECT_TRUE(image.is_executable(0x140001000, 16));
+    const auto non_executable = std::find_if(image.memory_regions().begin(), image.memory_regions().end(),
+                                             [](const pe::MemoryRegion& region) { return !region.executable; });
+    ASSERT_NE(non_executable, image.memory_regions().end());
+    EXPECT_FALSE(image.is_executable(non_executable->start, 16));
+    EXPECT_FALSE(image.find_memory_region(0x140000FFF, 2).has_value());
+}
+
 /// Verifies the XOR-decoded Rich records and every non-empty directory RVA/raw-offset pair.
 TEST(PeLoaderFixture, ParsesRichHeaderAndDirectories) {
     const auto image = load_fixture();

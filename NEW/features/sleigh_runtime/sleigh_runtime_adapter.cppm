@@ -222,10 +222,14 @@ private:
                 break;
         }
         if (kind != FlowKind::none) {
-            FlowInfo flow{kind, std::nullopt};
+            FlowInfo flow{kind, std::nullopt, true, false};
             if (!operation.inputs.empty()) {
                 flow.target = operation.inputs.front();
             }
+            flow.has_fallthrough =
+                kind == FlowKind::conditional_branch || kind == FlowKind::call || kind == FlowKind::indirect_call;
+            flow.terminal =
+                kind == FlowKind::branch || kind == FlowKind::indirect_branch || kind == FlowKind::return_op;
             return flow;
         }
     }

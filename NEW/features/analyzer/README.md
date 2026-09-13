@@ -1,53 +1,92 @@
-# Function Analyzer Test Data
+# Analyzer Engine
 
-This directory contains integration-test data for future C++23 ports of Ghidra
-analyzers. It deliberately contains no analyzer implementation or build target
-in the C++ project.
+This directory contains the provider-backed C++23 analysis engine. It owns the
+native program/listing state, the event queue, the deterministic priority
+scheduler, and the first ten analyzer families. It does not parse PE files or
+decode instructions itself.
 
 ## Navigation
 
-- [`test_data/embedded_media/README.md`](test_data/embedded_media/README.md) describes the real embedded-media PE.
-- [`test_data/external_entry_references/README.md`](test_data/external_entry_references/README.md) describes the PE-export entry-reference fixture.
-- [`test_data/function_id/README.md`](test_data/function_id/README.md) describes the real generated FID database fixture.
-- [`test_data/function_start_search/README.md`](test_data/function_start_search/README.md) describes the x64 pattern-search fixture.
-- [`test_data/pdb_validation.py`](test_data/pdb_validation.py) validates PE CodeView and PDB identity for PDB-dependent runners.
-- [`test_data/non_returning_functions_discovered/README.md`](test_data/non_returning_functions_discovered/README.md) describes the thresholded INT3 evidence fixture.
-- [`test_data/non_returning_functions_known/README.md`](test_data/non_returning_functions_known/README.md) describes the PE known-name fixture.
-- [`test_data/subroutine_references/README.md`](test_data/subroutine_references/README.md) describes the existing Subroutine References fixture.
-- [`../README.md`](../README.md) describes the surrounding C++23 feature collection.
+- [`CMakeLists.txt`](CMakeLists.txt) builds `NewGhidra::Analyzer` and its tests.
+- [`src/analyzer.cppm`](src/analyzer.cppm) defines `AnalysisContext`, state entities, events, analyzer contracts, and `AutoAnalysisManager`.
+- [`src/analyzer.cpp`](src/analyzer.cpp) implements provider-backed state mutation, flow/body construction, and scheduling.
+- [`disassemble_entry_points/`](disassemble_entry_points/) ports entry-point disassembly.
+- [`function_start_search/`](function_start_search/) ports the pre/function/post pattern phases.
+- [`subroutine_references/`](subroutine_references/) ports call-driven function discovery.
+- [`function_body/`](function_body/) ports `CreateFunctionCmd`, `FollowFlow`, `SimpleBlockModel`, and `BasicBlockModel` concepts.
+- [`reference/`](reference/) ports instruction operand-reference creation.
+- [`data_reference/`](data_reference/) ports data-origin pointer references.
+- [`scalar_operand_references/`](scalar_operand_references/) ports scalar address-reference filtering.
+- [`stack/`](stack/) ports stack-frame/local-variable discovery.
+- [`constant_propagation/`](constant_propagation/) ports the p-code symbolic propagation pass.
+- [`non_returning_functions/`](non_returning_functions/) ports known/evidence-backed no-return analysis.
+- [`tests/`](tests/) contains Google Test manager and provider-backed pipeline coverage.
+- [`test_data/`](test_data/) contains executable fixtures and Ghidra golden reports with Delta evidence.
 
-## Complete Fixture Index
+## Contracts
 
-- [`test_data/aggressive_instruction_finder/`](test_data/aggressive_instruction_finder/)
-- [`test_data/apply_data_archives/`](test_data/apply_data_archives/)
-- [`test_data/ascii_strings/`](test_data/ascii_strings/)
-- [`test_data/call_convention_id/`](test_data/call_convention_id/)
-- [`test_data/call_fixup_installer/`](test_data/call_fixup_installer/)
-- [`test_data/condense_filler_bytes/`](test_data/condense_filler_bytes/)
-- [`test_data/create_address_tables/`](test_data/create_address_tables/)
-- [`test_data/data_reference/`](test_data/data_reference/)
-- [`test_data/decompiler_parameter_id/`](test_data/decompiler_parameter_id/)
-- [`test_data/decompiler_switch_analysis/`](test_data/decompiler_switch_analysis/)
-- [`test_data/demangler_microsoft/`](test_data/demangler_microsoft/)
-- [`test_data/disassemble_entry_points/`](test_data/disassemble_entry_points/)
-- [`test_data/embedded_media/`](test_data/embedded_media/)
-- [`test_data/external_entry_references/`](test_data/external_entry_references/)
-- [`test_data/function_id/`](test_data/function_id/)
-- [`test_data/function_start_search/`](test_data/function_start_search/)
-- [`test_data/non_returning_functions_discovered/`](test_data/non_returning_functions_discovered/)
-- [`test_data/non_returning_functions_known/`](test_data/non_returning_functions_known/)
-- [`test_data/pdb_msdia/`](test_data/pdb_msdia/)
-- [`test_data/pdb_universal/`](test_data/pdb_universal/)
-- [`test_data/reference/`](test_data/reference/)
-- [`test_data/scalar_operand_references/`](test_data/scalar_operand_references/)
-- [`test_data/shared_return_calls/`](test_data/shared_return_calls/)
-- [`test_data/stack/`](test_data/stack/)
-- [`test_data/variadic_function_signature_override/`](test_data/variadic_function_signature_override/)
-- [`test_data/windows_pe_x86_propagate_external_parameters/`](test_data/windows_pe_x86_propagate_external_parameters/)
-- [`test_data/windows_resource_reference/`](test_data/windows_resource_reference/)
-- [`test_data/x86_constant_reference/`](test_data/x86_constant_reference/)
+`AnalysisContext` owns a `pe::LoadedPeImage`, a `sleigh_runtime::Decoder`, decoded
+instructions, flow/data references, functions, bodies, blocks, CFG edges, data,
+stack variables, constants, bookmarks, and pending events. Mutations emit
+events only when observable state changes. `Analyzer` implementations declare a
+name, numeric priority, event triggers, and prerequisites. `AutoAnalysisManager`
+coalesces events per analyzer, executes lower priorities first, breaks ties by
+name, validates prerequisite priorities, limits runaway custom event producers,
+and dispatches events produced by a callback only after that callback returns.
+This mirrors the important `AnalysisTaskList` and `AnalysisScheduler`
+invariants from Ghidra.
 
-The x86-specific fixtures intentionally use 32-bit MSVC because their referenced analyzers
-inspect x86 calling conventions or instruction encodings. PDB, resource, Function ID, and
-data-archive fixtures document their auxiliary artifacts and environment requirements in
-their individual READMEs.
+The providers are [`../pe_loader/`](../pe_loader/) and
+[`../sleigh_runtime/`](../sleigh_runtime/). The loader supplies sections,
+permissions, entry points, exports, TLS, runtime-function starts, and mapped
+bytes. Sleigh supplies instruction lengths, operands, flow, and p-code. No
+second PE parser or instruction decoder is present here.
+
+## Pipeline
+
+The built-in priorities are: pre-function patterns `199`, entry disassembly
+`200`, no-return detection `302`, subroutine/function creation `399`, body/CFG
+`400`, ordinary pattern search `402`, function-constrained patterns `498`,
+constant propagation `596`, scalar references `598`, references `600`, data
+references `602`, post-code/data pattern phases `898`, and stack `903`.
+Options can disable any phase without changing registration or scheduling.
+
+## Provenance and fidelity
+
+Each implementation file names the original Ghidra class and methods it ports.
+The source behavior is based on:
+
+- `Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/analysis/AutoAnalysisManager.java`
+- `Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/disassembler/EntryPointAnalyzer.java`
+- `Ghidra/Features/BytePatterns/src/main/java/ghidra/app/analyzers/FunctionStartAnalyzer.java`
+- `Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/function/FunctionAnalyzer.java`
+- `Ghidra/Features/Base/src/main/java/ghidra/app/cmd/function/CreateFunctionCmd.java`
+- `Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/model/block/FollowFlow.java`
+- `Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/model/block/SimpleBlockModel.java`
+- `Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/model/block/BasicBlockModel.java`
+
+The current native implementation intentionally exposes unresolved indirect
+flow as unresolved Sleigh flow and supports the compiled SLA profiles present
+in the repository (`x86-64.sla` and `ARM8_le.sla`). It does not claim to support
+architectures for which no provider profile exists. Ghidra's Java database,
+GUI, options service, cancellation monitor, and transaction layer are replaced
+by the explicit C++ contracts above.
+
+Known fidelity boundaries are explicit: XML pattern loading currently consumes
+concrete post-wildcard byte suffixes and the provider-backed fallback handles
+filler boundaries; pattern attribute predicates and full bit-level prepattern
+constraints are not yet represented. Constant propagation uses bounded
+instruction-order fixed-point state rather than a complete per-block lattice
+join. The x86-32 golden constant-reference fixture is not executed because the
+repository does not contain an x86-32 SLA profile. These cases are documented
+limitations, not silently reported as equivalent behavior.
+
+## Fixtures and validation
+
+The checked-in [`test_data`](test_data/) reports are behavioral evidence. The
+Google Tests load the executable through `PeLoader`, decode through
+`SleighRuntime`, run the manager, and assert structured state rather than
+arbitrary report formatting. The reports remain the golden reference for future
+fixture-by-fixture normalizers; the current tests cover entry disassembly,
+direct-call function creation/CFG, scalar filtering, registry behavior, event
+generation, priority order, and downstream scheduling.

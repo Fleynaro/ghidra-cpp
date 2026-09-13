@@ -1,0 +1,103 @@
+module analyzer;
+
+import std;
+
+namespace ghidra::analyzer {
+namespace {
+
+/// Resolves a p-code address operand into a mapped preferred virtual address.
+[[nodiscard]] std::optional<Address> resolve_memory_value(const AnalysisContext& context, Address source,
+                                                          const sleigh_runtime::Varnode& value) {
+    if (value.space == "const") {
+        const auto translated = context.image().rva_to_va(static_cast<pe::Rva>(value.offset));
+        if (translated && context.image().find_memory_region(*translated)) {
+            return *translated;
+        }
+    }
+    if (context.image().find_memory_region(value.offset)) {
+        return value.offset;
+    }
+    for (auto fact = context.constant_facts().rbegin(); fact != context.constant_facts().rend(); ++fact) {
+        if (fact->instruction <= source && fact->location == value) {
+            if (context.image().find_memory_region(fact->value)) {
+                return fact->value;
+            }
+            const auto translated = context.image().rva_to_va(static_cast<pe::Rva>(fact->value));
+            if (translated && context.image().find_memory_region(*translated)) {
+                return *translated;
+            }
+        }
+    }
+    return std::nullopt;
+}
+
+/// Returns the address input of a LOAD or STORE p-code operation.
+[[nodiscard]] std::optional<Address> memory_operand(const AnalysisContext& context, Address source,
+                                                    const sleigh_runtime::PcodeOp& operation) {
+    if (operation.inputs.empty()) {
+        return std::nullopt;
+    }
+    const auto index = operation.opcode == sleigh_runtime::PcodeOpcode::store && operation.inputs.size() >= 2
+                           ? operation.inputs.size() - 2
+                           : operation.inputs.size() - 1;
+    return resolve_memory_value(context, source, operation.inputs[index]);
+}
+
+/// Resolves an explicit instruction operand address as VA or image-relative RVA.
+[[nodiscard]] std::optional<Address> operand_address(const AnalysisContext& context, std::uint64_t value) {
+    if (context.image().find_memory_region(value)) {
+        return value;
+    }
+    const auto translated = context.image().rva_to_va(static_cast<pe::Rva>(value));
+    if (translated && context.image().find_memory_region(*translated)) {
+        return *translated;
+    }
+    return std::nullopt;
+}
+
+} // namespace
+
+/// Returns the Reference analyzer priority and code-event contract.
+AnalyzerDescriptor ReferenceAnalyzer::descriptor() const {
+    return {"Reference", 600, {EventKind::code_added}, {"Constant Propagation"}};
+}
+
+/// Materializes direct memory references represented by decoded p-code.
+void ReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const AnalysisEvent>,
+                                CancellationToken& cancellation) {
+    // Ported from Ghidra:
+    // Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/analysis/OperandReferenceAnalyzer.java
+    // Relevant methods: added(), createDisassemblyCommandsForAddress(), and flow-reference handling.
+    if (!context.options().reference) {
+        return;
+    }
+    for (const auto& [address, record] : context.instructions()) {
+        if (cancellation.is_cancelled()) {
+            return;
+        }
+        for (std::size_t operand_index = 0; operand_index < record.instruction.operands.size(); ++operand_index) {
+            const auto& operand = record.instruction.operands[operand_index];
+            if (operand.value) {
+                if (const auto target = operand_address(context, *operand.value)) {
+                    context.add_reference(Reference{address, *target, ReferenceKind::data, operand_index, std::nullopt,
+                                                    FlowOverride::none, true});
+                }
+            }
+        }
+        for (const auto& operation : record.instruction.pcode) {
+            if (operation.opcode != sleigh_runtime::PcodeOpcode::load &&
+                operation.opcode != sleigh_runtime::PcodeOpcode::store) {
+                continue;
+            }
+            const auto target = memory_operand(context, address, operation);
+            if (!target || !context.image().find_memory_region(*target)) {
+                continue;
+            }
+            const auto operand_index = operation.opcode == sleigh_runtime::PcodeOpcode::load ? 1U : 0U;
+            context.add_reference(Reference{address, *target, ReferenceKind::data, operand_index, std::nullopt,
+                                            FlowOverride::none, true});
+        }
+    }
+}
+
+} // namespace ghidra::analyzer

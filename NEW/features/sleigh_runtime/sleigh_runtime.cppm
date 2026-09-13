@@ -133,6 +133,8 @@ struct PcodeOp {
 struct FlowInfo {
     FlowKind kind = FlowKind::none;
     std::optional<Varnode> target;
+    bool has_fallthrough = true;
+    bool terminal = false;
 };
 
 /// Supplies one low-level processor context value by its Sleigh field name.

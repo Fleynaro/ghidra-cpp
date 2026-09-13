@@ -701,6 +701,21 @@ public:
     /// Returns the image size declared by the optional header.
     [[nodiscard]] std::uint32_t image_size() const noexcept;
 
+    /// Returns the preferred virtual address of IMAGE_OPTIONAL_HEADER.EntryPoint.
+    ///
+    /// The returned address is translated through the same checked image-base
+    /// rules as every other RVA conversion and therefore cannot silently wrap.
+    [[nodiscard]] std::expected<Va, AddressError> entry_point_va() const;
+
+    /// Finds the mapped region containing a complete virtual range.
+    ///
+    /// A copy is returned deliberately: callers cannot mutate loader-owned
+    /// permissions or section metadata while traversing the image.
+    [[nodiscard]] std::optional<MemoryRegion> find_memory_region(Va address, std::uint64_t size = 1) const noexcept;
+
+    /// Reports whether a complete virtual range belongs to executable memory.
+    [[nodiscard]] bool is_executable(Va address, std::uint64_t size = 1) const noexcept;
+
     /// Converts an RVA backed by file bytes to its raw file offset.
     [[nodiscard]] std::expected<FileOffset, AddressError> rva_to_file_offset(Rva rva) const;
 
