@@ -1,7 +1,6 @@
 import std;
 
 import decompiler;
-import decompiler_datatests;
 import sleigh_runtime;
 
 namespace {
@@ -11,8 +10,12 @@ using newghidra::decompiler::ConstantFormatDescription;
 using newghidra::decompiler::DecompilationResult;
 using newghidra::decompiler::Decompiler;
 using newghidra::decompiler::DisplayFormat;
+using newghidra::decompiler::FlowDescription;
+using newghidra::decompiler::FlowProvider;
 using newghidra::decompiler::FunctionDescription;
+using newghidra::decompiler::FunctionProvider;
 using newghidra::decompiler::Instruction;
+using newghidra::decompiler::JumpTableDescription;
 using newghidra::decompiler::MemoryRangeDescription;
 using newghidra::decompiler::PcodeOperation;
 using newghidra::decompiler::PrototypeDescription;
@@ -44,8 +47,6 @@ struct Options {
     std::uint64_t address = 0x140000000ULL;
     std::optional<std::uint64_t> end;
     std::string function_name = "function";
-    std::string test_name;
-    bool list_tests = false;
     std::vector<OutputSection> output{OutputSection::summary,    OutputSection::assembly,  OutputSection::raw_pcode,
                                       OutputSection::high_pcode, OutputSection::data_flow, OutputSection::control_flow,
                                       OutputSection::ast,        OutputSection::c_source};
@@ -56,6 +57,8 @@ struct Options {
     std::vector<TypeDescription> types;
     std::vector<std::pair<std::uint64_t, PrototypeDescription>> prototypes;
     std::vector<std::pair<std::uint64_t, std::vector<VariableDescription>>> variables;
+    std::vector<FunctionDescription> functions;
+    std::vector<std::pair<std::uint64_t, FlowDescription>> flows;
     std::vector<MemoryRangeDescription> volatile_ranges;
     bool readonly_propagate = false;
 };
@@ -285,11 +288,7 @@ Options parse_options(int argc, char* argv[]) {
         if (argument == "--help" || argument == "-h") {
             throw std::runtime_error("help");
         }
-        if (argument == "--list-tests") {
-            options.list_tests = true;
-        } else if (argument == "--test") {
-            options.test_name = require_value(argument);
-        } else if (argument == "--sla") {
+        if (argument == "--sla") {
             options.sla_path = require_value(argument);
         } else if (argument == "--hex") {
             options.hex = require_value(argument);
@@ -484,6 +483,36 @@ Options parse_options(int argc, char* argv[]) {
                 parse_bool(field(values, "isolated", argument, false).empty() ? "false"
                                                                               : field(values, "isolated", argument),
                            argument)});
+        } else if (argument == "--function") {
+            const auto values = assignments(require_value(argument), argument);
+            options.functions.push_back(FunctionDescription{field(values, "name", argument),
+                                                            parse_integer(field(values, "address", argument), argument),
+                                                            parse_integer(field(values, "end", argument), argument)});
+        } else if (argument == "--jump-table") {
+            const auto values = assignments(require_value(argument), argument);
+            const std::uint64_t function_address = parse_integer(field(values, "function", argument), argument);
+            auto iterator =
+                std::find_if(options.flows.begin(), options.flows.end(),
+                             [function_address](const auto& item) { return item.first == function_address; });
+            if (iterator == options.flows.end()) {
+                iterator = options.flows.emplace(options.flows.end(), function_address, FlowDescription{});
+            }
+            JumpTableDescription table;
+            table.branch_address = parse_integer(field(values, "branch", argument), argument);
+            table.starting_value = parse_integer(
+                field(values, "start", argument, false).empty() ? "0" : field(values, "start", argument), argument);
+            const std::string targets = field(values, "targets", argument);
+            std::size_t begin = 0;
+            while (begin < targets.size()) {
+                const std::size_t end = targets.find('|', begin);
+                table.target_addresses.push_back(
+                    parse_integer(targets.substr(begin, end == std::string::npos ? end : end - begin), argument));
+                if (end == std::string::npos) {
+                    break;
+                }
+                begin = end + 1;
+            }
+            iterator->second.jump_tables.push_back(std::move(table));
         } else if (argument == "--readonly") {
             options.readonly_propagate = true;
         } else if (argument == "--volatile") {
@@ -503,8 +532,6 @@ Options parse_options(int argc, char* argv[]) {
 void print_usage(std::ostream& output) {
     output << R"(Usage:
   new_ghidra_decompiler --sla <file.sla> --hex <bytes> [options]
-  new_ghidra_decompiler --test <DecompilerDatatests case> [--show <sections>]
-  new_ghidra_decompiler --list-tests
 
 Input:
   --sla <path>                 Compiled Sleigh specification (.sla), required in direct mode
@@ -538,12 +565,11 @@ Architecture and metadata (repeatable where noted):
   --prototype address=...[,cc=...,return=...,return-storage=space:offset:size,no-return=BOOL,inline=BOOL]
   --param address=...,name=...,type=...,storage=space:offset:size
   --variable address=...,name=...,type=...,storage=space:offset:size[,identity=N,isolated=BOOL]
+  --function name=...,address=...,end=...  Additional bounded child function; repeatable
+  --jump-table function=...,branch=...,targets=A|B|C[,start=N]
   --volatile space=...,address=...,size=N
   --readonly                    Propagate immutable mapped memory constants
 
-Datatest bridge:
-  --test <name>                Run the C++ fixture and print its captured result
-  --list-tests                 List all executable DecompilerDatatests cases
   --help                       Show this help
 )" << std::flush;
 }
@@ -565,6 +591,12 @@ public:
         if (!options.variables.empty()) {
             variables_ = std::make_shared<Variables>(options.variables);
         }
+        if (!options.functions.empty()) {
+            functions_ = std::make_shared<Functions>(options.functions);
+        }
+        if (!options.flows.empty()) {
+            flow_ = std::make_shared<Flows>(options.flows);
+        }
     }
 
     /// Returns the symbol provider, or null when no symbols were supplied.
@@ -585,6 +617,16 @@ public:
     /// Returns the local-variable provider, or null when no locals were supplied.
     [[nodiscard]] std::shared_ptr<newghidra::decompiler::VariableProvider> variables() const {
         return variables_;
+    }
+
+    /// Returns bounded child-function metadata supplied by the command line.
+    [[nodiscard]] std::shared_ptr<FunctionProvider> functions() const {
+        return functions_;
+    }
+
+    /// Returns function-local flow corrections supplied by the command line.
+    [[nodiscard]] std::shared_ptr<FlowProvider> flow() const {
+        return flow_;
     }
 
 private:
@@ -658,10 +700,42 @@ private:
         std::vector<std::pair<std::uint64_t, std::vector<VariableDescription>>> values_;
     };
 
+    /// Implements the public child-function provider contract.
+    class Functions final : public FunctionProvider {
+    public:
+        /// Stores immutable child-function ranges.
+        explicit Functions(std::vector<FunctionDescription> values) : values_(std::move(values)) {}
+        /// Returns every child function supplied by the invocation.
+        [[nodiscard]] std::vector<FunctionDescription> functions() const override {
+            return values_;
+        }
+
+    private:
+        std::vector<FunctionDescription> values_;
+    };
+
+    /// Implements address-keyed flow and jump-table metadata.
+    class Flows final : public FlowProvider {
+    public:
+        /// Stores immutable flow descriptions keyed by root function address.
+        explicit Flows(std::vector<std::pair<std::uint64_t, FlowDescription>> values) : values_(std::move(values)) {}
+        /// Returns the flow description for one function, when supplied.
+        [[nodiscard]] std::optional<FlowDescription> flow_at(std::uint64_t address) const override {
+            const auto iterator = std::find_if(values_.begin(), values_.end(),
+                                               [address](const auto& item) { return item.first == address; });
+            return iterator == values_.end() ? std::nullopt : std::optional<FlowDescription>(iterator->second);
+        }
+
+    private:
+        std::vector<std::pair<std::uint64_t, FlowDescription>> values_;
+    };
+
     std::shared_ptr<Symbols> symbols_ = nullptr;
     std::shared_ptr<Types> types_ = nullptr;
     std::shared_ptr<Prototypes> prototypes_ = nullptr;
     std::shared_ptr<Variables> variables_ = nullptr;
+    std::shared_ptr<Functions> functions_ = nullptr;
+    std::shared_ptr<Flows> flow_ = nullptr;
 };
 
 /// Builds a contiguous image from the code and optional mapped data chunks.
@@ -802,6 +876,8 @@ int run_direct(const Options& options) {
     context.types = providers.types();
     context.prototypes = providers.prototypes();
     context.variables = providers.variables();
+    context.functions = providers.functions();
+    context.flow = providers.flow();
     context.analysis_options.readonly_propagate = options.readonly_propagate;
     Decompiler decompiler(options.architecture, std::move(context));
     const DecompilationResult result =
@@ -810,22 +886,7 @@ int run_direct(const Options& options) {
     return 0;
 }
 
-/// Runs one C++ datatest fixture and prints the exact artifacts captured by it.
-int run_test(const Options& options) {
-    if (options.test_name.empty()) {
-        throw std::invalid_argument("--test requires a DecompilerDatatests case name");
-    }
-    const auto results = run_decompiler_datatest(options.test_name);
-    if (!results) {
-        throw std::runtime_error(results.error());
-    }
-    for (std::size_t index = 0; index < results->size(); ++index) {
-        print_result(std::cout, (*results)[index], options.test_name, options.output, index, results->size());
-    }
-    return 0;
-}
-
-/// Dispatches list, test, and direct modes and returns a shell-friendly code.
+/// Dispatches direct mode and returns a shell-friendly exit code.
 int run(int argc, char* argv[]) {
     Options options;
     try {
@@ -836,15 +897,6 @@ int run(int argc, char* argv[]) {
             return 0;
         }
         throw;
-    }
-    if (options.list_tests) {
-        for (const std::string& test : list_decompiler_datatests()) {
-            std::cout << test << '\n';
-        }
-        return 0;
-    }
-    if (!options.test_name.empty()) {
-        return run_test(options);
     }
     return run_direct(options);
 }
