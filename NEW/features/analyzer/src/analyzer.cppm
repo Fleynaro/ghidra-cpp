@@ -17,6 +17,9 @@ struct AddressRange {
     Address start{};
     Address end{};
 
+    /// Supports exact normalized range comparisons in structured tests.
+    friend bool operator==(const AddressRange&, const AddressRange&) = default;
+
     /// Reports whether an address belongs to this inclusive range.
     [[nodiscard]] bool contains(Address address) const noexcept;
 };
@@ -426,28 +429,6 @@ struct AnalysisResult {
     std::vector<std::string> errors;
     std::vector<std::string> executed_analyzers;
 };
-
-/// Represents one normalized function-body row from a Ghidra Delta report.
-struct GoldenFunctionRow {
-    Address entry{};
-    std::vector<AddressRange> body_ranges;
-};
-
-/// Represents the structured additions, removals, changes, and references in a Delta report.
-struct GoldenDelta {
-    std::vector<GoldenFunctionRow> added_functions;
-    std::vector<GoldenFunctionRow> removed_functions;
-    std::vector<GoldenFunctionRow> changed_functions_after;
-    std::vector<Reference> references;
-    bool strict_references{};
-};
-
-/// Parses normalized function/reference rows from a checked-in Ghidra report.
-[[nodiscard]] std::expected<GoldenDelta, std::string> parse_golden_delta(const std::filesystem::path& report);
-
-/// Compares Delta rows against actual context state and returns all mismatches.
-[[nodiscard]] std::expected<void, std::string> compare_golden_delta(const AnalysisContext& context,
-                                                                    const GoldenDelta& delta);
 
 /// Coalesces program events and executes eligible analyzers by priority.
 class AutoAnalysisManager final {

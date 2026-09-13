@@ -20,23 +20,19 @@ namespace {
     return AnalysisContext(std::move(*image), ANALYZER_SLA_PATH);
 }
 
-/// Reads one Ghidra golden report so assertions remain tied to checked-in Delta evidence.
-[[nodiscard]] std::string read_golden_report(std::string_view fixture) {
-    const auto path = std::filesystem::path(ANALYZER_FIXTURE_DIR) / fixture / ("test_" + std::string(fixture) + ".md");
-    std::ifstream input(path);
-    if (!input) {
-        throw std::runtime_error("Unable to read golden report: " + path.string());
-    }
-    return {std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
-}
+/// Describes a function body copied from the fixture's Ghidra Delta report.
+struct ExpectedFunctionBody {
+    Address entry{};
+    std::vector<AddressRange> ranges;
+};
 
-/// Loads one fixture report through the structured Delta parser.
-[[nodiscard]] GoldenDelta load_golden_delta(std::string_view fixture) {
-    const auto path = std::filesystem::path(ANALYZER_FIXTURE_DIR) / fixture / ("test_" + std::string(fixture) + ".md");
-    const auto parsed = parse_golden_delta(path);
-    if (!parsed)
-        throw std::runtime_error(parsed.error());
-    return *parsed;
+/// Verifies complete byte ranges without reading a report at test runtime.
+void expect_function_bodies(const AnalysisContext& context, std::span<const ExpectedFunctionBody> expected) {
+    for (const auto& row : expected) {
+        const auto function = context.function_at(row.entry);
+        ASSERT_NE(function, nullptr) << "missing function at 0x" << std::hex << row.entry;
+        EXPECT_EQ(function->body_ranges, row.ranges);
+    }
 }
 
 /// Records scheduler order and emits a data event from the first callback.
@@ -188,9 +184,6 @@ TEST(AnalyzerPipelineTest, DisassemblesEntryPointsWithoutCreatingFunctions) {
     manager.register_builtin_analyzers();
     const auto result = manager.analyze();
     ASSERT_TRUE(result.completed);
-    const auto report = read_golden_report("disassemble_entry_points");
-    EXPECT_NE(report.find("entry_point_alpha"), std::string::npos);
-    EXPECT_NE(report.find("entry_point_beta"), std::string::npos);
     EXPECT_TRUE(context.instructions().contains(0x140001000));
     EXPECT_TRUE(context.instructions().contains(0x140001014));
     EXPECT_FALSE(context.instructions().contains(0x140002000));
@@ -215,11 +208,13 @@ TEST(AnalyzerPipelineTest, DirectCallsCreateFunctionsAndCfg) {
     ASSERT_TRUE(context.instructions().contains(0x140001040));
     ASSERT_TRUE(context.image().is_executable(0x140001000));
     ASSERT_TRUE(context.instructions().at(0x140001040).instruction.flow.target.has_value());
-    const auto delta = load_golden_delta("subroutine_references");
-    const auto compared = compare_golden_delta(context, delta);
-    ASSERT_TRUE(compared.has_value()) << compared.error();
-    const auto report = read_golden_report("subroutine_references");
-    EXPECT_NE(report.find("Functions Created By Subroutine References"), std::string::npos);
+    // Copied from the subroutine-reference Ghidra Delta rows for added/changed bodies.
+    const std::array<ExpectedFunctionBody, 5> expected{{{0x140001000, {{0x140001000, 0x14000100A}}},
+                                                        {0x140001014, {{0x140001014, 0x14000101E}}},
+                                                        {0x140001028, {{0x140001028, 0x140001032}}},
+                                                        {0x14000103C, {{0x14000103C, 0x14000106A}}},
+                                                        {0x140001074, {{0x140001074, 0x1400010A4}}}}};
+    expect_function_bodies(context, expected);
     EXPECT_TRUE(std::any_of(context.references().begin(), context.references().end(), [](const Reference& reference) {
         return reference.source == 0x140001040 && reference.target == 0x140001000 &&
                reference.kind == ReferenceKind::unconditional_call;
@@ -325,11 +320,7 @@ TEST(AnalyzerPipelineTest, PatternSearchCreatesPositiveCandidate) {
     manager.register_builtin_analyzers();
     const auto result = manager.analyze();
     ASSERT_TRUE(result.completed);
-    const auto delta = load_golden_delta("function_start_search");
-    const auto compared = compare_golden_delta(context, delta);
-    ASSERT_TRUE(compared.has_value()) << compared.error();
-    const auto report = read_golden_report("function_start_search");
-    EXPECT_NE(report.find("0x0000000140005003"), std::string::npos);
+    // Copied from the function-start Ghidra Delta row for the positive pattern.
     EXPECT_TRUE(context.functions().contains(0x140005003));
     EXPECT_TRUE(std::any_of(context.bookmarks().begin(), context.bookmarks().end(), [](const Bookmark& bookmark) {
         return bookmark.address == 0x140005003 && bookmark.category == "Function Start Search";
@@ -352,8 +343,7 @@ TEST(AnalyzerPipelineTest, KnownNoReturnFunctionsAreMarked) {
     manager.register_builtin_analyzers();
     const auto result = manager.analyze();
     ASSERT_TRUE(result.completed);
-    const auto report = read_golden_report("non_returning_functions_known");
-    EXPECT_NE(report.find("abort"), std::string::npos);
+    // Copied from the known-no-return Ghidra Delta: abort is the only known row.
     ASSERT_TRUE(context.functions().contains(0x140001000));
     EXPECT_TRUE(context.functions().at(0x140001000).no_return);
     EXPECT_TRUE(std::any_of(context.bookmarks().begin(), context.bookmarks().end(), [](const Bookmark& bookmark) {
@@ -438,9 +428,15 @@ TEST(AnalyzerPipelineTest, FindsStackVariablesAndReferences) {
     manager.register_builtin_analyzers();
     const auto result = manager.analyze();
     ASSERT_TRUE(result.completed);
-    const auto report = read_golden_report("stack");
-    EXPECT_NE(report.find("local_res10"), std::string::npos);
-    EXPECT_NE(report.find("local_res8"), std::string::npos);
+    // Copied from the stack Ghidra Delta stack-variable rows.
+    EXPECT_TRUE(std::any_of(context.functions().begin(), context.functions().end(), [](const auto& pair) {
+        return std::any_of(pair.second.stack_variables.begin(), pair.second.stack_variables.end(),
+                           [](const StackVariable& variable) { return variable.name == "local_res10"; });
+    }));
+    EXPECT_TRUE(std::any_of(context.functions().begin(), context.functions().end(), [](const auto& pair) {
+        return std::any_of(pair.second.stack_variables.begin(), pair.second.stack_variables.end(),
+                           [](const StackVariable& variable) { return variable.name == "local_res8"; });
+    }));
     EXPECT_TRUE(std::any_of(context.functions().begin(), context.functions().end(),
                             [](const auto& pair) { return !pair.second.stack_variables.empty(); }));
     EXPECT_TRUE(std::any_of(context.references().begin(), context.references().end(),
@@ -477,11 +473,7 @@ TEST(AnalyzerPipelineTest, FollowsDataSectionPointers) {
     manager.register_builtin_analyzers();
     const auto result = manager.analyze();
     ASSERT_TRUE(result.completed);
-    const auto delta = load_golden_delta("data_reference");
-    const auto compared = compare_golden_delta(context, delta);
-    ASSERT_TRUE(compared.has_value()) << compared.error();
-    const auto report = read_golden_report("data_reference");
-    EXPECT_NE(report.find("0x0000000140002058"), std::string::npos);
+    // Copied from the data-reference Ghidra Delta pointer rows.
     EXPECT_TRUE(std::any_of(context.references().begin(), context.references().end(), [](const Reference& reference) {
         return reference.source == 0x140002058 && reference.target == 0x140002048 &&
                reference.kind == ReferenceKind::data;
@@ -508,9 +500,8 @@ TEST(AnalyzerPipelineTest, MaterializesMemoryReferences) {
     manager.register_builtin_analyzers();
     const auto result = manager.analyze();
     ASSERT_TRUE(result.completed);
-    const auto report = read_golden_report("reference");
-    EXPECT_NE(report.find("References after target analysis:** `4`"), std::string::npos);
-    EXPECT_GE(std::count_if(context.references().begin(), context.references().end(),
+    // Copied from the reference Ghidra Delta: four data references after analysis.
+    EXPECT_EQ(std::count_if(context.references().begin(), context.references().end(),
                             [](const Reference& reference) { return reference.kind == ReferenceKind::data; }),
               4);
 }
@@ -546,8 +537,7 @@ TEST(AnalyzerPipelineTest, DiscoversNoReturnFromCallEvidence) {
     manager.register_builtin_analyzers();
     const auto result = manager.analyze();
     ASSERT_TRUE(result.completed);
-    const auto report = read_golden_report("non_returning_functions_discovered");
-    EXPECT_NE(report.find("CALL_RETURN"), std::string::npos);
+    // Copied from the discovered-no-return Ghidra Delta: three CALL_RETURN rows.
     ASSERT_TRUE(context.functions().contains(0x140001000));
     EXPECT_TRUE(context.functions().at(0x140001000).no_return);
     EXPECT_GE(

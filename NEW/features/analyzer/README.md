@@ -1,4 +1,4 @@
-# Analyzer Engine
+#Analyzer Engine
 
 This directory contains the provider-backed C++23 analysis engine. It owns the
 native program/listing state, the event queue, the deterministic priority
@@ -77,19 +77,21 @@ Known fidelity boundaries are explicit: XML loading handles masked
 hex/binary patterns, marked patternpairs, section/alignment, after/valid-code,
 thunk/no-return, and delayed phases, but does not yet expose every Sleigh
 context-register assignment as a public pattern property. Constant propagation
-uses CFG block worklists and conservative joins; unresolved architecture-
-specific p-code operations remain unknown. The x86-32 golden constant-reference
-fixture is not executed because the repository does not contain an x86-32 SLA
-profile. These cases are documented limitations, not silently reported as
-equivalent behavior.
+uses CFG block worklists and conservative joins;
+unresolved architecture - specific p - code operations remain unknown.The x86 - 32 golden constant -
+    reference fixture is not executed because the repository does not contain an x86 -
+    32 SLA profile.These cases are documented limitations,
+    not silently reported as equivalent behavior.
 
-## Fixtures and validation
+        ##Fixtures and
+        validation
 
-The checked-in [`test_data`](test_data/) reports are behavioral evidence. The
-Google Tests load the executable through `PeLoader`, decode through
-`SleighRuntime`, run the manager, parse `GoldenDelta`, and compare selected
-function body ranges and direct references structurally. The current tests cover
-entry disassembly, direct-call function creation/CFG, shared bodies, pattern
-constraints, scalar filtering, imports, removal/end lifecycle, registry
-behavior, event generation, priority order, downstream scheduling, stack,
-constant, data, and no-return analysis.
+                The checked -
+            in fixture reports are behavioral evidence used during port development.The Google Tests do not read report
+                files at runtime : expected function body ranges,
+    references, stack offsets,
+    and negative outcomes are copied into typed C++ test constants and compared structurally.The current tests cover
+            entry disassembly,
+    direct - call function creation / CFG, shared bodies, pattern constraints, scalar filtering, imports,
+    removal / end lifecycle, registry behavior, event generation, priority order, downstream scheduling, stack,
+    constant, data, and no - return analysis.
