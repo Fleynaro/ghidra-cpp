@@ -53,6 +53,7 @@ The project uses environment variables. Keep this table up to date.
 - Prefer the C++ module system for imports over legacy `#include` directives whenever practical.
 - Use the `.cppm` extension for C++ module interface files; do not use `.ixx`.
 - Format C++ code with `clang-format` and validate it with `clang-tidy`.
+- When a function must be decompiled from supplied hex bytes, especially while developing or testing a new decompiler feature, use the standalone decompiler CLI rather than coupling the check to test fixtures or GoogleTest. Follow the argument grammar and reproducible examples in [`NEW/features/decompiler/cli/README.md`](NEW/features/decompiler/cli/README.md), and include the relevant `.sla`, address/range, hex bytes, and provider metadata in the command.
 
 ## Code Quality
 
