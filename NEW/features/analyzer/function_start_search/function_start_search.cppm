@@ -316,6 +316,29 @@ struct BytePattern {
     return patterns;
 }
 
+/// Resolves the processor pattern directory when callers did not override it.
+/// Ghidra selects this data from the language/compiler configuration; the native
+/// PE path uses the installed repository location without requiring a machine-
+/// specific path in source or tests.
+[[nodiscard]] std::filesystem::path resolve_pattern_root(const AnalysisContext& context) {
+    if (!context.options().pattern_root.empty()) {
+        return context.options().pattern_root;
+    }
+    std::vector<std::filesystem::path> candidates;
+    if (const auto* install = std::getenv("GHIDRA_INSTALL_DIR"); install != nullptr && *install != '\0') {
+        candidates.emplace_back(install);
+    }
+    candidates.emplace_back(std::filesystem::current_path());
+    candidates.emplace_back(std::filesystem::current_path().parent_path());
+    for (const auto& base : candidates) {
+        const auto root = base / "Ghidra" / "Processors" / "x86" / "data" / "patterns";
+        if (std::filesystem::is_directory(root)) {
+            return root;
+        }
+    }
+    return {};
+}
+
 /// Tests one masked byte pattern against mapped PE bytes.
 [[nodiscard]] bool matches_pattern(const pe::LoadedPeImage& image, Address address, const BytePattern& pattern) {
     if (pattern.bytes.empty()) {
@@ -364,7 +387,7 @@ void collect_candidates(AnalysisContext& context, std::span<const AnalysisEvent>
                         CancellationToken& cancellation, bool pre_patterns) {
     std::set<Address> candidates;
     static_cast<void>(events);
-    const auto patterns = load_patterns(context.options().pattern_root, pre_patterns);
+    const auto patterns = load_patterns(resolve_pattern_root(context), pre_patterns);
     if (!patterns.empty()) {
         for (const auto& region : context.image().memory_regions()) {
             if (!region.executable) {
@@ -488,9 +511,18 @@ void collect_candidates(AnalysisContext& context, std::span<const AnalysisEvent>
         if (((raw + static_cast<Address>(properties.alignment_mark)) & mask) != 0)
             return false;
     }
+    // Function Start Search uses a pseudo-disassembler and must never turn a
+    // byte-pattern match in the middle of an existing instruction into code.
+    for (const auto& [instruction_start, record] : context.instructions()) {
+        if (address > instruction_start && address - instruction_start < record.instruction.length)
+            return false;
+    }
     if (properties.valid_code.existing_function)
         return context.function_at(address) != nullptr;
-    if (properties.valid_code.minimum_instructions == 0 && !properties.valid_code.subroutine)
+    const bool has_valid_code_constraint = properties.valid_code.minimum_instructions != 0 ||
+                                           properties.valid_code.maximum_instructions.has_value() ||
+                                           properties.valid_code.subroutine;
+    if (!has_valid_code_constraint)
         return true;
     if (!context.instructions().contains(address)) {
         static_cast<void>(context.disassemble_flow(address));

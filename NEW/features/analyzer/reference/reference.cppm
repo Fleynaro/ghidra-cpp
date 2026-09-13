@@ -120,14 +120,15 @@ void ReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const Analys
                     const bool external =
                         std::any_of(context.external_symbols().begin(), context.external_symbols().end(),
                                     [&](const ExternalSymbol& symbol) { return symbol.iat_address == *target; });
+                    const bool call_flow = record.instruction.flow.kind == sleigh_runtime::FlowKind::call ||
+                                           record.instruction.flow.kind == sleigh_runtime::FlowKind::indirect_call;
                     std::optional<Address> fallthrough;
-                    if (external && (record.instruction.flow.kind == sleigh_runtime::FlowKind::call ||
-                                     record.instruction.flow.kind == sleigh_runtime::FlowKind::indirect_call)) {
+                    if (external && call_flow) {
                         fallthrough = address + record.instruction.length;
                     }
-                    static_cast<void>(context.add_reference(
-                        Reference{address, *target, external ? ReferenceKind::external : ReferenceKind::data,
-                                  operand_index, fallthrough, FlowOverride::none, true}));
+                    static_cast<void>(context.add_reference(Reference{
+                        address, *target, external && call_flow ? ReferenceKind::external : ReferenceKind::data,
+                        operand_index, fallthrough, FlowOverride::none, true}));
                 }
             }
         }
@@ -140,18 +141,20 @@ void ReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const Analys
             if (!target || !context.image().find_memory_region(*target)) {
                 continue;
             }
-            const auto operand_index = operation.opcode == sleigh_runtime::PcodeOpcode::load ? 1U : 0U;
+            const auto operand_index =
+                operation.source_operand.value_or(operation.opcode == sleigh_runtime::PcodeOpcode::load ? 1U : 0U);
             const bool external =
                 std::any_of(context.external_symbols().begin(), context.external_symbols().end(),
                             [&](const ExternalSymbol& symbol) { return symbol.iat_address == *target; });
+            const bool call_flow = record.instruction.flow.kind == sleigh_runtime::FlowKind::call ||
+                                   record.instruction.flow.kind == sleigh_runtime::FlowKind::indirect_call;
             std::optional<Address> fallthrough;
-            if (external && (record.instruction.flow.kind == sleigh_runtime::FlowKind::call ||
-                             record.instruction.flow.kind == sleigh_runtime::FlowKind::indirect_call)) {
+            if (external && call_flow) {
                 fallthrough = address + record.instruction.length;
             }
-            static_cast<void>(context.add_reference(Reference{address, *target,
-                                                              external ? ReferenceKind::external : ReferenceKind::data,
-                                                              operand_index, fallthrough, FlowOverride::none, true}));
+            static_cast<void>(context.add_reference(
+                Reference{address, *target, external && call_flow ? ReferenceKind::external : ReferenceKind::data,
+                          operand_index, fallthrough, FlowOverride::none, true}));
         }
     }
 }

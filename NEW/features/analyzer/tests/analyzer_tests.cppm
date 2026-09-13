@@ -104,6 +104,64 @@ public:
     bool ended{};
 };
 
+/// Cancels after emitting a downstream event so the manager's pending-event cleanup
+/// can be verified without losing the mutation already committed to the context.
+class CancellingEmitter final : public Analyzer {
+public:
+    /// Returns a memory-triggered descriptor for the cancellation regression test.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override {
+        return {"cancelling-emitter", 100, {EventKind::memory_added}, {}};
+    }
+
+    /// Emits data and then requests cancellation before downstream work can run.
+    void analyze(AnalysisContext& context, std::span<const AnalysisEvent> events,
+                 CancellationToken& cancellation) override {
+        if (!events.empty()) {
+            static_cast<void>(context.add_data(DataObject{events.front().addresses.front(), 1, "cancelled"}));
+        }
+        cancellation.cancel();
+    }
+};
+
+/// Counts downstream callbacks that must not be replayed after cancellation.
+class DataObserver final : public Analyzer {
+public:
+    /// Returns a data-triggered descriptor for pending-event cleanup verification.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override {
+        return {"data-observer", 200, {EventKind::data_added}, {}};
+    }
+
+    /// Records every data event dispatched to this analyzer.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override {
+        ++calls;
+    }
+
+    std::size_t calls{};
+};
+
+/// Records terminal lifecycle notification when prerequisite validation rejects a run.
+class PrerequisiteLifecycleAnalyzer final : public Analyzer {
+public:
+    /// Returns a descriptor with an intentionally missing prerequisite.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override {
+        return {"invalid-prerequisite", 100, {EventKind::memory_added}, {"missing-analyzer"}};
+    }
+
+    /// This callback must not run when prerequisite validation fails.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override {
+        FAIL() << "analyzer ran despite a missing prerequisite";
+    }
+
+    /// Records the failed run's terminal lifecycle notification.
+    void analysis_ended(AnalysisContext&, bool cancelled) override {
+        ended = true;
+        ended_as_cancelled = cancelled;
+    }
+
+    bool ended{};
+    bool ended_as_cancelled{};
+};
+
 /// Verifies that registry insertion rejects duplicate analyzer identities.
 TEST(AnalyzerRegistryTest, RejectsDuplicateNames) {
     auto context = load_fixture("disassemble_entry_points");
@@ -132,7 +190,7 @@ TEST(AutoAnalysisManagerTest, SchedulesPriorityAndNewEvents) {
     EXPECT_EQ(context.data().size(), 1U);
 }
 
-/// Verifies analyzer exceptions stop scheduling and remain visible to callers.
+/// Verifies analyzer exceptions remain visible and mark the run incomplete.
 TEST(AutoAnalysisManagerTest, ReportsAnalyzerErrors) {
     auto context = load_fixture("disassemble_entry_points");
     context.options() = {};
@@ -142,6 +200,42 @@ TEST(AutoAnalysisManagerTest, ReportsAnalyzerErrors) {
     EXPECT_FALSE(result.completed);
     ASSERT_EQ(result.errors.size(), 1U);
     EXPECT_NE(result.errors.front().find("controlled analyzer failure"), std::string::npos);
+}
+
+/// Verifies cancellation discards downstream queued events while retaining committed state.
+TEST(AutoAnalysisManagerTest, ClearsPendingEventsAfterCancellation) {
+    auto context = load_fixture("disassemble_entry_points");
+    context.options() = {};
+    AutoAnalysisManager manager(context);
+    manager.register_analyzer(std::make_unique<CancellingEmitter>());
+    auto observer = std::make_unique<DataObserver>();
+    auto* observer_state = observer.get();
+    manager.register_analyzer(std::move(observer));
+
+    const auto cancelled = manager.analyze(std::array<Address, 1>{0x140001000});
+    ASSERT_TRUE(cancelled.cancelled);
+    EXPECT_EQ(observer_state->calls, 0U);
+    ASSERT_EQ(context.data().size(), 1U);
+
+    const auto resumed = manager.analyze(std::span<const Address>{});
+    ASSERT_TRUE(resumed.completed);
+    EXPECT_EQ(observer_state->calls, 0U);
+}
+
+/// Verifies prerequisite validation still delivers the terminal analyzer lifecycle callback.
+TEST(AutoAnalysisManagerTest, CompletesLifecycleForInvalidPrerequisites) {
+    auto context = load_fixture("disassemble_entry_points");
+    context.options() = {};
+    AutoAnalysisManager manager(context);
+    auto analyzer = std::make_unique<PrerequisiteLifecycleAnalyzer>();
+    auto* state = analyzer.get();
+    manager.register_analyzer(std::move(analyzer));
+
+    const auto result = manager.analyze(std::array<Address, 1>{0x140001000});
+    EXPECT_FALSE(result.completed);
+    ASSERT_FALSE(result.errors.empty());
+    EXPECT_TRUE(state->ended);
+    EXPECT_FALSE(state->ended_as_cancelled);
 }
 
 /// Verifies removed events and analysis-ended lifecycle callbacks are delivered.
@@ -227,6 +321,43 @@ TEST(AnalyzerPipelineTest, DirectCallsCreateFunctionsAndCfg) {
     EXPECT_GE(context.functions().at(0x140001028).body.size(), 2U);
     EXPECT_TRUE(std::all_of(context.functions().begin(), context.functions().end(),
                             [](const auto& pair) { return !pair.second.blocks.empty(); }));
+}
+
+/// Verifies data references do not become control-flow edges during function creation.
+TEST(AnalyzerPipelineTest, FunctionBodiesIgnoreDataReferences) {
+    auto context = load_fixture("disassemble_entry_points");
+    context.options().seed_provider_functions = false;
+    const auto executable =
+        std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
+                     [](const pe::MemoryRegion& region) { return region.executable; });
+    ASSERT_NE(executable, context.image().memory_regions().end());
+
+    const Address entry = executable->start;
+    const Address fallthrough = entry + 1;
+    const Address data_target = entry + 0x20;
+    sleigh_runtime::Instruction first;
+    first.address = entry;
+    first.length = 1;
+    first.flow = {sleigh_runtime::FlowKind::none, std::nullopt, true, false};
+    sleigh_runtime::Instruction second;
+    second.address = fallthrough;
+    second.length = 1;
+    second.flow = {sleigh_runtime::FlowKind::return_op, std::nullopt, false, true};
+    sleigh_runtime::Instruction pointed_to;
+    pointed_to.address = data_target;
+    pointed_to.length = 1;
+    pointed_to.flow = {sleigh_runtime::FlowKind::return_op, std::nullopt, false, true};
+    ASSERT_TRUE(context.define_instruction(std::move(first)));
+    ASSERT_TRUE(context.define_instruction(std::move(second)));
+    ASSERT_TRUE(context.define_instruction(std::move(pointed_to)));
+    ASSERT_TRUE(context.add_reference(
+        Reference{entry, data_target, ReferenceKind::data, 0, std::nullopt, FlowOverride::none, true}));
+    ASSERT_TRUE(context.create_function(entry));
+
+    const auto& function = context.functions().at(entry);
+    EXPECT_TRUE(function.instruction_starts.contains(entry));
+    EXPECT_TRUE(function.instruction_starts.contains(fallthrough));
+    EXPECT_FALSE(function.instruction_starts.contains(data_target));
 }
 
 /// Verifies conditional branches split the block at both the target and fall-through leaders.
@@ -609,10 +740,10 @@ TEST(AnalyzerPipelineTest, DiscoversNoReturnFromCallEvidence) {
     manager.register_builtin_analyzers();
     const auto result = manager.analyze();
     ASSERT_TRUE(result.completed);
-    // Copied from the discovered-no-return Ghidra Delta: three CALL_RETURN rows.
+    // Copied from the discovered-no-return Ghidra Delta: exactly three CALL_RETURN rows.
     ASSERT_TRUE(context.functions().contains(0x140001000));
     EXPECT_TRUE(context.functions().at(0x140001000).no_return);
-    EXPECT_GE(
+    EXPECT_EQ(
         std::count_if(context.references().begin(), context.references().end(),
                       [](const Reference& reference) { return reference.flow_override == FlowOverride::call_return; }),
         3);

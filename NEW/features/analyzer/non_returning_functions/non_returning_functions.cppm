@@ -125,15 +125,14 @@ void repair_callers(AnalysisContext& context, Address target) {
 void mark_known_functions(AnalysisContext& context, std::span<const AnalysisEvent> events,
                           CancellationToken& cancellation) {
     const auto names = load_no_return_names(context);
-    std::set<Address> affected;
-    for (const auto& event : events) {
-        if (event.kind == EventKind::memory_added || event.kind == EventKind::external_added) {
-            affected.insert(event.addresses.begin(), event.addresses.end());
-        }
-    }
+    // The native event model currently carries seed addresses rather than the
+    // affected symbol ranges delivered by Ghidra's AddressSetView. Scan the
+    // complete provider symbol set so a known symbol inside a section is not
+    // skipped merely because it is not itself a region-start seed.
+    static_cast<void>(events);
     for (const auto& symbol : context.image().exported_symbols()) {
         if (cancellation.is_cancelled() || symbol.forwarded || !symbol.name ||
-            !known_no_return_name(*symbol.name, names) || (!affected.empty() && !affected.contains(symbol.address_va)))
+            !known_no_return_name(*symbol.name, names))
             continue;
         if (!context.functions().contains(symbol.address_va)) {
             static_cast<void>(context.create_function(symbol.address_va, *symbol.name));
@@ -149,7 +148,7 @@ void mark_known_functions(AnalysisContext& context, std::span<const AnalysisEven
     for (const auto& symbol : context.image().coff_symbols()) {
         const auto address = context.image().rva_to_va(static_cast<pe::Rva>(symbol.value));
         if (!address || symbol.section_number <= 0 || cancellation.is_cancelled() ||
-            !known_no_return_name(symbol.name, names) || (!affected.empty() && !affected.contains(*address))) {
+            !known_no_return_name(symbol.name, names)) {
             continue;
         }
         if (!context.functions().contains(*address)) {
@@ -161,7 +160,7 @@ void mark_known_functions(AnalysisContext& context, std::span<const AnalysisEven
     for (const auto& symbol : context.external_symbols()) {
         if (cancellation.is_cancelled())
             return;
-        if (!known_no_return_name(symbol.name, names) || (!affected.empty() && !affected.contains(symbol.iat_address)))
+        if (!known_no_return_name(symbol.name, names))
             continue;
         static_cast<void>(context.set_external_no_return(symbol.iat_address, true));
         if (context.options().create_analysis_bookmarks)
@@ -320,10 +319,10 @@ void NonReturningFunctionsAnalyzer::analyze(AnalysisContext& context, std::span<
                     has_return = true;
                 for (const auto reference_index : instruction->second.reference_indices) {
                     const auto& reference = context.references()[reference_index];
-                    const bool flow_to_function = reference.kind == ReferenceKind::conditional_jump ||
-                                                  reference.kind == ReferenceKind::unconditional_jump ||
-                                                  reference.kind == ReferenceKind::computed_jump;
-                    if (!is_call_reference(reference.kind) && !flow_to_function)
+                    // The original targetOnlyCallsNoReturn rule reasons about calls.
+                    // A jump to a no-return function is control flow, but it is not a
+                    // call and must not make the containing function appear non-returning.
+                    if (!is_call_reference(reference.kind))
                         continue;
                     has_call = true;
                     const auto target_function = context.function_at(reference.target);

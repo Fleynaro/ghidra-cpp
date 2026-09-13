@@ -80,6 +80,12 @@ namespace {
            kind == ReferenceKind::computed_call || kind == ReferenceKind::external;
 }
 
+/// Returns whether a reference is a flow reference usable by CFG construction.
+[[nodiscard]] bool is_flow_reference(ReferenceKind kind) {
+    return kind == ReferenceKind::unconditional_jump || kind == ReferenceKind::conditional_jump ||
+           kind == ReferenceKind::computed_jump;
+}
+
 /// Computes one function body using direct flow and fall-through references.
 [[nodiscard]] std::set<Address> follow_function_body(const AnalysisContext& context, Address entry) {
     std::set<Address> body;
@@ -130,8 +136,10 @@ namespace {
         }
         for (const auto reference_index : instruction->second.reference_indices) {
             const auto& reference = context.references()[reference_index];
-            if (reference.kind == ReferenceKind::unconditional_call ||
-                reference.kind == ReferenceKind::conditional_call || reference.kind == ReferenceKind::computed_call) {
+            // CreateFunctionCmd/FollowFlow follows control-flow references only. Data,
+            // scalar, stack, and external operand references must not expand a function
+            // body merely because their target happens to contain an instruction.
+            if (!is_flow_reference(reference.kind)) {
                 continue;
             }
             if (context.instructions().contains(reference.target)) {
@@ -170,12 +178,6 @@ void append_unique(std::vector<Address>& values, Address value) {
     if (std::find(values.begin(), values.end(), value) == values.end()) {
         values.push_back(value);
     }
-}
-
-/// Returns whether a reference is a flow reference usable by CFG construction.
-[[nodiscard]] bool is_flow_reference(ReferenceKind kind) {
-    return kind == ReferenceKind::unconditional_jump || kind == ReferenceKind::conditional_jump ||
-           kind == ReferenceKind::computed_jump;
 }
 
 /// Returns whether an instruction must terminate a BasicBlockModel block.
@@ -1017,6 +1019,7 @@ AnalysisResult AutoAnalysisManager::analyze(std::span<const Address> seeds) {
     AnalysisResult result;
     if (cancellation_.is_cancelled()) {
         result.cancelled = true;
+        context_.pending_events_.clear();
         for (const auto& analyzer : registry_.analyzers()) {
             analyzer->analysis_ended(context_, true);
         }
@@ -1038,6 +1041,17 @@ AnalysisResult AutoAnalysisManager::analyze(std::span<const Address> seeds) {
         }
     }
     if (!result.errors.empty()) {
+        // A rejected analysis setup is still a completed lifecycle attempt. Ghidra
+        // notifies analyzers when a run ends, including runs that cannot start because
+        // their analysis graph is invalid.
+        for (const auto& analyzer : registry_.analyzers()) {
+            try {
+                analyzer->analysis_ended(context_, false);
+            } catch (const std::exception& error) {
+                result.errors.push_back(analyzer->descriptor().name + ": analysis-ended: " + error.what());
+            }
+        }
+        cancellation_.reset();
         return result;
     }
     if (context_.options().seed_provider_functions) {
@@ -1113,6 +1127,17 @@ AnalysisResult AutoAnalysisManager::analyze(std::span<const Address> seeds) {
             result.errors.push_back(task.name + ": " + error.what());
         }
         dispatch(std::exchange(context_.pending_events_, std::vector<AnalysisEvent>{}));
+    }
+    if (result.cancelled) {
+        // Mutations performed before cancellation are retained by the context, but
+        // their follow-up work must not leak into a later independent run. The caller
+        // can explicitly request re-analysis when it is ready to resume.
+        pending.clear();
+        scheduled.clear();
+        while (!queue.empty()) {
+            queue.pop();
+        }
+        context_.pending_events_.clear();
     }
     result.completed = !result.cancelled && result.errors.empty();
     for (const auto& analyzer : registry_.analyzers()) {

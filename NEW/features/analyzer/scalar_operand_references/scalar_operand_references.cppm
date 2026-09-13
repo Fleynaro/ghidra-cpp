@@ -18,15 +18,45 @@ void ScalarOperandReferencesAnalyzer::analyze(AnalysisContext& context, std::spa
     if (!context.options().scalar_operand_references) {
         return;
     }
-    const auto relocation_contains = [&](Address address, std::size_t length) {
+    const auto relocation_matches_scalar = [&](Address address, std::size_t length, std::uint64_t scalar) {
         return std::any_of(context.image().relocations().begin(), context.image().relocations().end(),
                            [&](const pe::RelocationBlock& block) {
-                               return std::any_of(block.entries.begin(), block.entries.end(),
-                                                  [&](const pe::RelocationEntry& relocation) {
-                                                      const auto end = address + length;
-                                                      return relocation.target_va >= address &&
-                                                             relocation.target_va < end;
-                                                  });
+                               return std::any_of(
+                                   block.entries.begin(), block.entries.end(),
+                                   [&](const pe::RelocationEntry& relocation) {
+                                       if (relocation.target_va < address || relocation.target_va - address >= length) {
+                                           return false;
+                                       }
+                                       std::size_t width = context.image().optional_header().pe32_plus ? 8U : 4U;
+                                       switch (relocation.type) {
+                                           case 1: // IMAGE_REL_BASED_HIGH
+                                           case 2: // IMAGE_REL_BASED_LOW
+                                               width = 2U;
+                                               break;
+                                           case 3: // IMAGE_REL_BASED_HIGHLOW
+                                               width = 4U;
+                                               break;
+                                           case 10: // IMAGE_REL_BASED_DIR64
+                                               width = 8U;
+                                               break;
+                                           default:
+                                               break;
+                                       }
+                                       const auto bytes = context.image().read_memory(relocation.target_va, width);
+                                       if (!bytes || bytes->size() != width) {
+                                           return false;
+                                       }
+                                       std::uint64_t encoded = 0;
+                                       for (std::size_t index = 0; index < width; ++index) {
+                                           encoded |= static_cast<std::uint64_t>((*bytes)[index]) << (index * 8U);
+                                       }
+                                       auto expected = scalar;
+                                       if (width < sizeof(std::uint64_t)) {
+                                           encoded &= (std::uint64_t{1} << (width * 8U)) - 1U;
+                                           expected &= (std::uint64_t{1} << (width * 8U)) - 1U;
+                                       }
+                                       return encoded == expected;
+                                   });
                            });
     };
     const auto offcut_instruction = [&](Address target) {
@@ -35,6 +65,12 @@ void ScalarOperandReferencesAnalyzer::analyze(AnalysisContext& context, std::spa
             const auto end = start + item.second.instruction.length;
             return target > start && target < end;
         });
+    };
+    const auto offcut_function = [&](Address target) {
+        if (const auto* function = context.function_containing(target)) {
+            return function->entry != target;
+        }
+        return false;
     };
     const auto rejected_sentinel = [](std::uint64_t value) {
         static constexpr std::array<std::uint64_t, 9> sentinels{
@@ -53,7 +89,8 @@ void ScalarOperandReferencesAnalyzer::analyze(AnalysisContext& context, std::spa
                 rejected_sentinel(*operand.value)) {
                 continue;
             }
-            const bool relocation_backed = relocation_contains(address, record.instruction.length);
+            const bool relocation_backed =
+                relocation_matches_scalar(address, record.instruction.length, *operand.value);
             if (!relocation_backed && *operand.value < 0x1000) {
                 continue;
             }
@@ -64,7 +101,8 @@ void ScalarOperandReferencesAnalyzer::analyze(AnalysisContext& context, std::spa
                        translated) {
                 target = *translated;
             }
-            if (!target || !context.image().find_memory_region(*target) || offcut_instruction(*target)) {
+            if (!target || !context.image().find_memory_region(*target) || offcut_instruction(*target) ||
+                offcut_function(*target)) {
                 continue;
             }
             const auto duplicate =
