@@ -204,6 +204,13 @@ public:
         return buf;
     } ///< Get bytes in the stream at the point this instruction is encoded
 
+    /// Returns the resolved root constructor state for prototype and operand inspection.
+    // Ghidra reference:
+    // Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighParserContext.java
+    ConstructState* getBaseState(void) const {
+        return base_state;
+    }
+
     /// \param spc is the address space used for constants
     /// \param maxstate is the number of nodes to allocate (initially)
     void initialize(AddrSpace* spc, int4 maxstate = INITIAL_STATE_NUM) {

@@ -65,6 +65,11 @@ public:
         return streamFinished;
     } ///< Return \b if end of compressed stream is reached
 
+    /// Returns whether zlib still owns unread bytes from the current input chunk.
+    bool hasInput(void) const {
+        return compStream.avail_in != 0;
+    }
+
     /// Return the number of bytes of output space still available.  Output may be limited by the amount
     /// of space in the output buffer or the amount of data available in the current input buffer.
     /// \param buffer is where uncompressed bytes are stored
@@ -75,18 +80,10 @@ public:
         compStream.next_out = buffer;
 
         int ret = ::inflate(&compStream, Z_NO_FLUSH);
-        switch (ret) {
-            case Z_NEED_DICT:
-            case Z_DATA_ERROR:
-            case Z_MEM_ERROR:
-            case Z_STREAM_ERROR:
-                throw LowlevelError("Error decompressing stream");
-            case Z_STREAM_END:
-                streamFinished = true;
-                break;
-            default:
-                break;
-        }
+        if (ret == Z_STREAM_END)
+            streamFinished = true;
+        else if (ret != Z_OK)
+            throw LowlevelError("Error decompressing stream");
 
         return compStream.avail_out;
     }

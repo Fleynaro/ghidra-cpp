@@ -584,6 +584,26 @@ public:
         }
         shift = bitstart % 8;
     }
+    /// Returns the first token byte used by this field.
+    int4 getByteStart(void) const {
+        return bytestart;
+    }
+    /// Returns the final token byte used by this field.
+    int4 getByteEnd(void) const {
+        return byteend;
+    }
+    /// Returns the least-significant bit index in the source token.
+    int4 getBitStart(void) const {
+        return bitstart;
+    }
+    /// Returns the most-significant bit index in the source token.
+    int4 getBitEnd(void) const {
+        return bitend;
+    }
+    /// Returns the token endianness used by the field mask algorithm.
+    bool isBigEndian(void) const {
+        return bigendian;
+    }
     virtual intb getValue(ParserWalker& walker) const {
         // Construct value given specific instruction stream
         intb res = getInstructionBytes(walker, bytestart, byteend, bigendian);
@@ -850,6 +870,14 @@ public:
     }
     const string& getName(void) const {
         return operandValueGetName(*this);
+    }
+    /// Returns the operand index referenced by this expression.
+    int4 getIndex(void) const {
+        return index;
+    }
+    /// Returns the constructor containing this operand expression.
+    Constructor* getConstructor(void) const {
+        return ct;
     }
     virtual TokenPattern genPattern(intb val) const {
         // In general an operand cannot be interpreted as any sort

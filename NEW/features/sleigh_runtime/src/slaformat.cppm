@@ -189,22 +189,40 @@ public:
         if (!isSlaFormat(s))
             throw LowlevelError("Missing SLA format header");
         Decompress decompressor;
+        // The original Ghidra loader presents a continuous inflater stream.  Reading
+        // the payload once here preserves zlib's unread input across output-buffer
+        // boundaries; replacing it with successive input() calls can discard bytes
+        // when a compressed block ends before an output block is full.
+        const auto compressed_start = s.tellg();
+        s.seekg(0, ios::end);
+        const auto compressed_end = s.tellg();
+        s.seekg(compressed_start, ios::beg);
+        if (compressed_start < 0 || compressed_end < compressed_start)
+            throw LowlevelError("Unable to determine compressed SLA length");
+        const auto compressed_size = static_cast<std::uintmax_t>(compressed_end - compressed_start);
+        if (compressed_size > static_cast<std::uintmax_t>(std::numeric_limits<int4>::max()) ||
+            compressed_size > static_cast<std::uintmax_t>(std::numeric_limits<std::streamsize>::max()))
+            throw LowlevelError("Compressed SLA stream is too large");
+        vector<uint1> compressed(static_cast<size_t>(compressed_size));
+        s.read(reinterpret_cast<char*>(compressed.data()), static_cast<std::streamsize>(compressed.size()));
+        if (s.gcount() != static_cast<std::streamsize>(compressed.size()))
+            throw LowlevelError("Unexpected end of compressed SLA stream");
+        if (compressed.empty())
+            throw LowlevelError("Unexpected end of compressed SLA stream");
+        decompressor.input(compressed.data(), static_cast<int4>(compressed.size()));
         uint1* outBuf;
         int4 outAvail = 0;
 
         while (!decompressor.isFinished()) {
-            s.read(reinterpret_cast<char*>(inBuffer.get()), IN_BUFFER_SIZE);
-            int4 gcount = s.gcount();
-            if (gcount == 0)
-                throw LowlevelError("Unexpected end of compressed SLA stream");
-            decompressor.input(inBuffer.get(), gcount);
             do {
                 if (outAvail == 0) {
                     outBuf = allocateNextInputBuffer(0);
                     outAvail = BUFFER_SIZE;
                 }
                 outAvail = decompressor.inflate(outBuf + (BUFFER_SIZE - outAvail), outAvail);
-            } while (outAvail == 0);
+            } while (!decompressor.isFinished() && (outAvail == 0 || decompressor.hasInput()));
+            if (!decompressor.isFinished() && !decompressor.hasInput())
+                throw LowlevelError("Unexpected end of compressed SLA stream");
         }
         endIngest(BUFFER_SIZE - outAvail);
     }

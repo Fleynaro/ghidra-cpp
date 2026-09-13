@@ -1,4 +1,3 @@
-find_package(GTest CONFIG REQUIRED)
 find_package(ZLIB REQUIRED)
 
 file(GLOB SLEIGH_RUNTIME_MODULES CONFIGURE_DEPENDS
@@ -58,4 +57,6 @@ else()
     target_compile_options(sleigh_runtime_decode PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-add_subdirectory(tests)
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()

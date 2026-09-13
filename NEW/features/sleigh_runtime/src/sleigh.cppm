@@ -720,6 +720,71 @@ public:
         sz = pos->getLength();
         return sz;
     }
+
+    /// Exposes the resolved parser context to autonomous consumers that need the
+    /// same prototype state as assembly and p-code generation.
+    // Ghidra reference:
+    // Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighParserContext.java
+    ParserContext* getParserContextForInstruction(const Address& baseaddr) const {
+        return obtainContext(baseaddr, ParserContext::pcode);
+    }
+
+    /// Returns the exact constructor pattern selected for an instruction address.
+    // Ghidra reference:
+    // Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/DecisionNode.java
+    const DisjointPattern* getInstructionPattern(const Address& baseaddr) const {
+        auto* parser = obtainContext(baseaddr, ParserContext::pcode);
+        return root->getConstructorPattern(parser->getBaseState()->ct);
+    }
+
+    /// Returns the full fixed instruction mask/value reconstructed from the
+    /// serialized decision path, including fields omitted from the terminal node.
+    bool getInstructionMask(const Address& baseaddr, std::vector<uint1>& mask, std::vector<uint1>& value) const {
+        auto* parser = obtainContext(baseaddr, ParserContext::pcode);
+        bool found = false;
+        bool x86 = false;
+        try {
+            (void)getRegister("RAX");
+            x86 = true;
+        } catch (...) {
+            try {
+                (void)getRegister("EAX");
+                x86 = true;
+            } catch (...) {
+            }
+        }
+        std::function<void(ConstructState*)> collect = [&](ConstructState* state) {
+            if (state == nullptr || state->ct == nullptr)
+                return;
+            auto* parent = state->ct->getParent();
+            if (parent != nullptr) {
+                std::vector<uint1> current_mask;
+                std::vector<uint1> current_value;
+                const bool resolved =
+                    x86 ? parent->getConstructorMask(state->ct, current_mask, current_value, state->offset)
+                        : parent->getResolvedConstructorMask(*parser, state->ct, current_mask, current_value,
+                                                             state->offset);
+                if (resolved) {
+                    if (mask.size() < current_mask.size()) {
+                        mask.resize(current_mask.size(), 0);
+                        value.resize(current_mask.size(), 0);
+                    }
+                    for (std::size_t index = 0; index < current_mask.size(); ++index) {
+                        mask[index] |= current_mask[index];
+                        value[index] |= current_value[index];
+                    }
+                    found = true;
+                }
+            }
+            for (int4 index = 0; index < state->ct->getNumOperands(); ++index) {
+                if (state->resolve[index] != nullptr) {
+                    collect(state->resolve[index]);
+                }
+            }
+        };
+        collect(parser->getBaseState());
+        return found;
+    }
 };
 
 /** \page sleigh SLEIGH
