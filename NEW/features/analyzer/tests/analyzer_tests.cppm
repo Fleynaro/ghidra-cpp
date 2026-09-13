@@ -30,6 +30,15 @@ namespace {
     return {std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
 }
 
+/// Loads one fixture report through the structured Delta parser.
+[[nodiscard]] GoldenDelta load_golden_delta(std::string_view fixture) {
+    const auto path = std::filesystem::path(ANALYZER_FIXTURE_DIR) / fixture / ("test_" + std::string(fixture) + ".md");
+    const auto parsed = parse_golden_delta(path);
+    if (!parsed)
+        throw std::runtime_error(parsed.error());
+    return *parsed;
+}
+
 /// Records scheduler order and emits a data event from the first callback.
 class RecordingAnalyzer final : public Analyzer {
 public:
@@ -46,7 +55,7 @@ public:
     void analyze(AnalysisContext& context, std::span<const AnalysisEvent> events, CancellationToken&) override {
         order_.push_back(name_);
         if (emit_data_ && !events.empty()) {
-            context.add_data(DataObject{events.front().addresses.front(), 1, "test"});
+            static_cast<void>(context.add_data(DataObject{events.front().addresses.front(), 1, "test"}));
         }
     }
 
@@ -69,6 +78,34 @@ public:
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override {
         throw std::runtime_error("controlled analyzer failure");
     }
+};
+
+/// Observes add/remove lifecycle dispatch and the manager end callback.
+class LifecycleAnalyzer final : public Analyzer {
+public:
+    /// Returns a function-change-triggered lifecycle descriptor.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override {
+        return {"lifecycle", 100, {EventKind::function_changed}, {}};
+    }
+
+    /// Records ordinary changed-state delivery.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override {
+        ++added_count;
+    }
+
+    /// Records removed-state delivery separately from additions.
+    void removed(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override {
+        ++removed_count;
+    }
+
+    /// Records that all scheduler work has drained.
+    void analysis_ended(AnalysisContext&, bool) override {
+        ended = true;
+    }
+
+    std::size_t added_count{};
+    std::size_t removed_count{};
+    bool ended{};
 };
 
 /// Verifies that registry insertion rejects duplicate analyzer identities.
@@ -109,6 +146,28 @@ TEST(AutoAnalysisManagerTest, ReportsAnalyzerErrors) {
     EXPECT_FALSE(result.completed);
     ASSERT_EQ(result.errors.size(), 1U);
     EXPECT_NE(result.errors.front().find("controlled analyzer failure"), std::string::npos);
+}
+
+/// Verifies removed events and analysis-ended lifecycle callbacks are delivered.
+TEST(AutoAnalysisManagerTest, DispatchesRemovalAndEndLifecycle) {
+    auto context = load_fixture("disassemble_entry_points");
+    context.options() = {};
+    const auto executable =
+        std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
+                     [](const pe::MemoryRegion& region) { return region.executable; });
+    ASSERT_NE(executable, context.image().memory_regions().end());
+    ASSERT_TRUE(context.disassemble_flow(executable->start) > 0);
+    ASSERT_TRUE(context.create_function(executable->start));
+    ASSERT_TRUE(context.remove_function(executable->start));
+    auto lifecycle = std::make_unique<LifecycleAnalyzer>();
+    auto* observer = lifecycle.get();
+    AutoAnalysisManager manager(context);
+    manager.register_analyzer(std::move(lifecycle));
+    const auto result = manager.analyze(std::span<const Address>{});
+    ASSERT_TRUE(result.completed);
+    EXPECT_GT(observer->added_count, 0U);
+    EXPECT_EQ(observer->removed_count, 1U);
+    EXPECT_TRUE(observer->ended);
 }
 
 /// Verifies the real entry-point pipeline produces instructions but no functions.
@@ -156,6 +215,9 @@ TEST(AnalyzerPipelineTest, DirectCallsCreateFunctionsAndCfg) {
     ASSERT_TRUE(context.instructions().contains(0x140001040));
     ASSERT_TRUE(context.image().is_executable(0x140001000));
     ASSERT_TRUE(context.instructions().at(0x140001040).instruction.flow.target.has_value());
+    const auto delta = load_golden_delta("subroutine_references");
+    const auto compared = compare_golden_delta(context, delta);
+    ASSERT_TRUE(compared.has_value()) << compared.error();
     const auto report = read_golden_report("subroutine_references");
     EXPECT_NE(report.find("Functions Created By Subroutine References"), std::string::npos);
     EXPECT_TRUE(std::any_of(context.references().begin(), context.references().end(), [](const Reference& reference) {
@@ -172,6 +234,70 @@ TEST(AnalyzerPipelineTest, DirectCallsCreateFunctionsAndCfg) {
                             [](const auto& pair) { return !pair.second.blocks.empty(); }));
 }
 
+/// Verifies conditional branches split the block at both the target and fall-through leaders.
+TEST(AnalyzerPipelineTest, BuildsConditionalBranchCfg) {
+    auto context = load_fixture("disassemble_entry_points");
+    context.options().seed_provider_functions = false;
+    const auto executable =
+        std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
+                     [](const pe::MemoryRegion& region) { return region.executable; });
+    ASSERT_NE(executable, context.image().memory_regions().end());
+    const Address entry = executable->start;
+    const Address fallthrough = entry + 1;
+    const Address target = entry + 2;
+
+    sleigh_runtime::Instruction branch;
+    branch.address = entry;
+    branch.length = 1;
+    branch.flow = {sleigh_runtime::FlowKind::conditional_branch, sleigh_runtime::Varnode{"ram", target, 8}, true,
+                   false};
+    sleigh_runtime::Instruction fallthrough_instruction;
+    fallthrough_instruction.address = fallthrough;
+    fallthrough_instruction.length = 1;
+    fallthrough_instruction.flow = {sleigh_runtime::FlowKind::return_op, std::nullopt, false, true};
+    sleigh_runtime::Instruction target_instruction;
+    target_instruction.address = target;
+    target_instruction.length = 1;
+    target_instruction.flow = {sleigh_runtime::FlowKind::return_op, std::nullopt, false, true};
+    ASSERT_TRUE(context.define_instruction(std::move(branch)));
+    ASSERT_TRUE(context.define_instruction(std::move(fallthrough_instruction)));
+    ASSERT_TRUE(context.define_instruction(std::move(target_instruction)));
+    ASSERT_TRUE(context.create_function(entry));
+
+    const auto& function = context.functions().at(entry);
+    ASSERT_EQ(function.blocks.size(), 3U);
+    EXPECT_EQ(function.blocks[0].instructions, std::vector<Address>{entry});
+    EXPECT_EQ(function.blocks[1].instructions, std::vector<Address>{fallthrough});
+    EXPECT_EQ(function.blocks[2].instructions, std::vector<Address>{target});
+    EXPECT_EQ(function.blocks[0].successors, (std::vector<Address>{target, fallthrough}));
+}
+
+/// Verifies explicitly discovered overlapping entries retain a shared code address.
+TEST(AnalyzerPipelineTest, PreservesSharedFunctionBodies) {
+    auto context = load_fixture("disassemble_entry_points");
+    context.options().seed_provider_functions = false;
+    context.options().allow_shared_function_body = true;
+    const auto executable =
+        std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
+                     [](const pe::MemoryRegion& region) { return region.executable; });
+    ASSERT_NE(executable, context.image().memory_regions().end());
+    const Address first = executable->start;
+    const Address shared = first + 1;
+    sleigh_runtime::Instruction first_instruction;
+    first_instruction.address = first;
+    first_instruction.length = 1;
+    sleigh_runtime::Instruction shared_instruction;
+    shared_instruction.address = shared;
+    shared_instruction.length = 1;
+    shared_instruction.flow = {sleigh_runtime::FlowKind::return_op, std::nullopt, false, true};
+    ASSERT_TRUE(context.define_instruction(std::move(first_instruction)));
+    ASSERT_TRUE(context.define_instruction(std::move(shared_instruction)));
+    ASSERT_TRUE(context.create_function(first));
+    ASSERT_TRUE(context.create_function(shared));
+    EXPECT_TRUE(context.functions().at(first).body.contains(shared));
+    EXPECT_TRUE(context.functions().at(shared).body.contains(shared));
+}
+
 /// Verifies the pattern phase creates the positive function-start candidate from the golden fixture.
 TEST(AnalyzerPipelineTest, PatternSearchCreatesPositiveCandidate) {
     auto context = load_fixture("function_start_search");
@@ -180,9 +306,13 @@ TEST(AnalyzerPipelineTest, PatternSearchCreatesPositiveCandidate) {
     }
     auto& options = context.options();
     options.disassemble_entry_points = true;
-    options.pattern_root =
-        std::filesystem::path(ANALYZER_FIXTURE_DIR).parent_path().parent_path().parent_path().parent_path() /
-        "Ghidra/Processors/x86/data/patterns";
+    options.pattern_root = std::filesystem::path(ANALYZER_FIXTURE_DIR)
+                               .lexically_normal()
+                               .parent_path()
+                               .parent_path()
+                               .parent_path()
+                               .parent_path() /
+                           "Ghidra/Processors/x86/data/patterns";
     options.subroutine_references = false;
     options.function_body = false;
     options.reference = false;
@@ -195,6 +325,9 @@ TEST(AnalyzerPipelineTest, PatternSearchCreatesPositiveCandidate) {
     manager.register_builtin_analyzers();
     const auto result = manager.analyze();
     ASSERT_TRUE(result.completed);
+    const auto delta = load_golden_delta("function_start_search");
+    const auto compared = compare_golden_delta(context, delta);
+    ASSERT_TRUE(compared.has_value()) << compared.error();
     const auto report = read_golden_report("function_start_search");
     EXPECT_NE(report.find("0x0000000140005003"), std::string::npos);
     EXPECT_TRUE(context.functions().contains(0x140005003));
@@ -335,6 +468,20 @@ TEST(AnalyzerPipelineTest, MaterializesMemoryReferences) {
     EXPECT_GE(std::count_if(context.references().begin(), context.references().end(),
                             [](const Reference& reference) { return reference.kind == ReferenceKind::data; }),
               4);
+}
+
+/// Verifies every normal and delay import is represented by the PE-backed external namespace.
+TEST(AnalyzerPipelineTest, PreservesImportedExternalSymbols) {
+    auto context = load_fixture("reference");
+    std::size_t expected = 0;
+    for (const auto& descriptor : context.image().imports())
+        expected += descriptor.symbols.size();
+    for (const auto& descriptor : context.image().delay_imports())
+        expected += descriptor.symbols.size();
+    EXPECT_EQ(context.external_symbols().size(), expected);
+    EXPECT_TRUE(
+        std::all_of(context.external_symbols().begin(), context.external_symbols().end(),
+                    [](const ExternalSymbol& symbol) { return !symbol.library.empty() && symbol.iat_address != 0; }));
 }
 
 /// Verifies three independent post-call indicators mark a discovered no-return target.

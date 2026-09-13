@@ -72,21 +72,23 @@ architectures for which no provider profile exists. Ghidra's Java database,
 GUI, options service, cancellation monitor, and transaction layer are replaced
 by the explicit C++ contracts above.
 
-Known fidelity boundaries are explicit: XML pattern loading currently consumes
-concrete post-wildcard byte suffixes and the provider-backed fallback handles
-filler boundaries; pattern attribute predicates and full bit-level prepattern
-constraints are not yet represented. Constant propagation uses bounded
-instruction-order fixed-point state rather than a complete per-block lattice
-join. The x86-32 golden constant-reference fixture is not executed because the
-repository does not contain an x86-32 SLA profile. These cases are documented
-limitations, not silently reported as equivalent behavior.
+Known fidelity boundaries are explicit: XML loading handles masked
+hex/binary patterns, marked patternpairs, section/alignment, after/valid-code,
+thunk/no-return, and delayed phases, but does not yet expose every Sleigh
+context-register assignment as a public pattern property. Constant propagation
+uses CFG block worklists and conservative joins; unresolved architecture-
+specific p-code operations remain unknown. The x86-32 golden constant-reference
+fixture is not executed because the repository does not contain an x86-32 SLA
+profile. These cases are documented limitations, not silently reported as
+equivalent behavior.
 
 ## Fixtures and validation
 
 The checked-in [`test_data`](test_data/) reports are behavioral evidence. The
 Google Tests load the executable through `PeLoader`, decode through
-`SleighRuntime`, run the manager, and assert structured state rather than
-arbitrary report formatting. The reports remain the golden reference for future
-fixture-by-fixture normalizers; the current tests cover entry disassembly,
-direct-call function creation/CFG, scalar filtering, registry behavior, event
-generation, priority order, and downstream scheduling.
+`SleighRuntime`, run the manager, parse `GoldenDelta`, and compare selected
+function body ranges and direct references structurally. The current tests cover
+entry disassembly, direct-call function creation/CFG, shared bodies, pattern
+constraints, scalar filtering, imports, removal/end lifecycle, registry
+behavior, event generation, priority order, downstream scheduling, stack,
+constant, data, and no-return analysis.

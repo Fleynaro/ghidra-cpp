@@ -11,7 +11,8 @@ Ports `StackVariableAnalyzer.added()` and the local-variable path of
 - Priority: `903`.
 - Consumers: listing/reporting clients.
 
-Stack pointer displacements are signed, normalized to local storage names, and
+Stack/frame-pointer displacements are signed, frame allocation and SP delta are
+recorded, storage widths follow operand qualifiers, and locals/parameters are
 deduplicated by offset/size. Stack references retain a typed signed offset
 instead of fabricating a process virtual address. Parameter creation remains
 disabled by default, matching the requested initial layer.

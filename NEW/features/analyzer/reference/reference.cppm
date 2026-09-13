@@ -18,7 +18,7 @@ namespace {
         return value.offset;
     }
     for (auto fact = context.constant_facts().rbegin(); fact != context.constant_facts().rend(); ++fact) {
-        if (fact->instruction <= source && fact->location == value) {
+        if (fact->path_stable && fact->instruction <= source && fact->location == value) {
             if (context.image().find_memory_region(fact->value)) {
                 return fact->value;
             }
@@ -59,7 +59,10 @@ namespace {
 
 /// Returns the Reference analyzer priority and code-event contract.
 AnalyzerDescriptor ReferenceAnalyzer::descriptor() const {
-    return {"Reference", 600, {EventKind::code_added}, {"Constant Propagation"}};
+    return {"Reference",
+            600,
+            {EventKind::code_added, EventKind::constant_added, EventKind::external_added},
+            {"Constant Propagation"}};
 }
 
 /// Materializes direct memory references represented by decoded p-code.
@@ -79,8 +82,17 @@ void ReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const Analys
             const auto& operand = record.instruction.operands[operand_index];
             if (operand.value) {
                 if (const auto target = operand_address(context, *operand.value)) {
-                    context.add_reference(Reference{address, *target, ReferenceKind::data, operand_index, std::nullopt,
-                                                    FlowOverride::none, true});
+                    const bool external =
+                        std::any_of(context.external_symbols().begin(), context.external_symbols().end(),
+                                    [&](const ExternalSymbol& symbol) { return symbol.iat_address == *target; });
+                    std::optional<Address> fallthrough;
+                    if (external && (record.instruction.flow.kind == sleigh_runtime::FlowKind::call ||
+                                     record.instruction.flow.kind == sleigh_runtime::FlowKind::indirect_call)) {
+                        fallthrough = address + record.instruction.length;
+                    }
+                    static_cast<void>(context.add_reference(
+                        Reference{address, *target, external ? ReferenceKind::external : ReferenceKind::data,
+                                  operand_index, fallthrough, FlowOverride::none, true}));
                 }
             }
         }
@@ -94,8 +106,8 @@ void ReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const Analys
                 continue;
             }
             const auto operand_index = operation.opcode == sleigh_runtime::PcodeOpcode::load ? 1U : 0U;
-            context.add_reference(Reference{address, *target, ReferenceKind::data, operand_index, std::nullopt,
-                                            FlowOverride::none, true});
+            static_cast<void>(context.add_reference(Reference{address, *target, ReferenceKind::data, operand_index,
+                                                              std::nullopt, FlowOverride::none, true}));
         }
     }
 }

@@ -16,6 +16,7 @@ add_executable(new_ghidra_app src/main.cpp)
 target_link_libraries(new_ghidra_app PRIVATE
     hello_feature
     NewGhidra::DecompilerFrontend
+    NewGhidra::Analyzer
 )
 
 # Keep the application smoke case in the normal build/test workflow.

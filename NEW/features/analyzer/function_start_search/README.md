@@ -15,13 +15,13 @@ Ports the `FunctionStartPreFuncAnalyzer`, `FunctionStartAnalyzer`,
 
 Candidates are retained in `AnalysisContext::potential_function_starts()` like
 Ghidra's property map. When `AnalysisOptions::pattern_root` is configured, the
-pass loads concrete post-wildcard suffixes from the original `<data>` XML
-patterns and validates each match through Sleigh. Without a pattern directory,
-the provider-backed fallback examines filler boundaries and PE exports rather
-than treating every byte as code. Candidates are restricted to executable
-memory, rejected when already functions, and materialized through the same
-flow-based function creation path. Pattern indexes are retained in bookmark
-comments. The compiled provider profiles currently limit execution to
-architectures for which an SLA is available.
+pass loads masked hexadecimal/binary patterns, marked patternpairs, and action
+attributes from the original `<data>` XML patterns and validates each match
+through Sleigh. Without a pattern directory, the provider-backed fallback
+examines filler boundaries rather than treating every byte as code. Candidates
+are restricted to executable memory, rejected when already functions, and
+materialized through the same flow-based function creation path. Pattern
+indexes are retained in bookmark comments. The compiled provider profiles
+currently limit execution to architectures for which an SLA is available.
 
 Golden evidence: [`../test_data/function_start_search/`](../test_data/function_start_search/).

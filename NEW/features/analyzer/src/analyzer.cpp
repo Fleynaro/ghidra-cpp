@@ -62,7 +62,7 @@ namespace {
 /// Returns whether a reference is a call reference.
 [[nodiscard]] bool is_call_reference(ReferenceKind kind) {
     return kind == ReferenceKind::unconditional_call || kind == ReferenceKind::conditional_call ||
-           kind == ReferenceKind::computed_call;
+           kind == ReferenceKind::computed_call || kind == ReferenceKind::external;
 }
 
 /// Computes one function body using direct flow and fall-through references.
@@ -78,6 +78,12 @@ namespace {
             continue;
         }
         const auto instruction = context.instructions().find(address);
+        if (address != entry) {
+            if (const auto containing = context.function_containing(address);
+                containing && containing->entry != entry && !context.options().allow_shared_function_body) {
+                continue;
+            }
+        }
         if (function && function->provider_end && instruction != context.instructions().end() &&
             instruction->second.instruction.length != 0 &&
             checked_add(address, instruction->second.instruction.length - 1) > function->provider_end) {
@@ -130,6 +136,19 @@ void append_unique(std::vector<Address>& values, Address value) {
            kind == ReferenceKind::computed_jump;
 }
 
+/// Returns whether an instruction must terminate a BasicBlockModel block.
+[[nodiscard]] bool is_basic_block_terminator(const InstructionRecord& instruction,
+                                             const std::vector<Reference>& references) {
+    const auto kind = instruction.instruction.flow.kind;
+    if (kind == sleigh_runtime::FlowKind::branch || kind == sleigh_runtime::FlowKind::conditional_branch ||
+        kind == sleigh_runtime::FlowKind::indirect_branch || kind == sleigh_runtime::FlowKind::return_op ||
+        instruction.instruction.flow.terminal) {
+        return true;
+    }
+    return std::any_of(instruction.reference_indices.begin(), instruction.reference_indices.end(),
+                       [&](const auto index) { return is_flow_reference(references[index].kind); });
+}
+
 } // namespace
 
 /// Tests inclusive address-range membership.
@@ -160,6 +179,20 @@ AnalysisContext::AnalysisContext(pe::LoadedPeImage image, std::filesystem::path 
     // CALL/JMP targets and prevents state leakage between decoded instructions.
     if (image_.coff_header().machine == pe::Machine::amd64) {
         processor_context_.values = {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}};
+    }
+    for (const auto& descriptor : image_.imports()) {
+        for (const auto& symbol : descriptor.symbols) {
+            external_symbols_.push_back(
+                ExternalSymbol{descriptor.dll_name, symbol.name, symbol.iat_slot_va, symbol.ordinal, false});
+            emit(EventKind::external_added, symbol.iat_slot_va);
+        }
+    }
+    for (const auto& descriptor : image_.delay_imports()) {
+        for (const auto& symbol : descriptor.symbols) {
+            external_symbols_.push_back(
+                ExternalSymbol{descriptor.dll_name, symbol.name, symbol.iat_slot_va, symbol.ordinal, true});
+            emit(EventKind::external_added, symbol.iat_slot_va);
+        }
     }
 }
 
@@ -213,7 +246,7 @@ bool AnalysisContext::define_instruction(sleigh_runtime::Instruction instruction
             if (is_call_reference(*kind)) {
                 reference.fallthrough = next;
             }
-            add_reference(std::move(reference));
+            static_cast<void>(add_reference(std::move(reference)));
         }
     }
     return true;
@@ -271,7 +304,7 @@ bool AnalysisContext::create_function(Address entry, std::string name) {
         return false;
     }
     if (!instructions_.contains(entry)) {
-        disassemble_flow(entry);
+        static_cast<void>(disassemble_flow(entry));
     }
     if (!instructions_.contains(entry)) {
         return false;
@@ -283,7 +316,7 @@ bool AnalysisContext::create_function(Address entry, std::string name) {
     }
     functions_.emplace(entry, std::move(function));
     emit(EventKind::function_added, entry);
-    rebuild_function_body(entry);
+    static_cast<void>(rebuild_function_body(entry));
     return true;
 }
 
@@ -314,7 +347,7 @@ bool AnalysisContext::rebuild_function_body(Address entry) {
                 starts.insert(reference.target);
             }
         }
-        if (decoded.flow.kind == sleigh_runtime::FlowKind::return_op || decoded.flow.terminal) {
+        if (is_basic_block_terminator(instruction->second, references_)) {
             if (const auto next = checked_add(address, decoded.length); next && function->second.body.contains(*next)) {
                 starts.insert(*next);
             }
@@ -443,11 +476,11 @@ bool AnalysisContext::add_stack_variable(Address function_entry, StackVariable v
 }
 
 /// Applies a flow override to every call reference at an instruction.
-bool AnalysisContext::set_flow_override(Address source, FlowOverride override_kind) {
+bool AnalysisContext::set_flow_override(Address source, FlowOverride override_kind, std::optional<Address> target) {
     bool changed = false;
     for (auto& reference : references_) {
-        if (reference.source == source && is_call_reference(reference.kind) &&
-            reference.flow_override != override_kind) {
+        if (reference.source == source && (!target || reference.target == *target) &&
+            is_call_reference(reference.kind) && reference.flow_override != override_kind) {
             reference.flow_override = override_kind;
             changed = true;
         }
@@ -469,6 +502,56 @@ bool AnalysisContext::set_function_no_return(Address entry, bool no_return) {
     return true;
 }
 
+/// Sets a function's thunk property and emits the corresponding change.
+bool AnalysisContext::set_function_thunk(Address entry, bool thunk) {
+    auto function = functions_.find(entry);
+    if (function == functions_.end() || function->second.thunk == thunk) {
+        return false;
+    }
+    function->second.thunk = thunk;
+    emit(EventKind::function_changed, entry);
+    return true;
+}
+
+/// Stores stack-frame metadata and emits a function change when it differs.
+bool AnalysisContext::set_function_stack_frame(Address entry, std::uint32_t frame_size,
+                                               std::int64_t stack_pointer_delta,
+                                               std::optional<std::string> frame_pointer) {
+    auto function = functions_.find(entry);
+    if (function == functions_.end())
+        return false;
+    if (function->second.stack_frame_size == frame_size &&
+        function->second.stack_pointer_delta == stack_pointer_delta && function->second.frame_pointer == frame_pointer)
+        return false;
+    function->second.stack_frame_size = frame_size;
+    function->second.stack_pointer_delta = stack_pointer_delta;
+    function->second.frame_pointer = std::move(frame_pointer);
+    emit(EventKind::function_changed, entry);
+    return true;
+}
+
+/// Sets an imported symbol's no-return property and emits an external change.
+bool AnalysisContext::set_external_no_return(Address iat_address, bool no_return) {
+    auto symbol = std::find_if(external_symbols_.begin(), external_symbols_.end(),
+                               [&](const ExternalSymbol& item) { return item.iat_address == iat_address; });
+    if (symbol == external_symbols_.end() || symbol->no_return == no_return)
+        return false;
+    symbol->no_return = no_return;
+    emit(EventKind::external_added, iat_address);
+    return true;
+}
+
+/// Removes a function and preserves the original function-removal notification.
+bool AnalysisContext::remove_function(Address entry) {
+    const auto function = functions_.find(entry);
+    if (function == functions_.end()) {
+        return false;
+    }
+    functions_.erase(function);
+    emit(EventKind::function_changed, entry, true);
+    return true;
+}
+
 /// Adds a unique bookmark to the observable listing.
 bool AnalysisContext::add_bookmark(Bookmark bookmark) {
     const auto duplicate = std::find_if(bookmarks_.begin(), bookmarks_.end(), [&](const Bookmark& existing) {
@@ -485,7 +568,8 @@ bool AnalysisContext::add_bookmark(Bookmark bookmark) {
 /// Adds a unique constant fact to the state.
 bool AnalysisContext::add_constant_fact(ConstantFact fact) {
     const auto duplicate = std::find_if(constant_facts_.begin(), constant_facts_.end(), [&](const ConstantFact& old) {
-        return old.instruction == fact.instruction && old.location == fact.location && old.value == fact.value;
+        return old.instruction == fact.instruction && old.location == fact.location && old.value == fact.value &&
+               old.path_stable == fact.path_stable;
     });
     if (duplicate != constant_facts_.end()) {
         return false;
@@ -497,11 +581,13 @@ bool AnalysisContext::add_constant_fact(ConstantFact fact) {
 }
 
 /// Stores a candidate for one of the delayed Function Start Search passes.
-bool AnalysisContext::mark_potential_function_start(Address address, std::size_t pattern_index) {
+bool AnalysisContext::mark_potential_function_start(Address address, std::size_t pattern_index,
+                                                    FunctionStartProperties properties) {
     if (potential_function_starts_.contains(address)) {
         return false;
     }
     potential_function_starts_.emplace(address, pattern_index);
+    potential_function_properties_.emplace(address, std::move(properties));
     return true;
 }
 
@@ -535,9 +621,19 @@ const std::vector<ConstantFact>& AnalysisContext::constant_facts() const noexcep
     return constant_facts_;
 }
 
+/// Returns parsed PE imports in deterministic loader order.
+const std::vector<ExternalSymbol>& AnalysisContext::external_symbols() const noexcept {
+    return external_symbols_;
+}
+
 /// Returns delayed function candidates by address.
 const std::map<Address, std::size_t>& AnalysisContext::potential_function_starts() const noexcept {
     return potential_function_starts_;
+}
+
+/// Returns delayed Function Start action properties by address.
+const std::map<Address, FunctionStartProperties>& AnalysisContext::potential_function_properties() const noexcept {
+    return potential_function_properties_;
 }
 
 /// Finds a containing function body by deterministic entry order.
@@ -587,8 +683,8 @@ void AnalysisContext::seed_provider_functions() {
 }
 
 /// Queues one event for dispatch after the current analyzer callback.
-void AnalysisContext::emit(EventKind kind, Address address) {
-    pending_events_.push_back(AnalysisEvent{kind, {address}, next_event_sequence_++});
+void AnalysisContext::emit(EventKind kind, Address address, bool removed) {
+    pending_events_.push_back(AnalysisEvent{kind, {address}, next_event_sequence_++, removed});
 }
 
 /// Rejects duplicate analyzer names and takes ownership of the registration.
@@ -607,6 +703,204 @@ void AnalyzerRegistry::register_analyzer(std::unique_ptr<Analyzer> analyzer) {
 /// Returns analyzer registrations in insertion order.
 const std::vector<std::unique_ptr<Analyzer>>& AnalyzerRegistry::analyzers() const noexcept {
     return analyzers_;
+}
+
+namespace {
+
+/// Converts one hexadecimal token to an address.
+[[nodiscard]] std::optional<Address> parse_hex_address(std::string_view text) {
+    if (text.size() < 3 || !text.starts_with("0x"))
+        return std::nullopt;
+    Address value = 0;
+    const auto result = std::from_chars(text.data() + 2, text.data() + text.size(), value, 16);
+    if (result.ec != std::errc{} || result.ptr != text.data() + text.size())
+        return std::nullopt;
+    return value;
+}
+
+/// Extracts all hexadecimal addresses from one Markdown row.
+[[nodiscard]] std::vector<Address> row_addresses(std::string_view row) {
+    std::vector<Address> values;
+    static const std::regex expression(R"(0x[0-9A-Fa-f]+)");
+    for (std::cregex_iterator it(row.data(), row.data() + row.size(), expression), end; it != end; ++it) {
+        if (const auto value = parse_hex_address(it->str()))
+            values.push_back(*value);
+    }
+    return values;
+}
+
+/// Converts a function Delta Markdown row into an entry and body range row.
+[[nodiscard]] std::optional<GoldenFunctionRow> parse_function_delta_row(std::string_view row, bool changed) {
+    const auto values = row_addresses(row);
+    if ((!changed && values.size() < 3) || (changed && values.size() < 6))
+        return std::nullopt;
+    GoldenFunctionRow result;
+    result.entry = changed ? values[3] : values[0];
+    const std::size_t start = changed ? 4 : 1;
+    for (std::size_t index = start; index + 1 < values.size(); index += 2) {
+        result.body_ranges.push_back(AddressRange{values[index], values[index + 1]});
+        if (changed && index >= 5)
+            break;
+    }
+    return result.body_ranges.empty() ? std::nullopt : std::optional{std::move(result)};
+}
+
+/// Maps a report reference label to the normalized native reference kind.
+[[nodiscard]] std::optional<ReferenceKind> parse_reference_kind(std::string_view row) {
+    static constexpr std::array<std::pair<std::string_view, ReferenceKind>, 11> names{
+        std::pair{"UNCONDITIONAL_CALL", ReferenceKind::unconditional_call},
+        std::pair{"CONDITIONAL_CALL", ReferenceKind::conditional_call},
+        std::pair{"UNCONDITIONAL_JUMP", ReferenceKind::unconditional_jump},
+        std::pair{"CONDITIONAL_JUMP", ReferenceKind::conditional_jump},
+        std::pair{"COMPUTED_CALL", ReferenceKind::computed_call},
+        std::pair{"COMPUTED_JUMP", ReferenceKind::computed_jump},
+        std::pair{"EXTERNAL", ReferenceKind::external},
+        std::pair{"SCALAR", ReferenceKind::scalar},
+        std::pair{"STACK", ReferenceKind::stack},
+        std::pair{"FALL_THROUGH", ReferenceKind::fallthrough},
+        std::pair{"DATA", ReferenceKind::data},
+    };
+    for (const auto& [name, kind] : names) {
+        if (row.find(name) != std::string_view::npos)
+            return kind;
+    }
+    return std::nullopt;
+}
+
+} // namespace
+
+/// Parses normalized function and direct-reference Delta rows from Markdown.
+std::expected<GoldenDelta, std::string> parse_golden_delta(const std::filesystem::path& report) {
+    std::ifstream input(report);
+    if (!input)
+        return std::unexpected("Unable to open golden Delta report: " + report.string());
+    GoldenDelta delta;
+    enum class Section { none, functions, added, removed, changed } section = Section::none;
+    std::string line;
+    while (std::getline(input, line)) {
+        if (line == "### Added rows") {
+            section = Section::added;
+            continue;
+        }
+        if (line == "### Removed rows") {
+            section = Section::removed;
+            continue;
+        }
+        if (line == "### Changed rows") {
+            section = Section::changed;
+            continue;
+        }
+        if (line == "### Functions") {
+            section = Section::functions;
+            continue;
+        }
+        if (!line.empty() && line.front() == '#' && !line.starts_with("###"))
+            section = Section::none;
+        if (line.starts_with("- ") && section != Section::none && line.find("None") == std::string::npos) {
+            const bool changed = section == Section::changed;
+            if (const auto row = parse_function_delta_row(line, changed)) {
+                if (section == Section::added)
+                    delta.added_functions.push_back(*row);
+                if (section == Section::removed)
+                    delta.removed_functions.push_back(*row);
+                if (section == Section::changed)
+                    delta.changed_functions_after.push_back(*row);
+            }
+        }
+        if (section == Section::functions && line.starts_with("| `")) {
+            const auto values = row_addresses(line);
+            if (values.empty())
+                continue;
+            if (line.find("`Added`") != std::string::npos)
+                delta.added_functions.push_back(GoldenFunctionRow{values.back(), {}});
+            if (line.find("`Removed`") != std::string::npos)
+                delta.removed_functions.push_back(GoldenFunctionRow{values.back(), {}});
+            if (line.find("`Changed`") != std::string::npos)
+                delta.changed_functions_after.push_back(GoldenFunctionRow{values.back(), {}});
+        }
+        if (line.starts_with("|") && line.find("0x") != std::string::npos) {
+            if (const auto kind = parse_reference_kind(line)) {
+                const auto values = row_addresses(line);
+                if (values.size() >= 3) {
+                    Reference reference{values[0], values[1],          *kind, std::nullopt,
+                                        values[2], FlowOverride::none, false};
+                    delta.references.push_back(std::move(reference));
+                }
+            }
+        }
+    }
+    return delta;
+}
+
+/// Checks exact body ranges and reference rows against the native context.
+std::expected<void, std::string> compare_golden_delta(const AnalysisContext& context, const GoldenDelta& delta) {
+    std::vector<std::string> errors;
+    const auto body_matches = [&](const Function& function, const std::vector<AddressRange>& ranges) {
+        if (ranges.empty())
+            return true;
+        std::vector<AddressRange> actual_ranges;
+        for (const Address address : function.body) {
+            const auto instruction = context.instructions().find(address);
+            const auto length =
+                instruction == context.instructions().end() || instruction->second.instruction.length == 0
+                    ? 1U
+                    : instruction->second.instruction.length;
+            actual_ranges.push_back(AddressRange{address, address + length - 1});
+        }
+        std::sort(actual_ranges.begin(), actual_ranges.end(),
+                  [](const AddressRange& left, const AddressRange& right) { return left.start < right.start; });
+        std::vector<AddressRange> merged;
+        for (const auto& range : actual_ranges) {
+            if (!merged.empty() && range.start <= merged.back().end + 1) {
+                merged.back().end = std::max(merged.back().end, range.end);
+            } else {
+                merged.push_back(range);
+            }
+        }
+        for (const auto& range : ranges) {
+            if (!std::any_of(merged.begin(), merged.end(), [&](const AddressRange& actual) {
+                    return actual.start <= range.start && actual.end >= range.end;
+                }))
+                return false;
+        }
+        return std::all_of(merged.begin(), merged.end(), [&](const AddressRange& actual) {
+            return std::any_of(ranges.begin(), ranges.end(), [&](const AddressRange& expected) {
+                return expected.start <= actual.start && expected.end >= actual.end;
+            });
+        });
+    };
+    for (const auto& row : delta.added_functions) {
+        const auto function = context.function_at(row.entry);
+        if (!function || !body_matches(*function, row.body_ranges)) {
+            errors.push_back("missing or mismatched added function 0x" + address_name(row.entry));
+        }
+    }
+    for (const auto& row : delta.changed_functions_after) {
+        const auto function = context.function_at(row.entry);
+        if (!function || !body_matches(*function, row.body_ranges)) {
+            errors.push_back("missing or mismatched changed function 0x" + address_name(row.entry));
+        }
+    }
+    for (const auto& row : delta.removed_functions) {
+        if (context.function_at(row.entry))
+            errors.push_back("removed function still exists 0x" + address_name(row.entry));
+    }
+    for (const auto& expected : delta.references) {
+        const bool found =
+            std::any_of(context.references().begin(), context.references().end(), [&](const Reference& actual) {
+                return actual.source == expected.source && actual.target == expected.target &&
+                       actual.kind == expected.kind && actual.fallthrough == expected.fallthrough;
+            });
+        if (!found)
+            errors.push_back("missing reference from 0x" + address_name(expected.source));
+    }
+    if (!errors.empty()) {
+        std::ostringstream message;
+        for (const auto& error : errors)
+            message << error << '\n';
+        return std::unexpected(message.str());
+    }
+    return {};
 }
 
 /// Attaches the event scheduler to a context.
@@ -728,8 +1022,9 @@ AnalysisResult AutoAnalysisManager::analyze(std::span<const Address> seeds) {
                     continue;
                 }
                 auto& target = pending[index];
-                auto existing = std::find_if(target.begin(), target.end(),
-                                             [&](const AnalysisEvent& queued) { return queued.kind == event.kind; });
+                auto existing = std::find_if(target.begin(), target.end(), [&](const AnalysisEvent& queued) {
+                    return queued.kind == event.kind && queued.removed == event.removed;
+                });
                 if (existing == target.end()) {
                     target.push_back(event);
                 } else {
@@ -763,19 +1058,54 @@ AnalysisResult AutoAnalysisManager::analyze(std::span<const Address> seeds) {
         auto events = std::move(pending[task.index]);
         pending.erase(task.index);
         try {
-            registry_.analyzers()[task.index]->analyze(context_, events, cancellation_);
+            std::vector<AnalysisEvent> added;
+            std::vector<AnalysisEvent> removed;
+            for (const auto& event : events) {
+                (event.removed ? removed : added).push_back(event);
+            }
+            if (!added.empty()) {
+                registry_.analyzers()[task.index]->analyze(context_, added, cancellation_);
+            }
+            if (!removed.empty()) {
+                registry_.analyzers()[task.index]->removed(context_, removed, cancellation_);
+            }
             result.executed_analyzers.push_back(task.name);
         } catch (const std::exception& error) {
             result.errors.push_back(task.name + ": " + error.what());
         }
         dispatch(std::exchange(context_.pending_events_, std::vector<AnalysisEvent>{}));
-        if (!result.errors.empty()) {
-            break;
-        }
     }
     result.completed = !result.cancelled && result.errors.empty();
+    for (const auto& analyzer : registry_.analyzers()) {
+        try {
+            analyzer->analysis_ended(context_, result.cancelled);
+        } catch (const std::exception& error) {
+            result.errors.push_back(analyzer->descriptor().name + ": analysis-ended: " + error.what());
+            result.completed = false;
+        }
+    }
     cancellation_.reset();
     return result;
+}
+
+/// Requeues the existing listing state for a repeat analysis pass.
+AnalysisResult AutoAnalysisManager::re_analyze_all(std::span<const Address> restrict_set) {
+    if (restrict_set.empty()) {
+        return analyze();
+    }
+    for (const Address address : restrict_set) {
+        context_.emit(EventKind::memory_added, address);
+        if (context_.instructions().contains(address)) {
+            context_.emit(EventKind::code_added, address);
+        }
+        if (context_.data().contains(address)) {
+            context_.emit(EventKind::data_added, address);
+        }
+        if (context_.function_containing(address)) {
+            context_.emit(EventKind::function_added, context_.function_containing(address)->entry);
+        }
+    }
+    return analyze(std::span<const Address>{});
 }
 
 } // namespace ghidra::analyzer

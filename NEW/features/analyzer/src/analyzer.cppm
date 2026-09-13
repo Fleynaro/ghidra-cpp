@@ -39,6 +39,7 @@ struct AnalysisEvent {
     EventKind kind{};
     std::vector<Address> addresses;
     std::uint64_t sequence{};
+    bool removed{};
 };
 
 /// Describes the observable kind of a reference in the native listing model.
@@ -53,6 +54,7 @@ enum class ReferenceKind : std::uint8_t {
     data,
     scalar,
     stack,
+    external,
 };
 
 /// Describes an explicit flow override applied to an instruction reference.
@@ -93,6 +95,7 @@ struct StackVariable {
     std::int64_t offset{};
     std::uint32_t size{};
     std::string name;
+    bool parameter{};
 };
 
 /// Represents one function, including its body, CFG, and no-return property.
@@ -105,6 +108,10 @@ struct Function {
     bool external{};
     bool no_return{};
     std::optional<Address> provider_end;
+    bool thunk{};
+    std::uint32_t stack_frame_size{};
+    std::int64_t stack_pointer_delta{};
+    std::optional<std::string> frame_pointer;
 };
 
 /// Represents one explicitly defined data object in program memory.
@@ -112,6 +119,16 @@ struct DataObject {
     Address address{};
     std::uint32_t size{};
     std::string type;
+};
+
+/// Represents one PE import without treating the external namespace as local code.
+struct ExternalSymbol {
+    std::string library;
+    std::string name;
+    Address iat_address{};
+    std::optional<std::uint16_t> ordinal;
+    bool delay_loaded{};
+    bool no_return{};
 };
 
 /// Represents one analysis bookmark retained in the observable state.
@@ -126,6 +143,7 @@ struct ConstantFact {
     Address instruction{};
     sleigh_runtime::Varnode location;
     std::uint64_t value{};
+    bool path_stable{};
 };
 
 /// Controls optional analyzers and their Ghidra-compatible thresholds.
@@ -144,11 +162,45 @@ struct AnalysisOptions {
     bool non_returning_functions{true};
     bool create_analysis_bookmarks{true};
     bool seed_provider_functions{true};
+    bool allow_shared_function_body{true};
     bool create_stack_parameters{};
     std::uint32_t non_return_threshold{3};
     std::size_t maximum_disassembly_instructions{100000};
     std::size_t maximum_events{1000000};
     std::filesystem::path pattern_root;
+};
+
+/// Identifies the state immediately preceding a Function Start Search match.
+enum class FunctionStartAfter : std::uint8_t {
+    none,
+    function,
+    instruction,
+    data,
+    pointer,
+    defined,
+};
+
+/// Describes the valid-code predicate attached to a function-start action.
+struct FunctionStartValidCode {
+    bool existing_function{};
+    bool subroutine{};
+    std::uint32_t minimum_instructions{};
+    std::optional<std::uint32_t> maximum_instructions;
+    bool contiguous{true};
+};
+
+/// Preserves the action attributes needed by delayed Function Start phases.
+struct FunctionStartProperties {
+    FunctionStartAfter after{FunctionStartAfter::none};
+    FunctionStartValidCode valid_code;
+    std::optional<std::string> section;
+    std::optional<std::string> label;
+    bool possible{};
+    bool thunk{};
+    bool no_return{};
+    std::size_t pattern_mark_offset{};
+    std::int64_t alignment_mark{};
+    std::uint32_t alignment_bits{};
 };
 
 /// Describes the registration contract used by the priority scheduler.
@@ -238,10 +290,25 @@ public:
     [[nodiscard]] bool add_stack_variable(Address function_entry, StackVariable variable);
 
     /// Adds or changes a flow override on a reference at an instruction.
-    [[nodiscard]] bool set_flow_override(Address source, FlowOverride override_kind);
+    [[nodiscard]] bool set_flow_override(Address source, FlowOverride override_kind,
+                                         std::optional<Address> target = std::nullopt);
 
     /// Sets the no-return property and emits a function-change event if needed.
     [[nodiscard]] bool set_function_no_return(Address entry, bool no_return);
+
+    /// Sets the thunk property and emits a function-change event if needed.
+    [[nodiscard]] bool set_function_thunk(Address entry, bool thunk);
+
+    /// Stores recovered stack-frame metadata on a function.
+    [[nodiscard]] bool set_function_stack_frame(Address entry, std::uint32_t frame_size,
+                                                std::int64_t stack_pointer_delta,
+                                                std::optional<std::string> frame_pointer);
+
+    /// Sets the no-return property of an imported/external symbol.
+    [[nodiscard]] bool set_external_no_return(Address iat_address, bool no_return);
+
+    /// Removes a function entry while preserving a removal event for analyzers.
+    [[nodiscard]] bool remove_function(Address entry);
 
     /// Adds one bookmark unless the same address/category/comment exists.
     [[nodiscard]] bool add_bookmark(Bookmark bookmark);
@@ -250,7 +317,8 @@ public:
     [[nodiscard]] bool add_constant_fact(ConstantFact fact);
 
     /// Retains a candidate and its source pattern index for delayed analysis.
-    [[nodiscard]] bool mark_potential_function_start(Address address, std::size_t pattern_index);
+    [[nodiscard]] bool mark_potential_function_start(Address address, std::size_t pattern_index,
+                                                     FunctionStartProperties properties = {});
 
     /// Returns decoded instructions in deterministic address order.
     [[nodiscard]] const std::map<Address, InstructionRecord>& instructions() const noexcept;
@@ -270,8 +338,14 @@ public:
     /// Returns retained constant facts in deterministic insertion order.
     [[nodiscard]] const std::vector<ConstantFact>& constant_facts() const noexcept;
 
+    /// Returns parsed PE imports represented as external symbols.
+    [[nodiscard]] const std::vector<ExternalSymbol>& external_symbols() const noexcept;
+
     /// Returns all delayed function candidates and their pattern indexes.
     [[nodiscard]] const std::map<Address, std::size_t>& potential_function_starts() const noexcept;
+
+    /// Returns delayed action attributes by candidate address.
+    [[nodiscard]] const std::map<Address, FunctionStartProperties>& potential_function_properties() const noexcept;
 
     /// Returns the function whose body contains an address, if any.
     [[nodiscard]] const Function* function_containing(Address address) const noexcept;
@@ -286,7 +360,7 @@ private:
     friend class AutoAnalysisManager;
 
     /// Appends a state event for the manager to consume after the current task.
-    void emit(EventKind kind, Address address);
+    void emit(EventKind kind, Address address, bool removed = false);
 
     /// Seeds provisional functions from PE exception/unwind metadata.
     void seed_provider_functions();
@@ -301,7 +375,9 @@ private:
     std::map<Address, Function> functions_;
     std::vector<Bookmark> bookmarks_;
     std::vector<ConstantFact> constant_facts_;
+    std::vector<ExternalSymbol> external_symbols_;
     std::map<Address, std::size_t> potential_function_starts_;
+    std::map<Address, FunctionStartProperties> potential_function_properties_;
     std::vector<AnalysisEvent> pending_events_;
     std::uint64_t next_event_sequence_{1};
     std::size_t total_disassembled_{0};
@@ -319,6 +395,12 @@ public:
     /// Processes one coalesced event task.
     virtual void analyze(AnalysisContext& context, std::span<const AnalysisEvent> events,
                          CancellationToken& cancellation) = 0;
+
+    /// Processes removed state addresses; the default preserves add-only analyzers.
+    virtual void removed(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) {}
+
+    /// Receives the end-of-run lifecycle callback after all eligible tasks drain.
+    virtual void analysis_ended(AnalysisContext&, bool) {}
 };
 
 /// Stores extensible analyzer registrations without manager redesign.
@@ -342,6 +424,27 @@ struct AnalysisResult {
     std::vector<std::string> executed_analyzers;
 };
 
+/// Represents one normalized function-body row from a Ghidra Delta report.
+struct GoldenFunctionRow {
+    Address entry{};
+    std::vector<AddressRange> body_ranges;
+};
+
+/// Represents the structured additions, removals, changes, and references in a Delta report.
+struct GoldenDelta {
+    std::vector<GoldenFunctionRow> added_functions;
+    std::vector<GoldenFunctionRow> removed_functions;
+    std::vector<GoldenFunctionRow> changed_functions_after;
+    std::vector<Reference> references;
+};
+
+/// Parses normalized function/reference rows from a checked-in Ghidra report.
+[[nodiscard]] std::expected<GoldenDelta, std::string> parse_golden_delta(const std::filesystem::path& report);
+
+/// Compares Delta rows against actual context state and returns all mismatches.
+[[nodiscard]] std::expected<void, std::string> compare_golden_delta(const AnalysisContext& context,
+                                                                    const GoldenDelta& delta);
+
 /// Coalesces program events and executes eligible analyzers by priority.
 class AutoAnalysisManager final {
 public:
@@ -362,6 +465,9 @@ public:
 
     /// Runs the same scheduler from explicit seed addresses.
     [[nodiscard]] AnalysisResult analyze(std::span<const Address> seeds);
+
+    /// Requeues existing program state for a bounded repeat-analysis pass.
+    [[nodiscard]] AnalysisResult re_analyze_all(std::span<const Address> restrict_set = {});
 
     /// Returns the registry for inspection and extension.
     [[nodiscard]] const AnalyzerRegistry& registry() const noexcept;

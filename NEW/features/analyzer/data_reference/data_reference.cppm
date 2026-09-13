@@ -23,7 +23,7 @@ void DataReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const An
         if (!region.executable && region.size != 0 && !context.data().contains(region.start)) {
             const auto size = static_cast<std::uint32_t>(
                 std::min<std::uint64_t>(region.size, std::numeric_limits<std::uint32_t>::max()));
-            context.add_data(DataObject{region.start, size, "PE data section"});
+            static_cast<void>(context.add_data(DataObject{region.start, size, "PE data section"}));
         }
     }
     const auto process_pointer = [&](Address source) {
@@ -36,8 +36,8 @@ void DataReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const An
             target |= static_cast<std::uint64_t>((*value)[index]) << (index * 8U);
         }
         if (context.image().find_memory_region(target)) {
-            context.add_reference(
-                Reference{source, target, ReferenceKind::data, std::nullopt, std::nullopt, FlowOverride::none, true});
+            static_cast<void>(context.add_reference(
+                Reference{source, target, ReferenceKind::data, std::nullopt, std::nullopt, FlowOverride::none, true}));
         }
     };
     for (const auto& [address, data] : context.data()) {

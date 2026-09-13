@@ -54,6 +54,18 @@ namespace {
         const auto sign_bit = std::uint64_t{1} << (source_bits - 1U);
         return (*value & sign_bit) == 0 ? *value : (*value | ~source_mask);
     }
+    if (operation.opcode == sleigh_runtime::PcodeOpcode::int_two_comp ||
+        operation.opcode == sleigh_runtime::PcodeOpcode::int_negate ||
+        operation.opcode == sleigh_runtime::PcodeOpcode::bool_negate) {
+        if (operation.inputs.empty())
+            return std::nullopt;
+        const auto value = value_of(operation.inputs.back());
+        if (!value)
+            return std::nullopt;
+        if (operation.opcode == sleigh_runtime::PcodeOpcode::bool_negate)
+            return *value == 0;
+        return static_cast<std::uint64_t>(-static_cast<std::int64_t>(*value));
+    }
     if (operation.opcode == sleigh_runtime::PcodeOpcode::load) {
         if (operation.inputs.empty()) {
             return std::nullopt;
@@ -103,6 +115,50 @@ namespace {
             return *left < *right;
         case sleigh_runtime::PcodeOpcode::int_less_equal:
             return *left <= *right;
+        case sleigh_runtime::PcodeOpcode::int_sless:
+        case sleigh_runtime::PcodeOpcode::int_sless_equal:
+        case sleigh_runtime::PcodeOpcode::int_sdiv:
+        case sleigh_runtime::PcodeOpcode::int_srem:
+        case sleigh_runtime::PcodeOpcode::int_sright: {
+            const auto as_signed = [](std::uint64_t value, std::uint32_t size) -> std::int64_t {
+                if (size == 0 || size >= 8)
+                    return static_cast<std::int64_t>(value);
+                const auto bits = size * 8U;
+                const auto mask = (std::uint64_t{1} << bits) - 1U;
+                value &= mask;
+                if ((value & (std::uint64_t{1} << (bits - 1U))) != 0)
+                    value |= ~mask;
+                return static_cast<std::int64_t>(value);
+            };
+            const auto left_signed = as_signed(*left, operation.inputs[operation.inputs.size() - 2].size);
+            const auto right_signed = as_signed(*right, operation.inputs.back().size);
+            if (operation.opcode == sleigh_runtime::PcodeOpcode::int_sless)
+                return left_signed < right_signed;
+            if (operation.opcode == sleigh_runtime::PcodeOpcode::int_sless_equal)
+                return left_signed <= right_signed;
+            if (operation.opcode == sleigh_runtime::PcodeOpcode::int_sdiv) {
+                if (right_signed == 0 ||
+                    (left_signed == std::numeric_limits<std::int64_t>::min() && right_signed == -1))
+                    return std::nullopt;
+                return static_cast<std::uint64_t>(left_signed / right_signed);
+            }
+            if (operation.opcode == sleigh_runtime::PcodeOpcode::int_srem) {
+                if (right_signed == 0 ||
+                    (left_signed == std::numeric_limits<std::int64_t>::min() && right_signed == -1))
+                    return std::nullopt;
+                return static_cast<std::uint64_t>(left_signed % right_signed);
+            }
+            return static_cast<std::uint64_t>(left_signed >> (static_cast<unsigned>(right_signed) & 63U));
+        }
+        case sleigh_runtime::PcodeOpcode::int_carry: {
+            const auto bits = operation.inputs.back().size * 8U;
+            if (bits == 0 || bits > 64)
+                return std::nullopt;
+            if (bits == 64)
+                return *left > std::numeric_limits<std::uint64_t>::max() - *right;
+            return (*left & ((std::uint64_t{1} << bits) - 1U)) + (*right & ((std::uint64_t{1} << bits) - 1U)) >=
+                   (std::uint64_t{1} << bits);
+        }
         default:
             return std::nullopt;
     }
@@ -150,47 +206,78 @@ void ConstantPropagationAnalyzer::analyze(AnalysisContext& context, std::span<co
         return;
     }
     for (const auto& [entry, function] : context.functions()) {
-        std::map<std::string, std::uint64_t> values;
-        std::map<std::string, std::uint64_t> memory;
-        for (std::size_t pass = 0; pass < 8; ++pass) {
-            bool changed = false;
-            for (const Address address : function.body) {
-                if (cancellation.is_cancelled()) {
-                    return;
-                }
+        if (function.blocks.empty())
+            continue;
+        struct FlowState {
+            std::map<std::string, std::uint64_t> values;
+            std::map<std::string, std::uint64_t> memory;
+        };
+        std::map<Address, FlowState> incoming;
+        std::deque<Address> worklist;
+        incoming.emplace(function.blocks.front().start, FlowState{});
+        worklist.push_back(function.blocks.front().start);
+        std::size_t iterations = 0;
+        while (!worklist.empty() && iterations++ < 4096) {
+            if (cancellation.is_cancelled())
+                return;
+            const Address block_start = worklist.front();
+            worklist.pop_front();
+            const auto block_it = std::find_if(function.blocks.begin(), function.blocks.end(),
+                                               [&](const BasicBlock& block) { return block.start == block_start; });
+            if (block_it == function.blocks.end())
+                continue;
+            FlowState state = incoming.at(block_start);
+            for (const Address address : block_it->instructions) {
                 const auto instruction = context.instructions().find(address);
-                if (instruction == context.instructions().end()) {
+                if (instruction == context.instructions().end())
                     continue;
-                }
                 for (const auto& operation : instruction->second.instruction.pcode) {
+                    if (operation.opcode == sleigh_runtime::PcodeOpcode::call ||
+                        operation.opcode == sleigh_runtime::PcodeOpcode::call_ind ||
+                        operation.opcode == sleigh_runtime::PcodeOpcode::call_other) {
+                        // Without a recovered prototype, a call may clobber any
+                        // register but does not invalidate known memory facts.
+                        std::erase_if(state.values,
+                                      [](const auto& item) { return item.first.starts_with("register:"); });
+                        continue;
+                    }
                     if (operation.opcode == sleigh_runtime::PcodeOpcode::store) {
-                        if (const auto stored = store_value(operation, values)) {
-                            auto [location, value] = *stored;
-                            if (memory[location] != value) {
-                                memory[location] = value;
-                                changed = true;
-                            }
+                        if (const auto stored = store_value(operation, state.values)) {
+                            state.memory[stored->first] = stored->second;
                         }
                         continue;
                     }
-                    if (!operation.output) {
+                    if (!operation.output)
                         continue;
-                    }
-                    const auto value = evaluate_operation(operation, values, memory);
-                    if (!value) {
+                    const auto value = evaluate_operation(operation, state.values, state.memory);
+                    if (!value)
                         continue;
-                    }
                     const auto normalized = truncate_value(*value, operation.output->size);
-                    const auto key = location_key(*operation.output);
-                    if (!values.contains(key) || values[key] != normalized) {
-                        values[key] = normalized;
-                        changed = true;
-                    }
-                    context.add_constant_fact(ConstantFact{address, *operation.output, normalized});
+                    state.values[location_key(*operation.output)] = normalized;
+                    static_cast<void>(context.add_constant_fact(
+                        ConstantFact{address, *operation.output, normalized, function.blocks.size() == 1}));
                 }
             }
-            if (!changed) {
-                break;
+            for (const Address successor : block_it->successors) {
+                auto target = incoming.find(successor);
+                if (target == incoming.end()) {
+                    incoming.emplace(successor, state);
+                    worklist.push_back(successor);
+                    continue;
+                }
+                FlowState joined = target->second;
+                std::erase_if(joined.values, [&](const auto& item) {
+                    const auto other = state.values.find(item.first);
+                    return other == state.values.end() || other->second != item.second;
+                });
+                std::erase_if(joined.memory, [&](const auto& item) {
+                    const auto other = state.memory.find(item.first);
+                    return other == state.memory.end() || other->second != item.second;
+                });
+                if (joined.values != target->second.values || joined.memory != target->second.memory) {
+                    target->second = std::move(joined);
+                    worklist.push_back(successor);
+                }
             }
         }
     }

@@ -5,39 +5,161 @@ import std;
 namespace ghidra::analyzer {
 namespace {
 
-/// Stores the concrete byte suffix of one Ghidra XML pattern rule.
-struct BytePattern {
-    std::vector<std::optional<std::uint8_t>> bytes;
+/// Stores one masked byte from a Ghidra pattern rule.
+struct MaskedByte {
+    std::uint8_t value{};
+    std::uint8_t mask{};
 };
 
-/// Parses one hexadecimal pattern token while retaining wildcard nibbles.
-[[nodiscard]] std::vector<std::optional<std::uint8_t>> parse_pattern_token(std::string token) {
-    if (!token.starts_with("0x") && !token.starts_with("0X")) {
+/// Stores a complete marked byte pattern and its Function Start action.
+struct BytePattern {
+    std::vector<MaskedByte> bytes;
+    std::size_t mark_offset{};
+    FunctionStartProperties properties;
+};
+
+/// Parses one hexadecimal or binary token with bit/nibble wildcards.
+[[nodiscard]] std::vector<MaskedByte> parse_pattern_token(std::string token) {
+    std::vector<MaskedByte> bytes;
+    if (token.starts_with("0x") || token.starts_with("0X")) {
+        token.erase(0, 2);
+        if (token.size() % 2 != 0) {
+            token.insert(token.begin(), '0');
+        }
+        for (std::size_t index = 0; index < token.size(); index += 2) {
+            MaskedByte byte;
+            const auto nibble = [](char value) -> std::pair<std::uint8_t, std::uint8_t> {
+                if (value == '.') {
+                    return {0, 0};
+                }
+                const auto digit =
+                    std::isdigit(static_cast<unsigned char>(value))
+                        ? static_cast<std::uint8_t>(value - '0')
+                        : static_cast<std::uint8_t>(std::tolower(static_cast<unsigned char>(value)) - 'a' + 10);
+                return {digit, 0xf};
+            };
+            const auto high = nibble(token[index]);
+            const auto low = nibble(token[index + 1]);
+            byte.value = static_cast<std::uint8_t>((high.first << 4U) | low.first);
+            byte.mask = static_cast<std::uint8_t>((high.second << 4U) | low.second);
+            bytes.push_back(byte);
+        }
+        return bytes;
+    }
+    if (token.empty() || token.size() % 8 != 0 || std::any_of(token.begin(), token.end(), [](char value) {
+            return value != '0' && value != '1' && value != '.';
+        })) {
         return {};
     }
-    token.erase(0, 2);
-    if (token.size() % 2 != 0) {
-        token.insert(token.begin(), '0');
-    }
-    std::vector<std::optional<std::uint8_t>> bytes;
-    for (std::size_t index = 0; index < token.size(); index += 2) {
-        const char high = token[index];
-        const char low = token[index + 1];
-        if (high == '.' || low == '.') {
-            bytes.push_back(std::nullopt);
-            continue;
+    for (std::size_t index = 0; index < token.size(); index += 8) {
+        MaskedByte byte;
+        for (std::size_t bit = 0; bit < 8; ++bit) {
+            if (token[index + bit] != '.') {
+                byte.mask |= static_cast<std::uint8_t>(1U << (7U - bit));
+                if (token[index + bit] == '1') {
+                    byte.value |= static_cast<std::uint8_t>(1U << (7U - bit));
+                }
+            }
         }
-        std::uint32_t value = 0;
-        const auto parsed = std::from_chars(token.data() + index, token.data() + index + 2, value, 16);
-        if (parsed.ec != std::errc{}) {
-            return {};
-        }
-        bytes.push_back(static_cast<std::uint8_t>(value));
+        bytes.push_back(byte);
     }
     return bytes;
 }
 
-/// Loads concrete post-wildcard byte suffixes from Ghidra pattern XML files.
+/// Parses one `<data>` body and returns bytes plus the post-wildcard mark offset.
+[[nodiscard]] std::pair<std::vector<MaskedByte>, std::size_t> parse_data_body(std::string_view body) {
+    std::vector<MaskedByte> bytes;
+    std::size_t mark = 0;
+    std::istringstream tokens{std::string(body)};
+    std::string token;
+    while (tokens >> token) {
+        if (token == "*") {
+            mark = bytes.size();
+            continue;
+        }
+        const auto parsed = parse_pattern_token(token);
+        bytes.insert(bytes.end(), parsed.begin(), parsed.end());
+    }
+    return {std::move(bytes), mark};
+}
+
+/// Reads one XML attribute without imposing an XML-library dependency.
+[[nodiscard]] std::optional<std::string> xml_attribute(std::string_view tag, std::string_view name) {
+    const std::string key = std::string(name) + "=";
+    const auto start = tag.find(key);
+    if (start == std::string_view::npos || start + key.size() >= tag.size()) {
+        return std::nullopt;
+    }
+    const char quote = tag[start + key.size()];
+    if (quote != '\'' && quote != '"') {
+        return std::nullopt;
+    }
+    const auto end = tag.find(quote, start + key.size() + 1);
+    if (end == std::string_view::npos) {
+        return std::nullopt;
+    }
+    return std::string(tag.substr(start + key.size() + 1, end - start - key.size() - 1));
+}
+
+/// Converts Ghidra's after attribute into the native action enum.
+[[nodiscard]] FunctionStartAfter parse_after(std::string_view value) {
+    if (value == "function")
+        return FunctionStartAfter::function;
+    if (value == "instruction")
+        return FunctionStartAfter::instruction;
+    if (value == "data")
+        return FunctionStartAfter::data;
+    if (value == "ptr")
+        return FunctionStartAfter::pointer;
+    if (value == "defined")
+        return FunctionStartAfter::defined;
+    return FunctionStartAfter::none;
+}
+
+/// Parses a funcstart or possiblefuncstart XML action and its constraints.
+[[nodiscard]] FunctionStartProperties parse_action(std::string_view tag, std::size_t mark_offset,
+                                                   std::optional<std::pair<std::int64_t, std::uint32_t>> alignment) {
+    FunctionStartProperties properties;
+    properties.pattern_mark_offset = mark_offset;
+    if (tag.starts_with("<possiblefuncstart")) {
+        properties.possible = true;
+    }
+    if (const auto value = xml_attribute(tag, "after")) {
+        properties.after = parse_after(*value);
+    }
+    if (const auto value = xml_attribute(tag, "section"))
+        properties.section = *value;
+    if (const auto value = xml_attribute(tag, "label"))
+        properties.label = *value;
+    properties.thunk = xml_attribute(tag, "thunk").has_value();
+    properties.no_return = xml_attribute(tag, "noreturn").has_value();
+    if (const auto value = xml_attribute(tag, "validcode")) {
+        if (*value == "function") {
+            properties.valid_code.existing_function = true;
+        } else if (*value == "true" || *value == "subroutine") {
+            properties.valid_code.subroutine = true;
+        } else if (const auto parsed = std::from_chars(value->data(), value->data() + value->size(),
+                                                       properties.valid_code.minimum_instructions);
+                   parsed.ec == std::errc{}) {
+            properties.valid_code.contiguous = true;
+        }
+    }
+    if (const auto value = xml_attribute(tag, "validcodemax")) {
+        std::uint32_t maximum = 0;
+        const auto parsed = std::from_chars(value->data(), value->data() + value->size(), maximum);
+        if (parsed.ec == std::errc{})
+            properties.valid_code.maximum_instructions = maximum;
+    }
+    if (const auto value = xml_attribute(tag, "contiguous"))
+        properties.valid_code.contiguous = *value != "false";
+    if (alignment) {
+        properties.alignment_mark = alignment->first;
+        properties.alignment_bits = alignment->second;
+    }
+    return properties;
+}
+
+/// Loads marked byte patterns and action attributes from Ghidra XML files.
 [[nodiscard]] std::vector<BytePattern> load_patterns(const std::filesystem::path& root) {
     std::vector<BytePattern> patterns;
     if (root.empty() || !std::filesystem::is_directory(root)) {
@@ -47,33 +169,130 @@ struct BytePattern {
         if (!file.is_regular_file() || file.path().extension() != ".xml") {
             continue;
         }
+        const auto filename = file.path().filename().string();
+        // The current PE context is x86-64 Windows; unrelated x86 compiler
+        // corpora must not be merged into its decision-tree result.
+        if (filename.find("x86") != std::string::npos && filename.find("x86-64win") == std::string::npos) {
+            continue;
+        }
         std::ifstream input(file.path());
         const std::string xml{std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
+        std::vector<std::pair<std::size_t, std::size_t>> pair_ranges;
+        std::size_t pair_cursor = 0;
+        while ((pair_cursor = xml.find("<patternpairs", pair_cursor)) != std::string::npos) {
+            const auto pair_end = xml.find("</patternpairs>", pair_cursor);
+            if (pair_end == std::string::npos)
+                break;
+            pair_ranges.emplace_back(pair_cursor, pair_end + 15);
+            const auto pre_begin = xml.find("<prepatterns>", pair_cursor);
+            const auto pre_end = xml.find("</prepatterns>", pre_begin);
+            const auto post_begin = xml.find("<postpatterns>", pair_cursor);
+            const auto post_end = xml.find("</postpatterns>", post_begin);
+            if (pre_begin != std::string::npos && pre_begin < pair_end && post_begin != std::string::npos &&
+                post_begin < pair_end && pre_end != std::string::npos && post_end != std::string::npos) {
+                const auto pre_data = xml.find("<data", pre_begin);
+                const auto post_data = xml.find("<data", post_begin);
+                if (pre_data != std::string::npos && pre_data < pre_end && post_data != std::string::npos &&
+                    post_data < post_end) {
+                    const auto pre_start = xml.find('>', pre_data);
+                    const auto post_start = xml.find('>', post_data);
+                    const auto pre_close = xml.find("</data>", pre_start);
+                    const auto post_close = xml.find("</data>", post_start);
+                    if (pre_start != std::string::npos && post_start != std::string::npos &&
+                        pre_close != std::string::npos && post_close != std::string::npos) {
+                        auto [prefix, ignored_mark] =
+                            parse_data_body(std::string_view(xml).substr(pre_start + 1, pre_close - pre_start - 1));
+                        auto [suffix, suffix_mark] =
+                            parse_data_body(std::string_view(xml).substr(post_start + 1, post_close - post_start - 1));
+                        const auto action = xml.find("<funcstart", post_close);
+                        const auto possible = xml.find("<possiblefuncstart", post_close);
+                        const auto action_begin =
+                            action != std::string::npos && action < pair_end
+                                ? action
+                                : (possible != std::string::npos && possible < pair_end ? possible : std::string::npos);
+                        if (!prefix.empty() && !suffix.empty() && action_begin != std::string::npos) {
+                            const auto action_end = xml.find('>', action_begin);
+                            if (action_end != std::string::npos) {
+                                BytePattern pattern;
+                                pattern.bytes = std::move(prefix);
+                                pattern.mark_offset = pattern.bytes.size() + suffix_mark;
+                                pattern.bytes.insert(pattern.bytes.end(), suffix.begin(), suffix.end());
+                                pattern.properties = parse_action(
+                                    std::string_view(xml).substr(action_begin, action_end - action_begin + 1),
+                                    pattern.mark_offset, std::nullopt);
+                                patterns.push_back(std::move(pattern));
+                            }
+                        }
+                    }
+                }
+            }
+            pair_cursor = pair_end + 15;
+        }
         std::size_t cursor = 0;
-        while ((cursor = xml.find("<data>", cursor)) != std::string::npos) {
+        while ((cursor = xml.find("<data", cursor)) != std::string::npos) {
+            const auto data_start = xml.find('>', cursor);
+            if (data_start == std::string::npos)
+                break;
             const auto end = xml.find("</data>", cursor + 6);
             if (end == std::string::npos) {
                 break;
             }
-            const auto wildcard = xml.find('*', cursor + 6);
-            if (wildcard != std::string::npos && wildcard < end) {
-                std::istringstream tokens(xml.substr(wildcard + 1, end - wildcard - 1));
-                std::string token;
-                while (tokens >> token) {
-                    const auto parsed = parse_pattern_token(token);
-                    if (!parsed.empty()) {
-                        patterns.push_back(BytePattern{parsed});
-                        break;
+            if (std::any_of(pair_ranges.begin(), pair_ranges.end(),
+                            [&](const auto& range) { return cursor >= range.first && cursor < range.second; })) {
+                cursor = end + 7;
+                continue;
+            }
+            BytePattern pattern;
+            auto [bytes, mark] = parse_data_body(std::string_view(xml).substr(data_start + 1, end - data_start - 1));
+            pattern.bytes = std::move(bytes);
+            pattern.mark_offset = mark;
+            const auto pattern_end = xml.find("</pattern>", end);
+            const auto action_begin = xml.find("<funcstart", end);
+            const auto possible_begin = xml.find("<possiblefuncstart", end);
+            const auto action =
+                action_begin != std::string::npos && action_begin < pattern_end
+                    ? action_begin
+                    : (possible_begin != std::string::npos && possible_begin < pattern_end ? possible_begin
+                                                                                           : std::string::npos);
+            if (action != std::string::npos) {
+                const auto action_end = xml.find('>', action);
+                std::optional<std::pair<std::int64_t, std::uint32_t>> alignment;
+                const auto align_begin = xml.find("<align", end);
+                if (align_begin != std::string::npos && align_begin < action &&
+                    (pattern_end == std::string::npos || align_begin < pattern_end)) {
+                    const auto align_end = xml.find('>', align_begin);
+                    if (align_end != std::string::npos) {
+                        const auto mark = xml_attribute(
+                            std::string_view(xml).substr(align_begin, align_end - align_begin + 1), "mark");
+                        const auto bits = xml_attribute(
+                            std::string_view(xml).substr(align_begin, align_end - align_begin + 1), "bits");
+                        if (mark && bits) {
+                            std::int64_t mark_value = 0;
+                            std::uint32_t bit_value = 0;
+                            const auto mark_result =
+                                std::from_chars(mark->data(), mark->data() + mark->size(), mark_value);
+                            const auto bit_result =
+                                std::from_chars(bits->data(), bits->data() + bits->size(), bit_value);
+                            if (mark_result.ec == std::errc{} && bit_result.ec == std::errc{}) {
+                                alignment = std::pair{mark_value, bit_value};
+                            }
+                        }
                     }
                 }
+                if (action_end != std::string::npos) {
+                    pattern.properties = parse_action(std::string_view(xml).substr(action, action_end - action + 1),
+                                                      pattern.mark_offset, alignment);
+                }
             }
+            if (!pattern.bytes.empty())
+                patterns.push_back(std::move(pattern));
             cursor = end + 7;
         }
     }
     return patterns;
 }
 
-/// Tests one concrete pattern suffix against mapped PE bytes.
+/// Tests one masked byte pattern against mapped PE bytes.
 [[nodiscard]] bool matches_pattern(const pe::LoadedPeImage& image, Address address, const BytePattern& pattern) {
     if (pattern.bytes.empty()) {
         return false;
@@ -83,7 +302,7 @@ struct BytePattern {
         return false;
     }
     for (std::size_t index = 0; index < pattern.bytes.size(); ++index) {
-        if (pattern.bytes[index] && *pattern.bytes[index] != (*bytes)[index]) {
+        if (((*bytes)[index] & pattern.bytes[index].mask) != (pattern.bytes[index].value & pattern.bytes[index].mask)) {
             return false;
         }
     }
@@ -119,14 +338,7 @@ struct BytePattern {
 void collect_candidates(AnalysisContext& context, std::span<const AnalysisEvent> events,
                         CancellationToken& cancellation) {
     std::set<Address> candidates;
-    for (const auto& event : events) {
-        candidates.insert(event.addresses.begin(), event.addresses.end());
-    }
-    for (const auto& symbol : context.image().exported_symbols()) {
-        if (!symbol.forwarded) {
-            candidates.insert(symbol.address_va);
-        }
-    }
+    static_cast<void>(events);
     const auto patterns = load_patterns(context.options().pattern_root);
     if (!patterns.empty()) {
         for (const auto& region : context.image().memory_regions()) {
@@ -139,61 +351,195 @@ void collect_candidates(AnalysisContext& context, std::span<const AnalysisEvent>
                 }
                 const Address address = region.start + offset;
                 for (std::size_t index = 0; index < patterns.size(); ++index) {
-                    if (matches_pattern(context.image(), address, patterns[index])) {
-                        candidates.insert(address);
-                        context.mark_potential_function_start(address, index);
+                    const auto mark = patterns[index].mark_offset;
+                    if (!matches_pattern(context.image(), address, patterns[index])) {
+                        continue;
+                    }
+                    const Address effective = address + mark;
+                    if (effective < region.start || effective >= region.start + region.size) {
+                        continue;
+                    }
+                    auto properties = patterns[index].properties;
+                    properties.pattern_mark_offset = mark;
+                    if (candidates.insert(effective).second) {
+                        static_cast<void>(
+                            context.mark_potential_function_start(effective, index, std::move(properties)));
                         break;
                     }
                 }
             }
         }
     }
-    for (const auto& region : context.image().memory_regions()) {
-        if (!region.executable || region.size == 0) {
-            continue;
-        }
-        const auto first = region.start;
-        if (matches_function_pattern(context, first)) {
-            candidates.insert(first);
-        }
-        // Pattern search examines filler boundaries, not every byte as code.
-        for (std::uint64_t offset = 1; offset < region.size; ++offset) {
-            if (cancellation.is_cancelled()) {
-                return;
+    if (patterns.empty()) {
+        for (const auto& region : context.image().memory_regions()) {
+            if (!region.executable || region.size == 0) {
+                continue;
             }
-            const Address address = region.start + offset;
-            const auto byte = context.image().read_byte(address - 1);
-            if (byte && (*byte == 0xcc || *byte == 0x90 || *byte == 0xc3) &&
-                matches_function_pattern(context, address)) {
-                candidates.insert(address);
+            const auto first = region.start;
+            if (matches_function_pattern(context, first)) {
+                candidates.insert(first);
+            }
+            // Pattern search examines filler boundaries, not every byte as code.
+            for (std::uint64_t offset = 1; offset < region.size; ++offset) {
+                if (cancellation.is_cancelled()) {
+                    return;
+                }
+                const Address address = region.start + offset;
+                const auto byte = context.image().read_byte(address - 1);
+                if (byte && (*byte == 0xcc || *byte == 0x90 || *byte == 0xc3) &&
+                    matches_function_pattern(context, address)) {
+                    candidates.insert(address);
+                }
             }
         }
     }
     std::size_t pattern_index = 0;
     for (const Address candidate : candidates) {
         if (!context.functions().contains(candidate) && context.executable_region(candidate)) {
-            context.mark_potential_function_start(candidate, pattern_index++);
+            static_cast<void>(context.mark_potential_function_start(candidate, pattern_index++));
         }
     }
 }
 
-/// Creates a validated candidate and its Ghidra-compatible analysis bookmark.
-void materialize_candidates(AnalysisContext& context, CancellationToken& cancellation) {
+/// Tests whether a candidate's preceding program state satisfies `after`.
+[[nodiscard]] bool satisfies_after(const AnalysisContext& context, Address address, FunctionStartAfter after) {
+    if (after == FunctionStartAfter::none || address == 0)
+        return true;
+    const auto ends_at = [&](Address start) {
+        const auto instruction = context.instructions().find(start);
+        return instruction != context.instructions().end() && instruction->second.instruction.length != 0 &&
+               start + instruction->second.instruction.length == address;
+    };
+    const bool instruction = std::any_of(context.instructions().begin(), context.instructions().end(),
+                                         [&](const auto& item) { return ends_at(item.first); });
+    const bool function = std::any_of(context.functions().begin(), context.functions().end(), [&](const auto& item) {
+        return std::any_of(item.second.body.begin(), item.second.body.end(),
+                           [&](Address start) { return ends_at(start); });
+    });
+    const bool data = std::any_of(context.data().begin(), context.data().end(),
+                                  [&](const auto& item) { return item.first + item.second.size == address; });
+    const auto incoming = std::count_if(context.references().begin(), context.references().end(),
+                                        [&](const Reference& ref) { return ref.target == address; });
+    const bool pointer =
+        incoming != 0 &&
+        std::all_of(context.references().begin(), context.references().end(),
+                    [&](const Reference& ref) { return ref.target != address || ref.kind == ReferenceKind::data; });
+    switch (after) {
+        case FunctionStartAfter::function:
+            return function;
+        case FunctionStartAfter::instruction:
+            return instruction;
+        case FunctionStartAfter::data:
+            return data;
+        case FunctionStartAfter::pointer:
+            return pointer;
+        case FunctionStartAfter::defined:
+            return instruction || data || pointer;
+        default:
+            return true;
+    }
+}
+
+/// Tests section, alignment, valid-code, and delayed-function constraints.
+[[nodiscard]] bool satisfies_properties(AnalysisContext& context, Address address,
+                                        const FunctionStartProperties& properties) {
+    if (!satisfies_after(context, address, properties.after))
+        return false;
+    if (properties.section) {
+        const auto region = context.image().find_memory_region(address);
+        if (!region)
+            return false;
+        std::string expression = *properties.section;
+        bool ignore_case = expression.starts_with("(?i)");
+        if (ignore_case)
+            expression.erase(0, 4);
+        try {
+            auto flags = std::regex::ECMAScript;
+            if (ignore_case)
+                flags |= std::regex::icase;
+            if (!std::regex_match(region->name, std::regex(expression, flags)))
+                return false;
+        } catch (const std::regex_error&) {
+            return false;
+        }
+    }
+    if (properties.alignment_bits != 0) {
+        const auto mask = (std::uint64_t{1} << std::min(properties.alignment_bits, 63U)) - 1U;
+        const Address raw = address - properties.pattern_mark_offset;
+        if (((raw + static_cast<Address>(properties.alignment_mark)) & mask) != 0)
+            return false;
+    }
+    if (properties.valid_code.existing_function)
+        return context.function_at(address) != nullptr;
+    if (properties.valid_code.minimum_instructions == 0 && !properties.valid_code.subroutine)
+        return true;
+    const auto start = context.instructions().find(address);
+    if (start == context.instructions().end())
+        return false;
+    std::uint32_t count = 0;
+    bool terminal = false;
+    Address cursor = address;
+    const auto maximum = properties.valid_code.maximum_instructions.value_or(
+        properties.valid_code.minimum_instructions == 0 ? 256U : properties.valid_code.minimum_instructions);
+    while (count < maximum) {
+        const auto instruction = context.instructions().find(cursor);
+        if (instruction == context.instructions().end())
+            break;
+        ++count;
+        terminal = instruction->second.instruction.flow.terminal ||
+                   instruction->second.instruction.flow.kind == sleigh_runtime::FlowKind::return_op;
+        if (terminal)
+            break;
+        if (instruction->second.instruction.flow.kind != sleigh_runtime::FlowKind::none &&
+            !instruction->second.instruction.flow.has_fallthrough)
+            break;
+        const auto next = cursor + instruction->second.instruction.length;
+        if (!context.instructions().contains(next))
+            break;
+        cursor = next;
+    }
+    if (count < properties.valid_code.minimum_instructions)
+        return false;
+    return !properties.valid_code.subroutine || terminal;
+}
+
+/// Creates a validated candidate and its Ghidra-compatible action effects.
+void materialize_candidates(AnalysisContext& context, CancellationToken& cancellation, bool allow_possible = false) {
     for (const auto& [address, pattern_index] : context.potential_function_starts()) {
         if (cancellation.is_cancelled()) {
             return;
         }
-        if (context.functions().contains(address)) {
+        const auto properties_it = context.potential_function_properties().find(address);
+        const FunctionStartProperties properties = properties_it == context.potential_function_properties().end()
+                                                       ? FunctionStartProperties{}
+                                                       : properties_it->second;
+        if (properties.possible && !allow_possible)
+            continue;
+        if (context.function_containing(address) && !context.function_at(address))
+            continue;
+        if (!satisfies_properties(context, address, properties))
+            continue;
+        if (properties.valid_code.existing_function) {
+            if (properties.no_return && context.set_function_no_return(address, true)) {
+                static_cast<void>(
+                    context.add_bookmark(Bookmark{address, "Function Start Search", "Existing function action"}));
+            }
+            if (properties.thunk)
+                static_cast<void>(context.set_function_thunk(address, true));
             continue;
         }
-        context.disassemble_flow(address);
+        static_cast<void>(context.disassemble_flow(address));
         if (!context.instructions().contains(address)) {
             continue;
         }
-        if (context.create_function(address)) {
+        if (context.create_function(address, properties.label.value_or(std::string{}))) {
+            if (properties.no_return)
+                static_cast<void>(context.set_function_no_return(address, true));
+            if (properties.thunk)
+                static_cast<void>(context.set_function_thunk(address, true));
             if (context.options().create_analysis_bookmarks) {
-                context.add_bookmark(
-                    Bookmark{address, "Function Start Search", "Match pattern " + std::to_string(pattern_index)});
+                static_cast<void>(context.add_bookmark(
+                    Bookmark{address, "Function Start Search", "Match pattern " + std::to_string(pattern_index)}));
             }
         }
     }
@@ -252,7 +598,7 @@ void FunctionStartFunctionAnalyzer::analyze(AnalysisContext& context, std::span<
     // Ghidra/Features/BytePatterns/src/main/java/ghidra/app/analyzers/FunctionStartFuncAnalyzer.java
     // Relevant method: added().
     if (context.options().function_start_search) {
-        materialize_candidates(context, cancellation);
+        materialize_candidates(context, cancellation, true);
     }
 }
 
@@ -268,7 +614,7 @@ void FunctionStartPostAnalyzer::analyze(AnalysisContext& context, std::span<cons
     // Ghidra/Features/BytePatterns/src/main/java/ghidra/app/analyzers/FunctionStartPostAnalyzer.java
     // Relevant method: added().
     if (context.options().function_start_after_code) {
-        materialize_candidates(context, cancellation);
+        materialize_candidates(context, cancellation, true);
     }
 }
 
@@ -284,7 +630,7 @@ void FunctionStartDataPostAnalyzer::analyze(AnalysisContext& context, std::span<
     // Ghidra/Features/BytePatterns/src/main/java/ghidra/app/analyzers/FunctionStartDataPostAnalyzer.java
     // Relevant method: added().
     if (context.options().function_start_after_data) {
-        materialize_candidates(context, cancellation);
+        materialize_candidates(context, cancellation, true);
     }
 }
 

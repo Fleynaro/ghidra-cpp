@@ -41,7 +41,7 @@ void DisassembleEntryPointsAnalyzer::analyze(AnalysisContext& context, std::span
             return;
         }
         if (context.image().is_executable(seed)) {
-            context.disassemble_flow(seed);
+            static_cast<void>(context.disassemble_flow(seed));
         }
     }
 }

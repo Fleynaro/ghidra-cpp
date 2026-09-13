@@ -12,10 +12,11 @@ Ports `FindNoReturnFunctionsAnalyzer.added()`, `detectNoReturn()`,
 - Priority: `302`.
 - Consumers: Function Body and control-flow clients.
 
-Known PE/runtime names are marked immediately. Discovered no-return functions
-require the configurable default threshold of three independent post-call INT3
-or UD2 indicators. Explicit call fall-through metadata is converted to a
-`CALL_RETURN` override, preserving the observable Ghidra state.
+Known PE/runtime and imported names are normalized before matching. Discovered
+no-return functions require the configurable default threshold of three
+independent post-call INT3 or UD2 indicators. Explicit call fall-through
+metadata, including external IAT references, is converted to a `CALL_RETURN`
+override, preserving the observable Ghidra state.
 
 Golden evidence: [`../test_data/non_returning_functions_known/`](../test_data/non_returning_functions_known/)
 and [`../test_data/non_returning_functions_discovered/`](../test_data/non_returning_functions_discovered/).

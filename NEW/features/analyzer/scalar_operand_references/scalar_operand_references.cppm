@@ -37,12 +37,12 @@ void ScalarOperandReferencesAnalyzer::analyze(AnalysisContext& context, std::spa
                            reference.kind == ReferenceKind::scalar;
                 });
             if (duplicate == context.references().end()) {
-                context.add_reference(Reference{address, target, ReferenceKind::scalar, operand_index, std::nullopt,
-                                                FlowOverride::none, true});
+                static_cast<void>(context.add_reference(Reference{address, target, ReferenceKind::scalar, operand_index,
+                                                                  std::nullopt, FlowOverride::none, true}));
             }
             if (!context.instructions().contains(target) && !context.data().contains(target) &&
                 !context.image().is_executable(target)) {
-                context.add_data(DataObject{target, 1, "address"});
+                static_cast<void>(context.add_data(DataObject{target, 1, "address"}));
             }
         }
     }

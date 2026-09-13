@@ -30,8 +30,9 @@ void SubroutineReferencesAnalyzer::analyze(AnalysisContext& context, std::span<c
         }
     }
     for (const Address target : targets) {
-        if (!context.functions().contains(target) && context.executable_region(target)) {
-            context.create_function(target);
+        if (!context.functions().contains(target) && !context.function_containing(target) &&
+            context.executable_region(target)) {
+            static_cast<void>(context.create_function(target));
         }
     }
 }

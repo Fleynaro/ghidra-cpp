@@ -14,8 +14,9 @@ misspelled original `SymbolicPropogator` from
 - Consumers: reference and later analysis layers.
 
 The evaluator handles COPY/CAST/extension, integer arithmetic and comparisons,
-shifts, LOAD/STORE memory facts, and bounded fixed-point revisits. Values are
-width-truncated at p-code destinations and division by zero remains unknown.
-Unresolved indirect control flow is not guessed.
+shifts, signed operations, LOAD/STORE memory facts, call clobbering, and a
+bounded CFG worklist with conservative state joins. Values are width-truncated
+at p-code destinations and division by zero remains unknown. Unresolved
+indirect control flow is not guessed.
 
 Golden constant evidence: [`../test_data/x86_constant_reference/`](../test_data/x86_constant_reference/).

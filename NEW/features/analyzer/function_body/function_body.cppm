@@ -30,7 +30,7 @@ void FunctionBodyAnalyzer::analyze(AnalysisContext& context, std::span<const Ana
         }
         if (affected.contains(entry) || std::any_of(affected.begin(), affected.end(),
                                                     [&](Address address) { return function.body.contains(address); })) {
-            context.rebuild_function_body(entry);
+            static_cast<void>(context.rebuild_function_body(entry));
         }
     }
 }
