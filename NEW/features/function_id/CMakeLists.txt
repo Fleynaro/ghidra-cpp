@@ -16,6 +16,7 @@ target_link_libraries(function_id PUBLIC NewGhidra::SleighRuntime PRIVATE ZLIB::
 add_executable(function_id_cli cli/function_id_cli.cppm)
 target_link_libraries(function_id_cli PRIVATE NewGhidra::FunctionId NewGhidra::SleighRuntime)
 target_compile_features(function_id_cli PRIVATE cxx_std_23)
+target_compile_definitions(function_id_cli PRIVATE FUNCTION_ID_DATABASE_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}/data")
 
 if(MSVC)
     target_compile_options(function_id PRIVATE /W3)

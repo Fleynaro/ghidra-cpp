@@ -18,6 +18,8 @@ the analyzer framework.
 - [`tests/CMakeLists.txt`](tests/CMakeLists.txt) registers the GoogleTest target.
 - [`tests/function_id_tests.cpp`](tests/function_id_tests.cpp) exercises real `TEST/fid/*.fidb`
   fixtures, x86 and ARM-backed hashing, generic skip behavior, and the source-filter API contract.
+- [`data/`](data/) contains the bundled original `.fidb` databases used by the CLI when a database
+  name is supplied or no database filter is given.
 
 Run `build.bat` from this directory for the focused build and test. Use `build.bat --no-test` for a compile-only check.
 

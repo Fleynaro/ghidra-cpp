@@ -140,7 +140,7 @@ TEST(FunctionIdHash, DoesNotSkipUnmarkedGenericBytes) {
 
 /// Verifies that a non-x86 Sleigh instruction retains byte-dependent hash semantics instead of a constant fallback.
 TEST(FunctionIdHash, HashesNonX86SleighInstructionBytes) {
-    sleigh_runtime::Decoder decoder(SLEIGH_ARM_TEST_SLA);
+    sleigh_runtime::Decoder decoder("ARM8_le.sla");
     const std::array<std::uint8_t, 4> bx_lr{0x1e, 0xff, 0x2f, 0xe1};
     const std::array<std::uint8_t, 4> svc_zero{0x00, 0x00, 0x00, 0xef};
     const auto first = decoder.decode(0x400000ULL, bx_lr, {});
@@ -173,7 +173,7 @@ TEST(FunctionIdAcceptance, SingleMatchSingleCompiler) {
               "66 44 39 11 74 09 48 83 c1 02 48 ff ca 75 f1 48 85 d2 75 06 66 45 89 11 eb cd 49 2b c8 "
               "41 0f b7 00 66 42 89 04 01 4d 8d 40 02 66 85 c0 74 05 48 ff ca 75 e9 48 85 d2 75 10 "
               "66 45 89 11 e8 72 5c 00 00 bb 22 00 00 00 eb a8 33 c0 eb ad");
-    sleigh_runtime::Decoder decoder(SLEIGH_X86_TEST_SLA);
+    sleigh_runtime::Decoder decoder("x86-64.sla");
     const auto instructions = decode_function(decoder, function);
     const auto hash = fid::Hasher::hash_sleigh(instructions);
     ASSERT_TRUE(hash.has_value()) << hash.error().message;
@@ -188,7 +188,7 @@ TEST(FunctionIdAcceptance, SingleMatchSingleCompiler) {
 void expect_fixture_matches(std::string_view hex, std::initializer_list<std::string_view> database_names,
                             std::initializer_list<std::string_view> expected_names) {
     const auto function = bytes(hex);
-    sleigh_runtime::Decoder decoder(SLEIGH_X86_TEST_SLA);
+    sleigh_runtime::Decoder decoder("x86-64.sla");
     const auto instructions = decode_function(decoder, function);
     const auto hash = fid::Hasher::hash_sleigh(instructions);
     ASSERT_TRUE(hash.has_value()) << hash.error().message;

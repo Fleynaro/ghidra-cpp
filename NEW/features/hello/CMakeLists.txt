@@ -1,7 +1,7 @@
 add_library(hello_feature STATIC)
 target_sources(hello_feature
     PUBLIC
-        FILE_SET cxx_modules TYPE CXX_MODULES FILES hello.cppm
+        FILE_SET cxx_modules TYPE CXX_MODULES FILES src/hello.cppm
 )
 add_library(NewGhidra::Hello ALIAS hello_feature)
 

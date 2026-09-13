@@ -19,17 +19,18 @@ struct Options {
 
 /// Prints the supported FunctionID query syntax.
 void print_usage(std::ostream& output) {
-    output << "Usage: function_id_cli --hex <bytes> --fidb <path-or-glob> [options]\n\n"
-           << "Options:\n"
-           << "  --hex <bytes>         Function bytes, for example: \"48 8b d9 c3\"\n"
-           << "  --fidb <path|glob>    Original .fidb file or glob; repeatable\n"
-           << "  --sla <path>          Compiled Sleigh file (default: x86-64 test SLA)\n"
-           << "  --address <value>     Function address (hex or decimal)\n"
-           << "  --language <id>       Language ID (default: x86:LE:64:default)\n"
-           << "  --compiler <spec>     Compiler specification filter\n"
-           << "  --threshold <value>   Match score threshold (default: 14.6)\n"
-           << "  --context <name=value> Override a Sleigh context field; repeatable\n"
-           << "  --help                Show this help\n";
+    output
+        << "Usage: function_id_cli --hex <bytes> [--fidb <name|path|glob>] [options]\n\n"
+        << "Options:\n"
+        << "  --hex <bytes>         Function bytes, for example: \"48 8b d9 c3\"\n"
+        << "  --fidb <name|path|glob> Database name, path, or glob; repeatable; empty selects all bundled databases\n"
+        << "  --sla <path>          Compiled Sleigh file (default: x86-64 test SLA)\n"
+        << "  --address <value>     Function address (hex or decimal)\n"
+        << "  --language <id>       Language ID (default: x86:LE:64:default)\n"
+        << "  --compiler <spec>     Compiler specification filter\n"
+        << "  --threshold <value>   Match score threshold (default: 14.6)\n"
+        << "  --context <name=value> Override a Sleigh context field; repeatable\n"
+        << "  --help                Show this help\n";
 }
 
 /// Parses an unsigned integer in hexadecimal or decimal notation.
@@ -90,6 +91,8 @@ Options parse_options(int argc, char* argv[]) {
             options.hex_bytes = require_value(argument);
         } else if (argument == "--fidb") {
             options.database_patterns.emplace_back(require_value(argument));
+        } else if (argument.starts_with("--fidb=")) {
+            options.database_patterns.emplace_back(argument.substr(std::string_view("--fidb=").size()));
         } else if (argument == "--sla") {
             options.sla_path = require_value(argument);
         } else if (argument == "--address") {
@@ -112,8 +115,8 @@ Options parse_options(int argc, char* argv[]) {
             throw std::invalid_argument(std::format("unknown argument '{}'", argument));
         }
     }
-    if (options.hex_bytes.empty() || options.database_patterns.empty()) {
-        throw std::invalid_argument("both --hex and at least one --fidb are required");
+    if (options.hex_bytes.empty()) {
+        throw std::invalid_argument("--hex is required");
     }
     return options;
 }
@@ -144,10 +147,38 @@ bool wildcard_match(std::string_view pattern, std::string_view value) {
     return pattern_index == pattern.size();
 }
 
-/// Expands a direct path or a single-directory wildcard into sorted database paths.
+/// Returns the directory containing the FunctionID databases shipped with this feature.
+std::filesystem::path database_directory() {
+    const std::filesystem::path directory(FUNCTION_ID_DATABASE_DIRECTORY);
+    if (std::filesystem::exists(directory) && std::filesystem::is_directory(directory))
+        return directory;
+    throw std::runtime_error(std::format("FunctionID database directory does not exist: {}", directory.string()));
+}
+
+/// Resolves a simple database name while leaving paths and path-like globs untouched.
+std::string resolve_database_pattern(std::string_view pattern_text) {
+    if (pattern_text.empty())
+        return (database_directory() / "*.fidb").string();
+
+    const std::filesystem::path pattern(pattern_text);
+    if (!pattern.parent_path().empty())
+        return pattern.string();
+
+    if (std::filesystem::exists(pattern))
+        return pattern.string();
+
+    auto name = pattern;
+    if (name.extension() != ".fidb")
+        name.replace_extension(".fidb");
+    return (database_directory() / name).string();
+}
+
+/// Expands database names, direct paths, or single-directory wildcards into sorted database paths.
 std::vector<std::filesystem::path> expand_databases(const std::vector<std::string>& patterns) {
     std::vector<std::filesystem::path> result;
-    for (const auto& pattern_text : patterns) {
+    const auto requested_patterns = patterns.empty() ? std::vector<std::string>{""} : patterns;
+    for (const auto& raw_pattern : requested_patterns) {
+        const auto pattern_text = resolve_database_pattern(raw_pattern);
         const std::filesystem::path pattern(pattern_text);
         const auto filename = pattern.filename().string();
         const auto directory = pattern.parent_path().empty() ? std::filesystem::path(".") : pattern.parent_path();

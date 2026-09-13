@@ -1,6 +1,6 @@
 # Processor Specifications
 
-[`x86-64.sla`](x86-64.sla) and [`ARM8_le.sla`](ARM8_le.sla) are module-level binary compiled Sleigh specifications copied from the repository fixtures [`../../../../TEST/x86-64.sla`](../../../../TEST/x86-64.sla) and [`../../../../TEST/ARM8_le.sla`](../../../../TEST/ARM8_le.sla). The runtime resolver exposes this directory to library, decompiler, test, and CLI consumers without requiring test-only paths.
+[`x86-64.sla`](x86-64.sla) and [`ARM8_le.sla`](ARM8_le.sla) are module-level binary compiled Sleigh specifications copied from the repository fixtures [`../specifications/x86-64.sla`](../specifications/x86-64.sla) and [`../specifications/ARM8_le.sla`](../specifications/ARM8_le.sla). The runtime resolver exposes this directory to library, decompiler, test, and CLI consumers without requiring test-only paths.
 
 No `.slaspec` source or Sleigh compiler is included. The parent module is documented in [`../README.md`](../README.md).
 
