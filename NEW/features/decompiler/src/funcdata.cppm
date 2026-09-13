@@ -37,7 +37,8 @@ ElementId ELEM_VARNODES = ElementId("varnodes", 119);
 /// \param sz is the number of bytes (of code) in the function body
 Funcdata::Funcdata(const string& nm, const string& disp, Scope* scope, const Address& addr, FunctionSymbol* sym,
                    int4 sz)
-    : baseaddr(addr), funcp(), vbank(scope->getArch()), heritage(this), covermerge(*this)
+    : baseaddr(addr), flowStart(), flowEnd(), flowBounded(false), funcp(), vbank(scope->getArch()), heritage(this),
+      covermerge(*this)
 
 { // Initialize high-level properties of
   // function by giving address and size

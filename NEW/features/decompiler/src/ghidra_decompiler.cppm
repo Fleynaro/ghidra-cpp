@@ -2556,6 +2556,8 @@ int main(int argc,char **argv)
         AddrSpace* baseSpace; ///< Space being overlayed
     public:
         OverlaySpace(AddrSpaceManager* m, const Translate* t); ///< Constructor
+        /// Construct an overlay directly from provider address-space metadata.
+        OverlaySpace(AddrSpaceManager* m, const Translate* t, const string& nm, int4 idx, AddrSpace* base);
         virtual AddrSpace* getContain(void) const {
             return baseSpace;
         }
@@ -13880,8 +13882,12 @@ int main(int argc,char **argv)
         uint8 getId(void) const {
             return symbolId;
         } ///< Get a unique id for the symbol
-        /// Apply externally supplied local naming and typing after symbol recovery.
-        void setProviderInfo(const string& nm, Datatype* ct);
+        /// Apply externally supplied local naming, typing, and optional stable
+        /// identity after symbol recovery.
+        ///
+        /// A non-zero provider id replaces the generated native id. A zero id
+        /// leaves an existing native identity unchanged.
+        void setProviderInfo(const string& nm, Datatype* ct, uint8 providerId = 0);
         uint4 getFlags(void) const {
             return flags;
         } ///< Get the boolean properties of the Symbol
@@ -23838,6 +23844,10 @@ public:
 
     UserPcodeOp* registerBuiltin(uint4 i); ///< Make sure an active record exists for the given built-in op
 
+    /// Replace a provider user-op index with an injected payload description.
+    /// The index must match the constant emitted as CALLOTHER input zero.
+    void registerInjected(const string& nm, uint4 ind, int4 injectid);
+
     /// Retrieve a segment-op description object by index
     /// \param i is the index
     /// \return the indicated segment-op description
@@ -24640,6 +24650,9 @@ class Funcdata {
     string name;                    ///< Name of function
     string displayName;             ///< Name to display in output
     Address baseaddr;               ///< Starting code address of binary data
+    Address flowStart;              ///< Lower bound supplied to the last flow generation pass
+    Address flowEnd;                ///< Exclusive upper bound supplied to the last flow generation pass
+    bool flowBounded;                ///< True when flowStart/flowEnd describe a provider body
     FuncProto funcp;                ///< Prototype of this function
     ScopeLocal* localmap;           ///< Local variables (symbols in the function scope)
 
@@ -24709,6 +24722,18 @@ public:
     const Address& getAddress(void) const {
         return baseaddr;
     } ///< Get the entry point address
+    /// Return whether this function has a bounded provider body range.
+    bool hasFlowBounds(void) const {
+        return flowBounded;
+    }
+    /// Return the lower bound used when raw flow was generated.
+    const Address& getFlowStart(void) const {
+        return flowStart;
+    }
+    /// Return the exclusive upper bound used when raw flow was generated.
+    const Address& getFlowEnd(void) const {
+        return flowEnd;
+    }
     int4 getSize(void) const {
         return size;
     } ///< Get the function body size in bytes

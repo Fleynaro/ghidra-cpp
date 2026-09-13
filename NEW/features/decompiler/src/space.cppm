@@ -658,6 +658,28 @@ OverlaySpace::OverlaySpace(AddrSpaceManager* m, const Translate* t) : AddrSpace(
     setFlags(overlay);
 }
 
+/// Construct a provider-declared overlay without requiring compiler-spec XML.
+/// The base space is retained so address ownership and pointer inference follow
+/// the same overlay relationship as `translate.cc::AddrSpaceManager::insertSpace`.
+OverlaySpace::OverlaySpace(AddrSpaceManager* m, const Translate* t, const string& nm, int4 idx, AddrSpace* base)
+    : AddrSpace(m, t, IPTR_PROCESSOR) {
+    if (base == (AddrSpace*)0)
+        throw LowlevelError("Provider overlay has no base space: " + nm);
+    name = nm;
+    index = idx;
+    baseSpace = base;
+    addressSize = base->getAddrSize();
+    wordsize = base->getWordSize();
+    delay = base->getDelay();
+    deadcodedelay = base->getDeadcodeDelay();
+    calcScaleMask();
+    setFlags(overlay);
+    if (base->isBigEndian())
+        setFlags(big_endian);
+    if (base->hasPhysical())
+        setFlags(hasphysical);
+}
+
 void OverlaySpace::decode(Decoder& decoder)
 
 {

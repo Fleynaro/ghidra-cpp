@@ -1282,6 +1282,18 @@ bool FlowInfo::injectSubFunction(FuncCallSpecs* fc)
     icontext.baseaddr = op->getAddr();
     icontext.nextaddr = icontext.baseaddr;
     icontext.calladdr = fc->getEntryAddress();
+    // XML/Sleigh call-fixups receive concrete call operands through the
+    // injection context. Provider payloads use the same contract instead of
+    // relying on a second provider-specific parameter convention.
+    for (int4 i = 1; i < op->numInput(); ++i) {
+        Varnode* vn = op->getIn(i);
+        if (vn == (Varnode*)0)
+            continue;
+        icontext.inputlist.emplace_back();
+        icontext.inputlist.back().space = vn->getSpace();
+        icontext.inputlist.back().offset = vn->getOffset();
+        icontext.inputlist.back().size = vn->getSize();
+    }
     InjectPayload* payload = glb->pcodeinjectlib->getPayload(fc->getInjectId());
     doInjection(payload, icontext, op, fc);
     // If the injection fills in the -paramshift- field of the context

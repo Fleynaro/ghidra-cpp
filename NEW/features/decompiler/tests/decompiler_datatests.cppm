@@ -148,16 +148,23 @@ private:
 class InjectionTableProvider final : public InjectionProvider {
 public:
     /// Stores immutable call-fixup records.
-    explicit InjectionTableProvider(std::vector<CallFixupDescription> call_fixups)
-        : call_fixups_(std::move(call_fixups)) {}
+    explicit InjectionTableProvider(std::vector<CallFixupDescription> call_fixups,
+                                    std::vector<CallOtherFixupDescription> call_other_fixups = {})
+        : call_fixups_(std::move(call_fixups)), call_other_fixups_(std::move(call_other_fixups)) {}
 
     /// Returns provider-owned call-fixups for registration before prototypes are applied.
     [[nodiscard]] std::vector<CallFixupDescription> call_fixups() const override {
         return call_fixups_;
     }
 
+    /// Returns provider-owned CALLOTHER payloads keyed by their emitted index.
+    [[nodiscard]] std::vector<CallOtherFixupDescription> call_other_fixups() const override {
+        return call_other_fixups_;
+    }
+
 private:
     std::vector<CallFixupDescription> call_fixups_;
+    std::vector<CallOtherFixupDescription> call_other_fixups_;
 };
 
 /// Supplies one real LOAD whose result is intentionally unused, matching the
@@ -192,6 +199,30 @@ public:
     }
 };
 
+/// Provides a small address-keyed p-code program for provider-only override
+/// and callother tests. It intentionally exposes the same Instruction contract
+/// as the Sleigh adapter so the native flow engine remains the code under test.
+class ScriptedPcodeProvider final : public PcodeProvider {
+public:
+    /// Stores immutable instructions keyed by their native entry address.
+    explicit ScriptedPcodeProvider(std::vector<Instruction> instructions) : instructions_(std::move(instructions)) {}
+
+    /// Returns the scripted instruction or a precise provider diagnostic.
+    [[nodiscard]] std::expected<Instruction, ProviderError> decode(std::uint64_t address) const override {
+        const auto iterator = std::find_if(instructions_.begin(), instructions_.end(),
+                                           [address](const Instruction& instruction) {
+                                               return instruction.address == address;
+                                           });
+        if (iterator == instructions_.end()) {
+            return std::unexpected(ProviderError{"Scripted p-code has no instruction at the requested address"});
+        }
+        return *iterator;
+    }
+
+private:
+    std::vector<Instruction> instructions_;
+};
+
 /// Builds the x86-64 provider architecture used by every embedded case.
 /// Original architecture: `x86:LE:64:default:gcc` in the original datatests.
 static ArchitectureDescription make_x86_64_architecture() {
@@ -214,6 +245,30 @@ static ArchitectureDescription make_x86_64_architecture() {
     return architecture;
 }
 
+/// Builds the extended x86-64 register description needed by original SysV
+/// SSE and x87 fixtures. It remains separate from the legacy Windows-style
+/// helper because the native bootstrap's register ranking is intentionally
+/// part of the existing x86 test contract.
+/// Original register layout: `Ghidra/Processors/x86/data/languages/ia.sinc`.
+static ArchitectureDescription make_x86_64_extended_architecture() {
+    ArchitectureDescription architecture = make_x86_64_architecture();
+    architecture.registers.insert(architecture.registers.end(),
+                                  {RegisterDescription{"RBP", Storage{"register", 0x28, 8}},
+                                   RegisterDescription{"RSI", Storage{"register", 0x30, 8}},
+                                   RegisterDescription{"RDI", Storage{"register", 0x38, 8}},
+                                   RegisterDescription{"R10", Storage{"register", 0x90, 8}},
+                                   RegisterDescription{"R11", Storage{"register", 0x98, 8}},
+                                   RegisterDescription{"R12", Storage{"register", 0xa0, 8}},
+                                   RegisterDescription{"R13", Storage{"register", 0xa8, 8}},
+                                   RegisterDescription{"R14", Storage{"register", 0xb0, 8}},
+                                   RegisterDescription{"R15", Storage{"register", 0xb8, 8}},
+                                   RegisterDescription{"XMM0", Storage{"register", 0x1200, 16}},
+                                   RegisterDescription{"XMM1", Storage{"register", 0x1210, 16}},
+                                   RegisterDescription{"ST0", Storage{"register", 0x1100, 10}},
+                                   RegisterDescription{"ST1", Storage{"register", 0x1110, 10}}});
+    return architecture;
+}
+
 /// Builds the Sleigh context required by the checked-in x86-64 SLA fixture.
 /// Original processor context: the x86 compiler specification used by the
 /// datatests under `Ghidra/Features/Decompiler/src/decompile/datatests`.
@@ -221,21 +276,214 @@ static std::vector<std::pair<std::string, std::uint64_t>> make_x86_64_context() 
     return {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}};
 }
 
-/// Runs one bounded machine-byte image through Sleigh and the native decompiler.
-/// The image may contain read-only data after `function_size`, which permits a
-/// compact jump table without loading any original XML or database state.
-/// Original pipeline: `translate.cc`, `flow.cc`, and `funcdata.cc` as exercised
-/// by the XML datatests in `Ghidra/Features/Decompiler/src/decompile/datatests`.
-static DecompilationResult decompile_embedded(std::uint64_t entry, std::vector<std::uint8_t> image,
-                                              std::size_t function_size, std::string function_name,
-                                              ProviderContext metadata = {}) {
-    const auto memory = std::make_shared<SparseMemory>(entry, std::move(image));
+/// Decodes compact hexadecimal fixture text for the chunk-image helper. The
+/// implementation is shared with the later synthetic x86 fixture cases.
+static std::vector<std::uint8_t> bytes_from_hex(std::string_view text);
+
+/// Places original XML byte chunks into one sparse-compatible image while
+/// retaining data that lives before or after the selected function.
+/// Original image contract: `<bytechunk space="ram" offset="...">` in the
+/// requested files under `Ghidra/Features/Decompiler/src/decompile/datatests`.
+static std::pair<std::uint64_t, std::vector<std::uint8_t>>
+make_chunk_image(std::vector<std::pair<std::uint64_t, std::string>> chunks) {
+    if (chunks.empty()) {
+        throw std::invalid_argument("Embedded datatest image has no chunks");
+    }
+    const auto base = std::min_element(chunks.begin(), chunks.end(),
+                                       [](const auto& left, const auto& right) { return left.first < right.first; });
+    const std::uint64_t base_address = base->first;
+    std::uint64_t end_address = base_address;
+    for (const auto& chunk : chunks) {
+        const std::uint64_t chunk_end = chunk.first + bytes_from_hex(chunk.second).size();
+        end_address = std::max(end_address, chunk_end);
+    }
+    std::vector<std::uint8_t> image(static_cast<std::size_t>(end_address - base_address), 0);
+    for (const auto& chunk : chunks) {
+        const std::vector<std::uint8_t> bytes = bytes_from_hex(chunk.second);
+        std::ranges::copy(bytes, image.begin() + static_cast<std::ptrdiff_t>(chunk.first - base_address));
+    }
+    return {base_address, std::move(image)};
+}
+
+/// Runs a bounded machine-byte image through Sleigh and the native decompiler,
+/// allowing XML-style discontiguous code and data chunks.
+/// Original pipeline: `loadimage.cc`, `translate.cc`, and `funcdata.cc`.
+static DecompilationResult decompile_embedded_at(std::uint64_t entry, std::uint64_t image_base,
+                                                 std::vector<std::uint8_t> image, std::size_t function_size,
+                                                 std::string function_name, ProviderContext metadata,
+                                                 ArchitectureDescription architecture) {
+    const auto memory = std::make_shared<SparseMemory>(image_base, std::move(image));
     auto provider = std::make_shared<SleighPcodeProvider>(
         std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory, make_x86_64_context());
     metadata.pcode = std::move(provider);
     metadata.memory = memory;
-    Decompiler decompiler(make_x86_64_architecture(), std::move(metadata));
+    Decompiler decompiler(std::move(architecture), std::move(metadata));
     return decompiler.decompile(FunctionDescription{std::move(function_name), entry, entry + function_size});
+}
+
+/// Runs one bounded machine-byte image through Sleigh and the native decompiler.
+/// The image may contain read-only data after `function_size`, which permits a
+/// compact jump table without loading original XML or database state.
+/// Original pipeline: `translate.cc`, `flow.cc`, and `funcdata.cc` as exercised
+/// by the XML datatests in `Ghidra/Features/Decompiler/src/decompile/datatests`.
+static DecompilationResult decompile_embedded(std::uint64_t entry, std::vector<std::uint8_t> image,
+                                              std::size_t function_size, std::string function_name,
+                                              ProviderContext metadata = {},
+                                              ArchitectureDescription architecture = make_x86_64_architecture()) {
+    return decompile_embedded_at(entry, entry, std::move(image), function_size, std::move(function_name),
+                                 std::move(metadata), std::move(architecture));
+}
+
+/// Runs an original XML chunk set with the selected function entry and exact
+/// semantic byte sequence preserved.
+/// Original source: the `<bytechunk>` records in each requested x86 datatest.
+static DecompilationResult
+decompile_embedded_chunks(std::uint64_t entry, std::vector<std::pair<std::uint64_t, std::string>> chunks,
+                          std::size_t function_size, std::string function_name, ProviderContext metadata = {},
+                          ArchitectureDescription architecture = make_x86_64_extended_architecture()) {
+    auto image = make_chunk_image(std::move(chunks));
+    return decompile_embedded_at(entry, image.first, std::move(image.second), function_size, std::move(function_name),
+                                 std::move(metadata), std::move(architecture));
+}
+
+/// Runs a provider-only p-code body through the same native architecture and
+/// analysis pipeline as the machine-code datatests.
+/// Original boundary: `decompile/cpp/translate.cc` and `funcdata.cc`.
+static DecompilationResult decompile_scripted(std::uint64_t entry, std::uint64_t body_size,
+                                              std::vector<Instruction> instructions, std::string function_name,
+                                              ProviderContext metadata = {}) {
+    metadata.pcode = std::make_shared<ScriptedPcodeProvider>(std::move(instructions));
+    metadata.memory = std::make_shared<SparseMemory>(entry, std::vector<std::uint8_t>{0});
+    Decompiler decompiler(make_x86_64_architecture(), std::move(metadata));
+    return decompiler.decompile(FunctionDescription{std::move(function_name), entry, entry + body_size});
+}
+
+/// Converts compact hexadecimal fixture text into the byte vector consumed by
+/// `SparseMemory`. Whitespace is ignored so the original datatest layout can be
+/// retained in focused native cases without loading XML at runtime.
+static std::vector<std::uint8_t> bytes_from_hex(std::string_view text) {
+    std::vector<std::uint8_t> result;
+    std::uint8_t high = 0;
+    bool have_high = false;
+    const auto digit = [](char value) -> std::uint8_t {
+        if (value >= '0' && value <= '9') {
+            return static_cast<std::uint8_t>(value - '0');
+        }
+        if (value >= 'a' && value <= 'f') {
+            return static_cast<std::uint8_t>(value - 'a' + 10);
+        }
+        if (value >= 'A' && value <= 'F') {
+            return static_cast<std::uint8_t>(value - 'A' + 10);
+        }
+        throw std::invalid_argument("Hex fixture contains a non-hexadecimal character");
+    };
+    for (const char character : text) {
+        if (std::isspace(static_cast<unsigned char>(character))) {
+            continue;
+        }
+        const std::uint8_t nibble = digit(character);
+        if (!have_high) {
+            high = nibble;
+            have_high = true;
+        } else {
+            result.push_back(static_cast<std::uint8_t>((high << 4U) | nibble));
+            have_high = false;
+        }
+    }
+    if (have_high) {
+        throw std::invalid_argument("Hex fixture contains an incomplete byte");
+    }
+    return result;
+}
+
+/// Writes a compact instruction fragment into a synthetic x86 image.
+static void write_fixture_bytes(std::vector<std::uint8_t>& image, std::size_t offset,
+                                std::initializer_list<std::uint8_t> bytes) {
+    if (offset > image.size() || bytes.size() > image.size() - offset) {
+        throw std::out_of_range("Synthetic x86 fixture write exceeds image bounds");
+    }
+    std::copy(bytes.begin(), bytes.end(), image.begin() + static_cast<std::ptrdiff_t>(offset));
+}
+
+/// Writes one little-endian absolute table entry into a synthetic x86 image.
+static void write_fixture_u64(std::vector<std::uint8_t>& image, std::size_t offset, std::uint64_t value) {
+    if (offset > image.size() || sizeof(value) > image.size() - offset) {
+        throw std::out_of_range("Synthetic x86 table write exceeds image bounds");
+    }
+    for (std::size_t byte = 0; byte < sizeof(value); ++byte) {
+        image[offset + byte] = static_cast<std::uint8_t>(value >> (byte * 8U));
+    }
+}
+
+/// Describes the image and bounded root body generated for a real jump-table case.
+struct JumpTableFixture {
+    std::vector<std::uint8_t> image;
+    std::size_t function_size = 0;
+    std::vector<std::uint64_t> targets;
+};
+
+/// Builds an x86-64 indirect switch with either an index mask or a range guard.
+/// The table and case bodies are outside the bounded root body, matching the
+/// layout of `switchind.xml`, `switchmask.xml`, and `switchmulti.xml`.
+static JumpTableFixture make_jump_table_fixture(std::uint64_t entry, std::size_t case_count, bool masked,
+                                                bool call_cases) {
+    constexpr std::size_t table_offset = 0x200;
+    constexpr std::size_t child_offset = 0x300;
+    const std::size_t case_start = masked ? 11 : 13;
+    const std::size_t default_offset = case_start + case_count * 6;
+    JumpTableFixture fixture;
+    fixture.image.resize(child_offset + case_count * 0x10 + 8, 0);
+    fixture.targets.reserve(case_count);
+
+    if (masked) {
+        write_fixture_bytes(fixture.image, 0, {0x48, 0x83, 0xe1, static_cast<std::uint8_t>(case_count - 1),
+                                               0xff, 0x24, 0xcd, 0x00, 0x00, 0x00, 0x00});
+        const std::uint32_t table_address = static_cast<std::uint32_t>(entry + table_offset);
+        for (std::size_t byte = 0; byte < sizeof(table_address); ++byte) {
+            fixture.image[7 + byte] = static_cast<std::uint8_t>(table_address >> (byte * 8U));
+        }
+    } else {
+        write_fixture_bytes(fixture.image, 0, {0x48, 0x83, 0xf9, static_cast<std::uint8_t>(case_count - 1), 0x77,
+                                               static_cast<std::uint8_t>(default_offset - 6), 0xff, 0x24, 0xcd, 0x00,
+                                               0x00, 0x00, 0x00});
+        const std::uint32_t table_address = static_cast<std::uint32_t>(entry + table_offset);
+        for (std::size_t byte = 0; byte < sizeof(table_address); ++byte) {
+            fixture.image[9 + byte] = static_cast<std::uint8_t>(table_address >> (byte * 8U));
+        }
+    }
+    for (std::size_t index = 0; index < case_count; ++index) {
+        const std::size_t case_offset = case_start + index * 6;
+        fixture.targets.push_back(entry + case_offset);
+        if (call_cases) {
+            const std::uint64_t child = entry + child_offset + index * 0x10;
+            const std::int64_t relative = static_cast<std::int64_t>(child) -
+                                          static_cast<std::int64_t>(entry + case_offset + 5);
+            write_fixture_bytes(fixture.image, case_offset,
+                                {0xe8, static_cast<std::uint8_t>(relative), static_cast<std::uint8_t>(relative >> 8),
+                                 static_cast<std::uint8_t>(relative >> 16), static_cast<std::uint8_t>(relative >> 24),
+                                 0xc3});
+            write_fixture_bytes(fixture.image, child_offset + index * 0x10,
+                                {0xb8, static_cast<std::uint8_t>(0x10 + index), 0x00, 0x00, 0x00, 0xc3});
+        } else {
+            const std::uint8_t operation = static_cast<std::uint8_t>(index % 4);
+            const std::array<std::uint8_t, 3> operation_bytes = {
+                static_cast<std::uint8_t>(operation == 0 ? 0x83 : operation == 1 ? 0x83 : operation == 2 ? 0x83 : 0x83),
+                static_cast<std::uint8_t>(operation == 0 ? 0xc0 : operation == 1 ? 0xe8 : operation == 2 ? 0xf0 : 0xc8),
+                static_cast<std::uint8_t>(index + 1)};
+            write_fixture_bytes(fixture.image, case_offset, {0x8b, 0xc2, operation_bytes[0], operation_bytes[1],
+                                                              operation_bytes[2], 0xc3});
+        }
+    }
+    if (!masked) {
+        write_fixture_bytes(fixture.image, default_offset, {0xb8, 0xff, 0xff, 0xff, 0xff, 0xc3});
+        fixture.function_size = default_offset + 6;
+    } else {
+        fixture.function_size = case_start + case_count * 6;
+    }
+    for (std::size_t index = 0; index < fixture.targets.size(); ++index) {
+        write_fixture_u64(fixture.image, table_offset + index * sizeof(std::uint64_t), fixture.targets[index]);
+    }
+    return fixture;
 }
 
 /// Creates a signed or unsigned integer provider type with an optional C declaration.
@@ -413,6 +661,14 @@ static void expect_complete_analysis(const DecompilationResult& result) {
 /// suite checks stable semantic tokens in the native result instead.
 static void expect_contains(std::string_view artifact, std::string_view token) {
     EXPECT_NE(artifact.find(token), std::string_view::npos) << "missing token: " << token << "\nGenerated artifact:\n"
+                                                            << artifact;
+}
+
+/// Verifies that a low-level artifact does not contain a transformation
+/// surrogate, matching XML `<stringmatch min="0" max="0">` assertions.
+static void expect_excludes(std::string_view artifact, std::string_view token) {
+    EXPECT_EQ(artifact.find(token), std::string_view::npos) << "unexpected token: " << token
+                                                            << "\nGenerated artifact:\n"
                                                             << artifact;
 }
 
@@ -637,6 +893,37 @@ TEST(DecompilerDatatests, PortedSignedModulo) {
     expect_complete_analysis(result);
     expect_contains(result.raw_pcode, " s% ");
     expect_contains(result.c_source, "%");
+}
+
+/// Exercises the four compiler-generated signed-modulo strength-reduction
+/// sequences from the x86-64 Windows fixture. The tests assert the recovered
+/// modulo constants rather than accepting a generic multiply/shift expression.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/modulo2.xml`.
+TEST(DecompilerDatatests, PortedModulo2) {
+    const std::array<std::pair<std::uint64_t, std::vector<std::uint8_t>>, 3> cases{{
+        {0x490000,
+         {0x89, 0xc8, 0xc1, 0xe9, 0x1f, 0x01, 0xc1, 0x83, 0xe1, 0xfe, 0x29, 0xc8, 0xc3}},
+        {0x490010,
+         {0x48, 0x63, 0xc1, 0x48, 0x69, 0xc8, 0x56, 0x55, 0x55, 0x55, 0x48, 0x89, 0xca, 0x48, 0xc1,
+          0xea, 0x3f, 0x48, 0xc1, 0xe9, 0x20, 0x01, 0xd1, 0x8d, 0x0c, 0x49, 0x29, 0xc8, 0xc3}},
+        {0x490030,
+         {0x89, 0xc8, 0x8d, 0x48, 0x03, 0x85, 0xc0, 0x0f, 0x49, 0xc8, 0x83, 0xe1, 0xfc, 0x29, 0xc8,
+          0xc3}},
+    }};
+    const std::array<std::string_view, 3> names{"mod2", "mod3", "mod4"};
+    const std::array<std::string_view, 3> expressions{"param_1 % 2", "param_1 % 3", "param_1 % 4"};
+    for (std::size_t index = 0; index < cases.size(); ++index) {
+        const auto& [entry, body] = cases[index];
+        const PrototypeDescription prototype =
+            make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
+                           {PrototypeParameterDescription{"param_1", "int32", Storage{"register", 8, 4}}});
+        const auto metadata = make_metadata({{entry, std::string(names[index]), ""}},
+                                            {integer_type("int32", 4, true)}, {{entry, prototype}});
+        const DecompilationResult result = decompile_embedded(entry, body, body.size(), std::string(names[index]), metadata);
+
+        expect_complete_analysis(result);
+        expect_function_body_contains(result, names[index], expressions[index]);
+    }
 }
 
 /// Exercises SSE load, floating multiply, and float-to-integer conversion.
@@ -1008,6 +1295,96 @@ TEST(DecompilerDatatests, PortedMixedFloatIntegerPrototype) {
     expect_contains(result.c_source, "return");
 }
 
+/// Verifies the x86 extended-precision storage contract from longdouble.xml by
+/// running the original writeLongDouble bytes through Sleigh and the native
+/// decompiler. The assertions distinguish a real ten-byte floating value from
+/// an integer declaration: x87 stack copies and the native FLOAT_ADD operation
+/// must survive analysis, and the typed pointer store must be printed as a
+/// float10 assignment.
+/// Original fixture: `Ghidra/Features/Decompiler/src/decompile/datatests/longdouble.xml:40-45,51-67,83-102`.
+TEST(DecompilerDatatests, PortedLongDoubleFloat10CoreBehavior) {
+    const std::uint64_t entry = 0x101100;
+    const std::string code = "f30f1efadb6c2408d9c0db3fdc059e010000db7f10c3";
+
+    TypeDescription float10 = floating_type("float10", 10);
+    TypeDescription float10_pointer = pointer_type("float10 *", "float10");
+    const TypeDescription double_type = floating_type("double_value", 8);
+    SymbolDescription constant{0x1012b0, "long_double_point_seven", "", SymbolKind::data, 8, "double_value"};
+    constant.read_only = true;
+    const PrototypeDescription prototype =
+        make_prototype("__cdecl", "void", std::nullopt,
+                       {PrototypeParameterDescription{"ptrwrite", "float10 *", Storage{"register", 0x38, 8}},
+                        PrototypeParameterDescription{"valwrite", "float10", Storage{"stack", 8, 10}}});
+    const ProviderContext metadata = make_metadata({SymbolDescription{entry, "writeLongDouble", ""}, constant},
+                                                    {float10, float10_pointer, double_type}, {{entry, prototype}});
+
+    const DecompilationResult result = decompile_embedded_chunks(entry, {{entry, code}, {0x1012b0, "666666666666e63f"}},
+                                                                 0x16, "writeLongDouble", metadata);
+
+    ASSERT_FALSE(result.raw_pcode.empty());
+    // The x87 instruction converts the mapped IEEE double constant through the
+    // native FloatFormat path before the ten-byte value participates in FLOAT_ADD.
+    ghidra::FloatFormat double_format(8);
+    const ghidra::uintb point_seven_encoding = double_format.getEncoding(0.7);
+    ghidra::FloatFormat::floatclass point_seven_class;
+    EXPECT_EQ(double_format.getHostFloat(point_seven_encoding, &point_seven_class), 0.7);
+    EXPECT_EQ(point_seven_class, ghidra::FloatFormat::normalized);
+    EXPECT_NE(result.raw_pcode.find("f+"), std::string::npos);
+    EXPECT_NE(result.raw_pcode.find(":10"), std::string::npos);
+    EXPECT_NE(result.c_source.find("float10"), std::string::npos);
+    EXPECT_NE(result.c_source.find("ptrwrite"), std::string::npos);
+    EXPECT_NE(result.c_source.find("valwrite"), std::string::npos);
+}
+
+/// Verifies all three forced integer representations from displayformat.xml
+/// through mapped provider symbols and the native C printer. The binary form
+/// is attached to the exact constant use at 0x100619, so this test exercises
+/// the dynamic-symbol path rather than accepting a declaration-only format.
+/// Original fixture: `Ghidra/Features/Decompiler/src/decompile/datatests/displayformat.xml:8-35`.
+TEST(DecompilerDatatests, PortedDisplayFormatForcedIntegerConstants) {
+    const std::uint64_t entry = 0x1005fa;
+    const std::string code = "554889e5c7050c0a200064000000c6050d0a200077c705ff0920006d0b0000"
+                             "c705fd092000aa000000905dc3";
+    TypeDescription uint8_type;
+    uint8_type.name = "uint8_t";
+    uint8_type.size = 1;
+    uint8_type.kind = TypeKind::typedef_type;
+    uint8_type.element_type = "char";
+    uint8_type.signed_value = true;
+    uint8_type.display_format = DisplayFormat::hexadecimal;
+    TypeDescription octint4 = integer_type("octint4", 4, true);
+    octint4.kind = TypeKind::typedef_type;
+    octint4.element_type = "int4";
+    octint4.display_format = DisplayFormat::octal;
+    std::vector<SymbolDescription> symbols{
+        SymbolDescription{entry, "setglobals", ""},
+        SymbolDescription{0x301014, "globalfree", "", SymbolKind::data, 4, "int4"},
+        SymbolDescription{0x30101c, "globalhex", "", SymbolKind::data, 1, "uint8_t"},
+        SymbolDescription{0x301018, "globaloct", "", SymbolKind::data, 4, "octint4"},
+        SymbolDescription{0x301020, "globalbin", "", SymbolKind::data, 4, "octint4"},
+    };
+    for (std::size_t index = 1; index < symbols.size(); ++index) {
+        symbols[index].read_only = true;
+    }
+    const PrototypeDescription prototype = make_prototype("__cdecl", "void", std::nullopt, {});
+    ProviderContext metadata =
+        make_metadata(std::move(symbols), {integer_type("int4", 4, true), uint8_type, octint4}, {{entry, prototype}});
+    metadata.analysis_options.readonly_propagate = true;
+    metadata.constant_formats.push_back(ConstantFormatDescription{0x100608, 0x77, 0, DisplayFormat::hexadecimal, 1});
+    metadata.constant_formats.push_back(ConstantFormatDescription{0x10060f, 0xb6d, 0, DisplayFormat::octal, 4});
+    metadata.constant_formats.push_back(ConstantFormatDescription{0x100619, 0xaa, 0, DisplayFormat::binary, 4});
+
+    const DecompilationResult result = decompile_embedded_chunks(
+        entry,
+        {{entry, code}, {0x301014, "64000000"}, {0x301018, "6d0b0000"}, {0x30101c, "77"}, {0x301020, "aa000000"}}, 0x2c,
+        "setglobals", std::move(metadata), make_x86_64_architecture());
+
+    EXPECT_NE(result.c_source.find("globalfree = 100"), std::string::npos);
+    EXPECT_NE(result.c_source.find("globalhex = 0x77"), std::string::npos);
+    ASSERT_NE(result.c_source.find("globaloct = 05555"), std::string::npos) << result.c_source;
+    EXPECT_NE(result.c_source.find("globalbin = 0b10101010"), std::string::npos);
+}
+
 /// Exercises an immutable SparseMemory read as the portable readonly portion of
 /// the original volatile/readonly tests; no volatile flag is fabricated.
 /// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/readvolatile.xml`.
@@ -1233,7 +1610,16 @@ TEST(DecompilerDatatests, PortedInlineFunctionBody) {
                                              {integer_type("int32", 4, true)}, {{entry, root}, {child, inline_child}});
     metadata.functions =
         std::make_shared<FunctionTableProvider>(std::vector<FunctionDescription>{{"add50", child, child + 4}});
-    const DecompilationResult result = decompile_embedded(entry, bytes, 6, "inline_root", std::move(metadata));
+    DecompilationResult result;
+    try {
+        result = decompile_embedded(entry, bytes, 6, "inline_root", std::move(metadata));
+    } catch (const ghidra::LowlevelError& error) {
+        FAIL() << error.explain;
+        return;
+    } catch (const std::exception& error) {
+        FAIL() << error.what();
+        return;
+    }
 
     expect_complete_analysis(result);
     expect_contains(result.c_source, "Inlined function: add50");
@@ -1281,6 +1667,7 @@ TEST(DecompilerDatatests, PortedStructuredCallFixupInjection) {
 
     expect_complete_analysis(result);
     expect_contains(result.c_source, "return");
+    expect_contains(result.c_source, "return 7");
 }
 
 /// Exercises overlapping union members through a typed load and verifies that
@@ -1580,7 +1967,929 @@ TEST(DecompilerDatatests, PortedStackStringWide) {
     expect_contains(result.c_source, ",4);");
 }
 
-/// Names one original XML fixture and records whether this suite has a portable
+/// Verifies that shared intermediate pointer calculations are pushed through
+/// the typed array field instead of surviving as duplicate pointer temporaries.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/dupptr.xml`,
+/// `loadstore_ptrfieldarray` and its Intermediate pointers #3/#4 assertions.
+TEST(DecompilerDatatests, DupptrPreservesTypedIntermediatePointerSemantics) {
+    const std::uint64_t entry = 0x100718;
+    const std::string code = "488d4491088b00c1e80383e00f8900c3";
+    TypeDescription array_struct;
+    array_struct.name = "arraystruct";
+    array_struct.size = 136;
+    array_struct.kind = TypeKind::structure;
+    array_struct.fields = {
+        TypeFieldDescription{"a", "int32", 0},
+        TypeFieldDescription{"b", "int32", 4},
+        TypeFieldDescription{"arr1", "IntArray16", 8},
+        TypeFieldDescription{"arr2", "IntArray16", 72},
+    };
+    const PrototypeDescription prototype =
+        make_prototype("__cdecl", "void", std::nullopt,
+                       {PrototypeParameterDescription{"ptr", "arraystruct *", Storage{"register", 8, 8}},
+                        PrototypeParameterDescription{"a", "int32", Storage{"register", 0x10, 4}}});
+    const auto metadata = make_metadata({{entry, "loadstore_ptrfieldarray", ""}},
+                                        {integer_type("int32", 4, true), array_type("IntArray16", "int32", 16, 4),
+                                         array_struct, pointer_type("arraystruct *", "arraystruct")},
+                                        {{entry, prototype}});
+    const DecompilationResult result = decompile_embedded_chunks(entry, {{entry, code}}, bytes_from_hex(code).size(),
+                                                                 "loadstore_ptrfieldarray", metadata);
+
+    expect_complete_analysis(result);
+    expect_function_body_contains(result, "loadstore_ptrfieldarray", "arr1[");
+    expect_function_body_contains(result, "loadstore_ptrfieldarray", ">> 3");
+    expect_function_body_contains(result, "loadstore_ptrfieldarray", "& 0xf");
+    expect_function_body_contains(result, "loadstore_ptrfieldarray", "ptr->arr1[");
+}
+
+/// Verifies that an aliased stack array remains a while-loop across an iterate
+/// call, preserving the XML fixture's no-for-loop contract.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/noforloop_alias.xml`.
+TEST(DecompilerDatatests, NoforloopAliasRetainsWhileLoop) {
+    const std::uint64_t entry = 0x400690;
+    const std::string code = R"(
+        554889e54883ec20897decc745f001000000c745f400000000
+        c745f802000000c745fc03000000eb298b45f483c0018945f4
+        488d45f04889c7e8adffffff8b45f489c6bf5d084000b800000000
+        e85ef4ffff8b45f43945ec7fcf90c9c3
+    )";
+    TypeDescription int_array = array_type("IntArray4", "int32", 4, 4);
+    const PrototypeDescription root_prototype = make_prototype(
+        "__cdecl", "void", std::nullopt, {PrototypeParameterDescription{"max", "int32", Storage{"register", 0x38, 4}}});
+    const PrototypeDescription might_change =
+        make_prototype("__cdecl", "void", std::nullopt,
+                       {PrototypeParameterDescription{"value", "IntArray4 *", Storage{"register", 0x38, 8}}});
+    const auto metadata =
+        make_metadata({{entry, "noforloop_alias", ""}, {0x40067b, "might_change", ""}, {0x400440, "printf", ""}},
+                      {integer_type("int32", 4, true), int_array, pointer_type("IntArray4 *", "IntArray4")},
+                      {{entry, root_prototype}, {0x40067b, might_change}},
+                      {{entry,
+                        {VariableDescription{"i", "IntArray4", Storage{"stack", static_cast<std::uint64_t>(-0x10), 16},
+                                             0x4101, true}}}});
+    const DecompilationResult result =
+        decompile_embedded_chunks(entry, {{entry, code}, {0x40085d, "56616c203d2025640a00"}},
+                                  bytes_from_hex(code).size(), "noforloop_alias", metadata);
+
+    expect_complete_analysis(result);
+    expect_function_body_contains(result, "noforloop_alias", "while");
+    expect_function_body_contains(result, "noforloop_alias", "int32 i [4]");
+    expect_function_body_contains(result, "noforloop_alias", "+ 1");
+    expect_function_body_contains(result, "noforloop_alias", "might_change((IntArray4 *)");
+}
+
+/// Verifies that a global modified through a child call is not normalized into
+/// a counted for-loop because the provider-installed global symbol is mutable.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/noforloop_globcall.xml`.
+TEST(DecompilerDatatests, NoforloopGlobalCallRetainsWhileLoop) {
+    const std::uint64_t entry = 0x4006ed;
+    const std::string code = R"(
+        554889e54883ec0848897df8c7052d0920000000000000
+        eb1b8b052509200083c00189051c092000488b45f84889c7
+        e85bffffff8b050a09200083f8097eda90c9c3
+    )";
+    SymbolDescription global;
+    global.address = 0x601030;
+    global.name = "globvar";
+    global.kind = SymbolKind::data;
+    global.size = 4;
+    global.type_name = "int32";
+    global.identity = 0x5101;
+    SymbolDescription global_alias = global;
+    global_alias.address = 0x601034;
+    global_alias.alias_identity = global.identity;
+    const PrototypeDescription root_prototype =
+        make_prototype("__cdecl", "void", std::nullopt,
+                       {PrototypeParameterDescription{"ptr", "int32 *", Storage{"register", 0x38, 8}}});
+    const auto metadata =
+        make_metadata({{entry, "noforloop_globcall", ""}, global, global_alias},
+                      {integer_type("int32", 4, true), pointer_type("int32 *", "int32")}, {{entry, root_prototype}});
+    const DecompilationResult result =
+        decompile_embedded_chunks(entry, {{entry, code}}, bytes_from_hex(code).size(), "noforloop_globcall", metadata);
+
+    expect_complete_analysis(result);
+    expect_function_body_contains(result, "noforloop_globcall", "while( true )");
+    expect_function_body_contains(result, "noforloop_globcall", "globvar = 0");
+    expect_function_body_contains(result, "noforloop_globcall", "globvar._1_3_");
+    expect_function_body_contains(result, "noforloop_globcall", "+ 1");
+}
+
+/// Verifies that using the iterator after the increment prevents a for-loop
+/// rewrite and preserves the multiplication assigned to the global variable.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/noforloop_iterused.xml`.
+TEST(DecompilerDatatests, NoforloopIteratorUseRetainsWhileLoop) {
+    const std::uint64_t entry = 0x40063e;
+    const std::string code = R"(
+        554889e5534883ec18897decbb0a000000eb1d89debf50084000
+        b800000000e8deffffff83c3016bc3648905c20920003b5dec7cde
+        904883c4185b5dc3
+    )";
+    SymbolDescription global;
+    global.address = 0x601030;
+    global.name = "globvar";
+    global.kind = SymbolKind::data;
+    global.size = 4;
+    global.type_name = "int32";
+    global.identity = 0x5201;
+    const PrototypeDescription root_prototype = make_prototype(
+        "__cdecl", "void", std::nullopt, {PrototypeParameterDescription{"max", "int32", Storage{"register", 0x38, 4}}});
+    const auto metadata = make_metadata({{entry, "noforloop_iterused", ""}, {0x400440, "printf", ""}, global},
+                                        {integer_type("int32", 4, true)}, {{entry, root_prototype}});
+    const DecompilationResult result =
+        decompile_embedded_chunks(entry, {{entry, code}, {0x400850, "4265666f7265203d2025640a00"}},
+                                  bytes_from_hex(code).size(), "noforloop_iterused", metadata);
+
+    expect_complete_analysis(result);
+    expect_function_body_contains(result, "noforloop_iterused", "while");
+    expect_function_body_contains(result, "noforloop_iterused", "globvar =");
+    expect_function_body_contains(result, "noforloop_iterused", "* 100");
+}
+
+/// Verifies that scaled pointer arithmetic distributes the nested array offset
+/// into the typed field rather than printing a raw multiply by element size.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/nestedoffset.xml`.
+TEST(DecompilerDatatests, NestedOffsetUsesArrayField) {
+    const std::uint64_t entry = 0x400517;
+    const std::string code = "554889e5488d441602488d04878b005dc3";
+    TypeDescription structure;
+    structure.name = "twostruct";
+    structure.size = 28;
+    structure.kind = TypeKind::structure;
+    structure.fields = {TypeFieldDescription{"field1", "int32", 0}, TypeFieldDescription{"field2", "int32", 4},
+                        TypeFieldDescription{"array", "IntArray5", 8}};
+    const PrototypeDescription prototype =
+        make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
+                       {PrototypeParameterDescription{"ptr", "twostruct *", Storage{"register", 0x38, 8}},
+                        PrototypeParameterDescription{"a", "int64", Storage{"register", 0x10, 8}},
+                        PrototypeParameterDescription{"b", "int64", Storage{"register", 0x80, 8}}});
+    const auto metadata =
+        make_metadata({{entry, "readstruct", ""}},
+                      {integer_type("int32", 4, true), integer_type("int64", 8, true),
+                       array_type("IntArray5", "int32", 5, 4), structure, pointer_type("twostruct *", "twostruct")},
+                      {{entry, prototype}});
+    const DecompilationResult result =
+        decompile_embedded_chunks(entry, {{entry, code}}, bytes_from_hex(code).size(), "readstruct", metadata);
+
+    expect_complete_analysis(result);
+    expect_function_body_contains(result, "readstruct", "return ptr->array[");
+    expect_function_body_excludes(result, "readstruct", "field1");
+    expect_function_body_excludes(result, "readstruct", "* 4");
+}
+
+/// Verifies the positive offcut array case: the decompiler finds the mapped
+/// structure containing the load and names its array field, not its first field.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/offsetarray.xml`.
+TEST(DecompilerDatatests, OffsetArrayUsesMappedArrayField) {
+    const std::uint64_t entry = 0x100000;
+    const std::string code = "83ea018b449104c3";
+    TypeDescription structure;
+    structure.name = "mystruct";
+    structure.size = 132;
+    structure.kind = TypeKind::structure;
+    structure.fields = {TypeFieldDescription{"firstfield", "int32", 0}, TypeFieldDescription{"array", "IntArray32", 4}};
+    const PrototypeDescription root_prototype =
+        make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
+                       {PrototypeParameterDescription{"ptr", "mystruct *", Storage{"register", 8, 8}},
+                        PrototypeParameterDescription{"index", "int32", Storage{"register", 0x10, 4}}});
+    const auto metadata = make_metadata({{entry, "access_array1", ""}},
+                                        {integer_type("int32", 4, true), array_type("IntArray32", "int32", 32, 4),
+                                         structure, pointer_type("mystruct *", "mystruct")},
+                                        {{entry, root_prototype}});
+    const DecompilationResult result =
+        decompile_embedded_chunks(entry, {{entry, code}}, bytes_from_hex(code).size(), "access_array1", metadata);
+
+    expect_complete_analysis(result);
+    expect_function_body_contains(result, "access_array1", "array[");
+    expect_function_body_contains(result, "access_array1", "index - 1");
+    expect_function_body_excludes(result, "access_array1", "firstfield");
+}
+
+/// Verifies the forward-search offcut case: an index outside the local mapped
+/// structure is still interpreted through the array field rather than a raw
+/// first-field reference.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/wayoffarray.xml`.
+TEST(DecompilerDatatests, WayoffArrayUsesForwardMappedArrayField) {
+    const std::uint64_t entry = 0x100000;
+    const std::string code = "83ea048b449108c3";
+    TypeDescription structure;
+    structure.name = "mystruct";
+    structure.size = 136;
+    structure.kind = TypeKind::structure;
+    structure.fields = {TypeFieldDescription{"firstfield", "int64", 0}, TypeFieldDescription{"array", "IntArray32", 8}};
+    const PrototypeDescription root_prototype =
+        make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
+                       {PrototypeParameterDescription{"ptr", "mystruct *", Storage{"register", 8, 8}},
+                        PrototypeParameterDescription{"index", "int32", Storage{"register", 0x10, 4}}});
+    const auto metadata =
+        make_metadata({{entry, "access_array1", ""}},
+                      {integer_type("int32", 4, true), integer_type("int64", 8, true),
+                       array_type("IntArray32", "int32", 32, 4), structure, pointer_type("mystruct *", "mystruct")},
+                      {{entry, root_prototype}});
+    const DecompilationResult result =
+        decompile_embedded_chunks(entry, {{entry, code}}, bytes_from_hex(code).size(), "access_array1", metadata);
+
+    expect_complete_analysis(result);
+    expect_function_body_contains(result, "access_array1", "array[");
+    expect_function_body_contains(result, "access_array1", "index - 4");
+    expect_function_body_excludes(result, "access_array1", "firstfield");
+}
+
+/// Verifies that a mapped whole structure and its separately named field share
+/// stable provider identity without collapsing the field expression into the
+/// containing object.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/partialmerge.xml`,
+/// `readpartial` and Partial Merge #1/#2.
+TEST(DecompilerDatatests, PartialMergeKeepsWholeAndFieldIdentity) {
+    const std::uint64_t entry = 0x1006a7;
+    const std::string code = R"(
+        8b1dc3ffffff48893dbcffffff83c30a89d8c30000
+        8b05aeffffff01f048893da5ffffff83c00ac3
+    )";
+    TypeDescription highlow;
+    highlow.name = "highlow";
+    highlow.size = 8;
+    highlow.kind = TypeKind::structure;
+    highlow.fields = {TypeFieldDescription{"a", "int32", 0}, TypeFieldDescription{"b", "int32", 4}};
+    SymbolDescription global;
+    global.address = 0x100670;
+    global.name = "glob1";
+    global.kind = SymbolKind::data;
+    global.size = 8;
+    global.type_name = "highlow";
+    global.identity = 0x7001;
+    const PrototypeDescription prototype = make_prototype("__cdecl", "int32", Storage{"register", 0, 4}, {});
+    const auto metadata = make_metadata({{entry, "readpartial", ""}, global}, {integer_type("int32", 4, true), highlow},
+                                        {{entry, prototype}});
+    const DecompilationResult result = decompile_embedded_chunks(entry, {{entry, code}}, 0x15, "readpartial", metadata);
+
+    expect_complete_analysis(result);
+    expect_function_body_contains(result, "readpartial", "hVar1.a");
+    expect_function_body_contains(result, "readpartial", "+ 10");
+    expect_function_body_excludes(result, "readpartial", "undefined");
+}
+
+/// Verifies that simultaneous typed loads and stores split a structure into
+/// named fields instead of preserving only an untyped aggregate copy.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/partialsplit.xml`,
+/// `loadalone` and Partial splitting #1/#2.
+TEST(DecompilerDatatests, PartialSplitNamesIndividualFields) {
+    const std::uint64_t entry = 0x100000;
+    const std::string code = "8b41048942040fb74106668942068b4108894208c3";
+    TypeDescription myfoo;
+    myfoo.name = "myfoo";
+    myfoo.size = 12;
+    myfoo.kind = TypeKind::structure;
+    myfoo.fields = {TypeFieldDescription{"a", "int32", 0}, TypeFieldDescription{"b", "int16", 4},
+                    TypeFieldDescription{"c", "int16", 6}, TypeFieldDescription{"d", "int32", 8}};
+    const PrototypeDescription prototype =
+        make_prototype("__cdecl", "void", std::nullopt,
+                       {PrototypeParameterDescription{"ptrload", "myfoo *", Storage{"register", 8, 8}},
+                        PrototypeParameterDescription{"ptrstore", "myfoo *", Storage{"register", 0x10, 8}}});
+    const auto metadata = make_metadata(
+        {{entry, "loadalone", ""}},
+        {integer_type("int32", 4, true), integer_type("int16", 2, true), myfoo, pointer_type("myfoo *", "myfoo")},
+        {{entry, prototype}});
+    const DecompilationResult result =
+        decompile_embedded_chunks(entry, {{entry, code}}, bytes_from_hex(code).size(), "loadalone", metadata);
+
+    expect_complete_analysis(result);
+    expect_function_body_contains(result, "loadalone", "ptrstore->b");
+    expect_function_body_contains(result, "loadalone", "ptrstore->c");
+    expect_function_body_contains(result, "loadalone", "ptrstore->d");
+}
+
+/// Verifies that union field selection metadata survives a partial access and
+/// prints the active union member rather than an undefined integer slice.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/partialunion.xml`.
+TEST(DecompilerDatatests, PartialUnionSelectsActiveMember) {
+    const std::uint64_t entry = 0x10068a;
+    const std::string code = "f30f1001f30f11018b4104c3";
+    TypeDescription astruct;
+    astruct.name = "astruct";
+    astruct.size = 12;
+    astruct.kind = TypeKind::structure;
+    astruct.fields = {TypeFieldDescription{"aval1", "int32", 0}, TypeFieldDescription{"aval2", "int32", 4},
+                      TypeFieldDescription{"aval3", "int32", 8}};
+    TypeDescription bstruct;
+    bstruct.name = "bstruct";
+    bstruct.size = 12;
+    bstruct.kind = TypeKind::structure;
+    bstruct.fields = {TypeFieldDescription{"bval1", "float32", 0}, TypeFieldDescription{"bval2", "int32", 4},
+                      TypeFieldDescription{"bval3", "float32", 8}};
+    TypeDescription union_type;
+    union_type.name = "structunion";
+    union_type.size = 12;
+    union_type.kind = TypeKind::union_type;
+    union_type.fields = {TypeFieldDescription{"a", "astruct", 0}, TypeFieldDescription{"b", "bstruct", 0}};
+    const PrototypeDescription prototype =
+        make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
+                       {PrototypeParameterDescription{"value", "structunion *", Storage{"register", 8, 8}}});
+    const auto metadata = make_metadata({{entry, "partialunion", ""}},
+                                        {integer_type("int32", 4, true), floating_type("float32", 4), astruct, bstruct,
+                                         union_type, pointer_type("structunion *", "structunion")},
+                                        {{entry, prototype}});
+    const DecompilationResult result =
+        decompile_embedded_chunks(entry, {{entry, code}}, bytes_from_hex(code).size(), "partialunion", metadata);
+
+    expect_complete_analysis(result);
+    expect_function_body_contains(result, "partialunion", "(value->a).aval1");
+    expect_function_body_contains(result, "partialunion", "(value->a).aval2");
+    expect_function_body_excludes(result, "partialunion", "undefined4");
+}
+
+/// Verifies that provider relative-pointer metadata constructs a named
+/// TypePointerRel and prints ADJ accesses on both sides of the relative base.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/pointerrel.xml`.
+TEST(DecompilerDatatests, PointerRelativeMetadataPrintsAdjAccesses) {
+    const std::uint64_t entry = 0x1006fa;
+    const std::string code = R"(
+        554889e548897dd88975d4c745ec00000000
+        f30f1005a0010000f30f1145f0488b45d84883c008488945f8
+        c745f400000000eb39488b45f88b000145ec488b45f84883c004
+        8b000145ec488b45f84883e804f30f1000f30f104df0f30f58c1
+        f30f1145f0488345f8508345f4018b45f43b45d47cbff30f1045f0
+        0f2e053d01000076048345ec058b45ec5dc3
+    )";
+    TypeDescription structure;
+    structure.name = "mystruct";
+    structure.size = 80;
+    structure.kind = TypeKind::structure;
+    structure.fields = {TypeFieldDescription{"a", "int32", 0}, TypeFieldDescription{"b", "float32", 4},
+                        TypeFieldDescription{"c", "int32", 8}, TypeFieldDescription{"d", "int32", 12},
+                        TypeFieldDescription{"arr", "IntArray16", 16}};
+    TypeDescription relative;
+    relative.name = "myptroff";
+    relative.size = 8;
+    relative.kind = TypeKind::pointer;
+    relative.element_type = "int32";
+    relative.relative_parent_type = "mystruct";
+    relative.relative_offset = 8;
+    relative.declaration = "typedef int32 * myptroff;";
+    const PrototypeDescription prototype =
+        make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
+                       {PrototypeParameterDescription{"ptr", "mystruct *", Storage{"register", 0x38, 8}},
+                        PrototypeParameterDescription{"count", "int32", Storage{"register", 0x30, 4}}});
+    const auto metadata = make_metadata(
+        {{entry, "process_array", ""}},
+        {integer_type("int32", 4, true), floating_type("float32", 4), array_type("IntArray16", "int32", 16, 4),
+         structure, pointer_type("mystruct *", "mystruct"), relative},
+        {{entry, prototype}},
+        {{entry,
+          {VariableDescription{"ptrrel", "myptroff", Storage{"stack", static_cast<std::uint64_t>(-0x10), 8}, 0x7301,
+                               true}}}});
+    const DecompilationResult result = decompile_embedded_chunks(
+        entry, {{entry, code}, {0x1008b4, "000020410000a841"}}, bytes_from_hex(code).size(), "process_array", metadata);
+
+    expect_complete_analysis(result);
+    expect_contains(result.c_source, "typedef int32 * myptroff;");
+    expect_function_body_contains(result, "process_array", "ptrrel");
+    expect_function_body_contains(result, "process_array", "ptrrel[-1]");
+}
+
+/// Verifies that a relative pointer can address an inner field and recover the
+/// parent object through ADJ, matching the pointer subtraction fixture.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/pointersub.xml`.
+TEST(DecompilerDatatests, PointerSubtractionUsesRelativeParent) {
+    const std::uint64_t entry = 0x1005fa;
+    const std::string code =
+        "554889e548897de8488b45e84883e810488945f8488b45e8f20f1005ce000000f20f114008488b45f8c740080a000000488b45f85dc3";
+    TypeDescription inner;
+    inner.name = "InnerStruct";
+    inner.size = 24;
+    inner.kind = TypeKind::structure;
+    inner.fields = {TypeFieldDescription{"a", "int64", 0}, TypeFieldDescription{"b", "float64", 8},
+                    TypeFieldDescription{"c", "char", 16}};
+    TypeDescription outer;
+    outer.name = "OuterStruct";
+    outer.size = 40;
+    outer.kind = TypeKind::structure;
+    outer.fields = {TypeFieldDescription{"outA", "int64", 0}, TypeFieldDescription{"outB", "int64", 8},
+                    TypeFieldDescription{"inner", "InnerStruct", 16}};
+    TypeDescription relative;
+    relative.name = "outer_rel";
+    relative.size = 8;
+    relative.kind = TypeKind::pointer;
+    relative.element_type = "InnerStruct";
+    relative.relative_parent_type = "OuterStruct";
+    relative.relative_offset = 16;
+    const PrototypeDescription prototype =
+        make_prototype("__cdecl", "OuterStruct *", std::nullopt,
+                       {PrototypeParameterDescription{"ptr", "outer_rel", Storage{"register", 0x38, 8}}});
+    const auto metadata =
+        make_metadata({{entry, "getOuter", ""}},
+                      {integer_type("int64", 8, true), floating_type("float64", 8), integer_type("char", 1, true),
+                       inner, outer, pointer_type("OuterStruct *", "OuterStruct"), relative},
+                      {{entry, prototype}});
+    const DecompilationResult result = decompile_embedded_chunks(entry, {{entry, code}, {0x1006e8, "0000000000002340"}},
+                                                                 bytes_from_hex(code).size(), "getOuter", metadata);
+
+    expect_complete_analysis(result);
+    expect_function_body_contains(result, "getOuter", "ptr->b =");
+    expect_function_body_contains(result, "getOuter", "ADJ(ptr)->outB = 10");
+    expect_function_body_contains(result, "getOuter", "return ADJ(ptr)");
+}
+
+/// Verifies explicit pointer-to-array scaling, including the distinction between
+/// advancing one row and dereferencing one scalar element.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/ptrtoarray.xml`.
+TEST(DecompilerDatatests, PointerToArrayPreservesRowArithmetic) {
+    const std::uint64_t entry = 0x10123e;
+    const std::string code = R"(
+        f30f1efa554889e54883ec1048897df88975f4488b45f84883c040
+        4889c7e846ffffff488b45f84883e8804889c7e87dffffff
+        837df40a7508488145f800020000488b45f84889c7e81cffffff
+        488b45f84889c7e857ffffff488b45f8c9c3
+    )";
+    const PrototypeDescription display =
+        make_prototype("__cdecl", "void", std::nullopt,
+                       {PrototypeParameterDescription{"ptr", "IntArray16 *", Storage{"register", 0x38, 8}}});
+    const PrototypeDescription display_low =
+        make_prototype("__cdecl", "void", std::nullopt,
+                       {PrototypeParameterDescription{"ptr", "int32 *", Storage{"register", 0x38, 8}}});
+    const PrototypeDescription row_float =
+        make_prototype("__cdecl", "void", std::nullopt,
+                       {PrototypeParameterDescription{"ptr", "FloatArray1 *", Storage{"register", 0x38, 8}}});
+    const PrototypeDescription row_int =
+        make_prototype("__cdecl", "void", std::nullopt,
+                       {PrototypeParameterDescription{"ptr", "IntArray1 *", Storage{"register", 0x38, 8}}});
+    const auto metadata = make_metadata(
+        {{entry, "ptrToArray", ""},
+         {0x101189, "floatarray", ""},
+         {0x101198, "intarray", ""},
+         {0x1011a7, "display", ""},
+         {0x1011ee, "displayLow", ""}},
+        {integer_type("int32", 4, true), floating_type("float32", 4), array_type("IntArray16", "int32", 16, 4),
+         array_type("FloatArray1", "float32", 1, 4), array_type("IntArray1", "int32", 1, 4),
+         pointer_type("IntArray16 *", "IntArray16"), pointer_type("FloatArray1 *", "FloatArray1"),
+         pointer_type("IntArray1 *", "IntArray1"), pointer_type("int32 *", "int32")},
+        {{entry,
+          make_prototype("__cdecl", "void", std::nullopt,
+                         {PrototypeParameterDescription{"param_1", "IntArray16 *", Storage{"register", 0x38, 8}}})},
+         {0x101189, row_float},
+         {0x101198, row_int},
+         {0x1011a7, display},
+         {0x1011ee, display_low}});
+    const DecompilationResult result = decompile_embedded_chunks(entry, {{entry, code}}, 0x5f, "ptrToArray", metadata);
+
+    expect_complete_analysis(result);
+    expect_function_body_contains(result, "ptrToArray", "display(param_1 + 1)");
+    expect_function_body_contains(result, "ptrToArray", "displayLow");
+    expect_function_body_contains(result, "ptrToArray", "0x80");
+}
+
+/// Verifies that a stack array retains one stable variable identity across an
+/// aliasing call, so the post-call store does not merge with the call input.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/varcross.xml`,
+/// `store_cross` and Store cross #3/#5.
+TEST(DecompilerDatatests, VariableCrossingRetainsStableLocalIdentity) {
+    const std::uint64_t entry = 0x10002b;
+    const std::string code = R"(
+        4883ec6831c083ff07b918000000b8480000000f45c84889e0
+        488d542450c700000000004883c0044839d075f1894c24284889e7
+        e89cffffff4883c468c3
+    )";
+    const PrototypeDescription use_array =
+        make_prototype("__cdecl", "void", std::nullopt,
+                       {PrototypeParameterDescription{"array", "IntArray20 *", Storage{"register", 0x38, 8}}});
+    const PrototypeDescription root = make_prototype("__cdecl", "void", std::nullopt, {});
+    SymbolDescription global;
+    global.address = 0x101a00;
+    global.name = "glob1";
+    global.kind = SymbolKind::data;
+    global.size = 4;
+    global.type_name = "int32";
+    global.identity = 0x8101;
+    const auto metadata =
+        make_metadata({{entry, "store_cross", ""}, {0x100000, "use_array", ""}, global},
+                      {integer_type("int32", 4, true), array_type("IntArray20", "int32", 20, 4),
+                       pointer_type("IntArray20 *", "IntArray20")},
+                      {{entry, root}, {0x100000, use_array}},
+                      {{entry,
+                        {VariableDescription{"local_array", "IntArray20",
+                                             Storage{"stack", static_cast<std::uint64_t>(-0x68), 80}, 0x8102, true}}}});
+    const DecompilationResult result =
+        decompile_embedded_chunks(entry, {{entry, code}}, bytes_from_hex(code).size(), "store_cross", metadata);
+
+    expect_complete_analysis(result);
+    expect_function_body_contains(result, "store_cross", "local_array");
+    expect_function_body_contains(result, "store_cross", "use_array(&local_array)");
+    expect_function_body_excludes(result, "store_cross", "local_array[10] = 0x18");
+}
+
+/// Verifies that offcut references resolve through mapped structure fields and
+/// string interiors, including the exact `"world"` suffix from the XML fixture.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/offcut.xml`.
+TEST(DecompilerDatatests, OffcutReferencesResolveThroughDataSymbols) {
+    const std::uint64_t entry = 0x100000;
+    const std::string code = R"(
+        55534883ec1889fbbf80001000e8ee0f000089c583fb01741d
+        83fb02742683fb03742f83fb04743c83fb05744589e84883c4185b5dc3
+        bf9c001000e8c00f000001c5ebe9bf9c001000e8ba0f000001c5ebdb
+        48c744240890001000b8900010008d28ebc9bfa4001000e8a20f000089c5
+        ebbbbfaa001000e8940f000089c5ebad
+    )";
+    TypeDescription substruct;
+    substruct.name = "substruct";
+    substruct.size = 8;
+    substruct.kind = TypeKind::structure;
+    substruct.fields = {TypeFieldDescription{"sub1", "int32", 0}, TypeFieldDescription{"sub2", "int32", 4}};
+    TypeDescription mystruct;
+    mystruct.name = "mystruct";
+    mystruct.size = 20;
+    mystruct.kind = TypeKind::structure;
+    mystruct.fields = {TypeFieldDescription{"a", "int32", 0}, TypeFieldDescription{"b", "int32", 4},
+                       TypeFieldDescription{"c", "float32", 8}, TypeFieldDescription{"d", "substruct", 12}};
+    SymbolDescription glob2;
+    glob2.address = 0x100080;
+    glob2.name = "glob2";
+    glob2.kind = SymbolKind::data;
+    glob2.size = 8;
+    glob2.type_name = "substruct";
+    glob2.read_only = true;
+    glob2.identity = 0x8201;
+    SymbolDescription glob1;
+    glob1.address = 0x100090;
+    glob1.name = "glob1";
+    glob1.kind = SymbolKind::data;
+    glob1.size = 20;
+    glob1.type_name = "mystruct";
+    glob1.read_only = true;
+    glob1.identity = 0x8202;
+    SymbolDescription string_symbol;
+    string_symbol.address = 0x1000a4;
+    string_symbol.name = "globstring";
+    string_symbol.kind = SymbolKind::data;
+    string_symbol.size = 12;
+    string_symbol.type_name = "CharArray12";
+    string_symbol.read_only = true;
+    string_symbol.identity = 0x8203;
+    const PrototypeDescription read_sub =
+        make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
+                       {PrototypeParameterDescription{"ptr", "substruct *", Storage{"register", 0x38, 8}}});
+    const PrototypeDescription read_int =
+        make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
+                       {PrototypeParameterDescription{"ptr", "int32 *", Storage{"register", 0x38, 8}}});
+    const PrototypeDescription read_string =
+        make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
+                       {PrototypeParameterDescription{"ptr", "char *", Storage{"register", 0x38, 8}}});
+    auto metadata = make_metadata({{entry, "offcut", ""},
+                                   {0x101000, "read_sub", ""},
+                                   {0x101008, "read_int", ""},
+                                   {0x101010, "read_string", ""},
+                                   glob2,
+                                   glob1,
+                                   string_symbol},
+                                  {integer_type("int32", 4, true), floating_type("float32", 4),
+                                   integer_type("char", 1, true), substruct, mystruct,
+                                   array_type("CharArray12", "char", 12, 1), pointer_type("substruct *", "substruct"),
+                                   pointer_type("int32 *", "int32"), pointer_type("char *", "char")},
+                                  {{0x101000, read_sub}, {0x101008, read_int}, {0x101010, read_string}});
+    metadata.analysis_options.readonly_propagate = true;
+    const DecompilationResult result =
+        decompile_embedded_chunks(entry, {{entry, code}, {0x1000a0, "0000000068656c6c6f20776f726c6400"}},
+                                  bytes_from_hex(code).size(), "offcut", metadata);
+
+    expect_complete_analysis(result);
+    expect_function_body_contains(result, "offcut", "read_sub((substruct *)0x100080)");
+    expect_function_body_contains(result, "offcut", "read_sub((substruct *)0x10009c)");
+    expect_function_body_contains(result, "offcut", "read_int((int32 *)0x10009c)");
+    expect_function_body_contains(result, "offcut", "read_string((char *)0x1000a4)");
+    expect_function_body_contains(result, "offcut", "read_string((char *)0x1000aa)");
+}
+
+/// Exercises the original indirect switch shape with three real child bodies.
+/// The table is recovered by native JumpTable/FlowInfo logic, while the child
+/// FunctionProvider ranges ensure calls do not decode through neighboring code.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/switchind.xml`.
+TEST(DecompilerDatatests, PortedSwitchIndirectMultiFunctionBodies) {
+    const std::uint64_t entry = 0x480000;
+    const JumpTableFixture fixture = make_jump_table_fixture(entry, 3, false, true);
+    const PrototypeDescription root =
+        make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
+                       {PrototypeParameterDescription{"selector", "int32", Storage{"register", 8, 4}}});
+    std::vector<SymbolDescription> symbols{{entry, "switchind_root", ""}};
+    std::vector<std::pair<std::uint64_t, PrototypeDescription>> prototypes{{entry, root}};
+    std::vector<FunctionDescription> functions;
+    for (std::size_t index = 0; index < fixture.targets.size(); ++index) {
+        const std::uint64_t child = entry + 0x300 + index * 0x10;
+        const std::string name = "switch_case_" + std::to_string(index);
+        symbols.push_back(SymbolDescription{child, name, ""});
+        prototypes.emplace_back(child, make_prototype("__cdecl", "int32", Storage{"register", 0, 4}, {}));
+        functions.push_back(FunctionDescription{name, child, child + 6});
+    }
+    ProviderContext metadata =
+        make_metadata(std::move(symbols), {integer_type("int32", 4, true)}, std::move(prototypes));
+    FlowDescription flow;
+    flow.jump_tables.push_back(JumpTableDescription{entry + 6, fixture.targets, std::nullopt, 0, 0});
+    metadata.flow =
+        std::make_shared<FlowTableProvider>(std::vector<std::pair<std::uint64_t, FlowDescription>>{{entry, flow}});
+    metadata.functions = std::make_shared<FunctionTableProvider>(std::move(functions));
+    const DecompilationResult result =
+        decompile_embedded(entry, fixture.image, fixture.function_size, "switchind_root", std::move(metadata));
+
+    expect_complete_analysis(result);
+    expect_contains(result.c_source, "switch");
+    expect_contains(result.c_source, "case 0");
+    expect_contains(result.c_source, "case 1");
+    expect_contains(result.c_source, "case 2");
+    expect_contains(result.c_source, "switch_case_0");
+    expect_contains(result.c_source, "switch_case_1");
+    expect_contains(result.c_source, "switch_case_2");
+    expect_excludes(result.c_source, "goto LAB_");
+}
+
+/// Exercises masked and multi-case indirect switches with exact case and
+/// arithmetic assertions rather than accepting a generic return statement.
+/// Original sources: `switchmask.xml` and `switchmulti.xml`.
+TEST(DecompilerDatatests, PortedSwitchMaskAndMultiCaseSemantics) {
+    const std::uint64_t mask_entry = 0x481000;
+    const JumpTableFixture mask_fixture = make_jump_table_fixture(mask_entry, 4, true, false);
+    const PrototypeDescription mask_prototype =
+        make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
+                       {PrototypeParameterDescription{"selector", "int32", Storage{"register", 8, 4}}});
+    ProviderContext mask_metadata = make_metadata({{mask_entry, "switchmask_case", ""}},
+                                                   {integer_type("int32", 4, true)}, {{mask_entry, mask_prototype}});
+    FlowDescription mask_flow;
+    mask_flow.jump_tables.push_back(JumpTableDescription{mask_entry + 4, mask_fixture.targets, std::nullopt, 0, 0});
+    mask_metadata.flow = std::make_shared<FlowTableProvider>(
+        std::vector<std::pair<std::uint64_t, FlowDescription>>{{mask_entry, mask_flow}});
+    const DecompilationResult mask_result = decompile_embedded(
+        mask_entry, mask_fixture.image, mask_fixture.function_size, "switchmask_case", std::move(mask_metadata));
+    expect_complete_analysis(mask_result);
+    expect_contains(mask_result.c_source, "switch");
+    expect_contains(mask_result.c_source, "case 0");
+    expect_contains(mask_result.c_source, "case 1");
+    expect_contains(mask_result.c_source, "case 2");
+    expect_contains(mask_result.c_source, "case 3");
+    expect_contains(mask_result.c_source, "selector");
+
+    const std::uint64_t multi_entry = 0x482000;
+    const JumpTableFixture multi_fixture = make_jump_table_fixture(multi_entry, 7, false, false);
+    const PrototypeDescription multi_prototype =
+        make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
+                       {PrototypeParameterDescription{"selector", "int32", Storage{"register", 8, 4}},
+                        PrototypeParameterDescription{"value", "int32", Storage{"register", 0x10, 4}}});
+    ProviderContext multi_metadata = make_metadata({{multi_entry, "switchmulti_case", ""}},
+                                                    {integer_type("int32", 4, true)}, {{multi_entry, multi_prototype}});
+    FlowDescription multi_flow;
+    multi_flow.jump_tables.push_back(JumpTableDescription{multi_entry + 6, multi_fixture.targets, std::nullopt, 0, 0});
+    multi_metadata.flow = std::make_shared<FlowTableProvider>(
+        std::vector<std::pair<std::uint64_t, FlowDescription>>{{multi_entry, multi_flow}});
+    const DecompilationResult multi_result = decompile_embedded(
+        multi_entry, multi_fixture.image, multi_fixture.function_size, "switchmulti_case", std::move(multi_metadata));
+    expect_complete_analysis(multi_result);
+    expect_contains(multi_result.c_source, "case 0");
+    expect_contains(multi_result.c_source, "case 6");
+    expect_contains(multi_result.c_source, "value");
+    expect_contains(multi_result.c_source, "+");
+    expect_contains(multi_result.c_source, "-");
+    expect_contains(multi_result.c_source, "return 0xffffffff");
+}
+
+/// Exercises callind_call and callother_call destination overrides on actual
+/// native CALLIND/CALLOTHER flow operations, preserving both named targets.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/overridedest.xml`.
+TEST(DecompilerDatatests, PortedDestinationOverridesForCallAndCallother) {
+    const std::uint64_t entry = 0x483000;
+    const std::uint64_t indirect_target = 0x483100;
+    const std::uint64_t callother_target = 0x483200;
+    const std::vector<Instruction> instructions{
+        Instruction{entry, 1, "callind", "callind", {{std::to_underlying(sleigh_runtime::PcodeOpcode::call_ind),
+                                                        std::nullopt, {Storage{"register", 8, 8}}}}},
+        Instruction{entry + 1,
+                    1,
+                    "callother",
+                    "callother",
+                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::call_other),
+                      std::nullopt,
+                      {Storage{"const", 5, 4}, Storage{"register", 8, 4}}}}},
+        Instruction{entry + 2,
+                    1,
+                    "return",
+                    "return",
+                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt,
+                      {Storage{"const", 0, 8}}}}},
+    };
+    FlowDescription flow;
+    flow.destination_overrides = {
+        DestinationOverrideDescription{entry, indirect_target, "callind_call"},
+        DestinationOverrideDescription{entry + 1, callother_target, "callother_call"},
+    };
+    ProviderContext metadata = make_metadata({{entry, "override_root", ""},
+                                               {indirect_target, "indirect_destination", ""},
+                                               {callother_target, "callother_destination", ""}},
+                                              {integer_type("int32", 4, true)}, {});
+    metadata.flow =
+        std::make_shared<FlowTableProvider>(std::vector<std::pair<std::uint64_t, FlowDescription>>{{entry, flow}});
+    DecompilationResult result;
+    try {
+        result = decompile_scripted(entry, 3, instructions, "override_root", std::move(metadata));
+    } catch (const ghidra::LowlevelError& error) {
+        FAIL() << error.explain;
+        return;
+    } catch (const std::exception& error) {
+        FAIL() << error.what();
+        return;
+    }
+
+    expect_complete_analysis(result);
+    expect_contains(result.c_source, "indirect_destination");
+    expect_contains(result.c_source, "callother_destination");
+    expect_excludes(result.c_source, "goto");
+}
+
+/// Exercises provider CALLOTHER registration and payload replacement. The
+/// operation uses the callother input list, proving the emitted user-op index
+/// and injection context both reach the native injection algorithm.
+/// Original sources: `injectoverride.xml` and `Ghidra/Features/Decompiler/src/decompile/cpp/userop.cc`.
+TEST(DecompilerDatatests, PortedCallotherInjectionPayload) {
+    const std::uint64_t entry = 0x484000;
+    const std::vector<Instruction> instructions{
+        Instruction{entry,
+                    1,
+                    "callother",
+                    "callother",
+                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::call_other),
+                      Storage{"register", 0, 4},
+                      {Storage{"const", 7, 4}, Storage{"register", 8, 4}}}}},
+        Instruction{entry + 1,
+                    1,
+                    "return",
+                    "return",
+                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt,
+                      {Storage{"const", 0, 8}}}}},
+    };
+    CallOtherFixupDescription fixup;
+    fixup.name = "provider_add_input";
+    fixup.output_name = "result";
+    fixup.input_names = {"value"};
+    fixup.userop_index = 7;
+    fixup.operations.push_back(
+        InjectionOperation{std::to_underlying(sleigh_runtime::PcodeOpcode::copy),
+                           InjectionVarnode{InjectionVarnodeKind::output, {}, 0},
+                           {InjectionVarnode{InjectionVarnodeKind::input, {}, 0}}});
+    const PrototypeDescription prototype =
+        make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
+                       {PrototypeParameterDescription{"value", "int32", Storage{"register", 8, 4}}});
+    ProviderContext metadata = make_metadata({{entry, "callother_payload", ""}},
+                                              {integer_type("int32", 4, true)}, {{entry, prototype}});
+    metadata.injections = std::make_shared<InjectionTableProvider>(std::vector<CallFixupDescription>{},
+                                                                      std::vector<CallOtherFixupDescription>{fixup});
+    const DecompilationResult result =
+        decompile_scripted(entry, 2, instructions, "callother_payload", std::move(metadata));
+
+    expect_complete_analysis(result);
+    expect_contains(result.c_source, "return value");
+    expect_excludes(result.high_pcode, "CALLOTHER");
+}
+
+/// Exercises the callreturn flow override on a branch and verifies that the
+/// target is represented as a call to the real bounded child body.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/multiret.xml`.
+TEST(DecompilerDatatests, PortedCallReturnOverrideWithChildBody) {
+    const std::uint64_t entry = 0x485000;
+    const std::uint64_t child = entry + 0x10;
+    const std::vector<Instruction> instructions{
+        Instruction{entry, 1, "branch", "branch", {{std::to_underlying(sleigh_runtime::PcodeOpcode::branch),
+                                                       std::nullopt, {Storage{"ram", child, 8}}}}},
+        Instruction{entry + 1,
+                    1,
+                    "return",
+                    "return",
+                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt,
+                      {Storage{"const", 0, 8}}}}},
+        Instruction{child,
+                    1,
+                    "return",
+                    "return",
+                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt,
+                      {Storage{"const", 0, 8}}}}},
+    };
+    FlowDescription flow;
+    flow.flow_overrides.push_back(FlowOverrideDescription{entry, "callreturn"});
+    const PrototypeDescription prototype = make_prototype("__cdecl", "void", std::nullopt, {});
+    ProviderContext metadata = make_metadata({{entry, "callreturn_root", ""}, {child, "callreturn_target", ""}},
+                                              {integer_type("int32", 4, true)}, {{entry, prototype}, {child, prototype}});
+    metadata.flow =
+        std::make_shared<FlowTableProvider>(std::vector<std::pair<std::uint64_t, FlowDescription>>{{entry, flow}});
+    metadata.functions =
+        std::make_shared<FunctionTableProvider>(std::vector<FunctionDescription>{{"callreturn_target", child, child + 1}});
+    const DecompilationResult result =
+        decompile_scripted(entry, 2, instructions, "callreturn_root", std::move(metadata));
+
+    expect_complete_analysis(result);
+    expect_contains(result.c_source, "callreturn_target");
+    expect_contains(result.c_source, "return");
+    expect_excludes(result.c_source, "goto");
+}
+
+/// Exercises the call-fixup input context used by injectoverride: the payload
+/// copies the concrete call argument rather than a hard-coded register name.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/injectoverride.xml`.
+TEST(DecompilerDatatests, PortedInjectOverrideCallFixupInputContext) {
+    const std::uint64_t entry = 0x486000;
+    const std::uint64_t target = entry + 0x20;
+    const std::vector<Instruction> instructions{
+        Instruction{entry,
+                    1,
+                    "constant",
+                    "constant",
+                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::copy), Storage{"register", 8, 4},
+                      {Storage{"const", 7, 4}}}}},
+        Instruction{entry + 1,
+                    1,
+                    "call",
+                    "call",
+                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::call), std::nullopt,
+                      {Storage{"ram", target, 8}, Storage{"register", 8, 4}}}}},
+        Instruction{entry + 2,
+                    1,
+                    "return",
+                    "return",
+                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt,
+                      {Storage{"const", 0, 8}}}}},
+        Instruction{target,
+                    1,
+                    "return",
+                    "return",
+                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt,
+                      {Storage{"const", 0, 8}}}}},
+    };
+    CallFixupDescription fixup;
+    fixup.name = "provider_capture_argument";
+    fixup.input_names = {"value"};
+    fixup.operations.push_back(
+        InjectionOperation{std::to_underlying(sleigh_runtime::PcodeOpcode::copy),
+                           InjectionVarnode{InjectionVarnodeKind::storage, Storage{"register", 0, 4}, 0},
+                           {InjectionVarnode{InjectionVarnodeKind::input, {}, 0}}});
+    PrototypeDescription target_prototype =
+        make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
+                       {PrototypeParameterDescription{"value", "int32", Storage{"register", 8, 4}}});
+    target_prototype.call_fixup = fixup.name;
+    const PrototypeDescription root_prototype =
+        make_prototype("__cdecl", "int32", Storage{"register", 0, 4}, {});
+    ProviderContext metadata = make_metadata({{entry, "inject_root", ""}, {target, "capture_target", ""}},
+                                              {integer_type("int32", 4, true)},
+                                              {{entry, root_prototype}, {target, target_prototype}});
+    metadata.injections = std::make_shared<InjectionTableProvider>(std::vector<CallFixupDescription>{fixup});
+    metadata.functions =
+        std::make_shared<FunctionTableProvider>(std::vector<FunctionDescription>{{"capture_target", target, target + 1}});
+    const DecompilationResult result =
+        decompile_scripted(entry, 3, instructions, "inject_root", std::move(metadata));
+
+    expect_complete_analysis(result);
+    expect_contains(result.c_source, "return 7");
+    expect_excludes(result.high_pcode, "CALL");
+}
+
+/// Exercises indirect-call target recovery on the original x86-64 byte shape,
+/// including a real provider child body at the recovered function address.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/deindirect2.xml`.
+TEST(DecompilerDatatests, PortedDeindirectTwoWithRealChildBody) {
+    const std::uint64_t entry = 0x100000;
+    const std::uint64_t target = 0x100046;
+    std::vector<std::uint8_t> image = bytes_from_hex(
+        "554889e54883ec3048c7c34600100048895de84889f94889f7488b5de8ffd3488d59104889036631c0c3");
+    image.resize(0x4c, 0);
+    write_fixture_bytes(image, 0x46, {0xc3});
+    FlowDescription flow;
+    flow.indirect_call_targets.push_back(IndirectCallTargetDescription{entry + 29, target});
+    const PrototypeDescription prototype = make_prototype("__cdecl", "void", std::nullopt, {});
+    ProviderContext metadata = make_metadata({{entry, "deindirect_two", ""}, {target, "obtainPtr", ""}},
+                                              {integer_type("int32", 4, true)}, {{entry, prototype}, {target, prototype}});
+    metadata.flow =
+        std::make_shared<FlowTableProvider>(std::vector<std::pair<std::uint64_t, FlowDescription>>{{entry, flow}});
+    metadata.functions =
+        std::make_shared<FunctionTableProvider>(std::vector<FunctionDescription>{{"obtainPtr", target, target + 1}});
+    const DecompilationResult result = decompile_embedded(entry, image, 42, "deindirect_two", std::move(metadata));
+
+    expect_complete_analysis(result);
+    expect_contains(result.c_source, "obtainPtr");
+    expect_contains(result.raw_pcode, "call");
+    expect_contains(result.c_source, "obtainPtr");
+}
+
+/// Exercises the native SSA revisit path on the exact original mixed-width
+/// global accesses and checks the width-specific SUB/CONCAT artifacts.
+/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/revisit.xml`.
+TEST(DecompilerDatatests, PortedRevisitMixedWidthSsa) {
+    const std::uint64_t entry = 0x100000;
+    std::vector<std::uint8_t> image = bytes_from_hex(
+        "488d1d6d00000048891d52000000488b0d4b0000008b0183c00a890166e84800"
+        "668b054d0000006605640066890542000000c3");
+    image.resize(0x80, 0);
+    const std::vector<SymbolDescription> symbols{{entry, "revisit", ""},
+                                                 {entry + 0x74, "i", "", SymbolKind::data, 4, "int32"}};
+    const auto metadata = make_metadata(symbols, {integer_type("int32", 4, true)}, {});
+    const DecompilationResult result = decompile_embedded(entry, image, 51, "revisit", metadata);
+
+    expect_complete_analysis(result);
+    expect_contains(result.raw_pcode, "RAX:2(0x00100020");
+    expect_contains(result.raw_pcode, "r0x00100074:2(0x0010002b");
+    expect_contains(result.raw_pcode, "#0xa:4");
+    expect_contains(result.raw_pcode, "#0x64:2");
+}
+
+/// Names one original XML fixture and records whether a portable
 /// machine-byte/provider equivalent for its intent.
 /// Original source directory: `Ghidra/Features/Decompiler/src/decompile/datatests`.
 struct DatatestManifestEntry {
@@ -1613,13 +2922,15 @@ static constexpr std::array<DatatestManifestEntry, 89> original_datatest_manifes
         {"deadvolatile.xml", true,
          "Covered by ProviderVolatileReadRetainsUnusedSideEffect with provider volatile-range metadata."},
         {"deindirect.xml", true, "Covered by PortedDeindirectTargetOverride with an indirect-call target record."},
-        {"deindirect2.xml", false, "Requires XML symbol remapping and indirect aggregate-call database state."},
-        {"displayformat.xml", false,
-         "Provider type and data-symbol formats are supported; the fixture's forced dynamic varnode and global printer "
-         "option remain."},
+        {"deindirect2.xml", true,
+         "Covered by PortedDeindirectTwoWithRealChildBody with native indirect target recovery."},
+        {"displayformat.xml", true,
+         "Covered by PortedDisplayFormatForcedIntegerConstants with native dynamic one-byte hex and four-byte "
+         "octal/binary constant formatting."},
         {"divopt.xml", true, "Covered by PortedSignedDivision."},
         {"doublemove.xml", false, "Requires mapped floating globals and raw-print command sequencing."},
-        {"dupptr.xml", false, "Requires XML function maps and pointer alias database annotations."},
+        {"dupptr.xml", true,
+         "Covered by DupptrPreservesTypedIntermediatePointerSemantics with the original x86 pointer sequence."},
         {"elseif.xml", true, "Covered by PortedIfElse."},
         {"enum.xml", true, "Covered by ProviderEnumNamedComparison with provider enum values and embedded x86 flow."},
         {"floatcast.xml", true, "Covered by PortedFloatingPoint."},
@@ -1639,48 +2950,52 @@ static constexpr std::array<DatatestManifestEntry, 89> original_datatest_manifes
         {"impliedfield.xml", false, "Requires database field-implied type annotations."},
         {"indproto.xml", false, "Requires an indirect prototype override stored in the original database."},
         {"injectoverride.xml", true,
-         "Covered by PortedStructuredCallFixupInjection with structured provider p-code, not unparsed SLEIGH."},
-        {"inline.xml", true, "Covered by PortedInlineFunctionBody and provider inline/call-fixup metadata."},
-        {"inlinetarget.xml", false, "Requires XML inline-target directives and database call-site state."},
-        {"longdouble.xml", false, "Requires the original long-double compiler type and processor ABI."},
+         "Covered by PortedStructuredCallFixupInjection, PortedInjectOverrideCallFixupInputContext, and "
+         "PortedCallotherInjectionPayload with structured provider payloads."},
+        {"inline.xml", true, "Covered by PortedInlineFunctionBody and bounded provider inline policy metadata."},
+        {"inlinetarget.xml", false,
+         "Excluded by request because the original fixture is PPC-specific; x86 inline policy is covered by "
+         "PortedInlineFunctionBody."},
+        {"longdouble.xml", true,
+         "Core x86 float10 storage and FLOAT_ADD behavior are covered by PortedLongDoubleFloat10CoreBehavior; "
+         "all 15 original stringmatch cases remain intentionally unresolved."},
         {"loopcomment.xml", false, "Requires XML comment commands and the original comment database."},
         {"lzcount.xml", false, "Requires a processor CALLOTHER operation not supplied by this x86 provider case."},
         {"mixfloatint.xml", true, "Covered by PortedMixedFloatIntegerPrototype with real XMM and integer storage."},
         {"modulo.xml", true, "Covered by PortedSignedModulo."},
         {"modulo2.xml", false, "Requires optimized compiler-specific modulo sequences and XML expected-output setup."},
-        {"multiret.xml", true, "Covered by PortedMultiReturnAggregatePieces with an ordered split return."},
+        {"multiret.xml", true,
+         "Covered by PortedMultiReturnAggregatePieces and PortedCallReturnOverrideWithChildBody."},
         {"nan.xml", false, "Requires XML floating constant/global annotations and legacy NaN printer expectations."},
         {"namespace.xml", true, "Covered by PortedNamespaceAndSymbols."},
-        {"nestedoffset.xml", false, "Requires nested database field offsets and XML data maps."},
-        {"noforloop_alias.xml", false, "Negative loop classification depends on XML alias/database facts."},
-        {"noforloop_globcall.xml", false, "Negative loop classification depends on an XML-mapped global call."},
-        {"noforloop_iterused.xml", false,
-         "Negative loop classification depends on XML local naming and call metadata."},
-        {"offcut.xml", false,
-         "The focused offcut check is registered in metadata_provider_tests.cppm, not this datatest executable; the "
-         "original XML mapping remains unresolved."},
-        {"offsetarray.xml", false,
-         "Provider data mappings now exist; the full fixture still requires XML array overlays."},
+        {"nestedoffset.xml", true, "Covered by NestedOffsetUsesArrayField with original x86 scaled-index bytes."},
+        {"noforloop_alias.xml", true, "Covered by NoforloopAliasRetainsWhileLoop with isolated alias metadata."},
+        {"noforloop_globcall.xml", true, "Covered by NoforloopGlobalCallRetainsWhileLoop with stable global identity."},
+        {"noforloop_iterused.xml", true,
+         "Covered by NoforloopIteratorUseRetainsWhileLoop with provider local metadata."},
+        {"offcut.xml", true,
+         "Covered by OffcutReferencesResolveThroughDataSymbols with mapped data and string interiors."},
+        {"offsetarray.xml", true, "Covered by OffsetArrayUsesMappedArrayField with typed structure-array metadata."},
         {"orcompare.xml", false, "Requires XML boolean-equate and processor flag setup."},
-        {"overridedest.xml", false,
-         "The current executable has no corresponding call/callother destination-override body; the original "
-         "override-destination fixture remains unresolved."},
+        {"overridedest.xml", true,
+         "Covered by PortedDestinationOverridesForCallAndCallother with native callind/callother rewrites."},
         {"packstructaccess.xml", false, "Requires packed compiler layout and database field packing directives."},
-        {"partialmerge.xml", false, "Requires XML partial variable merge annotations."},
-        {"partialsplit.xml", false, "Requires XML partial split/database symbol state."},
-        {"partialunion.xml", false, "Requires union field selection metadata stored in the original database."},
+        {"partialmerge.xml", true, "Covered by PartialMergeKeepsWholeAndFieldIdentity with stable data identity."},
+        {"partialsplit.xml", true, "Covered by PartialSplitNamesIndividualFields with typed split storage."},
+        {"partialunion.xml", true,
+         "Covered by PartialUnionSelectsActiveMember with overlapping provider union fields."},
         {"piecestruct.xml", true, "Covered by PortedPieceStructureFields with explicit provider parameter storage."},
         {"pointercmp.xml", false, "Requires XML pointer type maps and processor-specific comparison fixtures."},
-        {"pointerrel.xml", false, "Requires XML pointer-relative data annotations."},
-        {"pointersub.xml", false, "Requires XML pointer subtraction prototype and database type maps."},
+        {"pointerrel.xml", true,
+         "Covered by PointerRelativeMetadataPrintsAdjAccesses with named TypePointerRel metadata."},
+        {"pointersub.xml", true, "Covered by PointerSubtractionUsesRelativeParent with relative parent metadata."},
         {"promotecompare.xml", false, "Requires compiler promotion rules supplied by the original XML specification."},
-        {"ptrtoarray.xml", true,
-         "Covered by ProviderAggregateFieldsAndArrayElement with a real pointer-to-array type."},
+        {"ptrtoarray.xml", true, "Covered by PointerToArrayPreservesRowArithmetic with explicit row pointer types."},
         {"readvolatile.xml", true,
          "Covered by PortedReadonlyMemoryLoad, PortedDataSymbolMetadata, and provider volatile-range metadata."},
         {"retspecial.xml", true, "Covered by PortedSpecialReturnStorage with a provider hidden return pointer."},
         {"retstruct.xml", true, "Covered by PortedStructureReturn."},
-        {"revisit.xml", false, "Requires XML flow revisit overrides and database labels."},
+        {"revisit.xml", true, "Covered by PortedRevisitMixedWidthSsa with exact mixed-width SSA assertions."},
         {"sbyte.xml", false, "Requires XML signed-byte type declarations and expected legacy casts."},
         {"skipnext2.xml", false, "Requires processor delay-slot/skip-next semantics from XML context."},
         {"stackcorner.xml", false, "Requires original stack-space and database-local corner cases."},
@@ -1692,20 +3007,19 @@ static constexpr std::array<DatatestManifestEntry, 89> original_datatest_manifes
          "recovery."},
         {"statuscmp.xml", false, "Requires processor status-register semantics and XML flag configuration."},
         {"switchhide.xml", false, "Requires XML switch hiding override."},
-        {"switchind.xml", false,
-         "The provider jump-table smoke case does not recover the original indirect switch cases and calls."},
+        {"switchind.xml", true,
+         "Covered by PortedSwitchIndirectMultiFunctionBodies with real child bodies and recovered case calls."},
         {"switchloop.xml", false, "Requires a switch-loop XML fixture with database labels."},
-        {"switchmask.xml", false,
-         "The provider jump-table smoke case does not cover the original two masked switches and their outputs."},
-        {"switchmulti.xml", false,
-         "The provider jump-table smoke case does not cover the original loop, seven cases, and arithmetic outputs."},
+        {"switchmask.xml", true, "Covered by PortedSwitchMaskAndMultiCaseSemantics with four recovered masked cases."},
+        {"switchmulti.xml", true,
+         "Covered by PortedSwitchMaskAndMultiCaseSemantics with seven recovered arithmetic cases."},
         {"switchreturn.xml", true, "Covered by PortedSwitchReturn."},
         {"threedim.xml", false, "Requires XML three-dimensional data declarations and global mappings."},
         {"twodim.xml", false,
          "The provider has array shape support, but the original test requires XML global data mapping."},
         {"union_datatype.xml", true, "Covered by ProviderUnionFieldSelection with real overlapping union fields."},
-        {"varcross.xml", false, "Requires cross-function database variable identity."},
-        {"wayoffarray.xml", false, "Provider offcut mappings exist; the full XML array-overlay fixture remains."},
+        {"varcross.xml", true, "Covered by VariableCrossingRetainsStableLocalIdentity with isolated local identity."},
+        {"wayoffarray.xml", true, "Covered by WayoffArrayUsesForwardMappedArrayField with forward data mapping."},
         {"wraprange.xml", false, "Requires processor address-range and XML context-wrap configuration."},
     }};
 }
@@ -1730,6 +3044,8 @@ static constexpr auto portable_datatest_coverage() {
         {"copytrim.xml", "PortedPcodeTransformations"},
         {"deadvolatile.xml", "ProviderVolatileReadRetainsUnusedSideEffect"},
         {"deindirect.xml", "PortedDeindirectTargetOverride"},
+        {"deindirect2.xml", "PortedDeindirectTwoWithRealChildBody"},
+        {"displayformat.xml", "PortedDisplayFormatForcedIntegerConstants"},
         {"divopt.xml", "PortedSignedDivision"},
         {"elseif.xml", "PortedIfElse"},
         {"enum.xml", "ProviderEnumNamedComparison"},
@@ -1739,19 +3055,39 @@ static constexpr auto portable_datatest_coverage() {
         {"heapstring.xml", "PortedHeapStringNarrow"},
         {"injectoverride.xml", "PortedStructuredCallFixupInjection"},
         {"inline.xml", "PortedInlineFunctionBody"},
+        {"longdouble.xml", "PortedLongDoubleFloat10CoreBehavior"},
         {"mixfloatint.xml", "PortedMixedFloatIntegerPrototype"},
         {"modulo.xml", "PortedSignedModulo"},
         {"multiret.xml", "PortedMultiReturnAggregatePieces"},
         {"namespace.xml", "PortedNamespaceAndSymbols"},
+        {"dupptr.xml", "DupptrPreservesTypedIntermediatePointerSemantics"},
+        {"nestedoffset.xml", "NestedOffsetUsesArrayField"},
+        {"noforloop_alias.xml", "NoforloopAliasRetainsWhileLoop"},
+        {"noforloop_globcall.xml", "NoforloopGlobalCallRetainsWhileLoop"},
+        {"noforloop_iterused.xml", "NoforloopIteratorUseRetainsWhileLoop"},
+        {"offcut.xml", "OffcutReferencesResolveThroughDataSymbols"},
+        {"offsetarray.xml", "OffsetArrayUsesMappedArrayField"},
+        {"partialmerge.xml", "PartialMergeKeepsWholeAndFieldIdentity"},
+        {"partialsplit.xml", "PartialSplitNamesIndividualFields"},
+        {"partialunion.xml", "PartialUnionSelectsActiveMember"},
+        {"pointerrel.xml", "PointerRelativeMetadataPrintsAdjAccesses"},
+        {"pointersub.xml", "PointerSubtractionUsesRelativeParent"},
         {"piecestruct.xml", "PortedPieceStructureFields"},
-        {"ptrtoarray.xml", "ProviderAggregateFieldsAndArrayElement"},
+        {"ptrtoarray.xml", "PointerToArrayPreservesRowArithmetic"},
         {"readvolatile.xml", "PortedDataSymbolMetadata"},
         {"retspecial.xml", "PortedSpecialReturnStorage"},
         {"retstruct.xml", "PortedStructureReturn"},
         {"stackreturn.xml", "PortedStackReturnAggregateStorage"},
         {"stackstring.xml", "PortedStackStringNarrow"},
+        {"overridedest.xml", "PortedDestinationOverridesForCallAndCallother"},
+        {"revisit.xml", "PortedRevisitMixedWidthSsa"},
+        {"switchind.xml", "PortedSwitchIndirectMultiFunctionBodies"},
+        {"switchmask.xml", "PortedSwitchMaskAndMultiCaseSemantics"},
+        {"switchmulti.xml", "PortedSwitchMaskAndMultiCaseSemantics"},
         {"switchreturn.xml", "PortedSwitchReturn"},
         {"union_datatype.xml", "ProviderUnionFieldSelection"},
+        {"varcross.xml", "VariableCrossingRetainsStableLocalIdentity"},
+        {"wayoffarray.xml", "WayoffArrayUsesForwardMappedArrayField"},
     });
 }
 

@@ -51,6 +51,45 @@ enum class DisplayFormat {
     character,
 };
 
+/// Selects the native NaN simplification policy for one provider session.
+/// Original option source: `Ghidra/Features/Decompiler/src/decompile/cpp/options.cc`,
+/// `OptionNanIgnore`, and the `<nanignore>` option in compiler specifications.
+enum class NanHandling {
+    native_default,
+    none,
+    compare,
+    all,
+};
+
+/// Describes analysis options that were previously supplied by XML command
+/// streams. The provider applies these before native action construction so
+/// they affect the same flow, heritage, and transformation passes as the
+/// original `option` commands.
+struct AnalysisOptions {
+    /// Propagates mapped read-only memory values into integer or floating constants.
+    bool readonly_propagate = false;
+    /// Forces the default integer representation in the native C printer.
+    DisplayFormat integer_format = DisplayFormat::none;
+    /// Selects the native NaN simplification policy, or preserves its default.
+    NanHandling nan_handling = NanHandling::native_default;
+};
+
+/// Describes one dynamic constant display conversion from the provider.
+/// Original command source: `Ghidra/Features/Decompiler/src/decompile/cpp/ifacedecomp.cc`,
+/// `IfcMapconvert::execute` and `IfcForceFormat::execute`.
+struct ConstantFormatDescription {
+    /// Address of the p-code operation whose dynamic hash identifies the use.
+    std::uint64_t pcode_address = 0;
+    /// Constant value selected by the original varnode command.
+    std::uint64_t value = 0;
+    /// Dynamic hash associated with the selected p-code use.
+    std::uint64_t hash = 0;
+    /// Integer representation forced for this use.
+    DisplayFormat format = DisplayFormat::none;
+    /// Optional encoded-constant width used to disambiguate same-value uses.
+    std::uint32_t size = 0;
+};
+
 /// Provides decoded instructions to the decompiler's Translate boundary.
 class PcodeProvider {
 public:
@@ -113,6 +152,17 @@ struct SymbolDescription {
     bool read_only = false;
     /// Forces the integer representation for this mapped data symbol.
     DisplayFormat display_format = DisplayFormat::none;
+    /// Names the provider address space containing this symbol. An empty value
+    /// selects the architecture data space for compatibility with older
+    /// providers.
+    std::string space;
+    /// Stable database identity for this symbol. Equal non-zero identities
+    /// share one native Symbol and may have multiple mapped addresses.
+    std::uint64_t identity = 0;
+    /// Optional identity of an earlier symbol to which this mapping is an
+    /// alias. This permits aliases to use different provider names while
+    /// retaining one native variable identity.
+    std::uint64_t alias_identity = 0;
 };
 
 /// Supplies symbols independently of the loader or database implementation.
@@ -185,6 +235,11 @@ struct TypeDescription {
     std::vector<TypeEnumValueDescription> enum_values;
     /// Forces the integer representation for values of this type.
     DisplayFormat display_format = DisplayFormat::none;
+    /// Names the containing type for a database relative pointer. Empty means
+    /// this is an ordinary pointer and `relative_offset` is ignored.
+    std::string relative_parent_type;
+    /// Byte offset of the pointed-to value within `relative_parent_type`.
+    std::int32_t relative_offset = 0;
 };
 
 /// Supplies primitive, typedef, array, and structure declarations.
@@ -255,6 +310,12 @@ struct VariableDescription {
     std::string name;
     std::string type_name;
     Storage storage;
+    /// Stable database identity used when recovered pieces are revisited after
+    /// partial merge/split analysis.
+    std::uint64_t identity = 0;
+    /// Marks an explicitly isolated local whose storage must not be
+    /// speculatively merged with a different provider identity.
+    bool isolated = false;
 };
 
 /// Supplies source-level local names and types for a function.
@@ -361,6 +422,10 @@ struct CallOtherFixupDescription {
     std::string output_name;
     std::vector<std::string> input_names;
     std::vector<InjectionOperation> operations;
+    /// Identifies the CALLOTHER constant used by the provider p-code stream.
+    /// The native user-op manager uses this index to attach the registered
+    /// payload before flow generation starts.
+    std::uint32_t userop_index = 0;
 };
 
 /// Supplies declarative call-fixup and callother-fixup payloads.
@@ -390,6 +455,10 @@ struct ProviderContext {
     std::shared_ptr<FlowProvider> flow;
     std::shared_ptr<FunctionProvider> functions;
     std::shared_ptr<InjectionProvider> injections;
+    /// Replaces XML `option` commands for this decompilation session.
+    AnalysisOptions analysis_options;
+    /// Replaces XML dynamic constant-format commands for this session.
+    std::vector<ConstantFormatDescription> constant_formats;
 };
 
 /// Stores one address-space description used to construct the engine model.
@@ -401,6 +470,9 @@ struct SpaceDescription {
     std::int32_t index = -1;
     std::int32_t delay = 0;
     bool physical = true;
+    /// If non-empty, construct this processor space as an overlay of the
+    /// named provider space. The base must be declared in the same context.
+    std::string overlay_base;
 };
 
 /// Stores one named register location used by prototype and type providers.

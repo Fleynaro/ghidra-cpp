@@ -54,6 +54,13 @@ decoding and the native join, call, SSA, and C-printer algorithms. The volatile 
 `MemoryProvider::volatile_ranges()` contract and keeps an unused LOAD alive as required by the native
 side-effect model.
 
+`PortedLongDoubleFloat10CoreBehavior` runs the original x86 `writeLongDouble` bytes through Sleigh and
+the native Decompiler, checks real `float10` Varnodes and `FLOAT_ADD`, and validates the mapped IEEE
+double constant with `FloatFormat`. `PortedDisplayFormatForcedIntegerConstants` runs the original global
+stores and checks native dynamic one-byte hex plus four-byte octal and binary output. The long-double
+manifest entry intentionally records core coverage only; all 15 original `stringmatch` cases remain
+unresolved because their full function/data/ABI setup is not yet represented by the provider boundary.
+
 [`metadata_provider_tests.cppm`](metadata_provider_tests.cppm) drives the same native pipeline with a
 provider-only p-code body. It verifies recursive typedef, array, structure, union, enum, and bitfield
 materialization, a namespaced address-tied data symbol with a forced hexadecimal display format, and
