@@ -48,9 +48,59 @@ if /I "%MODE%"=="decompiler" (
     set "TEST_FILTER=^(decompiler_tests|native_paramstore_tests|native_circlerange_tests|native_funcproto_tests|decompiler_architecture_tests|metadata_provider_tests|decompiler_cli_help)$"
     goto mode_selected
 )
+if /I "%MODE%"=="constant_propagation" (
+    set "BUILD_TARGET=analyzer_constant_propagation analyzer_constant_propagation_tests"
+    set "TEST_FILTER=^analyzer_constant_propagation_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="data_reference" (
+    set "BUILD_TARGET=analyzer_data_reference analyzer_data_reference_tests"
+    set "TEST_FILTER=^analyzer_data_reference_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="disassemble_entry_points" (
+    set "BUILD_TARGET=analyzer_disassemble_entry_points analyzer_disassemble_entry_points_tests"
+    set "TEST_FILTER=^analyzer_disassemble_entry_points_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="function_body" (
+    set "BUILD_TARGET=analyzer_function_body analyzer_function_body_tests"
+    set "TEST_FILTER=^analyzer_function_body_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="function_start_search" (
+    set "BUILD_TARGET=analyzer_function_start_search analyzer_function_start_search_tests"
+    set "TEST_FILTER=^analyzer_function_start_search_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="non_returning_functions" (
+    set "BUILD_TARGET=analyzer_non_returning_functions analyzer_non_returning_functions_tests"
+    set "TEST_FILTER=^analyzer_non_returning_functions_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="reference" (
+    set "BUILD_TARGET=analyzer_reference analyzer_reference_tests"
+    set "TEST_FILTER=^analyzer_reference_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="scalar_operand_references" (
+    set "BUILD_TARGET=analyzer_scalar_operand_references analyzer_scalar_operand_references_tests"
+    set "TEST_FILTER=^analyzer_scalar_operand_references_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="stack" (
+    set "BUILD_TARGET=analyzer_stack analyzer_stack_tests"
+    set "TEST_FILTER=^analyzer_stack_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="subroutine_references" (
+    set "BUILD_TARGET=analyzer_subroutine_references analyzer_subroutine_references_tests"
+    set "TEST_FILTER=^analyzer_subroutine_references_tests$"
+    goto mode_selected
+)
 if /I "%MODE%"=="analyzer" (
-    set "BUILD_TARGET=analyzer_tests"
-    set "TEST_FILTER=^analyzer_tests$"
+    set "BUILD_TARGET=analyzer_disassemble_entry_points_tests analyzer_subroutine_references_tests analyzer_function_body_tests analyzer_function_start_search_tests analyzer_non_returning_functions_tests analyzer_constant_propagation_tests analyzer_reference_tests analyzer_data_reference_tests analyzer_scalar_operand_references_tests analyzer_stack_tests"
+    set "TEST_FILTER=^analyzer_(disassemble_entry_points|subroutine_references|function_body|function_start_search|non_returning_functions|constant_propagation|reference|data_reference|scalar_operand_references|stack)_tests$"
     goto mode_selected
 )
 goto usage
@@ -71,6 +121,17 @@ if "%RUN_TESTS%"=="0" (
     if /I "%MODE%"=="function_id" set "BUILD_TARGET=function_id function_id_cli"
     if /I "%MODE%"=="decompiler" set "BUILD_TARGET=new_ghidra_decompiler_frontend decompiler_cli"
     if /I "%MODE%"=="analyzer" set "BUILD_TARGET=analyzer"
+    if /I "%MODE%"=="constant_propagation" set "BUILD_TARGET=analyzer_constant_propagation"
+    if /I "%MODE%"=="data_reference" set "BUILD_TARGET=analyzer_data_reference"
+    if /I "%MODE%"=="disassemble_entry_points" set "BUILD_TARGET=analyzer_disassemble_entry_points"
+    if /I "%MODE%"=="function_body" set "BUILD_TARGET=analyzer_function_body"
+    if /I "%MODE%"=="function_start_search" set "BUILD_TARGET=analyzer_function_start_search"
+    if /I "%MODE%"=="non_returning_functions" set "BUILD_TARGET=analyzer_non_returning_functions"
+    if /I "%MODE%"=="reference" set "BUILD_TARGET=analyzer_reference"
+    if /I "%MODE%"=="scalar_operand_references" set "BUILD_TARGET=analyzer_scalar_operand_references"
+    if /I "%MODE%"=="stack" set "BUILD_TARGET=analyzer_stack"
+    if /I "%MODE%"=="subroutine_references" set "BUILD_TARGET=analyzer_subroutine_references"
+    if /I "%MODE%"=="shared" set "BUILD_TARGET=analyzer_shared"
 )
 
 if not defined VCPKG_ROOT (

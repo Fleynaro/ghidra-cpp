@@ -11,7 +11,7 @@ if /I "%MODE%"=="sleigh" set "SOURCE_DIR=%SCRIPT_DIR%features\sleigh_runtime"
 if /I "%MODE%"=="pe" set "SOURCE_DIR=%SCRIPT_DIR%features\pe_loader"
 if /I "%MODE%"=="function_id" set "SOURCE_DIR=%SCRIPT_DIR%features\function_id"
 if /I "%MODE%"=="decompiler" set "SOURCE_DIR=%SCRIPT_DIR%features\decompiler"
-if /I "%MODE%"=="analyzer" set "SOURCE_DIR=%SCRIPT_DIR%features\analyzer"
+if /I "%MODE%"=="analyzer" set "SOURCE_DIR=%SCRIPT_DIR%features\analyzers"
 if not defined SOURCE_DIR goto usage
 
 set /a FILE_COUNT=0
