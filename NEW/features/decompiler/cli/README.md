@@ -307,6 +307,78 @@ The same invocation also produced this control-flow artifact:
 
 The control-flow artifact contained a `List` block with a nested `Whiledo` block. The example demonstrates that `--hex` is the executable input, while `--prototype`, `--param`, and `--symbol` provide source-level meaning.
 
+### Executed `PortedSwitchIndirectMultiFunctionBodies` Input
+
+This switch example requires three kinds of input: the root function and its `CALL` stubs in `--hex`, the read-only 64-bit jump-table entries in `--data` at `0x480200`, and the three bounded child bodies in additional `--data` chunks. The `--jump-table` record tells the native flow engine that the indirect branch at `0x480006` has three targets. The `--function` records prevent child decoding from running through neighboring image bytes.
+
+```powershell
+& $cli --sla $sla --address 0x480000 --size 0x25 `
+  --hex "48 83 f9 02 77 19 ff 24 cd 00 02 48 00 e8 ee 02 00 00 c3 e8 f8 02 00 00 c3 e8 02 03 00 00 c3 b8 ff ff ff ff c3" `
+  --data 0x480200:"0d 00 48 00 00 00 00 00 13 00 48 00 00 00 00 00 19 00 48 00 00 00 00 00" `
+  --data 0x480300:"b8 10 00 00 00 c3" `
+  --data 0x480310:"b8 11 00 00 00 c3" `
+  --data 0x480320:"b8 12 00 00 00 c3" `
+  --name switchind_root `
+  --symbol "address=0x480000,name=switchind_root,kind=function" `
+  --symbol "address=0x480300,name=switch_case_0,kind=function" `
+  --symbol "address=0x480310,name=switch_case_1,kind=function" `
+  --symbol "address=0x480320,name=switch_case_2,kind=function" `
+  --type "name=int32,kind=signed_integer,size=4,signed=true" `
+  --prototype "address=0x480000,cc=__cdecl,return=int32,return-storage=register:0:4" `
+  --prototype "address=0x480300,cc=__cdecl,return=int32,return-storage=register:0:4" `
+  --prototype "address=0x480310,cc=__cdecl,return=int32,return-storage=register:0:4" `
+  --prototype "address=0x480320,cc=__cdecl,return=int32,return-storage=register:0:4" `
+  --param "address=0x480000,name=selector,type=int32,storage=register:8:4" `
+  --function "name=switch_case_0,address=0x480300,end=0x480306" `
+  --function "name=switch_case_1,address=0x480310,end=0x480316" `
+  --function "name=switch_case_2,address=0x480320,end=0x480326" `
+  --jump-table "function=0x480000,branch=0x480006,targets=0x48000d|0x480013|0x480019,start=0" `
+  --only c,control-flow
+```
+
+The CLI restored a structured switch:
+
+```c
+int32 __cdecl switchind_root(int32 selector)
+
+{
+  int32 iVar1;
+  undefined4 in_RCX;
+
+  if (2 < CONCAT44(in_RCX,selector)) {
+    return 0xffffffff;
+  }
+                    /* WARNING: Switch is manually overridden */
+  switch(CONCAT44(in_RCX,selector)) {
+  case 0:
+    iVar1 = switch_case_0();
+    return iVar1;
+  case 1:
+    iVar1 = switch_case_1();
+    return iVar1;
+  case 2:
+    iVar1 = switch_case_2();
+    return iVar1;
+  }
+}
+```
+
+The corresponding control-flow artifact was:
+
+```text
+0
+  If (no exit) block 0
+    Basic Block 0 0x00480000-0x00480004
+    Basic Block 1 0x0048001f-0x00480024
+    Switch block 2
+      Basic Block 2 0x00480006-0x00480006
+      Basic Block 5 0x0048000d-0x00480012
+      Basic Block 4 0x00480013-0x00480018
+      Basic Block 3 0x00480019-0x0048001e
+```
+
+The `WARNING: Switch is manually overridden` comment is expected: the command explicitly supplies the provider-level jump-table model. The important result is that the indirect branch is represented as a structured `switch`, with named child calls and no synthetic `goto LAB_` output.
+
 ### Executed `SleighProvider` Input
 
 `SleighProvider.DecodesX86BytesIntoProviderPcode` from `decompiler_tests.cppm` checks one instruction rather than a complete function. The CLI is a decompiler, so the command adds a `RET` after the tested `SUB RSP,0x40` instruction to form a bounded function. The first instruction remains exactly the test input:
