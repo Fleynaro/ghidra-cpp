@@ -8,6 +8,9 @@ import sys
 import tempfile
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from evidence import render_evidence
+
 ANALYZERS = ["Function Start Search", "Function Start Search After Code", "Function Start Search After Data"]
 POSITIVE_SYMBOL = "function_start_positive_pattern"
 POSITIVE_MARK_OFFSET = 3
@@ -123,7 +126,38 @@ def run_authoritative_search(program) -> None:
     analyzer.added(program, program.getMemory(), TaskMonitor.DUMMY, MessageLog())
 
 
-def report(input_path: Path, enabled, candidates, before, after, marks_before, marks_after) -> str:
+def evidence_snapshot(project, program, candidates):
+    """Capture candidate data, local functions, bookmarks, and search options."""
+    analysis_options = project.getAnalysisOptions(program)
+    search_options = analysis_options.getOptions(ANALYZERS[0])
+    return {
+        "Data": [
+            (f"{name} candidate", f"0x{address:016X}")
+            for name, address in sorted(candidates.items())
+        ],
+        "Functions": [
+            (f"0x{value(function.getEntryPoint()):016X}", str(function.getName()))
+            for function in program.getFunctionManager().getFunctions(True)
+            if not function.isExternal()
+        ],
+        "Bookmarks": [
+            (f"0x{address:016X} {category}", comment)
+            for address, category, comment in bookmarks(program)
+        ],
+        "Options": [
+            (name, str(analysis_options.getBoolean(name, False)).lower())
+            for name in ANALYZERS
+        ]
+        + [
+            (
+                "Bookmark Functions",
+                str(search_options.getBoolean("Bookmark Functions", False)).lower(),
+            )
+        ],
+    }
+
+
+def report(input_path: Path, enabled, candidates, before, after, marks_before, marks_after, before_evidence, after_evidence) -> str:
     """Render before/after candidate evidence and the rejected negative control."""
     created = sorted(set(after) - set(before))
     lines = [
@@ -168,6 +202,9 @@ def report(input_path: Path, enabled, candidates, before, after, marks_before, m
         "- The ordinary exported candidate remains a rejected negative control because it is already a function before the target analyzer runs.",
         "",
     ])
+    evidence = render_evidence(before_evidence, after_evidence)
+    insertion = lines.index("## Fixture Assertions")
+    lines[insertion:insertion] = evidence + [""]
     return "\n".join(lines)
 
 
@@ -203,18 +240,20 @@ def main() -> int:
         before = names_and_entries(program)[1]
         marks_before = bookmarks(program)
         enabled = configure_analysis(project, program)
+        before_evidence = evidence_snapshot(project, program, candidates)
         project.analyze(program)
         run_authoritative_search(program)
         project.analyze(program)
         candidates, after = names_and_entries(program)
         marks_after = bookmarks(program)
+        after_evidence = evidence_snapshot(project, program, candidates)
         if candidates[POSITIVE_SYMBOL] in before or candidates[POSITIVE_SYMBOL] not in after:
             raise RuntimeError(f"Positive Function Start candidate was not discovered: before={before}, after={after}")
         negative = [address for name, address in candidates.items() if name.startswith("function_start_candidate_")]
         if not negative or not all(address in before and address in after for address in negative):
             raise RuntimeError(f"Negative Function Start candidate evidence is incomplete: candidates={candidates}, before={before}, after={after}")
         project.save(program)
-        output_path.write_text(report(input_path, enabled, candidates, before, after, marks_before, marks_after), encoding="utf-8", newline="\n")
+        output_path.write_text(report(input_path, enabled, candidates, before, after, marks_before, marks_after, before_evidence, after_evidence), encoding="utf-8", newline="\n")
         print(f"[+] Wrote {output_path}")
     finally:
         if project is not None:

@@ -67,14 +67,78 @@ def artifacts(program):
     return properties, sorted(symbols), functions, types
 
 
-def render(input_path: Path, pdb_path: Path, enabled: list[str], values) -> str:
-    """Render Universal-specific evidence and distinguish it from source expectations."""
-    properties, symbols, functions, types = values
+def mapping_delta(before, after):
+    """Return added, removed, and changed entries between two property snapshots."""
+    before_map = dict(before)
+    after_map = dict(after)
+    return (
+        sorted((name, after_map[name]) for name in set(after_map) - set(before_map)),
+        sorted((name, before_map[name]) for name in set(before_map) - set(after_map)),
+        sorted(
+            (name, before_map[name], after_map[name])
+            for name in set(before_map) & set(after_map)
+            if before_map[name] != after_map[name]
+        ),
+    )
+
+
+def set_delta(before, after):
+    """Return exact added and removed rows between two artifact snapshots."""
+    return sorted(set(after) - set(before)), sorted(set(before) - set(after))
+
+
+def render_snapshot(title: str, properties, symbols, functions, types, provenance: str, baseline=None) -> list[str]:
+    """Render one complete PDB snapshot and identify its provenance."""
+    baseline = baseline or ([], [], [], [])
+    baseline_properties, baseline_symbols, baseline_functions, baseline_types = baseline
+    baseline_properties = dict(baseline_properties)
+    lines = [f"### {title}", "", "#### Program properties", "", "| Name | Value | Provenance |", "| --- | --- | --- |"]
+    lines.extend(
+        f"| `{name}` | `{value}` | {('PE loader/default artifact' if baseline_properties.get(name) == value else provenance)} |"
+        for name, value in properties
+    )
+    if not properties:
+        lines.append("| _(none)_ | | |")
+    lines.extend(["", "#### Symbols", "", "| Name | Address | Source | Provenance |", "| --- | --- | --- | --- |"])
+    lines.extend(f"| `{name}` | `{address}` | `{source}` | {('PE loader/default artifact' if row in baseline_symbols else provenance)} |" for row in symbols for name, address, source in (row,))
+    if not symbols:
+        lines.append("| _(none)_ | | | |")
+    lines.extend(["", "#### Functions", "", "| Name | Entry | Provenance |", "| --- | --- | --- |"])
+    lines.extend(f"| `{name}` | `{address}` | {('PE loader/default artifact' if row in baseline_functions else provenance)} |" for row in functions for name, address in (row,))
+    if not functions:
+        lines.append("| _(none)_ | | |")
+    lines.extend(["", "#### Data types", "", "| Path | Provenance |", "| --- | --- |"])
+    lines.extend(f"| `{name}` | {('PE loader/default artifact' if name in baseline_types else provenance)} |" for name in types)
+    if not types:
+        lines.append("| _(none)_ | |")
+    return lines
+
+
+def render_set_delta(added, removed, columns: str) -> list[str]:
+    """Render added and removed rows while treating a single type path as one field."""
+    lines = [f"| Change | {columns} |", f"| --- | {' | '.join('---' for _ in columns.split(' | '))} |"]
+    for change, rows in (("Added", added), ("Removed", removed)):
+        for row in rows:
+            values = (row,) if isinstance(row, str) else row
+            lines.append("| " + change + " | " + " | ".join(f"`{value}`" for value in values) + " |")
+    if not added and not removed:
+        lines.append("| _(none)_ | " + " | ".join("" for _ in columns.split(" | ")) + " |")
+    return lines
+
+
+def render(input_path: Path, pdb_path: Path, enabled: list[str], before, after) -> str:
+    """Render before/after Universal evidence and exact PDB deltas."""
+    before_properties, before_symbols, before_functions, before_types = before
+    after_properties, after_symbols, after_functions, after_types = after
+    property_added, property_removed, property_changed = mapping_delta(before_properties, after_properties)
+    symbol_added, symbol_removed = set_delta(before_symbols, after_symbols)
+    function_added, function_removed = set_delta(before_functions, after_functions)
+    type_added, type_removed = set_delta(before_types, after_types)
+    delta_count = sum(len(rows) for rows in (property_added, property_removed, property_changed, symbol_added, symbol_removed, function_added, function_removed, type_added, type_removed))
     lines = [
         "# PDB Universal Behavioral Fixture",
         "",
-        "> Generated from actual Ghidra state after raw PDB Universal analysis.",
-        "> Rows below are PDB-derived artifacts, not source-level expected data.",
+        "> Generated from actual Ghidra program-state snapshots before and after raw PDB Universal analysis.",
         "",
         "## Input",
         "",
@@ -88,14 +152,21 @@ def render(input_path: Path, pdb_path: Path, enabled: list[str], values) -> str:
         "| --- |",
     ]
     lines.extend(f"| `{name}` |" for name in enabled)
-    lines.extend(["", "## PDB-Derived Program Properties", "", "| Name | Value |", "| --- | --- |"])
-    lines.extend(f"| `{name}` | `{value}` |" for name, value in properties)
-    lines.extend(["", "## PDB-Derived Symbols", "", "| Name | Address | Source |", "| --- | --- | --- |"])
-    lines.extend(f"| `{name}` | `{address}` | `{source}` |" for name, address, source in symbols)
-    lines.extend(["", "## PDB-Derived Functions", "", "| Name | Entry |", "| --- | --- |"])
-    lines.extend(f"| `{name}` | `{address}` |" for name, address in functions)
-    lines.extend(["", "## PDB-Derived Data Types", "", "| Path |", "| --- |"])
-    lines.extend(f"| `{name}` |" for name in types)
+    lines.extend(["", "## Before target analysis"])
+    lines.extend(render_snapshot("PDB artifacts visible before target analysis", before_properties, before_symbols, before_functions, before_types, "PE loader/default artifact"))
+    lines.extend(["", "## After target analysis"])
+    lines.extend(render_snapshot("PDB artifacts visible after target analysis", after_properties, after_symbols, after_functions, after_types, "PDB analyzer delta", before))
+    lines.extend(["", "## Delta", "", "Rows present in the before snapshot are loader/default artifacts. Only rows below are attributed to PDB Universal.", ""])
+    lines.extend(["### Property delta", "", "| Change | Name | Before | After |", "| --- | --- | --- | --- |"])
+    lines.extend(f"| Added | `{name}` | | `{value}` |" for name, value in property_added)
+    lines.extend(f"| Removed | `{name}` | `{value}` | |" for name, value in property_removed)
+    lines.extend(f"| Changed | `{name}` | `{old}` | `{new}` |" for name, old, new in property_changed)
+    if not property_added and not property_removed and not property_changed:
+        lines.append("| _(none)_ | | | |")
+    for title, added, removed, columns in (("Symbol delta", symbol_added, symbol_removed, "Name | Address | Source"), ("Function delta", function_added, function_removed, "Name | Entry"), ("Data type delta", type_added, type_removed, "Path")):
+        lines.extend(["", f"### {title}", ""])
+        lines.extend(render_set_delta(added, removed, columns))
+    lines.extend(["", "### Delta conclusion", "", f"- **Exact PDB delta rows:** `{delta_count}`.", "- **PDB matching:** The runner validated PE CodeView identity and PDB age before target analysis."])
     return "\n".join(lines) + "\n"
 
 
@@ -123,9 +194,11 @@ def main() -> int:
         enabled = configure_analysis(project, program, pdb_path)
         if enabled != [ANALYZER_NAME]:
             raise RuntimeError(f"Unexpected enabled analysis options: {enabled}")
+        before = artifacts(program)
         project.analyze(program)
         project.save(program)
-        output_path.write_text(render(input_path, pdb_path, enabled, artifacts(program)), encoding="utf-8", newline="\n")
+        after = artifacts(program)
+        output_path.write_text(render(input_path, pdb_path, enabled, before, after), encoding="utf-8", newline="\n")
         print(f"[+] Wrote {output_path}")
     except Exception as error:
         print(f"ERROR: PDB Universal analysis failed: {error}", file=sys.stderr)

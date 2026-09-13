@@ -7,13 +7,28 @@
 - **Input:** `test_decompiler_switch_analysis.exe`
 - **Enabled boolean analyzers:** `Decompiler Switch Analysis`
 
-## Switch Labels
+## Before target analysis
+
+### Switch Labels
+
+| Address | Symbol |
+| --- | --- |
+
+### Computed Jump References
+
+| Dispatch | Case references |
+| --- | --- |
+| `0x0000000140001019` | `` |
+
+## After target analysis
+
+### Switch Labels
 
 | Address | Symbol |
 | --- | --- |
 | `0x0000000140001019` | `switchD` |
 
-## Computed Jump References
+### Computed Jump References
 
 | Dispatch | Case references |
 | --- | --- |
@@ -21,4 +36,19 @@
 
 ## Fixture Assertions
 
-- **Recovered switch labels:** `1`
+- **Switch labels before target analysis:** `0`
+- **Switch labels after target analysis:** `1`
+
+## Delta
+
+### Added rows
+
+- label `0x0000000140001019` `switchD`
+
+### Removed rows
+
+- None
+
+### Changed rows
+
+- computed-reference `0x0000000140001019` -> `` -> `0x0000000140001019` -> `0x000000014000101B, 0x0000000140001021, 0x0000000140001027, 0x000000014000102D, 0x0000000140001033, 0x0000000140001039, 0x000000014000103F, 0x0000000140001045`

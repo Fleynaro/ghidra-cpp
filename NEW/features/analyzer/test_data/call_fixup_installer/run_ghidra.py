@@ -65,15 +65,58 @@ def fixup_rows(program) -> list[tuple[str, str, bool]]:
     return sorted(rows)
 
 
+def delta_section(before, after) -> list[str]:
+    """Describe installed-fixup rows added, removed, or changed by the target."""
+    before_map = {row[0]: row for row in before}
+    after_map = {row[0]: row for row in after}
+    added = [after_map[key] for key in sorted(set(after_map) - set(before_map))]
+    removed = [before_map[key] for key in sorted(set(before_map) - set(after_map))]
+    changed = [
+        (before_map[key], after_map[key])
+        for key in sorted(set(before_map) & set(after_map))
+        if before_map[key] != after_map[key]
+    ]
+    if not added and not removed and not changed:
+        return ["## Delta", "", "No changes observed", ""]
+
+    def row_text(row) -> str:
+        """Render one function fixup row for delta evidence."""
+        return " | ".join(f"`{value}`" for value in row)
+
+    lines = ["## Delta", "", "**Added rows**", ""]
+    if added:
+        lines.extend(f"- {row_text(row)}" for row in added)
+    else:
+        lines.append("- None")
+    lines.extend(["", "**Removed rows**", ""])
+    if removed:
+        lines.extend(f"- {row_text(row)}" for row in removed)
+    else:
+        lines.append("- None")
+    lines.extend(["", "**Changed rows**", ""])
+    if changed:
+        lines.extend(f"- Before {row_text(old)}; after {row_text(new)}" for old, new in changed)
+    else:
+        lines.append("- None")
+    lines.append("")
+    return lines
+
+
 def write_report(output_path: Path, input_path: Path, enabled: list[str], before, after) -> None:
     """Write the target mapping observations and the before/after function state."""
     before_map = {row[0]: row for row in before}
+
     lines = [
         "# Call-Fixup Installer Behavioral Fixture", "", "> Generated automatically with PyGhidra.", "",
         "## Input", "", f"- **File:** `{input_path.name}`", f"- **File size:** `{input_path.stat().st_size}` bytes", "",
         "## Analysis Configuration", "", f"- **Enabled boolean analyzers:** `{', '.join(enabled)}`", "- **Compiler-spec target:** `__security_check_cookie`", "- **Expected payload:** `security_check_cookie`", "",
-        "## Function State", "", "| Name | Call fixup | No return | Changed |", "| --- | --- | --- | --- |",
+        "## Before target analysis", "", "| Name | Call fixup | No return |", "| --- | --- | --- |",
     ]
+    lines.extend(f"| `{name}` | `{fixup}` | `{no_return}` |" for name, fixup, no_return in before)
+    lines.extend(["", "## After target analysis", "", "| Name | Call fixup | No return |", "| --- | --- | --- |"])
+    lines.extend(f"| `{name}` | `{fixup}` | `{no_return}` |" for name, fixup, no_return in after)
+    lines.extend([""] + delta_section(before, after))
+    lines.extend(["", "## Function State", "", "| Name | Call fixup | No return | Changed |", "| --- | --- | --- | --- |"])
     lines.extend(f"| `{name}` | `{fixup}` | `{no_return}` | `{str(before_map.get(name) != row).lower()}` |" for row in after for name, fixup, no_return in [row])
     installed = [row for row in after if row[1] not in ("None", "")]
     lines.extend(["", f"- **Functions with installed call fixups:** `{len(installed)}`.", ""])
@@ -110,9 +153,11 @@ def main() -> int:
         enabled = configure_analysis(project, program)
         if ANALYZER_NAME not in enabled:
             raise RuntimeError(f"Target analyzer was not enabled: {enabled}")
+        # Exported functions and target options are prepared; capture state at the target boundary.
         before = fixup_rows(program)
         project.analyze(program)
-        write_report(output_path, input_path, enabled, before, fixup_rows(program))
+        after = fixup_rows(program)
+        write_report(output_path, input_path, enabled, before, after)
         project.save(program)
         print(f"[+] Wrote {output_path}")
     finally:

@@ -26,7 +26,7 @@ Retain `Reference`, enable `Data Reference`, and disable unrelated boolean analy
 The generated report must contain at least one data-origin reference with a defined pointer target. The unreferenced string remains a negative control, and the script fails rather than accepting a zero-row result.
 
 ## Generated Markdown
-`test_data_reference.md` is generated from the final reference manager and data listing.
+`test_data_reference.md` is generated from before/after snapshots of the reference manager and data listing, with an explicit target delta.
 
 ## Notes / Limitations
 Relocation markup and string recognition are loader/version dependent. The existing sections below retain reproduction details.

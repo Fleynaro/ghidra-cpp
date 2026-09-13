@@ -8,6 +8,9 @@ import sys
 import tempfile
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from evidence import render_evidence
+
 ANALYZER_NAME = "Non-Returning Functions - Known"
 
 
@@ -81,7 +84,31 @@ def bookmarks(program):
     return sorted(rows)
 
 
-def report(input_path: Path, enabled, functions, marks) -> str:
+def evidence_snapshot(project, program):
+    """Capture no-return functions, bookmarks, and known-name analyzer options."""
+    analysis_options = project.getAnalysisOptions(program)
+    analyzer_options = analysis_options.getOptions(ANALYZER_NAME)
+    return {
+        "Data": [],
+        "Functions": [
+            (f"0x{address:016X}", f"{name} | no-return: {str(no_return).lower()}")
+            for address, name, no_return in function_rows(program)
+        ],
+        "Bookmarks": [
+            (f"0x{address:016X} Non-Returning Function", comment)
+            for address, comment in bookmarks(program)
+        ],
+        "Options": [
+            (ANALYZER_NAME, str(analysis_options.getBoolean(ANALYZER_NAME, False)).lower()),
+            (
+                "Create Analysis Bookmarks",
+                str(analyzer_options.getBoolean("Create Analysis Bookmarks", False)).lower(),
+            ),
+        ],
+    }
+
+
+def report(input_path: Path, enabled, functions, marks, before, after) -> str:
     """Render the actual known-name no-return state."""
     lines = [
         "# Non-Returning Functions Known Behavioral Fixture",
@@ -108,7 +135,7 @@ def report(input_path: Path, enabled, functions, marks) -> str:
     lines.extend(["", "## Non-Returning Function Bookmarks", "", "| Entry offset | Comment |", "| --- | --- |"])
     lines.extend(f"| `0x{address:016X}` | `{comment}` |" for address, comment in marks)
     abort_rows = [row for row in functions if row[1] == "abort"]
-    lines.extend(["", "## Fixture Assertions", "", f"- **Exact `abort` functions observed:** `{len(abort_rows)}`.", f"- **Exact `abort` functions marked no-return:** `{sum(1 for _, _, state in abort_rows if state)}`.", f"- **Known-name bookmarks:** `{len(marks)}`.", ""])
+    lines.extend(["", *render_evidence(before, after), "## Fixture Assertions", "", f"- **Exact `abort` functions observed:** `{len(abort_rows)}`.", f"- **Exact `abort` functions marked no-return:** `{sum(1 for _, _, state in abort_rows if state)}`.", f"- **Known-name bookmarks:** `{len(marks)}`.", ""])
     return "\n".join(lines)
 
 
@@ -140,6 +167,7 @@ def main() -> int:
         program = project.openProgram("/", input_path.name, False)
         prepare_disassembly(program)
         enabled = configure_analysis(project, program)
+        before = evidence_snapshot(project, program)
         project.analyze(program)
         # Re-run the authoritative one-shot analyzer with its option state
         # explicitly synchronized so the default analysis bookmark is visible
@@ -154,8 +182,9 @@ def main() -> int:
         known_analyzer.added(program, program.getMemory(), TaskMonitor.DUMMY, MessageLog())
         functions = function_rows(program)
         marks = bookmarks(program)
+        after = evidence_snapshot(project, program)
         project.save(program)
-        output_path.write_text(report(input_path, enabled, functions, marks), encoding="utf-8", newline="\n")
+        output_path.write_text(report(input_path, enabled, functions, marks, before, after), encoding="utf-8", newline="\n")
         print(f"[+] Wrote {output_path}")
     finally:
         if project is not None:

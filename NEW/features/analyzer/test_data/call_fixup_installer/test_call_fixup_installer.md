@@ -13,6 +13,35 @@
 - **Compiler-spec target:** `__security_check_cookie`
 - **Expected payload:** `security_check_cookie`
 
+## Before target analysis
+
+| Name | Call fixup | No return |
+| --- | --- | --- |
+| `__security_check_cookie` | `None` | `False` |
+| `call_fixup_installer_entry` | `None` | `False` |
+
+## After target analysis
+
+| Name | Call fixup | No return |
+| --- | --- | --- |
+| `__security_check_cookie` | `security_check_cookie` | `False` |
+| `call_fixup_installer_entry` | `None` | `False` |
+
+## Delta
+
+**Added rows**
+
+- None
+
+**Removed rows**
+
+- None
+
+**Changed rows**
+
+- Before `__security_check_cookie` | `None` | `False`; after `__security_check_cookie` | `security_check_cookie` | `False`
+
+
 ## Function State
 
 | Name | Call fixup | No return | Changed |

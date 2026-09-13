@@ -85,6 +85,17 @@ def function_count(program) -> int:
     return int(program.getFunctionManager().getFunctionCount())
 
 
+def evidence_rows(program) -> list[tuple[str, str, str, str]]:
+    """Snapshot functions and target bookmarks at the analyzer boundary."""
+    rows = []
+    for function in program.getFunctionManager().getFunctions(True):
+        if not function.isExternal():
+            rows.append(("function", str(function.getEntryPoint()), str(function.getName()), ""))
+    for address, category, comment in bookmark_rows(program):
+        rows.append(("bookmark", address, category, comment))
+    return sorted(rows)
+
+
 def bookmark_rows(program) -> list[tuple[str, str, str]]:
     """Extract analysis bookmarks produced by the target analyzer."""
     rows = []
@@ -98,17 +109,67 @@ def bookmark_rows(program) -> list[tuple[str, str, str]]:
     return sorted(rows)
 
 
-def write_report(output_path: Path, input_path: Path, enabled: list[str], before_count: int, after_count: int, bookmarks) -> None:
+def evidence_text(row: tuple[str, str, str, str]) -> str:
+    """Render one evidence row without hiding its kind or stable address."""
+    kind, address, value, comment = row
+    detail = value if not comment else f"{value}; {comment}"
+    return f"`{kind}` at `{address}`: `{detail}`"
+
+
+def delta_section(before, after) -> list[str]:
+    """Describe added, removed, and changed rows from the two snapshots."""
+    before_map = {(row[0], row[1]): row for row in before}
+    after_map = {(row[0], row[1]): row for row in after}
+    added = [after_map[key] for key in sorted(set(after_map) - set(before_map))]
+    removed = [before_map[key] for key in sorted(set(before_map) - set(after_map))]
+    changed = [
+        (before_map[key], after_map[key])
+        for key in sorted(set(before_map) & set(after_map))
+        if before_map[key] != after_map[key]
+    ]
+    if not added and not removed and not changed:
+        return ["## Delta", "", "No changes observed", ""]
+    lines = ["## Delta", "", "**Added rows**", ""]
+    if added:
+        lines.extend(f"- {evidence_text(row)}" for row in added)
+    else:
+        lines.append("- None")
+    lines.extend(["", "**Removed rows**", ""])
+    if removed:
+        lines.extend(f"- {evidence_text(row)}" for row in removed)
+    else:
+        lines.append("- None")
+    lines.extend(["", "**Changed rows**", ""])
+    if changed:
+        lines.extend(f"- Before {evidence_text(old)}; after {evidence_text(new)}" for old, new in changed)
+    else:
+        lines.append("- None")
+    lines.append("")
+    return lines
+
+
+def write_report(output_path: Path, input_path: Path, enabled: list[str], before, after) -> None:
     """Write actual function and bookmark observations without claiming heuristic success."""
+    before_count = sum(row[0] == "function" for row in before)
+    after_count = sum(row[0] == "function" for row in after)
+    before_bookmarks = [row for row in before if row[0] == "bookmark"]
+    after_bookmarks = [row for row in after if row[0] == "bookmark"]
     lines = [
         "# Aggressive Instruction Finder Behavioral Fixture", "", "> Generated automatically with PyGhidra.", "",
         "## Input", "", f"- **File:** `{input_path.name}`", f"- **File size:** `{input_path.stat().st_size}` bytes", "",
         "## Analysis Configuration", "", f"- **Enabled boolean analyzers:** `{', '.join(enabled)}`", "- **Create Analysis Bookmarks:** `true`", "- **Minimum function count required by Java:** `20`", "",
+        "## Before target analysis", "", "| Kind | Address | Value | Comment |", "| --- | --- | --- | --- |",
+    ]
+    lines.extend(f"| `{kind}` | `{address}` | `{value}` | `{comment}` |" for kind, address, value, comment in before)
+    lines.extend(["", "## After target analysis", "", "| Kind | Address | Value | Comment |", "| --- | --- | --- | --- |"])
+    lines.extend(f"| `{kind}` | `{address}` | `{value}` | `{comment}` |" for kind, address, value, comment in after)
+    lines.extend([""] + delta_section(before, after))
+    lines.extend([
         "## Discovery Observation", "", f"- **Functions before analysis:** `{before_count}`", f"- **Functions after analysis:** `{after_count}`", "",
         "| Bookmark address | Category | Comment |", "| --- | --- | --- |",
-    ]
-    lines.extend(f"| `{address}` | `{category}` | `{comment}` |" for address, category, comment in bookmarks)
-    lines.extend(["", f"- **Aggressive-discovery bookmarks:** `{len(bookmarks)}`.", ""])
+    ])
+    lines.extend(f"| `{address}` | `{category}` | `{comment}` |" for _, address, category, comment in after_bookmarks)
+    lines.extend(["", f"- **Bookmarks before target analysis:** `{len(before_bookmarks)}`.", f"- **Aggressive-discovery bookmarks:** `{len(after_bookmarks)}`.", ""])
     output_path.write_text("\n".join(lines), encoding="utf-8", newline="\n")
 
 
@@ -139,12 +200,14 @@ def main() -> int:
         if program is None:
             raise RuntimeError("Ghidra failed to reopen the saved fixture program")
         prepare_undefined_candidate(program)
-        before_count = function_count(program)
         enabled = configure_analysis(project, program)
         if ANALYZER_NAME not in enabled:
             raise RuntimeError(f"Target analyzer was not enabled: {enabled}")
+        # Preparation and option configuration are complete; capture the target boundary now.
+        before = evidence_rows(program)
         project.analyze(program)
-        write_report(output_path, input_path, enabled, before_count, function_count(program), bookmark_rows(program))
+        after = evidence_rows(program)
+        write_report(output_path, input_path, enabled, before, after)
         project.save(program)
         print(f"[+] Wrote {output_path}")
     finally:

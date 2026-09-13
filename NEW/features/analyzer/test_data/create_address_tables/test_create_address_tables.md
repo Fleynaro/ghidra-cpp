@@ -8,18 +8,39 @@
 - **Enabled boolean analyzers:** `Create Address Tables`
 - **Fixture table range:** `0x0000000140002038` through `0x0000000140002057` (the exported sentinel begins immediately afterward).
 
-## Target-Created Fixture Table Facts
+## Before target analysis
 
-| Address | Length | Kind or bookmark comment | Created by target |
-| --- | ---: | --- | --- |
-| `0x0000000140002038` | `8` | `pointer` | `true` |
-| `0x0000000140002040` | `8` | `pointer` | `true` |
-| `0x0000000140002048` | `8` | `pointer` | `true` |
-| `0x0000000140002050` | `8` | `pointer` | `true` |
+| Address | Length | Kind or bookmark comment |
+| --- | ---: | --- |
+
+## After target analysis
+
+| Address | Length | Kind or bookmark comment |
+| --- | ---: | --- |
+| `0x0000000140002038` | `8` | `pointer` |
+| `0x0000000140002040` | `8` | `pointer` |
+| `0x0000000140002048` | `8` | `pointer` |
+| `0x0000000140002050` | `8` | `pointer` |
 
 ## Fixture Assertions
 
 - **Facts before analysis in fixture range:** `0`
 - **Facts after analysis in fixture range:** `4`
-- **Target-created fixture facts:** `4`
 - Pointer metadata outside the exported table range is intentionally excluded from this report.
+
+## Delta
+
+### Added rows
+
+- `0x0000000140002038` | length `8` | `pointer`
+- `0x0000000140002040` | length `8` | `pointer`
+- `0x0000000140002048` | length `8` | `pointer`
+- `0x0000000140002050` | length `8` | `pointer`
+
+### Removed rows
+
+- None
+
+### Changed rows
+
+- None

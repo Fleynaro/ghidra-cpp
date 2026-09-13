@@ -28,6 +28,15 @@ References that satisfy memory, symbol, relocation, offcut, and existing-referen
 ## Generated Markdown
 `test_reference.md` is generated from Ghidra's reference manager by `run_ghidra.py`.
 
+## Before target analysis
+The report snapshots relevant non-flow memory and operand references after the deliberate disassembly prerequisite and before `project.analyze(program)`.
+
+## After target analysis
+The report snapshots the same references after the Reference target, retaining their Ghidra source and provenance.
+
+## Delta
+The report shows exact added, removed, and changed reference rows; persistent `DEFAULT` rows remain classified as loader/disassembler artifacts.
+
 ## Notes / Limitations
 Instruction encodings, relocations, and addresses vary by compiler/linker version. The existing sections below retain reproduction details.
 

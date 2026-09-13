@@ -65,4 +65,4 @@ The expected generated files are `test_decompiler_switch_analysis.exe` and `test
 
 ## Validation
 
-Validation completed with MSVC 2022 x64 compilation/linking, isolated project reopen through `project.openProgram(...)`, target-only decompiler analysis, and report inspection. The generated report contains one `switchD` label and eight computed case references.
+Validation completed with MSVC 2022 x64 compilation/linking, isolated project reopen through `project.openProgram(...)`, target-only decompiler analysis, and report inspection. The generated report contains before/after switch facts and an explicit delta showing one `switchD` label and eight computed case references.

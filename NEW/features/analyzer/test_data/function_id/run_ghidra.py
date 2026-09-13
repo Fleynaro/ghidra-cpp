@@ -9,6 +9,9 @@ import sys
 import tempfile
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from evidence import render_evidence
+
 ANALYZER_NAME = "Function ID"
 FID_ARTIFACT_GHIDRA_VERSION = "12.1.3"
 
@@ -209,7 +212,52 @@ def query_match_count(program) -> tuple[int, int]:
         query_service.close()
 
 
-def report(input_path: Path, enabled, added_count: int, language_id: str, query_counts, functions, bookmarks) -> str:
+def evidence_snapshot(project, program):
+    """Capture FID target functions, bookmarks, and configured analyzer options."""
+    analysis_options = project.getAnalysisOptions(program)
+    fid_options = analysis_options.getOptions(ANALYZER_NAME)
+    function_rows = [
+        (
+            f"0x{value(function.getEntryPoint()):016X}",
+            f"{function.getName()} | plate comment: {function.getComment() or ''}",
+        )
+        for function in program.getFunctionManager().getFunctions(True)
+        if not function.isExternal()
+    ]
+    bookmark_rows = [
+        (f"0x{address:016X} Function ID Analyzer", comment)
+        for address, comment in bookmark_rows_for_evidence(program)
+    ]
+    return {
+        "Data": [],
+        "Functions": function_rows,
+        "Bookmarks": bookmark_rows,
+        "Options": [
+            (ANALYZER_NAME, str(analysis_options.getBoolean(ANALYZER_NAME, False)).lower()),
+            (
+                "Always Apply FID Labels",
+                str(fid_options.getBoolean("Always Apply FID Labels", False)).lower(),
+            ),
+            (
+                "Create Analysis Bookmarks",
+                str(fid_options.getBoolean("Create Analysis Bookmarks", False)).lower(),
+            ),
+        ],
+    }
+
+
+def bookmark_rows_for_evidence(program):
+    """Return Function ID bookmark rows without changing the existing report extractor."""
+    rows = []
+    iterator = program.getBookmarkManager().getBookmarksIterator()
+    while iterator.hasNext():
+        bookmark = iterator.next()
+        if str(bookmark.getCategory()) == "Function ID Analyzer":
+            rows.append((value(bookmark.getAddress()), str(bookmark.getComment())))
+    return sorted(rows)
+
+
+def report(input_path: Path, enabled, added_count: int, language_id: str, query_counts, functions, bookmarks, before, after) -> str:
     """Render actual FID population and target markup observations."""
     lines = [
         "# Function ID Behavioral Fixture",
@@ -239,7 +287,7 @@ def report(input_path: Path, enabled, added_count: int, language_id: str, query_
         lines.append(f"| `0x{address:016X}` | `{name}` | `{comment.replace(chr(10), '<br>')}` |")
     lines.extend(["", "## Function ID Bookmarks", "", "| Entry offset | Comment |", "| --- | --- |"])
     lines.extend(f"| `0x{address:016X}` | `{comment}` |" for address, comment in bookmarks)
-    lines.extend(["", "## Fixture Assertions", "", f"- **Functions added to the generated FID library:** `{added_count}`.", f"- **Target functions observed:** `{len(functions)}`.", f"- **Function ID bookmarks:** `{len(bookmarks)}`.", ""])
+    lines.extend(["", *render_evidence(before, after), "## Fixture Assertions", "", f"- **Functions added to the generated FID library:** `{added_count}`.", f"- **Target functions observed:** `{len(functions)}`.", f"- **Function ID bookmarks:** `{len(bookmarks)}`.", ""])
     return "\n".join(lines)
 
 
@@ -278,6 +326,7 @@ def main() -> int:
         prepare_disassembly(program)
         seed_export_functions(program)
         enabled = configure_analysis(project, program)
+        before = evidence_snapshot(project, program)
         project.analyze(program)
         # Exercise the same registered analyzer action explicitly after the
         # FID file has been reloaded, so the generated database is observable in
@@ -293,8 +342,9 @@ def main() -> int:
         functions = target_rows(program)
         query_counts = query_match_count(program)
         bookmarks = bookmark_rows(program)
+        after = evidence_snapshot(project, program)
         project.save(program)
-        output_path.write_text(report(input_path, enabled, added_count, language_id, query_counts, functions, bookmarks), encoding="utf-8", newline="\n")
+        output_path.write_text(report(input_path, enabled, added_count, language_id, query_counts, functions, bookmarks, before, after), encoding="utf-8", newline="\n")
         print(f"[+] Wrote {output_path}")
     finally:
         if project is not None:

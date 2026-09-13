@@ -26,6 +26,85 @@
 | --- | --- |
 | `0x0000000140001000` | `Non-Returning Function Identified` |
 
+## Before target analysis
+
+### Data
+
+| Key | State |
+| --- | --- |
+| `(none)` | `No rows observed` |
+
+### Functions
+
+| Key | State |
+| --- | --- |
+| `0x0000000140001028` | `entry \| no-return: false` |
+
+### Bookmarks
+
+| Key | State |
+| --- | --- |
+| `(none)` | `No rows observed` |
+
+### Options
+
+| Key | State |
+| --- | --- |
+| `Create Analysis Bookmarks` | `true` |
+| `Non-Returning Functions - Known` | `true` |
+
+
+## After target analysis
+
+### Data
+
+| Key | State |
+| --- | --- |
+| `(none)` | `No rows observed` |
+
+### Functions
+
+| Key | State |
+| --- | --- |
+| `0x0000000140001000` | `abort \| no-return: true` |
+| `0x0000000140001028` | `entry \| no-return: false` |
+
+### Bookmarks
+
+| Key | State |
+| --- | --- |
+| `0x0000000140001000 Non-Returning Function` | `Non-Returning Function Identified` |
+
+### Options
+
+| Key | State |
+| --- | --- |
+| `Create Analysis Bookmarks` | `true` |
+| `Non-Returning Functions - Known` | `true` |
+
+
+## Delta
+
+### Data
+
+No changes observed.
+
+### Functions
+
+| Change | Key | Before | After |
+| --- | --- | --- | --- |
+| `Added` | `0x0000000140001000` | `` | `abort \| no-return: true` |
+
+### Bookmarks
+
+| Change | Key | Before | After |
+| --- | --- | --- | --- |
+| `Added` | `0x0000000140001000 Non-Returning Function` | `` | `Non-Returning Function Identified` |
+
+### Options
+
+No changes observed.
+
 ## Fixture Assertions
 
 - **Exact `abort` functions observed:** `1`.

@@ -26,7 +26,7 @@ Enable only `Disassemble Entry Points` with its execute-set behavior configured 
 Code export locations may gain instructions/functions, while the C++-linkage data marker must remain non-instructional and functionless in both snapshots.
 
 ## Generated Markdown
-`test_disassemble_entry_points.md` is generated from selected symbol state by `run_ghidra.py`.
+`test_disassemble_entry_points.md` is generated from before/after selected-symbol snapshots and an explicit target delta by `run_ghidra.py`.
 
 ## Notes / Limitations
 PE import behavior can seed an initial entry function and affect before/after state. The existing sections below retain reproduction details.

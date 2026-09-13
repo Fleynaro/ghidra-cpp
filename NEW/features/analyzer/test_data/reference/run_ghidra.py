@@ -79,28 +79,39 @@ def references(program):
     return sorted(rows)
 
 
-def render(input_path: Path, enabled: list[str], before, after) -> str:
-    """Render before/after references and classify their real source provenance."""
-    before_keys = {
-        (source, target, operand, kind)
-        for source, target, operand, kind, _ in before
-    }
-    after_rows = []
-    for source, target, operand, kind, source_kind in after:
-        key = (source, target, operand, kind)
-        if key in before_keys:
-            origin = "Pre-existing disassembler reference"
-        elif source_kind == "ANALYSIS":
-            origin = "Analyzer-created reference"
-        else:
-            origin = f"Post-analysis {source_kind.lower()} reference"
-        after_rows.append((source, target, operand, kind, source_kind, origin))
+def keyed_delta(before, after):
+    """Return exact added, removed, and changed reference rows by stable identity."""
+    before_map = {(row[0], row[1], row[2], row[3]): row for row in before}
+    after_map = {(row[0], row[1], row[2], row[3]): row for row in after}
+    added = sorted(after_map[key] for key in set(after_map) - set(before_map))
+    removed = sorted(before_map[key] for key in set(before_map) - set(after_map))
+    changed = sorted(
+        (before_map[key], after_map[key])
+        for key in set(before_map) & set(after_map)
+        if before_map[key] != after_map[key]
+    )
+    return added, removed, changed
 
-    created = [row for row in after_rows if row[5] == "Analyzer-created reference"]
+
+def render_reference_rows(title: str, rows, provenance: str) -> list[str]:
+    """Render one deterministic reference snapshot with its phase provenance."""
+    lines = [f"### {title}", "", "| Source | Target | Operand | Type | Ghidra source | Provenance |", "| --- | --- | --- | --- | --- | --- |"]
+    lines.extend(
+        f"| `0x{source:016X}` | `0x{target:016X}` | `{operand}` | `{kind}` | `{source_kind}` | {provenance} |"
+        for source, target, operand, kind, source_kind in rows
+    )
+    if not rows:
+        lines.append("| _(none)_ | | | | | |")
+    return lines
+
+
+def render(input_path: Path, enabled: list[str], before, after) -> str:
+    """Render before/after references and exact reference-manager deltas."""
+    added, removed, changed = keyed_delta(before, after)
     lines = [
         "# Reference Behavioral Fixture",
         "",
-        "> Generated from actual Ghidra reference-manager snapshots before and after analysis.",
+        "> Generated from actual Ghidra reference-manager snapshots around the target analyzer.",
         "",
         "## Input",
         "",
@@ -113,30 +124,31 @@ def render(input_path: Path, enabled: list[str], before, after) -> str:
         "| --- |",
     ]
     lines.extend(f"| `{name}` |" for name in enabled)
+    lines.extend(["", "## Before target analysis"])
+    lines.extend(render_reference_rows("References visible before target analysis", before, "Pre-existing disassembler reference"))
+    lines.extend(["", "## After target analysis"])
+    lines.extend(render_reference_rows("References visible after target analysis", after, "Post-target reference state"))
+    lines.extend(["", "## Delta", "", "The delta is keyed by source, target, operand, and reference type; a changed Ghidra source is reported as changed rather than silently merged.", "", "| Change | Source | Target | Operand | Type | Before source | After source |", "| --- | --- | --- | --- | --- | --- | --- |"])
+    for row in added:
+        source, target, operand, kind, source_kind = row
+        lines.append(f"| Added | `0x{source:016X}` | `0x{target:016X}` | `{operand}` | `{kind}` | | `{source_kind}` |")
+    for row in removed:
+        source, target, operand, kind, source_kind = row
+        lines.append(f"| Removed | `0x{source:016X}` | `0x{target:016X}` | `{operand}` | `{kind}` | `{source_kind}` | |")
+    for before_row, after_row in changed:
+        source, target, operand, kind, before_source = before_row
+        after_source = after_row[4]
+        lines.append(f"| Changed | `0x{source:016X}` | `0x{target:016X}` | `{operand}` | `{kind}` | `{before_source}` | `{after_source}` |")
+    if not added and not removed and not changed:
+        lines.append("| _(none)_ | | | | | | |")
     lines.extend([
         "",
-        "## Reference Provenance",
+        "### Delta conclusion",
         "",
-        "| Phase | Source | Target | Operand | Type | Ghidra source | Provenance |",
-        "| --- | --- | --- | --- | --- | --- | --- |",
-    ])
-    for source, target, operand, kind, source_kind in before:
-        lines.append(
-            f"| Before | `0x{source:016X}` | `0x{target:016X}` | `{operand}` | `{kind}` | `{source_kind}` | `Pre-existing disassembler reference` |"
-        )
-    for source, target, operand, kind, source_kind, origin in after_rows:
-        lines.append(
-            f"| After | `0x{source:016X}` | `0x{target:016X}` | `{operand}` | `{kind}` | `{source_kind}` | `{origin}` |"
-        )
-    lines.extend([
-        "",
-        "## Fixture Assertions",
-        "",
-        f"- **References before analysis:** `{len(before)}`.",
-        f"- **References after analysis:** `{len(after)}`.",
-        f"- **Analyzer-created references:** `{len(created)}`.",
-        "- `DEFAULT` references present in both snapshots are disassembler output, not Reference-analyzer output.",
-        "",
+        f"- **References before target analysis:** `{len(before)}`.",
+        f"- **References after target analysis:** `{len(after)}`.",
+        f"- **References added:** `{len(added)}`; removed: `{len(removed)}`; changed: `{len(changed)}`.",
+        "- `DEFAULT` rows present in both snapshots are loader/disassembler artifacts, not Reference-analyzer deltas.",
     ])
     return "\n".join(lines).rstrip() + "\n"
 

@@ -101,17 +101,38 @@ def function_state(program) -> tuple[str, str, int, str]:
     return (str(function.getName()), str(function.getCallingConventionName()), int(function.getParameterCount()), str(function.getSignatureSource()))
 
 
+def delta_section(before, after) -> list[str]:
+    """Describe the target function row change from the captured snapshots."""
+    if before == after:
+        return ["## Delta", "", "No changes observed", ""]
+    def row_text(row) -> str:
+        """Render one convention snapshot row without losing its source state."""
+        return " | ".join(f"`{value}`" for value in row)
+    return [
+        "## Delta", "", "**Added rows**", "", "- None", "",
+        "**Removed rows**", "", "- None", "",
+        "**Changed rows**", "", f"- Before {row_text(before)}; after {row_text(after)}", "",
+    ]
+
+
 def write_report(output_path: Path, input_path: Path, enabled: list[str], before, after) -> None:
     """Write the configured eligibility and recovered convention observation."""
     lines = [
         "# Call Convention ID Behavioral Fixture", "", "> Generated automatically with PyGhidra.", "",
         "## Input", "", f"- **File:** `{input_path.name}`", f"- **File size:** `{input_path.stat().st_size}` bytes", "",
         "## Analysis Configuration", "", f"- **Enabled boolean analyzers:** `{', '.join(enabled)}`", "- **Target eligibility:** `unknown convention, three defined DWord parameters, non-custom storage`", "",
+        "## Before target analysis", "", "| Function | Calling convention | Parameter count | Signature source |", "| --- | --- | --- | --- |",
+        f"| `{before[0]}` | `{before[1]}` | `{before[2]}` | `{before[3]}` |",
+        "", "## After target analysis", "", "| Function | Calling convention | Parameter count | Signature source |", "| --- | --- | --- | --- |",
+        f"| `{after[0]}` | `{after[1]}` | `{after[2]}` | `{after[3]}` |",
+    ]
+    lines.extend([""] + delta_section(before, after))
+    lines.extend([
         "## Convention Observation", "", "| Stage | Function | Calling convention | Parameter count | Signature source |", "| --- | --- | --- | --- | --- |",
         f"| Before analysis | `{before[0]}` | `{before[1]}` | `{before[2]}` | `{before[3]}` |",
         f"| After analysis | `{after[0]}` | `{after[1]}` | `{after[2]}` | `{after[3]}` |",
         "", f"- **Convention changed:** `{str(before[1] != after[1]).lower()}`.", "",
-    ]
+    ])
     output_path.write_text("\n".join(lines), encoding="utf-8", newline="\n")
 
 
@@ -143,10 +164,11 @@ def main() -> int:
             raise RuntimeError("Ghidra failed to reopen the saved fixture program")
         prepare_exported_functions(program)
         prepare_unknown_signature(program)
-        before = function_state(program)
         enabled = configure_analysis(project, program)
         if ANALYZER_NAME not in enabled:
             raise RuntimeError(f"Target analyzer was not enabled: {enabled}")
+        # Prepared signature eligibility and option configuration are complete at this boundary.
+        before = function_state(program)
         project.analyze(program)
         write_report(output_path, input_path, enabled, before, function_state(program))
         project.save(program)

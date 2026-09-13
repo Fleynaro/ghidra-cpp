@@ -35,6 +35,14 @@ def function_entries(program) -> set[int]:
     }
 
 
+def function_rows(program) -> list[tuple[int, str]]:
+    """Snapshot non-external function entries and bodies at the target boundary."""
+    return [
+        (int(function.getEntryPoint().getOffset()), body_ranges(function))
+        for function in sorted_functions(program)
+    ]
+
+
 def body_ranges(function) -> str:
     """Render every address range in a function body in stable ascending order."""
     ranges = []
@@ -43,7 +51,7 @@ def body_ranges(function) -> str:
             f"{address_text(address_range.getMinAddress())}-"
             f"{address_text(address_range.getMaxAddress())}"
         )
-    return ", ".join(ranges)
+    return ", ".join(sorted(ranges))
 
 
 def direct_calls(program) -> list[tuple[int, int, str, str, bool]]:
@@ -125,12 +133,47 @@ def configure_analysis(project, program) -> list[str]:
     return sorted(enabled)
 
 
-def markdown(program, input_path: Path, enabled: list[str], before: set[int], calls) -> str:
+def delta_section(before, after) -> list[str]:
+    """Describe function rows added, removed, or changed by Subroutine References."""
+    before_map = {row[0]: row for row in before}
+    after_map = {row[0]: row for row in after}
+    added = [after_map[key] for key in sorted(set(after_map) - set(before_map))]
+    removed = [before_map[key] for key in sorted(set(before_map) - set(after_map))]
+    changed = [
+        (before_map[key], after_map[key])
+        for key in sorted(set(before_map) & set(after_map))
+        if before_map[key] != after_map[key]
+    ]
+    if not added and not removed and not changed:
+        return ["## Delta", "", "No changes observed", ""]
+
+    def row_text(row) -> str:
+        """Render one function snapshot row for delta evidence."""
+        return f"`0x{row[0]:016X}` body `{row[1]}`"
+
+    lines = ["## Delta", "", "**Added rows**", ""]
+    if added:
+        lines.extend(f"- {row_text(row)}" for row in added)
+    else:
+        lines.append("- None")
+    lines.extend(["", "**Removed rows**", ""])
+    if removed:
+        lines.extend(f"- {row_text(row)}" for row in removed)
+    else:
+        lines.append("- None")
+    lines.extend(["", "**Changed rows**", ""])
+    if changed:
+        lines.extend(f"- Before {row_text(old)}; after {row_text(new)}" for old, new in changed)
+    else:
+        lines.append("- None")
+    lines.append("")
+    return lines
+
+
+def markdown(program, input_path: Path, enabled: list[str], before: set[int], before_rows, after_rows, calls) -> str:
     """Render only call references and function state relevant to the analyzer."""
     after_functions = sorted_functions(program)
-    after = {
-        int(function.getEntryPoint().getOffset()) for function in after_functions
-    }
+    after = {entry for entry, _ in after_rows}
     created = sorted(after - before)
 
     lines = [
@@ -177,15 +220,15 @@ def markdown(program, input_path: Path, enabled: list[str], before: set[int], ca
     lines.extend(
         [
             "",
-            "## Function Entries Before Analysis",
+            "## Before target analysis",
             "",
-            "| Entry address |",
-            "| --- |",
+            "| Entry address | Body ranges |",
+            "| --- | --- |",
         ]
     )
-    for entry in sorted(before):
+    for entry, body in before_rows:
         lines.append(
-            f"| `{address_text(program.getAddressFactory().getDefaultAddressSpace().getAddress(entry))}` |"
+            f"| `{address_text(program.getAddressFactory().getDefaultAddressSpace().getAddress(entry))}` | `{body}` |"
         )
 
     lines.extend(
@@ -206,14 +249,18 @@ def markdown(program, input_path: Path, enabled: list[str], before: set[int], ca
     lines.extend(
         [
             "",
-            "## Function Entries After Analysis",
+            "## After target analysis",
             "",
             "| Entry address | Body ranges |",
             "| --- | --- |",
         ]
     )
-    for function in after_functions:
-        lines.append(f"| `{address_text(function.getEntryPoint())}` | `{body_ranges(function)}` |")
+    for entry, body in after_rows:
+        lines.append(
+            f"| `{address_text(program.getAddressFactory().getDefaultAddressSpace().getAddress(entry))}` | `{body}` |"
+        )
+
+    lines.extend([""] + delta_section(before_rows, after_rows))
 
     lines.extend(
         [
@@ -251,6 +298,11 @@ def main() -> int:
         program = project.importProgram(File(str(input_path)))
         if program is None:
             raise RuntimeError("Ghidra failed to import the fixture executable")
+        project.saveAs(program, "/", input_path.name, True)
+        project.close(program)
+        program = project.openProgram("/", input_path.name, False)
+        if program is None:
+            raise RuntimeError("Ghidra failed to reopen the saved fixture program")
         prepare_disassembly(program)
         before = function_entries(program)
         enabled = configure_analysis(project, program)
@@ -260,12 +312,18 @@ def main() -> int:
         print(f"[+] Imported {input_path}")
         print(f"[+] Enabled analysis: {', '.join(enabled)}")
         print(f"[+] Direct calls before analysis: {len(calls_before_analysis)}")
+        # Disassembly, call inventory, and target option configuration are complete at this boundary.
+        before_rows = function_rows(program)
         project.analyze(program)
-        report = markdown(program, input_path, enabled, before, calls_before_analysis)
+        after_rows = function_rows(program)
+        report = markdown(program, input_path, enabled, before, before_rows, after_rows, calls_before_analysis)
+        project.save(program)
         output_path.write_text(report, encoding="utf-8", newline="\n")
         print(f"[+] Wrote {output_path}")
     finally:
         if "project" in locals():
+            if "program" in locals() and program is not None:
+                project.close(program)
             project.close()
         shutil.rmtree(project_parent, ignore_errors=True)
     return 0

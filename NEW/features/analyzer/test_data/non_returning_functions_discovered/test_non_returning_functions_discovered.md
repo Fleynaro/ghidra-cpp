@@ -40,6 +40,106 @@
 | --- | --- |
 | `0x0000000140001000` | `Non-Returning Function Found` |
 
+## Before target analysis
+
+### Data
+
+| Key | State |
+| --- | --- |
+| `Call 0x0000000140001018` | `target 0x0000000140001000 \| flow override: NONE` |
+| `Call 0x000000014000103C` | `target 0x0000000140001000 \| flow override: NONE` |
+| `Call 0x0000000140001060` | `target 0x0000000140001000 \| flow override: NONE` |
+| `Call 0x0000000140001084` | `target 0x0000000140001014 \| flow override: NONE` |
+| `Call 0x0000000140001089` | `target 0x0000000140001038 \| flow override: NONE` |
+
+### Functions
+
+| Key | State |
+| --- | --- |
+| `0x0000000140001000` | `discovered_target \| no-return: false` |
+| `0x0000000140001014` | `discovered_caller_one \| no-return: false` |
+| `0x0000000140001038` | `discovered_caller_two \| no-return: false` |
+| `0x000000014000105C` | `discovered_caller_three \| no-return: false` |
+
+### Bookmarks
+
+| Key | State |
+| --- | --- |
+| `(none)` | `No rows observed` |
+
+### Options
+
+| Key | State |
+| --- | --- |
+| `Create Analysis Bookmarks` | `true` |
+| `Function Non-return Threshold` | `3` |
+| `Non-Returning Functions - Discovered` | `true` |
+| `Repair Flow Damage` | `false` |
+
+
+## After target analysis
+
+### Data
+
+| Key | State |
+| --- | --- |
+| `Call 0x0000000140001018` | `target 0x0000000140001000 \| flow override: CALL_RETURN` |
+| `Call 0x000000014000103C` | `target 0x0000000140001000 \| flow override: CALL_RETURN` |
+| `Call 0x0000000140001060` | `target 0x0000000140001000 \| flow override: CALL_RETURN` |
+| `Call 0x0000000140001084` | `target 0x0000000140001014 \| flow override: NONE` |
+| `Call 0x0000000140001089` | `target 0x0000000140001038 \| flow override: NONE` |
+
+### Functions
+
+| Key | State |
+| --- | --- |
+| `0x0000000140001000` | `discovered_target \| no-return: true` |
+| `0x0000000140001014` | `discovered_caller_one \| no-return: false` |
+| `0x0000000140001038` | `discovered_caller_two \| no-return: false` |
+| `0x000000014000105C` | `discovered_caller_three \| no-return: false` |
+
+### Bookmarks
+
+| Key | State |
+| --- | --- |
+| `0x0000000140001000 Non-Returning Function` | `Non-Returning Function Found` |
+
+### Options
+
+| Key | State |
+| --- | --- |
+| `Create Analysis Bookmarks` | `true` |
+| `Function Non-return Threshold` | `3` |
+| `Non-Returning Functions - Discovered` | `true` |
+| `Repair Flow Damage` | `false` |
+
+
+## Delta
+
+### Data
+
+| Change | Key | Before | After |
+| --- | --- | --- | --- |
+| `Changed` | `Call 0x0000000140001018` | `target 0x0000000140001000 \| flow override: NONE` | `target 0x0000000140001000 \| flow override: CALL_RETURN` |
+| `Changed` | `Call 0x000000014000103C` | `target 0x0000000140001000 \| flow override: NONE` | `target 0x0000000140001000 \| flow override: CALL_RETURN` |
+| `Changed` | `Call 0x0000000140001060` | `target 0x0000000140001000 \| flow override: NONE` | `target 0x0000000140001000 \| flow override: CALL_RETURN` |
+
+### Functions
+
+| Change | Key | Before | After |
+| --- | --- | --- | --- |
+| `Changed` | `0x0000000140001000` | `discovered_target \| no-return: false` | `discovered_target \| no-return: true` |
+
+### Bookmarks
+
+| Change | Key | Before | After |
+| --- | --- | --- | --- |
+| `Added` | `0x0000000140001000 Non-Returning Function` | `` | `Non-Returning Function Found` |
+
+### Options
+
+No changes observed.
+
 ## Fixture Assertions
 
 - **Discovered target rows:** `1`.

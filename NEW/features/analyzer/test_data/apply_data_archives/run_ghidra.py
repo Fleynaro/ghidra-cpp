@@ -38,17 +38,61 @@ def function_rows(program) -> list[tuple[str, str, str, str]]:
     return sorted(rows)
 
 
+def delta_section(before, after) -> list[str]:
+    """Describe signature rows added, removed, or changed by the target."""
+    before_map = {row[0]: row for row in before}
+    after_map = {row[0]: row for row in after}
+    added = [after_map[key] for key in sorted(set(after_map) - set(before_map))]
+    removed = [before_map[key] for key in sorted(set(before_map) - set(after_map))]
+    changed = [
+        (before_map[key], after_map[key])
+        for key in sorted(set(before_map) & set(after_map))
+        if before_map[key] != after_map[key]
+    ]
+    if not added and not removed and not changed:
+        return ["## Delta", "", "No changes observed", ""]
+    def row_text(row) -> str:
+        """Render one signature row without losing any observed field."""
+        return " | ".join(f"`{value}`" for value in row)
+    lines = ["## Delta", "", "**Added rows**", ""]
+    if added:
+        lines.extend(f"- {row_text(row)}" for row in added)
+    else:
+        lines.append("- None")
+    lines.extend(["", "**Removed rows**", ""])
+    if removed:
+        lines.extend(f"- {row_text(row)}" for row in removed)
+    else:
+        lines.append("- None")
+    lines.extend(["", "**Changed rows**", ""])
+    if changed:
+        lines.extend(f"- Before {row_text(old)}; after {row_text(new)}" for old, new in changed)
+    else:
+        lines.append("- None")
+    lines.append("")
+    return lines
+
+
 def write_report(output_path: Path, input_path: Path, enabled: list[str], before, after) -> None:
     """Write the archive configuration and stable before/after signature observations."""
     before_map = {row[0]: row for row in before}
     changed = [row for row in after if before_map.get(row[0]) != row]
+    def table_rows(rows):
+        """Render a complete function snapshot as a Markdown table body."""
+        return [f"| `{name}` | `{signature}` | `{convention}` | `{source}` |" for name, signature, convention, source in rows]
+
     lines = [
         "# Apply Data Archives Behavioral Fixture", "", "> Generated automatically with PyGhidra.", "",
         "## Input", "", f"- **File:** `{input_path.name}`", f"- **File size:** `{input_path.stat().st_size}` bytes", "",
         "## Analysis Configuration", "", f"- **Enabled boolean analyzers:** `{', '.join(enabled)}`", f"- **Archive Chooser:** `{ARCHIVE_NAME}`", "- **Create Analysis Bookmarks:** `false`", "",
-        "## Function Signatures Changed", "", "| Name | Signature | Calling convention | Source |", "| --- | --- | --- | --- |",
+        "## Before target analysis", "", "| Name | Signature | Calling convention | Source |", "| --- | --- | --- | --- |",
     ]
-    lines.extend(f"| `{name}` | `{signature}` | `{convention}` | `{source}` |" for name, signature, convention, source in changed)
+    lines.extend(table_rows(before))
+    lines.extend(["", "## After target analysis", "", "| Name | Signature | Calling convention | Source |", "| --- | --- | --- | --- |"])
+    lines.extend(table_rows(after))
+    lines.extend([""] + delta_section(before, after))
+    lines.extend(["", "## Function Signatures Changed", "", "| Name | Signature | Calling convention | Source |", "| --- | --- | --- | --- |"])
+    lines.extend(table_rows(changed))
     lines.extend(["", f"- **Changed signature count:** `{len(changed)}`.", "- **Archive availability:** `Observed by analyzer run; see changed rows rather than assuming archive contents.`", ""])
     output_path.write_text("\n".join(lines), encoding="utf-8", newline="\n")
 
@@ -82,9 +126,11 @@ def main() -> int:
         enabled = configure_analysis(project, program)
         if ANALYZER_NAME not in enabled:
             raise RuntimeError(f"Target analyzer was not enabled: {enabled}")
+        # The archive chooser is configured and validated; capture state immediately before the target pass.
         before = function_rows(program)
         project.analyze(program)
-        write_report(output_path, input_path, enabled, before, function_rows(program))
+        after = function_rows(program)
+        write_report(output_path, input_path, enabled, before, after)
         project.save(program)
         print(f"[+] Wrote {output_path}")
     finally:

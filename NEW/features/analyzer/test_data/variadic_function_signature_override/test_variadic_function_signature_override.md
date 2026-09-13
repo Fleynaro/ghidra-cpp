@@ -16,23 +16,70 @@
 - `Variadic Function Signature Override`
 - `Variadic Function Signature Override.Create Analysis Bookmarks`
 
-## P-Code Call Evidence
+## Before target analysis
 
-| Phase | Call address | Caller | P-code input count | High-variable input types |
-| --- | --- | --- | --- | --- |
-| Before | `0x0000000140001068` | `format_string_call` | `4` | `unknown, char *, undefined8, char *` |
-| After | `0x0000000140001068` | `format_string_call` | `4` | `unknown, char *, int, char *` |
+### Target signatures
 
-## Function Signature Override Bookmarks
+| Call address | Override signature |
+| --- | --- |
+| - | No rows observed |
 
-| Call address | Comment |
+### Target comments
+
+| Call address | Bookmark comment |
+| --- | --- |
+| - | No rows observed |
+
+### Target references
+
+| Call address | Caller | P-code input count | High-variable input types |
+| --- | --- | --- | --- |
+| `0x0000000140001068` | `format_string_call` | `4` | `unknown, char *, undefined8, char *` |
+
+## After target analysis
+
+### Target signatures
+
+| Call address | Override signature |
+| --- | --- |
+| `0x0000000140001068` | `int dt_6e5c842b(char * param0, int param1, char * param2)` |
+
+### Target comments
+
+| Call address | Bookmark comment |
 | --- | --- |
 | `0x0000000140001068` | `Override for call to function fixture_printf` |
 
+### Target references
+
+| Call address | Caller | P-code input count | High-variable input types |
+| --- | --- | --- | --- |
+| `0x0000000140001068` | `format_string_call` | `4` | `unknown, char *, int, char *` |
+
+## Delta
+
+### Signatures
+
+| Change | Before | After |
+| --- | --- | --- |
+| Added | - | `5368713320; int dt_6e5c842b(char * param0, int param1, char * param2)` |
+
+### Comments
+
+| Change | Before | After |
+| --- | --- | --- |
+| Added | - | `5368713320; Override for call to function fixture_printf` |
+
+### References
+
+| Change | Before | After |
+| --- | --- | --- |
+| Changed | `5368713320; 4; format_string_call; ('unknown', 'char *', 'undefined8', 'char *')` | `5368713320; 4; format_string_call; ('unknown', 'char *', 'int', 'char *')` |
+
 ## Fixture Assertion
 
-- **Calls found before analysis:** `1`.
-- **Calls found after analysis:** `1`.
-- **Changed high-variable type tuples:** `1`.
-- **Function Signature Override bookmarks:** `1`.
-- The bookmark is the direct observable result of `HighFunctionDBUtil.writeOverride`; P-code input types remain surrounding context and are not assumed to change in every decompiler version.
+- **Call-site signatures before/after:** `0` / `1`.
+- **Call-site references before/after:** `1` / `1`.
+- **Function Signature Override bookmarks after target analysis:** `1`.
+- The format string, PDB signature, and disassembly are setup facts; only rows differing between the snapshots are attributed to the target analyzer.
+- The bookmark is the direct observable result of `HighFunctionDBUtil.writeOverride`; P-code input types remain supporting context and are not assumed to change in every decompiler version.

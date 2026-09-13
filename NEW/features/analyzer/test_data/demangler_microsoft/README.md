@@ -65,4 +65,4 @@ MSVC generates `test_demangler_microsoft.exe`; PyGhidra generates `test_demangle
 
 ## Validation
 
-Validation completed with MSVC 2022 x64 compilation/linking, project save/reopen through `project.openProgram(...)`, target-only analysis, and post-analysis symbol inspection. The generated report contains two decorated methods and their demangled signatures.
+Validation completed with MSVC 2022 x64 compilation/linking, project save/reopen through `project.openProgram(...)`, target-only analysis, and before/after symbol inspection. The generated report contains two decorated methods, their demangled signatures, and explicit Delta rows.

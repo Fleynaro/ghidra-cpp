@@ -12,6 +12,32 @@
 - **Enabled boolean analyzers:** `Call Convention ID`
 - **Target eligibility:** `unknown convention, three defined DWord parameters, non-custom storage`
 
+## Before target analysis
+
+| Function | Calling convention | Parameter count | Signature source |
+| --- | --- | --- | --- |
+| `convention_target` | `unknown` | `3` | `USER_DEFINED` |
+
+## After target analysis
+
+| Function | Calling convention | Parameter count | Signature source |
+| --- | --- | --- | --- |
+| `convention_target` | `__fastcall` | `3` | `USER_DEFINED` |
+
+## Delta
+
+**Added rows**
+
+- None
+
+**Removed rows**
+
+- None
+
+**Changed rows**
+
+- Before `convention_target` | `unknown` | `3` | `USER_DEFINED`; after `convention_target` | `__fastcall` | `3` | `USER_DEFINED`
+
 ## Convention Observation
 
 | Stage | Function | Calling convention | Parameter count | Signature source |

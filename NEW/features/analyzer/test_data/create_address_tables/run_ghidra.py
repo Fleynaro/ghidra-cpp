@@ -68,9 +68,50 @@ def table_facts(program, table_range: tuple[int, int]) -> list[tuple[str, int, s
     return sorted(facts)
 
 
+def fact_delta(before, after):
+    """Compare table facts by address and classify additions, removals, and changes."""
+    before_by_address = {row[0]: row for row in before}
+    after_by_address = {row[0]: row for row in after}
+    added = [after_by_address[key] for key in sorted(set(after_by_address) - set(before_by_address))]
+    removed = [before_by_address[key] for key in sorted(set(before_by_address) - set(after_by_address))]
+    changed = [(before_by_address[key], after_by_address[key])
+               for key in sorted(set(before_by_address) & set(after_by_address))
+               if before_by_address[key] != after_by_address[key]]
+    return added, removed, changed
+
+
+def delta_lines(before, after) -> list[str]:
+    """Render explicit table-fact delta rows, including the no-change case."""
+    added, removed, changed = fact_delta(before, after)
+    if not added and not removed and not changed:
+        return ["## Delta", "", "No changes observed", ""]
+
+    def row_text(row) -> str:
+        """Render one table fact for a delta list."""
+        address, length, comment = row
+        return f"`{address}` | length `{length}` | `{comment}`"
+
+    lines = ["## Delta", "", "### Added rows", ""]
+    if added:
+        lines.extend(f"- {row_text(row)}" for row in added)
+    else:
+        lines.append("- None")
+    lines.extend(["", "### Removed rows", ""])
+    if removed:
+        lines.extend(f"- {row_text(row)}" for row in removed)
+    else:
+        lines.append("- None")
+    lines.extend(["", "### Changed rows", ""])
+    if changed:
+        lines.extend(f"- {row_text(old)} -> {row_text(new)}" for old, new in changed)
+    else:
+        lines.append("- None")
+    lines.append("")
+    return lines
+
+
 def report(input_path: Path, enabled: list[str], table_range, before, after) -> str:
-    """Render only target-created facts within the exported fixture-table range."""
-    created = sorted(set(after) - set(before))
+    """Render phase snapshots and an explicit delta within the fixture-table range."""
     start, end = table_range
     lines = [
         "# Create Address Tables Behavioral Fixture",
@@ -83,13 +124,16 @@ def report(input_path: Path, enabled: list[str], table_range, before, after) -> 
         f"- **Enabled boolean analyzers:** `{', '.join(enabled)}`",
         f"- **Fixture table range:** `0x{start:016X}` through `0x{end:016X}` (the exported sentinel begins immediately afterward).",
         "",
-        "## Target-Created Fixture Table Facts",
+        "## Before target analysis",
         "",
-        "| Address | Length | Kind or bookmark comment | Created by target |",
-        "| --- | ---: | --- | --- |",
+        "| Address | Length | Kind or bookmark comment |",
+        "| --- | ---: | --- |",
     ]
-    lines.extend(f"| `{addr}` | `{length}` | `{comment}` | `true` |" for addr, length, comment in created)
-    lines.extend(["", "## Fixture Assertions", "", f"- **Facts before analysis in fixture range:** `{len(before)}`", f"- **Facts after analysis in fixture range:** `{len(after)}`", f"- **Target-created fixture facts:** `{len(created)}`", "- Pointer metadata outside the exported table range is intentionally excluded from this report.", ""])
+    lines.extend(f"| `{addr}` | `{length}` | `{comment}` |" for addr, length, comment in before)
+    lines.extend(["", "## After target analysis", "", "| Address | Length | Kind or bookmark comment |", "| --- | ---: | --- |"])
+    lines.extend(f"| `{addr}` | `{length}` | `{comment}` |" for addr, length, comment in after)
+    lines.extend(["", "## Fixture Assertions", "", f"- **Facts before analysis in fixture range:** `{len(before)}`", f"- **Facts after analysis in fixture range:** `{len(after)}`", "- Pointer metadata outside the exported table range is intentionally excluded from this report.", ""])
+    lines.extend(delta_lines(before, after))
     return "\n".join(lines)
 
 

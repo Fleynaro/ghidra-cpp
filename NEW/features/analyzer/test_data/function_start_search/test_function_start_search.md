@@ -38,6 +38,98 @@
 | --- | --- | --- |
 | `0x0000000140005003` | `Function Start Search` | `Match pattern 0` |
 
+## Before target analysis
+
+### Data
+
+| Key | State |
+| --- | --- |
+| `function_start_candidate_a candidate` | `0x0000000140001000` |
+| `function_start_candidate_b candidate` | `0x0000000140001080` |
+| `function_start_positive_pattern candidate` | `0x0000000140005003` |
+
+### Functions
+
+| Key | State |
+| --- | --- |
+| `0x0000000140001000` | `function_start_candidate_a` |
+| `0x0000000140001080` | `function_start_candidate_b` |
+| `0x0000000140001100` | `entry` |
+
+### Bookmarks
+
+| Key | State |
+| --- | --- |
+| `(none)` | `No rows observed` |
+
+### Options
+
+| Key | State |
+| --- | --- |
+| `Bookmark Functions` | `true` |
+| `Function Start Search` | `true` |
+| `Function Start Search After Code` | `false` |
+| `Function Start Search After Data` | `false` |
+
+
+## After target analysis
+
+### Data
+
+| Key | State |
+| --- | --- |
+| `function_start_candidate_a candidate` | `0x0000000140001000` |
+| `function_start_candidate_b candidate` | `0x0000000140001080` |
+| `function_start_positive_pattern candidate` | `0x0000000140005003` |
+
+### Functions
+
+| Key | State |
+| --- | --- |
+| `0x0000000140001000` | `function_start_candidate_a` |
+| `0x0000000140001080` | `function_start_candidate_b` |
+| `0x0000000140001100` | `entry` |
+| `0x0000000140005003` | `FUN_140005003` |
+
+### Bookmarks
+
+| Key | State |
+| --- | --- |
+| `0x0000000140005003 Function Start Search` | `Match pattern 0` |
+
+### Options
+
+| Key | State |
+| --- | --- |
+| `Bookmark Functions` | `true` |
+| `Function Start Search` | `true` |
+| `Function Start Search After Code` | `false` |
+| `Function Start Search After Data` | `false` |
+
+
+## Delta
+
+### Data
+
+No changes observed.
+
+### Functions
+
+| Change | Key | Before | After |
+| --- | --- | --- | --- |
+| `Added` | `0x0000000140005003` | `` | `FUN_140005003` |
+
+### Bookmarks
+
+| Change | Key | Before | After |
+| --- | --- | --- | --- |
+| `Added` | `0x0000000140005003 Function Start Search` | `` | `Match pattern 0` |
+
+### Options
+
+No changes observed.
+
+
 ## Fixture Assertions
 
 - **Candidate exports:** `3`.

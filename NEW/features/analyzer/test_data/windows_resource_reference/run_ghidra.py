@@ -169,8 +169,44 @@ def resource_references(program):
     return sorted(set(rows))
 
 
-def markdown(input_path: Path, enabled: list[str], symbols, references, definitions, locale) -> str:
-    """Render actual resource types/IDs/addresses and analyzer-created DATA references."""
+def keyed_delta(before, after):
+    """Compare resource or reference snapshots by their stable address key."""
+    before_by_key = {row[3] if len(row) > 3 else row[0]: row for row in before}
+    after_by_key = {row[3] if len(row) > 3 else row[0]: row for row in after}
+    added = [after_by_key[key] for key in sorted(set(after_by_key) - set(before_by_key))]
+    removed = [before_by_key[key] for key in sorted(set(before_by_key) - set(after_by_key))]
+    changed = [
+        (before_by_key[key], after_by_key[key])
+        for key in sorted(set(before_by_key) & set(after_by_key))
+        if before_by_key[key] != after_by_key[key]
+    ]
+    return added, removed, changed
+
+
+def row_text(row) -> str:
+    """Render a snapshot row safely inside a Markdown table cell."""
+    return "; ".join(str(value) for value in row).replace("|", "\\|")
+
+
+def append_delta(lines: list[str], title: str, before, after) -> None:
+    """Append added, removed, and changed rows for one resource evidence kind."""
+    added, removed, changed = keyed_delta(before, after)
+    lines.extend([f"### {title}", "", "| Change | Before | After |", "| --- | --- | --- |"])
+    if not added and not removed and not changed:
+        lines.append("No changes observed")
+        lines.append("")
+        return
+    for row in added:
+        lines.append(f"| Added | - | `{row_text(row)}` |")
+    for row in removed:
+        lines.append(f"| Removed | `{row_text(row)}` | - |")
+    for old, new in changed:
+        lines.append(f"| Changed | `{row_text(old)}` | `{row_text(new)}` |")
+    lines.append("")
+
+
+def markdown(input_path: Path, pdb_path: Path, enabled: list[str], symbols_before, symbols_after, references_before, references_after, definitions, locale) -> str:
+    """Render target-scoped resource snapshots and analyzer-created DATA-reference deltas."""
     lines = [
         "# Windows Resource Reference Behavioral Fixture",
         "",
@@ -181,33 +217,43 @@ def markdown(input_path: Path, enabled: list[str], symbols, references, definiti
         "",
         f"- **File:** `{input_path.name}`",
         f"- **File size:** `{input_path.stat().st_size}` bytes",
+        f"- **Matching PDB:** `{pdb_path.name}` (CodeView identity verified before setup)",
         "",
         "## Analysis Configuration",
         "",
         *[f"- `{name}`" for name in enabled],
         "",
-        "## PE Resource Symbols",
-        "",
-        "| Resource type | Resource ID/table | Locale | Address | Loader symbol |",
-        "| --- | --- | --- | --- | --- |",
     ]
-    for resource_type, identifier, resource_locale, address, name in symbols:
-        lines.append(f"| `{resource_type}` | `{identifier}` | `{resource_locale}` | `0x{address:016X}` | `{name}` |")
-    lines.extend(["", "## Resource IDs Verified Against Inputs", "", "| Resource type | .rc/resource.h symbol | ID |", "| --- | --- | --- |"])
+    for heading, symbols, references in (
+        ("Before target analysis", symbols_before, references_before),
+        ("After target analysis", symbols_after, references_after),
+    ):
+        lines.extend([f"## {heading}", "", "### Target resources", "", "| Resource type | Resource ID/table | Locale | Address | Loader symbol |", "| --- | --- | --- | --- | --- |"])
+        for resource_type, identifier, resource_locale, address, name in symbols:
+            lines.append(f"| `{resource_type}` | `{identifier}` | `{resource_locale}` | `0x{address:016X}` | `{name}` |")
+        if not symbols:
+            lines.append("| - | No rows observed | - | - | - |")
+        lines.extend(["", "### Target references", "", "| Instruction | Resource address | Resource symbol |", "| --- | --- | --- |"])
+        for instruction, target, name in references:
+            lines.append(f"| `0x{instruction:016X}` | `0x{target:016X}` | `{name}` |")
+        if not references:
+            lines.append("| - | No rows observed | - |")
+        lines.append("")
+    lines.extend(["## Delta", ""])
+    append_delta(lines, "Resources", symbols_before, symbols_after)
+    append_delta(lines, "References", references_before, references_after)
+    lines.extend(["## Supporting Input Facts", "", "The resource declarations below are read from the checked-in inputs and are not analyzer changes.", "", "| Resource type | .rc/resource.h symbol | ID |", "| --- | --- | --- |"])
     for resource_type, name, identifier in definitions:
         lines.append(f"| `{resource_type}` | `{name}` | `{identifier}` |")
-    lines.extend(["", "## Analyzer DATA References", "", "| Instruction | Resource address | Resource symbol |", "| --- | --- | --- |"])
-    for instruction, target, name in references:
-        lines.append(f"| `0x{instruction:016X}` | `0x{target:016X}` | `{name}` |")
     lines.extend(
         [
             "",
             "## Fixture Assertion",
             "",
-            f"- **Resource symbols reported:** `{len(symbols)}`.",
-            f"- **Analyzer DATA references reported:** `{len(references)}`.",
+            f"- **Resource symbols before/after target:** `{len(symbols_before)}` / `{len(symbols_after)}`.",
+            f"- **Analyzer DATA references before/after target:** `{len(references_before)}` / `{len(references_after)}`.",
             f"- The `.rc` LANGUAGE declaration resolves to LANGID `0x{locale:04X}`; the report keeps it separate from each resource ID.",
-            "- Resource IDs are verified against the declarations in `test_windows_resource_reference.rc` and `resource.h`; the two LoadStringW calls resolve to string-table data addresses.",
+            "- Resource IDs are verified against the declarations in `test_windows_resource_reference.rc` and `resource.h`; loader symbols are setup facts, while DATA-reference deltas are the target evidence.",
             "",
         ]
     )
@@ -222,12 +268,18 @@ def main() -> int:
     if not input_path.is_file():
         print(f"Input file does not exist: {input_path}", file=sys.stderr)
         return 2
+    pdb_path = input_path.with_suffix(".pdb")
+    if not pdb_path.is_file():
+        print(f"Matching PDB is required: {pdb_path}", file=sys.stderr)
+        return 2
 
     import pyghidra
 
     pyghidra.start()
     from ghidra.base.project import GhidraProject
     from java.io import File
+    sys.path.insert(0, str(fixture_dir.parent))
+    from pdb_validation import validate_pdb_match
 
     parent = Path(tempfile.mkdtemp(prefix="ghidra_windows_resource_reference_"))
     project = None
@@ -247,15 +299,35 @@ def main() -> int:
         project.saveAs(imported, "/", input_path.name, True)
         project.close(imported)
         program = project.openProgram("/", input_path.name, False)
+        validate_pdb_match(program, pdb_path)
         prepare_disassembly(program)
+        definitions, locale = resource_definitions(fixture_dir)
+        symbols_before = resource_symbols(program, definitions, locale)
+        references_before = resource_references(program)
         enabled = configure_analysis(project, program)
         project.analyze(program)
-        definitions, locale = resource_definitions(fixture_dir)
-        symbols = resource_symbols(program, definitions, locale)
-        references = resource_references(program)
-        if not symbols or not references:
-            raise RuntimeError(f"Expected loader resource symbols and DATA references, got {len(symbols)} and {len(references)}")
-        output_path.write_text(markdown(input_path, enabled, symbols, references, definitions, locale), encoding="utf-8", newline="\n")
+        symbols_after = resource_symbols(program, definitions, locale)
+        references_after = resource_references(program)
+        if not symbols_after or not references_after:
+            raise RuntimeError(
+                f"Expected loader resource symbols and DATA references, got "
+                f"{len(symbols_after)} and {len(references_after)}"
+            )
+        output_path.write_text(
+            markdown(
+                input_path,
+                pdb_path,
+                enabled,
+                symbols_before,
+                symbols_after,
+                references_before,
+                references_after,
+                definitions,
+                locale,
+            ),
+            encoding="utf-8",
+            newline="\n",
+        )
         project.save(program)
     finally:
         if project is not None and program is not None:

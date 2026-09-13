@@ -8,6 +8,9 @@ import sys
 import tempfile
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from evidence import render_evidence
+
 ANALYZER_NAME = "Non-Returning Functions - Discovered"
 EXPORTED_PREFIX = "discovered_"
 
@@ -118,7 +121,42 @@ def bookmarks(program):
     return sorted(rows)
 
 
-def report(input_path: Path, enabled, functions, calls, marks) -> str:
+def evidence_snapshot(project, program):
+    """Capture discovered functions, call evidence, bookmarks, and analyzer options."""
+    analysis_options = project.getAnalysisOptions(program)
+    analyzer_options = analysis_options.getOptions(ANALYZER_NAME)
+    return {
+        "Data": [
+            (f"Call 0x{source:016X}", f"target 0x{target:016X} | flow override: {override}")
+            for source, target, override in call_rows(program)
+        ],
+        "Functions": [
+            (f"0x{address:016X}", f"{name} | no-return: {str(no_return).lower()}")
+            for address, name, no_return in function_rows(program)
+        ],
+        "Bookmarks": [
+            (f"0x{address:016X} Non-Returning Function", comment)
+            for address, comment in bookmarks(program)
+        ],
+        "Options": [
+            (ANALYZER_NAME, str(analysis_options.getBoolean(ANALYZER_NAME, False)).lower()),
+            (
+                "Function Non-return Threshold",
+                str(analyzer_options.getInt("Function Non-return Threshold", 0)),
+            ),
+            (
+                "Repair Flow Damage",
+                str(analyzer_options.getBoolean("Repair Flow Damage", False)).lower(),
+            ),
+            (
+                "Create Analysis Bookmarks",
+                str(analyzer_options.getBoolean("Create Analysis Bookmarks", False)).lower(),
+            ),
+        ],
+    }
+
+
+def report(input_path: Path, enabled, functions, calls, marks, before, after) -> str:
     """Render actual evidence-derived no-return state."""
     target_rows = [row for row in functions if row[1] == "discovered_target"]
     lines = [
@@ -149,7 +187,7 @@ def report(input_path: Path, enabled, functions, calls, marks) -> str:
     lines.extend(f"| `0x{source:016X}` | `0x{target:016X}` | `{override}` |" for source, target, override in calls)
     lines.extend(["", "## Non-Returning Function Bookmarks", "", "| Entry offset | Comment |", "| --- | --- |"])
     lines.extend(f"| `0x{address:016X}` | `{comment}` |" for address, comment in marks)
-    lines.extend(["", "## Fixture Assertions", "", f"- **Discovered target rows:** `{len(target_rows)}`.", f"- **Discovered target marked no-return:** `{sum(1 for _, _, state in target_rows if state)}`.", f"- **Analyzer bookmarks:** `{len(marks)}`.", ""])
+    lines.extend(["", *render_evidence(before, after), "## Fixture Assertions", "", f"- **Discovered target rows:** `{len(target_rows)}`.", f"- **Discovered target marked no-return:** `{sum(1 for _, _, state in target_rows if state)}`.", f"- **Analyzer bookmarks:** `{len(marks)}`.", ""])
     return "\n".join(lines)
 
 
@@ -182,6 +220,7 @@ def main() -> int:
         prepare_disassembly(program)
         seed_export_functions(program)
         enabled = configure_analysis(project, program)
+        before = evidence_snapshot(project, program)
         # The analyzer supports one-time execution; synchronize its options and
         # invoke the same added() implementation before the scheduled pass so
         # its evidence and bookmark side effects are observable.
@@ -197,8 +236,9 @@ def main() -> int:
         functions = function_rows(program)
         calls = call_rows(program)
         marks = bookmarks(program)
+        after = evidence_snapshot(project, program)
         project.save(program)
-        output_path.write_text(report(input_path, enabled, functions, calls, marks), encoding="utf-8", newline="\n")
+        output_path.write_text(report(input_path, enabled, functions, calls, marks, before, after), encoding="utf-8", newline="\n")
         print(f"[+] Wrote {output_path}")
     finally:
         if project is not None:

@@ -80,8 +80,44 @@ def lea_rows(program):
     return sorted(rows)
 
 
-def markdown(input_path: Path, enabled: list[str], before, after) -> str:
-    """Render actual x86 LEA reference evidence from the imported program."""
+def keyed_delta(before, after):
+    """Compare LEA reference snapshots by the stable instruction address."""
+    before_by_key = {row[0]: row for row in before}
+    after_by_key = {row[0]: row for row in after}
+    added = [after_by_key[key] for key in sorted(set(after_by_key) - set(before_by_key))]
+    removed = [before_by_key[key] for key in sorted(set(before_by_key) - set(after_by_key))]
+    changed = [
+        (before_by_key[key], after_by_key[key])
+        for key in sorted(set(before_by_key) & set(after_by_key))
+        if before_by_key[key] != after_by_key[key]
+    ]
+    return added, removed, changed
+
+
+def row_text(row) -> str:
+    """Render one LEA snapshot row safely inside a Markdown table cell."""
+    return "; ".join(str(value) for value in row).replace("|", "\\|")
+
+
+def append_delta(lines: list[str], title: str, before, after) -> None:
+    """Append added, removed, and changed operand-reference rows."""
+    added, removed, changed = keyed_delta(before, after)
+    lines.extend([f"### {title}", "", "| Change | Before | After |", "| --- | --- | --- |"])
+    if not added and not removed and not changed:
+        lines.append("No changes observed")
+        lines.append("")
+        return
+    for row in added:
+        lines.append(f"| Added | - | `{row_text(row)}` |")
+    for row in removed:
+        lines.append(f"| Removed | `{row_text(row)}` | - |")
+    for old, new in changed:
+        lines.append(f"| Changed | `{row_text(old)}` | `{row_text(new)}` |")
+    lines.append("")
+
+
+def markdown(input_path: Path, pdb_path: Path, enabled: list[str], before, after) -> str:
+    """Render explicit before/after LEA reference snapshots and their delta."""
     lines = [
         "# x86 Constant Reference Behavioral Fixture",
         "",
@@ -92,28 +128,31 @@ def markdown(input_path: Path, enabled: list[str], before, after) -> str:
         "",
         f"- **File:** `{input_path.name}`",
         f"- **File size:** `{input_path.stat().st_size}` bytes",
+        f"- **Matching PDB:** `{pdb_path.name}` (CodeView identity verified before setup)",
         "",
         "## Analysis Configuration",
         "",
         *[f"- `{name}`" for name in enabled],
         "",
-        "## LEA Operand References",
-        "",
-        "| Phase | LEA address | Operand DATA references |",
-        "| --- | --- | --- |",
     ]
-    for phase, rows in (("Before", before), ("After", after)):
+    for heading, rows in (("Before target analysis", before), ("After target analysis", after)):
+        lines.extend([f"## {heading}", "", "### Target references", "", "| LEA address | Operand DATA references |", "| --- | --- |"])
         for address, references in rows:
             rendered = ", ".join(f"0x{target:08X} ({kind})" for target, kind in references) or "none"
-            lines.append(f"| {phase} | `0x{address:08X}` | `{rendered}` |")
+            lines.append(f"| `0x{address:08X}` | `{rendered}` |")
+        if not rows:
+            lines.append("| - | No rows observed |")
+        lines.append("")
+    lines.extend(["## Delta", ""])
+    append_delta(lines, "References", before, after)
     lines.extend(
         [
             "",
             "## Fixture Assertion",
             "",
-            f"- **LEA instructions:** `{len(after)}`.",
-            f"- **New operand references:** `{sum(len(row[1]) for row in after) - sum(len(row[1]) for row in before)}`.",
-            "- The post-analysis LEA references the initialized `target_value` memory address with an analysis DATA reference.",
+            f"- **LEA instruction snapshots before/after:** `{len(before)}` / `{len(after)}`.",
+            f"- **Operand references before/after:** `{sum(len(row[1]) for row in before)}` / `{sum(len(row[1]) for row in after)}`.",
+            "- The added DATA reference is attributed to the target only because it is present after analysis and absent from the pre-target snapshot.",
             "",
         ]
     )
@@ -128,12 +167,18 @@ def main() -> int:
     if not input_path.is_file():
         print(f"Input file does not exist: {input_path}", file=sys.stderr)
         return 2
+    pdb_path = input_path.with_suffix(".pdb")
+    if not pdb_path.is_file():
+        print(f"Matching PDB is required: {pdb_path}", file=sys.stderr)
+        return 2
 
     import pyghidra
 
     pyghidra.start()
     from ghidra.base.project import GhidraProject
     from java.io import File
+    sys.path.insert(0, str(fixture_dir.parent))
+    from pdb_validation import validate_pdb_match
 
     parent = Path(tempfile.mkdtemp(prefix="ghidra_x86_constant_reference_"))
     project = None
@@ -146,6 +191,7 @@ def main() -> int:
         project.saveAs(imported, "/", input_path.name, True)
         project.close(imported)
         program = project.openProgram("/", input_path.name, False)
+        validate_pdb_match(program, pdb_path)
         prepare_disassembly(program)
         if str(program.getLanguage().getProcessor()) != "x86":
             raise RuntimeError(f"Expected x86 processor, got {program.getLanguage().getProcessor()}")
@@ -153,10 +199,10 @@ def main() -> int:
         enabled = configure_analysis(project, program)
         project.analyze(program)
         after = lea_rows(program)
-        new_references = sum(len(row[1]) for row in after) - sum(len(row[1]) for row in before)
-        if not after or new_references < 1:
+        added, _, changed = keyed_delta(before, after)
+        if not after or (not added and not changed):
             raise RuntimeError(f"x86 LEA reference was not created: before={before}, after={after}")
-        output_path.write_text(markdown(input_path, enabled, before, after), encoding="utf-8", newline="\n")
+        output_path.write_text(markdown(input_path, pdb_path, enabled, before, after), encoding="utf-8", newline="\n")
         project.save(program)
     finally:
         if project is not None and program is not None:

@@ -7,7 +7,14 @@
 - **Input:** `test_demangler_microsoft.exe`
 - **Enabled boolean analyzers:** `Demangler Microsoft`
 
-## Analyzer Discoveries
+## Before target analysis
+
+| Mangled symbol | Demangled symbols | Function signature |
+| --- | --- | --- |
+| `?add@Calculator@fixture@@QEAAHHH@Z` | `Ordinal_1` | `none` |
+| `?scale@Calculator@fixture@@SAHH@Z` | `Ordinal_2` | `none` |
+
+## After target analysis
 
 | Mangled symbol | Demangled symbols | Function signature |
 | --- | --- | --- |
@@ -16,4 +23,20 @@
 
 ## Fixture Assertions
 
-- **Decorated symbols processed:** `2`
+- **Decorated symbols before target analysis:** `2`
+- **Decorated symbols after target analysis:** `2`
+
+## Delta
+
+### Added rows
+
+- None
+
+### Removed rows
+
+- None
+
+### Changed rows
+
+- `?add@Calculator@fixture@@QEAAHHH@Z` -> `Ordinal_1` | `none` -> `?add@Calculator@fixture@@QEAAHHH@Z` -> `Ordinal_1, add` | `int __thiscall add(Calculator * this, int param_1, int param_2)`
+- `?scale@Calculator@fixture@@SAHH@Z` -> `Ordinal_2` | `none` -> `?scale@Calculator@fixture@@SAHH@Z` -> `Ordinal_2, scale` | `int __cdecl scale(int param_1)`

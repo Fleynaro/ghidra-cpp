@@ -44,17 +44,60 @@ def alignment_rows(program) -> list[tuple[int, int, str]]:
     return sorted(rows)
 
 
-def write_report(output_path: Path, input_path: Path, enabled: list[str], rows) -> None:
+def delta_section(before, after) -> list[str]:
+    """Describe alignment rows added, removed, or changed by the target."""
+    before_map = {row[0]: row for row in before}
+    after_map = {row[0]: row for row in after}
+    added = [after_map[key] for key in sorted(set(after_map) - set(before_map))]
+    removed = [before_map[key] for key in sorted(set(before_map) - set(after_map))]
+    changed = [
+        (before_map[key], after_map[key])
+        for key in sorted(set(before_map) & set(after_map))
+        if before_map[key] != after_map[key]
+    ]
+    if not added and not removed and not changed:
+        return ["## Delta", "", "No changes observed", ""]
+
+    def row_text(row) -> str:
+        """Render one alignment row for delta evidence."""
+        start, end, representation = row
+        return f"`0x{start:016X}`-`0x{end:016X}` `{representation}`"
+
+    lines = ["## Delta", "", "**Added rows**", ""]
+    if added:
+        lines.extend(f"- {row_text(row)}" for row in added)
+    else:
+        lines.append("- None")
+    lines.extend(["", "**Removed rows**", ""])
+    if removed:
+        lines.extend(f"- {row_text(row)}" for row in removed)
+    else:
+        lines.append("- None")
+    lines.extend(["", "**Changed rows**", ""])
+    if changed:
+        lines.extend(f"- Before {row_text(old)}; after {row_text(new)}" for old, new in changed)
+    else:
+        lines.append("- None")
+    lines.append("")
+    return lines
+
+
+def write_report(output_path: Path, input_path: Path, enabled: list[str], before, after) -> None:
     """Write observed filler condensations without inventing linker-dependent values."""
     lines = [
         "# Condense Filler Bytes Behavioral Fixture", "",
         "> Generated automatically with PyGhidra.", "",
         "## Input", "", f"- **File:** `{input_path.name}`", f"- **File size:** `{input_path.stat().st_size}` bytes", "",
         "## Analysis Configuration", "", f"- **Enabled boolean analyzers:** `{', '.join(enabled)}`", "- **Filler Value:** `Auto`", "- **Minimum number of sequential bytes:** `1`", "",
-        "## Alignment Data Created", "", "| Start | End | Representation |", "| --- | --- | --- |",
+        "## Before target analysis", "", "| Start | End | Representation |", "| --- | --- | --- |",
     ]
-    lines.extend(f"| `0x{start:016X}` | `0x{end:016X}` | `{representation}` |" for start, end, representation in rows)
-    lines.extend(["", f"- **Alignment ranges created:** `{len(rows)}`.", ""])
+    lines.extend(f"| `0x{start:016X}` | `0x{end:016X}` | `{representation}` |" for start, end, representation in before)
+    lines.extend(["", "## After target analysis", "", "| Start | End | Representation |", "| --- | --- | --- |"])
+    lines.extend(f"| `0x{start:016X}` | `0x{end:016X}` | `{representation}` |" for start, end, representation in after)
+    lines.extend([""] + delta_section(before, after))
+    lines.extend(["", "## Alignment Data Created", "", "| Start | End | Representation |", "| --- | --- | --- |"])
+    lines.extend(f"| `0x{start:016X}` | `0x{end:016X}` | `{representation}` |" for start, end, representation in after)
+    lines.extend(["", f"- **Alignment ranges created:** `{len(after)}`.", ""])
     output_path.write_text("\n".join(lines), encoding="utf-8", newline="\n")
 
 
@@ -87,8 +130,11 @@ def main() -> int:
         enabled = configure_analysis(project, program)
         if ANALYZER_NAME not in enabled:
             raise RuntimeError(f"Target analyzer was not enabled: {enabled}")
+        # Filler options are configured; no further preparation is allowed before this snapshot.
+        before = alignment_rows(program)
         project.analyze(program)
-        write_report(output_path, input_path, enabled, alignment_rows(program))
+        after = alignment_rows(program)
+        write_report(output_path, input_path, enabled, before, after)
         project.save(program)
         print(f"[+] Wrote {output_path}")
     finally:

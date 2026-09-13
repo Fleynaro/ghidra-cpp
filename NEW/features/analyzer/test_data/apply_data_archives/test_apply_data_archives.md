@@ -13,6 +13,34 @@
 - **Archive Chooser:** `generic_clib_64.gdt`
 - **Create Analysis Bookmarks:** `false`
 
+## Before target analysis
+
+| Name | Signature | Calling convention | Source |
+| --- | --- | --- | --- |
+| `apply_data_archives_entry` | `undefined apply_data_archives_entry(void)` | `unknown` | `DEFAULT` |
+
+## After target analysis
+
+| Name | Signature | Calling convention | Source |
+| --- | --- | --- | --- |
+| `apply_data_archives_entry` | `undefined apply_data_archives_entry(void)` | `unknown` | `DEFAULT` |
+| `memcpy` | `void * memcpy(void * __dest, void * __src, size_t __n)` | `unknown` | `IMPORTED` |
+
+## Delta
+
+**Added rows**
+
+- `memcpy` | `void * memcpy(void * __dest, void * __src, size_t __n)` | `unknown` | `IMPORTED`
+
+**Removed rows**
+
+- None
+
+**Changed rows**
+
+- None
+
+
 ## Function Signatures Changed
 
 | Name | Signature | Calling convention | Source |

@@ -8,6 +8,9 @@ import sys
 import tempfile
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from evidence import render_evidence
+
 ANALYZER_NAME = "External Entry References"
 
 
@@ -82,7 +85,33 @@ def function_entries(program) -> list[int]:
     return sorted(values)
 
 
-def report(input_path: Path, enabled, entries, before, after) -> str:
+def bookmark_evidence_rows(program):
+    """Capture bookmarks in the target category for phase comparison."""
+    rows = []
+    iterator = program.getBookmarkManager().getBookmarksIterator()
+    while iterator.hasNext():
+        bookmark = iterator.next()
+        if str(bookmark.getCategory()) == ANALYZER_NAME:
+            rows.append((f"{hex_offset(address_value(bookmark.getAddress()))} {ANALYZER_NAME}", str(bookmark.getComment())))
+    return rows
+
+
+def evidence_snapshot(project, program):
+    """Capture external entries, local functions, bookmarks, and analyzer options."""
+    analysis_options = project.getAnalysisOptions(program)
+    return {
+        "Data": [(hex_offset(entry), "External entry point") for entry in external_entries(program)],
+        "Functions": [
+            (hex_offset(address_value(function.getEntryPoint())), str(function.getName()))
+            for function in program.getFunctionManager().getFunctions(True)
+            if not function.isExternal()
+        ],
+        "Bookmarks": bookmark_evidence_rows(program),
+        "Options": [(ANALYZER_NAME, str(analysis_options.getBoolean(ANALYZER_NAME, False)).lower())],
+    }
+
+
+def report(input_path: Path, enabled, entries, before, after, before_evidence, after_evidence) -> str:
     """Render external entries and the analyzer's before/after function state."""
     created = sorted(set(after) - set(before))
     lines = [
@@ -108,7 +137,7 @@ def report(input_path: Path, enabled, entries, before, after) -> str:
         lines.append(f"| `{hex_offset(entry)}` | `{str(entry in after).lower()}` |")
     lines.extend(["", "## Function Entries Created", "", "| Entry offset |", "| --- |"])
     lines.extend(f"| `{hex_offset(entry)}` |" for entry in created)
-    lines.extend(["", "## Fixture Assertions", "", f"- **External entries:** `{len(entries)}`.", f"- **Functions before analysis:** `{len(before)}`.", f"- **Functions created by the analyzer:** `{len(created)}`.", ""])
+    lines.extend(["", *render_evidence(before_evidence, after_evidence), "## Fixture Assertions", "", f"- **External entries:** `{len(entries)}`.", f"- **Functions before analysis:** `{len(before)}`.", f"- **Functions created by the analyzer:** `{len(created)}`.", ""])
     return "\n".join(lines)
 
 
@@ -139,13 +168,15 @@ def main() -> int:
         project.close(imported)
         program = project.openProgram("/", input_path.name, False)
         prepare_disassembly(program)
-        before = function_entries(program)
         entries = external_entries(program)
         enabled = configure_analysis(project, program)
+        before = function_entries(program)
+        before_evidence = evidence_snapshot(project, program)
         project.analyze(program)
         after = function_entries(program)
+        after_evidence = evidence_snapshot(project, program)
         project.save(program)
-        output_path.write_text(report(input_path, enabled, entries, before, after), encoding="utf-8", newline="\n")
+        output_path.write_text(report(input_path, enabled, entries, before, after, before_evidence, after_evidence), encoding="utf-8", newline="\n")
         print(f"[+] Wrote {output_path}")
     finally:
         if project is not None:

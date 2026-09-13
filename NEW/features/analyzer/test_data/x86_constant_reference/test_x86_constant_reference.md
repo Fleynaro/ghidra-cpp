@@ -7,20 +7,39 @@
 
 - **File:** `test_x86_constant_reference.exe`
 - **File size:** `3072` bytes
+- **Matching PDB:** `test_x86_constant_reference.pdb` (CodeView identity verified before setup)
 
 ## Analysis Configuration
 
 - `x86 Constant Reference Analyzer`
 
-## LEA Operand References
+## Before target analysis
 
-| Phase | LEA address | Operand DATA references |
+### Target references
+
+| LEA address | Operand DATA references |
+| --- | --- |
+| `0x00401003` | `none` |
+
+## After target analysis
+
+### Target references
+
+| LEA address | Operand DATA references |
+| --- | --- |
+| `0x00401003` | `0x00403000 (DATA)` |
+
+## Delta
+
+### References
+
+| Change | Before | After |
 | --- | --- | --- |
-| Before | `0x00401003` | `none` |
-| After | `0x00401003` | `0x00403000 (DATA)` |
+| Changed | `4198403; ()` | `4198403; ((4206592, 'DATA'),)` |
+
 
 ## Fixture Assertion
 
-- **LEA instructions:** `1`.
-- **New operand references:** `1`.
-- The post-analysis LEA references the initialized `target_value` memory address with an analysis DATA reference.
+- **LEA instruction snapshots before/after:** `1` / `1`.
+- **Operand references before/after:** `0` / `1`.
+- The added DATA reference is attributed to the target only because it is present after analysis and absent from the pre-target snapshot.

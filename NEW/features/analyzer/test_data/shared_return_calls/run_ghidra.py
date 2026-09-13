@@ -99,13 +99,55 @@ def flow_rows(program):
     return sorted(rows)
 
 
-def render(input_path: Path, enabled: list[str], before, after) -> str:
-    """Render observed jump/override state and identify actual CALL_RETURN changes."""
-    before_map = {(source, target): override for source, target, override in before}
+def function_rows(program):
+    """Capture the functions relevant to shared-return target resolution."""
+    return sorted(
+        (int(function.getEntryPoint().getOffset()), str(function.getName()))
+        for function in program.getFunctionManager().getFunctions(True)
+        if not function.isExternal()
+    )
+
+
+def keyed_delta(before, after, key_size: int):
+    """Return exact added, removed, and changed rows keyed by their stable prefix."""
+    before_map = {row[:key_size]: row for row in before}
+    after_map = {row[:key_size]: row for row in after}
+    added = sorted(after_map[key] for key in set(after_map) - set(before_map))
+    removed = sorted(before_map[key] for key in set(before_map) - set(after_map))
+    changed = sorted(
+        (before_map[key], after_map[key])
+        for key in set(before_map) & set(after_map)
+        if before_map[key] != after_map[key]
+    )
+    return added, removed, changed
+
+
+def render_functions(title: str, rows, provenance: str) -> list[str]:
+    """Render one function snapshot with provenance."""
+    lines = [f"### {title}", "", "| Entry | Name | Provenance |", "| --- | --- | --- |"]
+    lines.extend(f"| `0x{entry:016X}` | `{name}` | {provenance} |" for entry, name in rows)
+    if not rows:
+        lines.append("| _(none)_ | | |")
+    return lines
+
+
+def render_flows(title: str, rows, provenance: str) -> list[str]:
+    """Render one jump-flow snapshot with provenance."""
+    lines = [f"### {title}", "", "| Source | Target | Flow override | Provenance |", "| --- | --- | --- | --- |"]
+    lines.extend(f"| `0x{source:016X}` | `0x{target:016X}` | `{override}` | {provenance} |" for source, target, override in rows)
+    if not rows:
+        lines.append("| _(none)_ | | | |")
+    return lines
+
+
+def render(input_path: Path, enabled: list[str], before_functions, after_functions, before, after) -> str:
+    """Render before/after function and flow state with exact analyzer deltas."""
+    function_added, function_removed, function_changed = keyed_delta(before_functions, after_functions, 1)
+    flow_added, flow_removed, flow_changed = keyed_delta(before, after, 2)
     lines = [
         "# Shared Return Calls Behavioral Fixture",
         "",
-        "> Generated from actual Ghidra flow state. Destination functions were seeded only because the Java contract requires existing functions.",
+        "> Generated from actual Ghidra function and flow-state snapshots. Destination functions were seeded only because the Java contract requires existing functions.",
         "",
         "## Input",
         "",
@@ -118,11 +160,26 @@ def render(input_path: Path, enabled: list[str], before, after) -> str:
         "| --- |",
     ]
     lines.extend(f"| `{name}` |" for name in enabled)
-    lines.extend(["", "## Jump Flow Before and After", "", "| Source | Target | Before | After |", "| --- | --- | --- | --- |"])
-    for source, target, override in after:
-        lines.append(f"| `0x{source:016X}` | `0x{target:016X}` | `{before_map.get((source, target), 'not present')}` | `{override}` |")
-    changed = sum(1 for source, target, override in after if before_map.get((source, target)) != override and "CALL_RETURN" in override)
-    lines.extend(["", "## Observed Analyzer Effect", "", f"- **Jump rows changed to CALL_RETURN:** `{changed}`", ""])
+    lines.extend(["", "## Before target analysis"])
+    lines.extend(render_functions("Functions visible before target analysis", before_functions, "Disassembler/fixture prerequisite"))
+    lines.extend(render_flows("Jump flow visible before target analysis", before, "Pre-existing flow state"))
+    lines.extend(["", "## After target analysis"])
+    lines.extend(render_functions("Functions visible after target analysis", after_functions, "Post-target function state"))
+    lines.extend(render_flows("Jump flow visible after target analysis", after, "Post-target flow state"))
+    lines.extend(["", "## Delta", "", "Seeded destination functions are prerequisites and are classified as pre-existing. Only the exact function/flow changes below are attributed to Shared Return Calls.", "", "### Function delta", "", "| Change | Entry | Before name | After name |", "| --- | --- | --- | --- |"])
+    lines.extend(f"| Added | `0x{entry:016X}` | | `{name}` |" for entry, name in function_added)
+    lines.extend(f"| Removed | `0x{entry:016X}` | `{name}` | |" for entry, name in function_removed)
+    lines.extend(f"| Changed | `0x{before_entry:016X}` | `{before_name}` | `{after_name}` |" for (before_entry, before_name), (_, after_name) in function_changed)
+    if not function_added and not function_removed and not function_changed:
+        lines.append("| _(none)_ | | | |")
+    lines.extend(["", "### Flow delta", "", "| Change | Source | Target | Before override | After override |", "| --- | --- | --- | --- | --- |"])
+    lines.extend(f"| Added | `0x{source:016X}` | `0x{target:016X}` | | `{override}` |" for source, target, override in flow_added)
+    lines.extend(f"| Removed | `0x{source:016X}` | `0x{target:016X}` | `{override}` | |" for source, target, override in flow_removed)
+    lines.extend(f"| Changed | `0x{source:016X}` | `0x{target:016X}` | `{before_override}` | `{after_override}` |" for (source, target, before_override), (_, _, after_override) in flow_changed)
+    if not flow_added and not flow_removed and not flow_changed:
+        lines.append("| _(none)_ | | | | |")
+    call_return_changes = sum(1 for _, after_row in flow_changed if "CALL_RETURN" in after_row[2])
+    lines.extend(["", "### Delta conclusion", "", f"- **Functions added:** `{len(function_added)}`; removed: `{len(function_removed)}`; changed: `{len(function_changed)}`.", f"- **Flow rows added:** `{len(flow_added)}`; removed: `{len(flow_removed)}`; changed: `{len(flow_changed)}`.", f"- **Flow rows changed to `CALL_RETURN`:** `{call_return_changes}`.", ""])
     return "\n".join(lines)
 
 
@@ -146,13 +203,15 @@ def main() -> int:
         prepare_disassembly(program)
         seed_destination_functions(program)
         before = flow_rows(program)
+        before_functions = function_rows(program)
         enabled = configure_analysis(project, program)
         if enabled != [ANALYZER_NAME]:
             raise RuntimeError(f"Unexpected enabled analysis options: {enabled}")
         project.analyze(program)
         after = flow_rows(program)
+        after_functions = function_rows(program)
         project.save(program)
-        output_path.write_text(render(input_path, enabled, before, after), encoding="utf-8", newline="\n")
+        output_path.write_text(render(input_path, enabled, before_functions, after_functions, before, after), encoding="utf-8", newline="\n")
         print(f"[+] Wrote {output_path}")
     except Exception as error:
         print(f"ERROR: Shared Return Calls analysis failed: {error}", file=sys.stderr)

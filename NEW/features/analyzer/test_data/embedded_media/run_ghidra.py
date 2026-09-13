@@ -8,6 +8,9 @@ import sys
 import tempfile
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from evidence import render_evidence
+
 ANALYZER_NAME = "Embedded Media"
 MEDIA_TYPES = {"GIF", "PNG", "JPEG", "WAVE", "MIDI", "AU"}
 
@@ -72,7 +75,48 @@ def bookmark_rows(program):
     return sorted(rows)
 
 
-def report(input_path: Path, enabled, data_rows, bookmarks) -> str:
+def function_evidence_rows(program):
+    """Capture local functions so target-created function changes remain visible."""
+    return [
+        (address_text(function.getEntryPoint()), str(function.getName()))
+        for function in program.getFunctionManager().getFunctions(True)
+        if not function.isExternal()
+    ]
+
+
+def option_evidence_rows(project, program):
+    """Capture the enabled analyzer and its bookmark option at both evidence phases."""
+    analysis_options = project.getAnalysisOptions(program)
+    analyzer_options = analysis_options.getOptions(ANALYZER_NAME)
+    return [
+        (ANALYZER_NAME, str(analysis_options.getBoolean(ANALYZER_NAME, False)).lower()),
+        (
+            "Create Analysis Bookmarks",
+            str(analyzer_options.getBoolean("Create Analysis Bookmarks", False)).lower(),
+        ),
+    ]
+
+
+def evidence_snapshot(project, program):
+    """Capture target-specific data, functions, bookmarks, and options."""
+    data = [
+        (address_text(data.getAddress()), f"{data.getDataType().getName()} ({data.getLength()} bytes)")
+        for data in program.getListing().getDefinedData(True)
+        if any(str(data.getDataType().getName()).startswith(prefix) for prefix in MEDIA_TYPES)
+    ]
+    bookmarks = [
+        (f"0x{address:016X} Embedded Media", comment)
+        for address, comment in bookmark_rows(program)
+    ]
+    return {
+        "Data": data,
+        "Functions": function_evidence_rows(program),
+        "Bookmarks": bookmarks,
+        "Options": option_evidence_rows(project, program),
+    }
+
+
+def report(input_path: Path, enabled, data_rows, bookmarks, before, after) -> str:
     """Render the stable analyzer-specific markdown report."""
     lines = [
         "# Embedded Media Behavioral Fixture",
@@ -100,7 +144,7 @@ def report(input_path: Path, enabled, data_rows, bookmarks) -> str:
     lines.extend(["", "## Embedded Media Bookmarks", "", "| Offset | Comment |", "| --- | --- |"])
     for address, comment in bookmarks:
         lines.append(f"| `0x{address:016X}` | `{comment}` |")
-    lines.extend(["", "## Fixture Assertions", "", f"- **Successful media data objects:** `{len(data_rows)}`.", f"- **Analyzer bookmarks:** `{len(bookmarks)}`.", ""])
+    lines.extend(["", *render_evidence(before, after), "## Fixture Assertions", "", f"- **Successful media data objects:** `{len(data_rows)}`.", f"- **Analyzer bookmarks:** `{len(bookmarks)}`.", ""])
     return "\n".join(lines)
 
 
@@ -131,6 +175,7 @@ def main() -> int:
         project.close(imported)
         program = project.openProgram("/", input_path.name, False)
         enabled = configure_analysis(project, program)
+        before = evidence_snapshot(project, program)
         # BYTE analyzers are normally scheduled by AutoAnalysisManager. Invoke
         # the authoritative analyzer once on the complete loaded set before the
         # scheduled pass so its bookmark option is applied on still-undefined
@@ -144,6 +189,7 @@ def main() -> int:
         )
         media_analyzer.added(program, program.getMemory(), TaskMonitor.DUMMY, MessageLog())
         project.analyze(program)
+        after = evidence_snapshot(project, program)
         data_rows = media_rows(program)
         bookmarks = bookmark_rows(program)
         if sum(name.startswith("GIF") for _, name, _ in data_rows) < 2:
@@ -151,7 +197,7 @@ def main() -> int:
         if not data_rows:
             raise RuntimeError("Embedded Media created no supported positive data objects")
         project.save(program)
-        output_path.write_text(report(input_path, enabled, data_rows, bookmarks), encoding="utf-8", newline="\n")
+        output_path.write_text(report(input_path, enabled, data_rows, bookmarks, before, after), encoding="utf-8", newline="\n")
         print(f"[+] Wrote {output_path}")
     finally:
         if project is not None:

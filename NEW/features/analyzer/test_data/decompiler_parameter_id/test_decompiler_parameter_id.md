@@ -7,19 +7,29 @@
 - **Input:** `test_decompiler_parameter_id.exe`
 - **Enabled boolean analyzers:** `Decompiler Parameter ID, PDB Universal`
 
-## Before/After Signature Facts
+## Before target analysis
 
-| Phase | Function | Name | Return type | Parameter | Type | Storage |
-| --- | --- | --- | --- | --- | --- | --- |
-| `Before target` | `0x0000000140001000` | `parameter_fixture` | `int` | `param_1` | `int` | `ECX:4` |
-| `Before target` | `0x0000000140001000` | `parameter_fixture` | `int` | `param_2` | `char *` | `RDX:8` |
-| `Before target` | `0x0000000140001000` | `parameter_fixture` | `int` | `param_3` | `int *` | `R8:8` |
-| `After target` | `0x0000000140001000` | `parameter_fixture` | `int` | `param_1` | `int` | `ECX:4` |
-| `After target` | `0x0000000140001000` | `parameter_fixture` | `int` | `param_2` | `char *` | `RDX:8` |
-| `After target` | `0x0000000140001000` | `parameter_fixture` | `int` | `param_3` | `int *` | `R8:8` |
+| Function | Name | Return type | Parameter | Type | Storage |
+| --- | --- | --- | --- | --- | --- |
+| `0x0000000140001000` | `parameter_fixture` | `int` | `param_1` | `int` | `ECX:4` |
+| `0x0000000140001000` | `parameter_fixture` | `int` | `param_2` | `char *` | `RDX:8` |
+| `0x0000000140001000` | `parameter_fixture` | `int` | `param_3` | `int *` | `R8:8` |
+
+## After target analysis
+
+| Function | Name | Return type | Parameter | Type | Storage |
+| --- | --- | --- | --- | --- | --- |
+| `0x0000000140001000` | `parameter_fixture` | `int` | `param_1` | `int` | `ECX:4` |
+| `0x0000000140001000` | `parameter_fixture` | `int` | `param_2` | `char *` | `RDX:8` |
+| `0x0000000140001000` | `parameter_fixture` | `int` | `param_3` | `int *` | `R8:8` |
 
 ## Fixture Assertions
 
-- **Recovered fixture functions:** `1`
+- **Fixture functions before target analysis:** `1`
+- **Fixture functions after target analysis:** `1`
 - **Meaningful post-analysis types:** `true`
 - PDB Universal supplies the source-level type baseline; Decompiler Parameter ID is run afterward and must preserve it.
+
+## Delta
+
+No changes observed

@@ -14,7 +14,50 @@
 - `PDB Universal`
 - `WindowsPE x86 Propagate External Parameters`
 
-## Propagated PUSH Parameters
+## Before target analysis
+
+### Target signatures
+
+| Function | Parameter count | Prototype |
+| --- | ---: | --- |
+| `MessageBoxA` | `4` | `int __stdcall MessageBoxA(void * window, char * text, char * caption, int type)` |
+
+### Target comments
+
+| PUSH address | EOL comment |
+| --- | --- |
+| - | No rows observed |
+
+### Target resources
+
+| Address | Symbol | Plate comment |
+| --- | --- | --- |
+| `0x00402008` | `parameter_text` | `-` |
+| `0x00402020` | `parameter_caption` | `-` |
+| `0x0040203C` | `parameter_flags` | `-` |
+
+### Target references
+
+| Candidate instruction | Referenced addresses |
+| --- | --- |
+| `fixture_entry:00401030:PUSH` | `none` |
+| `fixture_entry:00401033:CALL` | `00401010` |
+| `propagate_parameters:00401010:PUSH` | `none` |
+| `propagate_parameters:00401013:PUSH` | `none` |
+| `propagate_parameters:00401015:PUSH` | `none` |
+| `propagate_parameters:0040101a:PUSH` | `none` |
+| `propagate_parameters:0040101f:PUSH` | `none` |
+| `propagate_parameters:00401021:CALL` | `00401000` |
+
+## After target analysis
+
+### Target signatures
+
+| Function | Parameter count | Prototype |
+| --- | ---: | --- |
+| `MessageBoxA` | `4` | `int __stdcall MessageBoxA(void * window, char * text, char * caption, int type)` |
+
+### Target comments
 
 | PUSH address | EOL comment |
 | --- | --- |
@@ -23,7 +66,61 @@
 | `0x0040101A` | `char * text for MessageBoxA` |
 | `0x0040101F` | `void * window for MessageBoxA` |
 
-## Parameter Data Symbols
+### Target resources
+
+| Address | Symbol | Plate comment |
+| --- | --- | --- |
+| `0x00402008` | `parameter_text` | `-` |
+| `0x00402020` | `parameter_caption` | `-` |
+| `0x0040203C` | `parameter_flags` | `-` |
+
+### Target references
+
+| Candidate instruction | Referenced addresses |
+| --- | --- |
+| `fixture_entry:00401030:PUSH` | `none` |
+| `fixture_entry:00401033:CALL` | `00401010` |
+| `propagate_parameters:00401010:PUSH` | `none` |
+| `propagate_parameters:00401013:PUSH` | `none` |
+| `propagate_parameters:00401015:PUSH` | `none` |
+| `propagate_parameters:0040101a:PUSH` | `none` |
+| `propagate_parameters:0040101f:PUSH` | `none` |
+| `propagate_parameters:00401021:CALL` | `00401000` |
+
+## Delta
+
+### Signatures
+
+| Change | Before | After |
+| --- | --- | --- |
+No changes observed
+
+### Comments
+
+| Change | Before | After |
+| --- | --- | --- |
+| Added | - | `4198419; int type for MessageBoxA` |
+| Added | - | `4198421; char * caption for MessageBoxA` |
+| Added | - | `4198426; char * text for MessageBoxA` |
+| Added | - | `4198431; void * window for MessageBoxA` |
+
+### Resources
+
+| Change | Before | After |
+| --- | --- | --- |
+No changes observed
+
+### References
+
+| Change | Before | After |
+| --- | --- | --- |
+No changes observed
+
+## Supporting Setup Facts
+
+The following rows are retained as analyzer eligibility context, not as target changes.
+
+### Parameter Data Symbols
 
 | Address | Symbol | Plate comment |
 | --- | --- | --- |
@@ -52,7 +149,7 @@
 
 ## Fixture Assertion
 
-- **PUSH parameter comments:** `4`.
+- **PUSH parameter comments after target analysis:** `4`.
 - **Parameter data symbols reported:** `3`.
 - The four EOL comments are the direct observable result of the analyzer's import-thunk PUSH propagation path.
-- Referenced data rows are restricted to the source-declared `parameter_*` symbols; setup does not invent data labels or report rows.
+- The imported signature, candidate PUSH/CALL references, and source-declared `parameter_*` rows are setup facts; only snapshot differences are attributed to the target analyzer.

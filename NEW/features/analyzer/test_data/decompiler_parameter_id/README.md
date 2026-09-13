@@ -65,4 +65,4 @@ Run `build.bat`, then `TEST\run_ghidra_python.bat NEW\features\analyzer\test_dat
 
 ## Validation
 
-Validation completed with MSVC 2022 x64 compilation/linking, PDB Universal type import, project save/reopen through `project.openProgram(...)`, explicit function preparation, target analysis, and report inspection. The generated report contains one fixture function with three meaningful recovered parameters before and after the target.
+Validation completed with MSVC 2022 x64 compilation/linking, PDB Universal type import, project save/reopen through `project.openProgram(...)`, explicit function preparation, target analysis, and report inspection. The generated report contains one fixture function with three meaningful recovered parameters before and after the target, plus an explicit Delta section.

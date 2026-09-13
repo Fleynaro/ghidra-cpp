@@ -1,6 +1,6 @@
 # Reference Behavioral Fixture
 
-> Generated from actual Ghidra reference-manager snapshots before and after analysis.
+> Generated from actual Ghidra reference-manager snapshots around the target analyzer.
 
 ## Input
 
@@ -13,22 +13,37 @@
 | --- |
 | `Reference` |
 
-## Reference Provenance
+## Before target analysis
+### References visible before target analysis
 
-| Phase | Source | Target | Operand | Type | Ghidra source | Provenance |
+| Source | Target | Operand | Type | Ghidra source | Provenance |
+| --- | --- | --- | --- | --- | --- |
+| `0x0000000140001000` | `0x0000000140003000` | `1` | `READ` | `DEFAULT` | Pre-existing disassembler reference |
+| `0x0000000140001015` | `0x0000000140003000` | `0` | `WRITE` | `DEFAULT` | Pre-existing disassembler reference |
+| `0x000000014000101C` | `0x0000000140003000` | `1` | `READ` | `DEFAULT` | Pre-existing disassembler reference |
+| `0x0000000140001039` | `0x0000000140003000` | `0` | `WRITE` | `DEFAULT` | Pre-existing disassembler reference |
+
+## After target analysis
+### References visible after target analysis
+
+| Source | Target | Operand | Type | Ghidra source | Provenance |
+| --- | --- | --- | --- | --- | --- |
+| `0x0000000140001000` | `0x0000000140003000` | `1` | `READ` | `DEFAULT` | Post-target reference state |
+| `0x0000000140001015` | `0x0000000140003000` | `0` | `WRITE` | `DEFAULT` | Post-target reference state |
+| `0x000000014000101C` | `0x0000000140003000` | `1` | `READ` | `DEFAULT` | Post-target reference state |
+| `0x0000000140001039` | `0x0000000140003000` | `0` | `WRITE` | `DEFAULT` | Post-target reference state |
+
+## Delta
+
+The delta is keyed by source, target, operand, and reference type; a changed Ghidra source is reported as changed rather than silently merged.
+
+| Change | Source | Target | Operand | Type | Before source | After source |
 | --- | --- | --- | --- | --- | --- | --- |
-| Before | `0x0000000140001000` | `0x0000000140003000` | `1` | `READ` | `DEFAULT` | `Pre-existing disassembler reference` |
-| Before | `0x0000000140001015` | `0x0000000140003000` | `0` | `WRITE` | `DEFAULT` | `Pre-existing disassembler reference` |
-| Before | `0x000000014000101C` | `0x0000000140003000` | `1` | `READ` | `DEFAULT` | `Pre-existing disassembler reference` |
-| Before | `0x0000000140001039` | `0x0000000140003000` | `0` | `WRITE` | `DEFAULT` | `Pre-existing disassembler reference` |
-| After | `0x0000000140001000` | `0x0000000140003000` | `1` | `READ` | `DEFAULT` | `Pre-existing disassembler reference` |
-| After | `0x0000000140001015` | `0x0000000140003000` | `0` | `WRITE` | `DEFAULT` | `Pre-existing disassembler reference` |
-| After | `0x000000014000101C` | `0x0000000140003000` | `1` | `READ` | `DEFAULT` | `Pre-existing disassembler reference` |
-| After | `0x0000000140001039` | `0x0000000140003000` | `0` | `WRITE` | `DEFAULT` | `Pre-existing disassembler reference` |
+| _(none)_ | | | | | | |
 
-## Fixture Assertions
+### Delta conclusion
 
-- **References before analysis:** `4`.
-- **References after analysis:** `4`.
-- **Analyzer-created references:** `0`.
-- `DEFAULT` references present in both snapshots are disassembler output, not Reference-analyzer output.
+- **References before target analysis:** `4`.
+- **References after target analysis:** `4`.
+- **References added:** `0`; removed: `0`; changed: `0`.
+- `DEFAULT` rows present in both snapshots are loader/disassembler artifacts, not Reference-analyzer deltas.

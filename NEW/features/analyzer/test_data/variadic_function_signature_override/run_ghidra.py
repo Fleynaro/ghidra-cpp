@@ -185,6 +185,47 @@ def override_rows(program) -> list[tuple[int, str]]:
     return sorted(rows)
 
 
+def keyed_delta(before, after, key_index: int = 0):
+    """Compare two target snapshots by their stable address key.
+
+    The result distinguishes rows added, removed, and changed by the target
+    analyzer.  It intentionally compares snapshots rather than inferring
+    changes from the final program state.
+    """
+    before_by_key = {row[key_index]: row for row in before}
+    after_by_key = {row[key_index]: row for row in after}
+    added = [after_by_key[key] for key in sorted(set(after_by_key) - set(before_by_key))]
+    removed = [before_by_key[key] for key in sorted(set(before_by_key) - set(after_by_key))]
+    changed = [
+        (before_by_key[key], after_by_key[key])
+        for key in sorted(set(before_by_key) & set(after_by_key))
+        if before_by_key[key] != after_by_key[key]
+    ]
+    return added, removed, changed
+
+
+def row_text(row) -> str:
+    """Render one evidence tuple without allowing Markdown delimiters to corrupt tables."""
+    return "; ".join(str(value) for value in row).replace("|", "\\|")
+
+
+def append_delta(lines: list[str], title: str, before, after) -> None:
+    """Append the explicit added/removed/changed delta for one target evidence kind."""
+    added, removed, changed = keyed_delta(before, after)
+    lines.extend([f"### {title}", "", "| Change | Before | After |", "| --- | --- | --- |"])
+    if not added and not removed and not changed:
+        lines.append("No changes observed")
+        lines.append("")
+        return
+    for row in added:
+        lines.append(f"| Added | - | `{row_text(row)}` |")
+    for row in removed:
+        lines.append(f"| Removed | `{row_text(row)}` | - |")
+    for old, new in changed:
+        lines.append(f"| Changed | `{row_text(old)}` | `{row_text(new)}` |")
+    lines.append("")
+
+
 def ensure_format_string_data(program) -> None:
     """Ensure the fixture format literal is a defined string before target analysis."""
     from ghidra.app.cmd.data import CreateDataCmd
@@ -244,8 +285,18 @@ def ensure_variadic_call_reference(program) -> None:
       program.endTransaction(transaction, committed)
 
 
-def markdown(input_path: Path, enabled: list[str], printf, before, after, bookmarks) -> str:
-    """Render the actual pre/post P-code evidence for the analyzer contract."""
+def markdown(
+    input_path: Path,
+    enabled: list[str],
+    printf,
+    signatures_before,
+    signatures_after,
+    comments_before,
+    comments_after,
+    references_before,
+    references_after,
+) -> str:
+    """Render target-scoped signatures, comments, references, and their deltas."""
     lines = [
         "# Variadic Function Signature Override Behavioral Fixture",
         "",
@@ -262,35 +313,48 @@ def markdown(input_path: Path, enabled: list[str], printf, before, after, bookma
         "",
         *[f"- `{name}`" for name in enabled],
         "",
-        "## P-Code Call Evidence",
-        "",
-        "| Phase | Call address | Caller | P-code input count | High-variable input types |",
-        "| --- | --- | --- | --- | --- |",
     ]
-    for phase, rows in (("Before", before), ("After", after)):
-        for address, count, caller, types in rows:
-            lines.append(f"| {phase} | `0x{address:016X}` | `{caller}` | `{count}` | `{', '.join(types)}` |")
+    for heading, signatures, comments, references in (
+        ("Before target analysis", signatures_before, comments_before, references_before),
+        ("After target analysis", signatures_after, comments_after, references_after),
+    ):
+        lines.extend([f"## {heading}", "", "### Target signatures", "", "| Call address | Override signature |", "| --- | --- |"])
+        for address, signature in signatures:
+            lines.append(f"| `0x{address:016X}` | `{signature}` |")
+        if not signatures:
+            lines.append("| - | No rows observed |")
+        lines.extend(["", "### Target comments", "", "| Call address | Bookmark comment |", "| --- | --- |"])
+        for address, comment in comments:
+            lines.append(f"| `0x{address:016X}` | `{comment}` |")
+        if not comments:
+            lines.append("| - | No rows observed |")
+        lines.extend(
+            [
+                "",
+                "### Target references",
+                "",
+                "| Call address | Caller | P-code input count | High-variable input types |",
+                "| --- | --- | --- | --- |",
+            ]
+        )
+        for address, count, caller, types in references:
+            lines.append(f"| `0x{address:016X}` | `{caller}` | `{count}` | `{', '.join(types)}` |")
+        if not references:
+            lines.append("| - | No rows observed | - | - |")
+        lines.append("")
+    lines.extend(["## Delta", ""])
+    append_delta(lines, "Signatures", signatures_before, signatures_after)
+    append_delta(lines, "Comments", comments_before, comments_after)
+    append_delta(lines, "References", references_before, references_after)
     lines.extend(
         [
-            "",
-            "## Function Signature Override Bookmarks",
-            "",
-            "| Call address | Comment |",
-            "| --- | --- |",
-        ]
-    )
-    for address, comment in bookmarks:
-        lines.append(f"| `0x{address:016X}` | `{comment}` |")
-    lines.extend(
-        [
-            "",
             "## Fixture Assertion",
             "",
-            f"- **Calls found before analysis:** `{len(before)}`.",
-            f"- **Calls found after analysis:** `{len(after)}`.",
-            f"- **Changed high-variable type tuples:** `{sum(b[3] != a[3] for b, a in zip(before, after))}`.",
-            f"- **Function Signature Override bookmarks:** `{len(bookmarks)}`.",
-            "- The bookmark is the direct observable result of `HighFunctionDBUtil.writeOverride`; P-code input types remain surrounding context and are not assumed to change in every decompiler version.",
+            f"- **Call-site signatures before/after:** `{len(signatures_before)}` / `{len(signatures_after)}`.",
+            f"- **Call-site references before/after:** `{len(references_before)}` / `{len(references_after)}`.",
+            f"- **Function Signature Override bookmarks after target analysis:** `{len(comments_after)}`.",
+            "- The format string, PDB signature, and disassembly are setup facts; only rows differing between the snapshots are attributed to the target analyzer.",
+            "- The bookmark is the direct observable result of `HighFunctionDBUtil.writeOverride`; P-code input types remain supporting context and are not assumed to change in every decompiler version.",
             "",
         ]
     )
@@ -360,8 +424,9 @@ def main() -> int:
                 program.endTransaction(transaction, committed)
         ensure_variadic_call_reference(program)
         ensure_format_string_data(program)
-        before = call_inputs(program, "fixture_printf")
-        bookmarks_before = override_bookmarks(program)
+        signatures_before = override_rows(program)
+        comments_before = override_bookmarks(program)
+        references_before = call_inputs(program, "fixture_printf")
         enabled = configure_analysis(project, program)
         project.analyze(program)
         # Re-queue one-time analyzers after the dependency phase has materialized
@@ -385,18 +450,22 @@ def main() -> int:
             program.getOptions(program.ANALYSIS_PROPERTIES).getOptions(ANALYZER_NAME), program
         )
         format_analyzer.added(program, program.getMemory(), TaskMonitor.DUMMY, MessageLog())
-        after = call_inputs(program, "fixture_printf")
-        new_bookmarks = override_bookmarks(program)
-        if not new_bookmarks:
+        signatures_after = override_rows(program)
+        comments_after = override_bookmarks(program)
+        references_after = call_inputs(program, "fixture_printf")
+        if not comments_after:
             raise RuntimeError("Format-string signature override was not persisted")
         output_path.write_text(
             markdown(
                 input_path,
                 enabled,
                 printf,
-                before,
-                after,
-                new_bookmarks,
+                signatures_before,
+                signatures_after,
+                comments_before,
+                comments_after,
+                references_before,
+                references_after,
             ),
             encoding="utf-8",
             newline="\n",

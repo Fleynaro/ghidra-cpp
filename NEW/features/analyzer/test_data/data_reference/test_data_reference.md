@@ -7,7 +7,12 @@
 - **Input:** `test_data_reference.exe`
 - **Enabled boolean analyzers:** `Data Reference, Reference`
 
-## Data Reference Discoveries
+## Before target analysis
+
+| Data source | Referenced address | Resulting data type | Length |
+| --- | --- | --- | ---: |
+
+## After target analysis
 
 | Data source | Referenced address | Resulting data type | Length |
 | --- | --- | --- | ---: |
@@ -19,3 +24,18 @@
 - **Data-origin references before target analysis:** `0`
 - **Data-origin references after target analysis:** `2`
 - The rows are real data-origin references consumed by Data Reference; no empty result is accepted.
+
+## Delta
+
+### Added rows
+
+- `0x0000000140002058` -> `0x0000000140002048` | `pointer` | length `8`
+- `0x0000000140002060` -> `0x0000000140002050` | `pointer` | length `8`
+
+### Removed rows
+
+- None
+
+### Changed rows
+
+- None

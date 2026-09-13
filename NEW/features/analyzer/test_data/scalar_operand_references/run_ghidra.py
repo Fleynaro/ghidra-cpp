@@ -94,12 +94,39 @@ def scalar_rows(program):
     return sorted(rows)
 
 
+def keyed_delta(before, after):
+    """Return exact added, removed, and changed scalar rows by instruction operand."""
+    before_map = {(row[0], row[1]): row for row in before}
+    after_map = {(row[0], row[1]): row for row in after}
+    added = sorted(after_map[key] for key in set(after_map) - set(before_map))
+    removed = sorted(before_map[key] for key in set(before_map) - set(after_map))
+    changed = sorted(
+        (before_map[key], after_map[key])
+        for key in set(before_map) & set(after_map)
+        if before_map[key] != after_map[key]
+    )
+    return added, removed, changed
+
+
+def render_scalar_rows(title: str, rows, provenance: str) -> list[str]:
+    """Render scalar operands and their operand references for one analysis phase."""
+    lines = [f"### {title}", "", "| Instruction | Operand index | Text | Unsigned scalar | Operand references | Outcome | Provenance |", "| --- | --- | --- | ---: | --- | --- | --- |"]
+    lines.extend(
+        f"| `0x{address:016X}` | `{index}` | `{text}` | `0x{value:016X}` | `{targets}` | `{outcome}` | {provenance} |"
+        for address, index, text, value, targets, outcome in rows
+    )
+    if not rows:
+        lines.append("| _(none)_ | | | | | | |")
+    return lines
+
+
 def render(input_path: Path, enabled: list[str], before, after) -> str:
-    """Render before/after scalar outcomes, including positive and negative controls."""
+    """Render before/after scalar outcomes and exact operand-reference deltas."""
+    added, removed, changed = keyed_delta(before, after)
     lines = [
         "# Scalar Operand References Behavioral Fixture",
         "",
-        "> Generated from actual Ghidra instruction and operand-reference snapshots.",
+        "> Generated from actual Ghidra instruction and operand-reference snapshots around the target analyzer.",
         "",
         "## Input",
         "",
@@ -112,26 +139,28 @@ def render(input_path: Path, enabled: list[str], before, after) -> str:
         "| --- |",
     ]
     lines.extend(f"| `{name}` |" for name in enabled)
-    lines.extend([
-        "",
-        "## Scalar Operands",
-        "",
-        "| Phase | Instruction | Operand index | Text | Unsigned scalar | Operand references | Outcome |",
-        "| --- | --- | --- | --- | ---: | --- | --- |",
-    ])
-    for phase, rows in (("Before", before), ("After", after)):
-        lines.extend(
-            f"| `{phase}` | `0x{address:016X}` | `{index}` | `{text}` | `0x{value:016X}` | `{targets}` | `{outcome}` |"
-            for address, index, text, value, targets, outcome in rows
-        )
+    lines.extend(["", "## Before target analysis"])
+    lines.extend(render_scalar_rows("Scalar operands visible before target analysis", before, "Pre-existing disassembly state"))
+    lines.extend(["", "## After target analysis"])
+    lines.extend(render_scalar_rows("Scalar operands visible after target analysis", after, "Post-target operand state"))
+    lines.extend(["", "## Delta", "", "The delta is keyed by instruction address and operand index, so added, removed, and changed operand-reference outcomes are explicit.", "", "| Change | Instruction | Operand | Before references/outcome | After references/outcome |", "| --- | --- | --- | --- | --- |"])
+    for row in added:
+        lines.append(f"| Added | `0x{row[0]:016X}` | `{row[1]}` | | `{row[4]} / {row[5]}` |")
+    for row in removed:
+        lines.append(f"| Removed | `0x{row[0]:016X}` | `{row[1]}` | `{row[4]} / {row[5]}` | |")
+    for before_row, after_row in changed:
+        lines.append(f"| Changed | `0x{before_row[0]:016X}` | `{before_row[1]}` | `{before_row[4]} / {before_row[5]}` | `{after_row[4]} / {after_row[5]}` |")
+    if not added and not removed and not changed:
+        lines.append("| _(none)_ | | | | |")
     positive = sum(1 for row in after if row[4])
     negative = sum(1 for row in after if not row[4])
     lines.extend([
         "",
-        "## Fixture Assertions",
+        "### Delta conclusion",
         "",
         f"- **Positive analyzer references after analysis:** `{positive}`.",
         f"- **Negative controls without references after analysis:** `{negative}`.",
+        f"- **Rows added:** `{len(added)}`; removed: `{len(removed)}`; changed: `{len(changed)}`.",
         "- Positive values are fixed image addresses; negative rows retain the rejected address-like and small numeric controls.",
         "",
     ])

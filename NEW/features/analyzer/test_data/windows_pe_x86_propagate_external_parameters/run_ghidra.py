@@ -153,6 +153,70 @@ def external_summary(program) -> list[str]:
     )
 
 
+def target_signature_rows(program):
+    """Snapshot the imported MessageBoxA signature used by the target analyzer."""
+    return sorted(
+        (function.getName(), function.getParameterCount(), function.getPrototypeString(True, True))
+        for function in program.getListing().getExternalFunctions()
+        if function.getName() == "MessageBoxA"
+    )
+
+
+def target_reference_rows(program):
+    """Snapshot candidate PUSH/CALL references without treating disassembly as target output."""
+    rows = []
+    instructions = program.getListing().getInstructions(program.getMemory().getExecuteSet(), True)
+    while instructions.hasNext():
+        instruction = instructions.next()
+        if instruction.getMnemonicString() not in ("PUSH", "CALL"):
+            continue
+        function = program.getFunctionManager().getFunctionContaining(instruction.getAddress())
+        targets = tuple(str(reference.getToAddress()) for reference in instruction.getReferencesFrom())
+        rows.append(
+            (
+                f"{function.getName() if function else 'none'}:{instruction.getAddress()}:{instruction.getMnemonicString()}",
+                targets,
+            )
+        )
+    return sorted(rows)
+
+
+def keyed_delta(before, after):
+    """Compare target snapshots by their first, stable row field."""
+    before_by_key = {row[0]: row for row in before}
+    after_by_key = {row[0]: row for row in after}
+    added = [after_by_key[key] for key in sorted(set(after_by_key) - set(before_by_key))]
+    removed = [before_by_key[key] for key in sorted(set(before_by_key) - set(after_by_key))]
+    changed = [
+        (before_by_key[key], after_by_key[key])
+        for key in sorted(set(before_by_key) & set(after_by_key))
+        if before_by_key[key] != after_by_key[key]
+    ]
+    return added, removed, changed
+
+
+def row_text(row) -> str:
+    """Render a snapshot row safely inside a Markdown table cell."""
+    return "; ".join(str(value) for value in row).replace("|", "\\|")
+
+
+def append_delta(lines: list[str], title: str, before, after) -> None:
+    """Append added, removed, and changed rows for one target-scoped snapshot."""
+    added, removed, changed = keyed_delta(before, after)
+    lines.extend([f"### {title}", "", "| Change | Before | After |", "| --- | --- | --- |"])
+    if not added and not removed and not changed:
+        lines.append("No changes observed")
+        lines.append("")
+        return
+    for row in added:
+        lines.append(f"| Added | - | `{row_text(row)}` |")
+    for row in removed:
+        lines.append(f"| Removed | `{row_text(row)}` | - |")
+    for old, new in changed:
+        lines.append(f"| Changed | `{row_text(old)}` | `{row_text(new)}` |")
+    lines.append("")
+
+
 def pdb_identity(pdb_path: Path):
     """Read the GUID and age from the PDB's MSF stream 1 metadata."""
     data = pdb_path.read_bytes()
@@ -273,8 +337,23 @@ def seed_external_signature(program) -> None:
         program.endTransaction(transaction, committed)
 
 
-def markdown(input_path: Path, pdb_path: Path, enabled: list[str], pushes, data, calls, externals) -> str:
-    """Render only stable comments and labels produced by the target analyzer."""
+def markdown(
+    input_path: Path,
+    pdb_path: Path,
+    enabled: list[str],
+    signatures_before,
+    signatures_after,
+    comments_before,
+    comments_after,
+    resources_before,
+    resources_after,
+    references_before,
+    references_after,
+    data,
+    calls,
+    externals,
+) -> str:
+    """Render target-scoped signatures/comments/resources/references and their deltas."""
     lines = [
         "# Windows PE x86 Propagate External Parameters Behavioral Fixture",
         "",
@@ -291,14 +370,38 @@ def markdown(input_path: Path, pdb_path: Path, enabled: list[str], pushes, data,
         "",
         *[f"- `{name}`" for name in enabled],
         "",
-        "## Propagated PUSH Parameters",
-        "",
-        "| PUSH address | EOL comment |",
-        "| --- | --- |",
     ]
-    for address, comment in pushes:
-        lines.append(f"| `0x{address:08X}` | `{comment.replace(chr(10), '<br>')}` |")
-    lines.extend(["", "## Parameter Data Symbols", "", "| Address | Symbol | Plate comment |", "| --- | --- | --- |"])
+    for heading, signatures, comments, resources, references in (
+        ("Before target analysis", signatures_before, comments_before, resources_before, references_before),
+        ("After target analysis", signatures_after, comments_after, resources_after, references_after),
+    ):
+        lines.extend([f"## {heading}", "", "### Target signatures", "", "| Function | Parameter count | Prototype |", "| --- | ---: | --- |"])
+        for name, count, prototype in signatures:
+            lines.append(f"| `{name}` | `{count}` | `{prototype}` |")
+        if not signatures:
+            lines.append("| - | - | No rows observed |")
+        lines.extend(["", "### Target comments", "", "| PUSH address | EOL comment |", "| --- | --- |"])
+        for address, comment in comments:
+            lines.append(f"| `0x{address:08X}` | `{comment.replace(chr(10), '<br>')}` |")
+        if not comments:
+            lines.append("| - | No rows observed |")
+        lines.extend(["", "### Target resources", "", "| Address | Symbol | Plate comment |", "| --- | --- | --- |"])
+        for address, name, comment in resources:
+            lines.append(f"| `0x{address:08X}` | `{name}` | `{comment.replace(chr(10), '<br>') or '-'}` |")
+        if not resources:
+            lines.append("| - | No rows observed | - |")
+        lines.extend(["", "### Target references", "", "| Candidate instruction | Referenced addresses |", "| --- | --- |"])
+        for instruction, targets in references:
+            lines.append(f"| `{instruction}` | `{', '.join(targets) or 'none'}` |")
+        if not references:
+            lines.append("| - | No rows observed |")
+        lines.append("")
+    lines.extend(["## Delta", ""])
+    append_delta(lines, "Signatures", signatures_before, signatures_after)
+    append_delta(lines, "Comments", comments_before, comments_after)
+    append_delta(lines, "Resources", resources_before, resources_after)
+    append_delta(lines, "References", references_before, references_after)
+    lines.extend(["## Supporting Setup Facts", "", "The following rows are retained as analyzer eligibility context, not as target changes.", "", "### Parameter Data Symbols", "", "| Address | Symbol | Plate comment |", "| --- | --- | --- |"])
     for address, name, comment in data:
         lines.append(f"| `0x{address:08X}` | `{name}` | `{comment.replace(chr(10), '<br>') or '-'}` |")
     lines.extend(
@@ -328,10 +431,10 @@ def markdown(input_path: Path, pdb_path: Path, enabled: list[str], pushes, data,
             "",
             "## Fixture Assertion",
             "",
-            f"- **PUSH parameter comments:** `{len(pushes)}`.",
+            f"- **PUSH parameter comments after target analysis:** `{len(comments_after)}`.",
             f"- **Parameter data symbols reported:** `{len(data)}`.",
             "- The four EOL comments are the direct observable result of the analyzer's import-thunk PUSH propagation path.",
-            "- Referenced data rows are restricted to the source-declared `parameter_*` symbols; setup does not invent data labels or report rows.",
+            "- The imported signature, candidate PUSH/CALL references, and source-declared `parameter_*` rows are setup facts; only snapshot differences are attributed to the target analyzer.",
             "",
         ]
     )
@@ -380,13 +483,20 @@ def main() -> int:
         # after that dependency and before the PUSH-based target analyzer runs.
         prepare_disassembly(program)
         seed_external_signature(program)
+        signatures_before = target_signature_rows(program)
+        comments_before = propagation_rows(program)
+        resources_before = data_comments(program)
+        references_before = target_reference_rows(program)
         enabled = configure_analysis(project, program)
         project.analyze(program)
-        pushes = propagation_rows(program)
+        signatures_after = target_signature_rows(program)
+        comments_after = propagation_rows(program)
+        resources_after = data_comments(program)
+        references_after = target_reference_rows(program)
         data = data_comments(program)
-        if len(pushes) != 4:
+        if len(comments_after) != 4:
             raise RuntimeError(
-                f"Expected four propagated MessageBoxA comments, found {len(pushes)}; "
+                f"Expected four propagated MessageBoxA comments, found {len(comments_after)}; "
                 f"external functions={external_summary(program)}; instructions={call_summary(program)}"
             )
         output_path.write_text(
@@ -394,7 +504,14 @@ def main() -> int:
                 input_path,
                 pdb_path,
                 enabled,
-                pushes,
+                signatures_before,
+                signatures_after,
+                comments_before,
+                comments_after,
+                resources_before,
+                resources_after,
+                references_before,
+                references_after,
                 data,
                 call_summary(program),
                 external_summary(program),

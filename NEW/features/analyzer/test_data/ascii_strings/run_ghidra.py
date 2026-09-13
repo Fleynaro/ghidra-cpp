@@ -62,6 +62,52 @@ def fixture_string_facts(program):
     return sorted(rows, key=lambda row: row[2])
 
 
+def delta_section(before, after) -> list[str]:
+    """Describe fixture-string rows added, removed, or changed by analysis."""
+    before_map = {row[1]: row for row in before}
+    after_map = {row[1]: row for row in after}
+    added = [after_map[key] for key in sorted(set(after_map) - set(before_map))]
+    removed = [before_map[key] for key in sorted(set(before_map) - set(after_map))]
+    changed = [
+        (before_map[key], after_map[key])
+        for key in sorted(set(before_map) & set(after_map))
+        if before_map[key] != after_map[key]
+    ]
+    if not added and not removed and not changed:
+        return ["## Delta", "", "No changes observed", ""]
+
+    def row_text(row) -> str:
+        """Render one string-fact row for the delta evidence."""
+        expected, name, address, end, defined, data_type, value, is_string = row
+        return f"`{expected}` `{name}` at `0x{address:016X}`: `{defined}`, `{data_type}`, `{value}`, `{is_string}`"
+
+    lines = ["## Delta", "", "**Added rows**", ""]
+    if added:
+        lines.extend(f"- {row_text(row)}" for row in added)
+    else:
+        lines.append("- None")
+    lines.extend(["", "**Removed rows**", ""])
+    if removed:
+        lines.extend(f"- {row_text(row)}" for row in removed)
+    else:
+        lines.append("- None")
+    lines.extend(["", "**Changed rows**", ""])
+    if changed:
+        lines.extend(f"- Before {row_text(old)}; after {row_text(new)}" for old, new in changed)
+    else:
+        lines.append("- None")
+    lines.append("")
+    return lines
+
+
+def string_table(rows):
+    """Render the complete fixture-owned string snapshot as Markdown rows."""
+    return [
+        f"| `{expected}` | `0x{address:016X}` | `0x{end:016X}` | `{str(defined).lower()}` | `{data_type}` | `{value}` | `{str(is_string).lower()}` |"
+        for expected, name, address, end, defined, data_type, value, is_string in rows
+    ]
+
+
 def write_report(output_path: Path, input_path: Path, enabled: list[str], before, after) -> None:
     """Write fixture-owned positive strings and retained negative-control context."""
     lines = [
@@ -80,11 +126,27 @@ def write_report(output_path: Path, input_path: Path, enabled: list[str], before
         "- **Minimum string length:** `5` (authoritative default)",
         "- **Require null termination:** `true` (authoritative default)",
         "",
+        "## Before target analysis",
+        "",
+        "| Expected | Address | End | Defined | Data type | Value | Accepted as string |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    lines.extend(string_table(before))
+    lines.extend([
+        "",
+        "## After target analysis",
+        "",
+        "| Expected | Address | End | Defined | Data type | Value | Accepted as string |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ])
+    lines.extend(string_table(after))
+    lines.extend([""] + delta_section(before, after))
+    lines.extend([
         "## Fixture-Owned Strings Created",
         "",
         "| Symbol | Start | End | Data type | Value |",
         "| --- | --- | --- | --- | --- |",
-    ]
+    ])
     positive = [row for row in after if row[0] == "positive" and row[7]]
     for _, name, address, end, _, data_type, value, _ in positive:
         lines.append(f"| `{name}` | `0x{address:016X}` | `0x{end:016X}` | `{data_type}` | `{value}` |")
@@ -142,6 +204,7 @@ def main() -> int:
         enabled = configure_analysis(project, program)
         if ANALYZER_NAME not in enabled:
             raise RuntimeError(f"Target analyzer was not enabled: {enabled}")
+        # Configuration is the only prerequisite for this data-scan analyzer.
         before = fixture_string_facts(program)
         project.analyze(program)
         after = fixture_string_facts(program)

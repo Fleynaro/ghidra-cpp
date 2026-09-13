@@ -7,12 +7,15 @@
 
 - **File:** `test_windows_resource_reference.exe`
 - **File size:** `4096` bytes
+- **Matching PDB:** `test_windows_resource_reference.pdb` (CodeView identity verified before setup)
 
 ## Analysis Configuration
 
 - `WindowsResourceReference`
 
-## PE Resource Symbols
+## Before target analysis
+
+### Target resources
 
 | Resource type | Resource ID/table | Locale | Address | Loader symbol |
 | --- | --- | --- | --- | --- |
@@ -20,7 +23,47 @@
 | `Menu` | `301` | `0x0409` | `0x0000000140005198` | `Rsrc_Menu_12d_409` |
 | `StringTable` | `table 7 (IDs 101, 102)` | `0x0409` | `0x00000001400051D0` | `Rsrc_StringTable_7_409` |
 
-## Resource IDs Verified Against Inputs
+### Target references
+
+| Instruction | Resource address | Resource symbol |
+| --- | --- | --- |
+| - | No rows observed | - |
+
+## After target analysis
+
+### Target resources
+
+| Resource type | Resource ID/table | Locale | Address | Loader symbol |
+| --- | --- | --- | --- | --- |
+| `Dialog` | `201` | `0x0409` | `0x00000001400050F0` | `Rsrc_Dialog_c9_409` |
+| `Menu` | `301` | `0x0409` | `0x0000000140005198` | `Rsrc_Menu_12d_409` |
+| `StringTable` | `table 7 (IDs 101, 102)` | `0x0409` | `0x00000001400051D0` | `Rsrc_StringTable_7_409` |
+
+### Target references
+
+| Instruction | Resource address | Resource symbol |
+| --- | --- | --- |
+| `0x000000014000102C` | `0x00000001400051DA` | `pu_Resource_reference_greeting_1400051da` |
+| `0x000000014000104A` | `0x0000000140005212` | `pu_Resource_reference_second_string_140005212` |
+
+## Delta
+
+### Resources
+
+| Change | Before | After |
+| --- | --- | --- |
+No changes observed
+
+### References
+
+| Change | Before | After |
+| --- | --- | --- |
+| Added | - | `5368713260; 5368730074; pu_Resource_reference_greeting_1400051da` |
+| Added | - | `5368713290; 5368730130; pu_Resource_reference_second_string_140005212` |
+
+## Supporting Input Facts
+
+The resource declarations below are read from the checked-in inputs and are not analyzer changes.
 
 | Resource type | .rc/resource.h symbol | ID |
 | --- | --- | --- |
@@ -29,16 +72,9 @@
 | `StringTable` | `IDS_GREETING` | `101` |
 | `StringTable` | `IDS_SECOND` | `102` |
 
-## Analyzer DATA References
-
-| Instruction | Resource address | Resource symbol |
-| --- | --- | --- |
-| `0x000000014000102C` | `0x00000001400051DA` | `pu_Resource_reference_greeting_1400051da` |
-| `0x000000014000104A` | `0x0000000140005212` | `pu_Resource_reference_second_string_140005212` |
-
 ## Fixture Assertion
 
-- **Resource symbols reported:** `3`.
-- **Analyzer DATA references reported:** `2`.
+- **Resource symbols before/after target:** `3` / `3`.
+- **Analyzer DATA references before/after target:** `0` / `2`.
 - The `.rc` LANGUAGE declaration resolves to LANGID `0x0409`; the report keeps it separate from each resource ID.
-- Resource IDs are verified against the declarations in `test_windows_resource_reference.rc` and `resource.h`; the two LoadStringW calls resolve to string-table data addresses.
+- Resource IDs are verified against the declarations in `test_windows_resource_reference.rc` and `resource.h`; loader symbols are setup facts, while DATA-reference deltas are the target evidence.
