@@ -64,7 +64,8 @@ The project uses environment variables. Keep this table up to date.
 - Always use `import std;` for the C++ standard library; do not use `#include` directives for standard library headers.
 - Prefer the C++ module system for imports over legacy `#include` directives whenever practical.
 - Use the `.cppm` extension for C++ module interface files; do not use `.ixx`.
-- Format C++ code with `clang-format` and validate it with `clang-tidy`.
+- Format C++ code with `clang-format` and validate it with `clang-tidy` through the repository wrappers [`NEW/format.bat`](NEW/format.bat) and [`NEW/tidy.bat`](NEW/tidy.bat), not by invoking the tools with an ad hoc file list. Both scripts default to `all` and accept one module selector: `all`, `hello`, `sleigh`, `pe`, `function_id`, or `decompiler`. Each module also provides local `format.bat` and `tidy.bat` wrappers that select the corresponding root module mode.
+- Run `NEW\format.bat [module]` to format the selected module in place. Agents must run only `NEW\tidy.bat [module] --check` for read-only clang-tidy validation and must not run the fix mode; applying clang-tidy fixes is reserved for the user. Before finalizing C++ changes, format the affected module and run its tidy check, then inspect the diff for unintended formatting or fixes.
 - When a function must be decompiled from supplied hex bytes, especially while developing or testing a new decompiler feature, use the standalone decompiler CLI rather than coupling the check to test fixtures or GoogleTest. Follow the argument grammar and reproducible examples in [`NEW/features/decompiler/cli/README.md`](NEW/features/decompiler/cli/README.md), and include the relevant `.sla`, address/range, hex bytes, and provider metadata in the command.
 
 ## Code Quality
