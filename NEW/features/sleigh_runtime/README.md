@@ -15,6 +15,7 @@ The implementation intentionally does not parse `.slaspec`. All instruction patt
 ## Directory Layout
 
 - [`CMakeLists.txt`](CMakeLists.txt) builds the static runtime library, CLI, and tests.
+- [`build.bat`](build.bat) builds and tests only this module through the parent script; tests are enabled by default.
 - [`sleigh_runtime.cppm`](sleigh_runtime.cppm) exports the public C++23 module named `sleigh_runtime` and its owning result model.
 - [`sleigh_runtime_adapter.cppm`](sleigh_runtime_adapter.cppm) adapts the reference runtime to in-memory instruction bytes and owns decode state.
 - [`src/README.md`](src/README.md) documents the runtime implementation sources.
@@ -102,6 +103,8 @@ Examples:
 The CLI returns exit code `0` when the complete input is decoded, `1` for invalid command-line input or an unavailable SLA file, and `2` when instruction decoding fails.
 
 ## Build And Tests
+
+Run `build.bat` from this directory to build and test only `sleigh_runtime`. Use `build.bat --no-test` for a compile-only check.
 
 The repository build uses MSVC, CMake, Ninja, vcpkg, and C++23. From [`NEW/build.bat`](../../build.bat), the standard workflow configures the build directory, builds all targets, and runs CTest:
 

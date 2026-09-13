@@ -18,5 +18,7 @@ target_link_libraries(new_ghidra_app PRIVATE
     NewGhidra::DecompilerFrontend
 )
 
-# Keep the application smoke case in the normal build/test workflow.
-add_test(NAME new_ghidra_app_smoke COMMAND new_ghidra_app)
+if(BUILD_TESTING)
+    # Keep the application smoke case in the normal build/test workflow.
+    add_test(NAME new_ghidra_app_smoke COMMAND new_ghidra_app)
+endif()

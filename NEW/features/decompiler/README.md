@@ -5,6 +5,7 @@ This module is a mechanical standalone source port of the portable native Ghidra
 ## Source Mapping
 
 - [`CMakeLists.txt`](CMakeLists.txt) explicitly separates the aggregate and restored named module interfaces from the per-source C++23 implementation units.
+- [`build.bat`](build.bat) builds and tests only this module through the parent script; tests are enabled by default.
 - [`src/xml.cppm`](src/xml.cppm) preserves the original `ghidra::Element`, `Document`, `DocumentStorage`, and `ContentHandler` API while loading through the vcpkg [`pugixml`](https://github.com/zeux/pugixml) dependency.
 - Every active implementation unit under [`src`](src) carries a relative provenance comment to its authority file under [`Ghidra/Features/Decompiler/src/decompile/cpp`](../../../Ghidra/Features/Decompiler/src/decompile/cpp).
 - The selected implementation set follows the original `CORE` and `DECCORE` partitions in the authority [`Makefile`](../../../Ghidra/Features/Decompiler/src/decompile/cpp/Makefile), including the restored grammar parser, Renoir graph exporter, signature generator, and parameter-report subsystem.
@@ -26,6 +27,8 @@ Build the complete project through the repository entry point so MSVC modules, v
 ```powershell
 cmd /c NEW/build.bat
 ```
+
+For the focused workflow, run `build.bat` from this directory. Use `build.bat --no-test` for a compile-only check.
 
 The outputs are `new_ghidra_decompiler.lib`, `new_ghidra_decompiler_frontend.lib`, `new_ghidra_decompiler.exe`, and `decompiler_tests.exe`. The CLI supports standalone `.sla` plus manually supplied machine-code, symbol, type, prototype, memory, and analysis metadata; see [`cli/README.md`](cli/README.md) for commands that reproduce representative bitfield and switch inputs from the test suite without linking against tests. The tests cover provider p-code materialization, generic provider architectures, exact prototype/type/symbol metadata, bounded arithmetic/opcode validation, native flow/SSA/printer execution, and explicit machine-code-to-C end-to-end cases based on `TEST/dec_code_examples/1.md` through `11.md`. The PE fixture tests require the repository's optional `TEST/test.exe` fixture; synthetic PE tests remain independent of it.
 

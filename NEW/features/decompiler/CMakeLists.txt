@@ -138,7 +138,6 @@ else()
 endif()
 
 if(TARGET NewGhidra::SleighRuntime)
-    find_package(GTest CONFIG REQUIRED)
     add_library(new_ghidra_decompiler_frontend STATIC)
     target_sources(new_ghidra_decompiler_frontend
         PUBLIC
@@ -180,10 +179,12 @@ if(TARGET NewGhidra::SleighRuntime)
         target_compile_options(decompiler_cli PRIVATE -Wall -Wextra -Wpedantic)
     endif()
 
-    add_test(NAME decompiler_cli_help COMMAND decompiler_cli --help)
-    set_tests_properties(decompiler_cli_help PROPERTIES
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    )
-
-    add_subdirectory(tests)
+    if(BUILD_TESTING)
+        find_package(GTest CONFIG REQUIRED)
+        add_test(NAME decompiler_cli_help COMMAND decompiler_cli --help)
+        set_tests_properties(decompiler_cli_help PROPERTIES
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        )
+        add_subdirectory(tests)
+    endif()
 endif()

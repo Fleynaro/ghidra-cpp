@@ -53,6 +53,12 @@ The project uses environment variables. Keep this table up to date.
 - Before adding a dependency, check whether the required package and its `vcpkg` integration already exist in the project.
 - Use CMake, the project's `CMakeLists.txt`, and Ninja for builds.
 - Run builds through the appropriate `build.bat` script rather than invoking an ad hoc build workflow.
+- Keep the normal C++ development loop fast: do not delete `NEW/build` for ordinary changes, and use the narrowest `NEW/build.bat` mode that covers the changed feature.
+- `NEW/build.bat` defaults to the complete build and test workflow. Use the module-local `NEW\features\<feature>\build.bat` wrapper, or `NEW\build.bat hello`, `NEW\build.bat sleigh`, `NEW\build.bat pe`, `NEW\build.bat function_id`, or `NEW\build.bat decompiler`, to incrementally build and test one feature. Tests are enabled by default; add `--no-test` only when compilation without tests is required.
+- Use `NEW\build.bat all` only for an integration check; it builds every target and runs every registered CTest test. Use `--clean` only after toolchain or CMake changes, or when a clean rebuild is specifically required.
+- When creating a feature, add its library and executable targets to the appropriate `NEW/features/<feature>/CMakeLists.txt`, add a `tests` target registered with CTest, and add or update the feature `README.md` files and source-to-original references in the same change.
+- After creating a feature, configure or refresh the preserved build with `NEW\build.bat <feature> --clean` only if the target graph changed; then use `NEW\build.bat <feature>` for subsequent edits. Verify the executable or library target with `NEW\build.bat <feature> --no-test` when a test run is not needed.
+- Before considering a feature complete, run its focused build and tests, inspect the test list with `ctest --test-dir NEW\build -N` when diagnosing registration, and run `NEW\build.bat all` for the final full-project build and test pass.
 - Use the MSVC compiler unless the task explicitly requires another compiler.
 - Compile with C++23 enabled and use modern C++23 features where they improve correctness, clarity, or maintainability.
 - Always use `import std;` for the C++ standard library; do not use `#include` directives for standard library headers.

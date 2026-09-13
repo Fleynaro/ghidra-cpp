@@ -10,10 +10,13 @@ decompile.
 - [`src/pe_loader.cppm`](src/pe_loader.cppm) exports the public value types, error model, address API, and loader.
 - [`src/pe_loader.cpp`](src/pe_loader.cpp) implements checked PE32/PE32+ parsing and image mapping.
 - [`CMakeLists.txt`](CMakeLists.txt) builds the module library and its test target.
+- [`build.bat`](build.bat) builds and tests only this module through the parent script; tests are enabled by default.
 - [`tests/README.md`](tests/README.md) describes fixture and malformed-input coverage.
 - [`tests/pe_loader_tests.cpp`](tests/pe_loader_tests.cpp) contains GoogleTest integration and edge-case tests.
 - [`../CMakeLists.txt`](../CMakeLists.txt) registers this feature with the feature collection.
 - [`../../build.bat`](../../build.bat) configures, builds, and runs all CTest targets with MSVC, Ninja, and vcpkg.
+
+Run `build.bat` from this directory for the focused PE loader build and test. Use `build.bat --no-test` for a compile-only check.
 
 ## Contract
 
