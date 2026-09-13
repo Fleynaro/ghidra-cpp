@@ -24652,7 +24652,7 @@ class Funcdata {
     Address baseaddr;               ///< Starting code address of binary data
     Address flowStart;              ///< Lower bound supplied to the last flow generation pass
     Address flowEnd;                ///< Exclusive upper bound supplied to the last flow generation pass
-    bool flowBounded;                ///< True when flowStart/flowEnd describe a provider body
+    bool flowBounded;               ///< True when flowStart/flowEnd describe a provider body
     FuncProto funcp;                ///< Prototype of this function
     ScopeLocal* localmap;           ///< Local variables (symbols in the function scope)
 

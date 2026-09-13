@@ -688,10 +688,8 @@ TEST_F(NativeCircleRangeTest, PullbackPredicateScenarios) {
         expect_behavior(scenario.opcode, false);
         // Match the original CircleRange(true/false) target using the
         // serialized right/size/step fields, not an assumption about left.
-        CircleRange actual(scenario.output_range.right - scenario.output_range.step,
-                           scenario.output_range.right,
-                           scenario.output_range.size,
-                           scenario.output_range.step);
+        CircleRange actual(scenario.output_range.right - scenario.output_range.step, scenario.output_range.right,
+                           scenario.output_range.size, scenario.output_range.step);
         const bool valid = actual.pullBackBinary(scenario.opcode, scenario.constant_value, scenario.slot,
                                                  scenario.input_size, scenario.output_range.size);
         EXPECT_EQ(valid, scenario.expected_valid);
@@ -730,7 +728,11 @@ TEST_F(NativeCircleRangeTest, PushUnaryScenarios) {
         {"circlerange_pushminus5", {0xD1, 0x11, 1, 4}, ghidra::CPUI_INT_2COMP, 1, true, {true, false, 0xF3, 0x33, 4}},
         {"circlerange_pushminus6", {0, 0x30, 1, 4}, ghidra::CPUI_INT_2COMP, 1, true, {true, false, 0xD4, 4, 4}},
         {"circlerange_pushzext1", {1, 20, 2, 1}, ghidra::CPUI_INT_ZEXT, 4, true, {true, false, 1, 20, 1}},
-        {"circlerange_pushzext2", {0xFFF0, 0xFF10, 2, 1}, ghidra::CPUI_INT_ZEXT, 4, true,
+        {"circlerange_pushzext2",
+         {0xFFF0, 0xFF10, 2, 1},
+         ghidra::CPUI_INT_ZEXT,
+         4,
+         true,
          {false, false, 0xFFF0, 0xFF0F, 1}},
         {"circlerange_pushzext3", {0x10, 0x30, 2, 4}, ghidra::CPUI_INT_ZEXT, 4, true, {true, false, 0x10, 0x30, 4}},
         {"circlerange_pushzext4", {0xFFF0, 0, 2, 4}, ghidra::CPUI_INT_ZEXT, 4, true, {true, false, 0xFFF0, 0x10000, 4}},
@@ -743,7 +745,11 @@ TEST_F(NativeCircleRangeTest, PushUnaryScenarios) {
         {"circlerange_pushzext6", {0, 0x30, 1, 4}, ghidra::CPUI_INT_ZEXT, 2, true, {true, false, 0, 0x30, 4}},
         {"circlerange_pushzext7", {0, 0, 1, 4}, ghidra::CPUI_INT_ZEXT, 2, true, {true, false, 0, 0x100, 4}},
         {"circlerange_pushsext1", {1, 20, 2, 1}, ghidra::CPUI_INT_SEXT, 4, true, {true, false, 1, 20, 1}},
-        {"circlerange_pushsext2", {0xFFF0, 0xFF10, 2, 1}, ghidra::CPUI_INT_SEXT, 4, true,
+        {"circlerange_pushsext2",
+         {0xFFF0, 0xFF10, 2, 1},
+         ghidra::CPUI_INT_SEXT,
+         4,
+         true,
          {false, false, 0xFFFFFFF0ULL, 0xFFFFFF0FULL, 1}},
         {"circlerange_pushsext3", {0x10, 0x30, 2, 4}, ghidra::CPUI_INT_SEXT, 4, true, {true, false, 0x10, 0x30, 4}},
         {"circlerange_pushsext4",

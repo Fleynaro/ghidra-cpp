@@ -209,10 +209,9 @@ public:
 
     /// Returns the scripted instruction or a precise provider diagnostic.
     [[nodiscard]] std::expected<Instruction, ProviderError> decode(std::uint64_t address) const override {
-        const auto iterator = std::find_if(instructions_.begin(), instructions_.end(),
-                                           [address](const Instruction& instruction) {
-                                               return instruction.address == address;
-                                           });
+        const auto iterator =
+            std::find_if(instructions_.begin(), instructions_.end(),
+                         [address](const Instruction& instruction) { return instruction.address == address; });
         if (iterator == instructions_.end()) {
             return std::unexpected(ProviderError{"Scripted p-code has no instruction at the requested address"});
         }
@@ -313,7 +312,8 @@ static DecompilationResult decompile_embedded_at(std::uint64_t entry, std::uint6
                                                  std::string function_name, ProviderContext metadata,
                                                  ArchitectureDescription architecture) {
     const auto memory = std::make_shared<SparseMemory>(image_base, std::move(image));
-    auto provider = std::make_shared<SleighPcodeProvider>(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory, make_x86_64_context());
+    auto provider = std::make_shared<SleighPcodeProvider>(
+        std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory, make_x86_64_context());
     metadata.pcode = std::move(provider);
     metadata.memory = memory;
     Decompiler decompiler(std::move(architecture), std::move(metadata));
@@ -435,16 +435,17 @@ static JumpTableFixture make_jump_table_fixture(std::uint64_t entry, std::size_t
     fixture.targets.reserve(case_count);
 
     if (masked) {
-        write_fixture_bytes(fixture.image, 0, {0x48, 0x83, 0xe1, static_cast<std::uint8_t>(case_count - 1),
-                                               0xff, 0x24, 0xcd, 0x00, 0x00, 0x00, 0x00});
+        write_fixture_bytes(
+            fixture.image, 0,
+            {0x48, 0x83, 0xe1, static_cast<std::uint8_t>(case_count - 1), 0xff, 0x24, 0xcd, 0x00, 0x00, 0x00, 0x00});
         const std::uint32_t table_address = static_cast<std::uint32_t>(entry + table_offset);
         for (std::size_t byte = 0; byte < sizeof(table_address); ++byte) {
             fixture.image[7 + byte] = static_cast<std::uint8_t>(table_address >> (byte * 8U));
         }
     } else {
-        write_fixture_bytes(fixture.image, 0, {0x48, 0x83, 0xf9, static_cast<std::uint8_t>(case_count - 1), 0x77,
-                                               static_cast<std::uint8_t>(default_offset - 6), 0xff, 0x24, 0xcd, 0x00,
-                                               0x00, 0x00, 0x00});
+        write_fixture_bytes(fixture.image, 0,
+                            {0x48, 0x83, 0xf9, static_cast<std::uint8_t>(case_count - 1), 0x77,
+                             static_cast<std::uint8_t>(default_offset - 6), 0xff, 0x24, 0xcd, 0x00, 0x00, 0x00, 0x00});
         const std::uint32_t table_address = static_cast<std::uint32_t>(entry + table_offset);
         for (std::size_t byte = 0; byte < sizeof(table_address); ++byte) {
             fixture.image[9 + byte] = static_cast<std::uint8_t>(table_address >> (byte * 8U));
@@ -455,8 +456,8 @@ static JumpTableFixture make_jump_table_fixture(std::uint64_t entry, std::size_t
         fixture.targets.push_back(entry + case_offset);
         if (call_cases) {
             const std::uint64_t child = entry + child_offset + index * 0x10;
-            const std::int64_t relative = static_cast<std::int64_t>(child) -
-                                          static_cast<std::int64_t>(entry + case_offset + 5);
+            const std::int64_t relative =
+                static_cast<std::int64_t>(child) - static_cast<std::int64_t>(entry + case_offset + 5);
             write_fixture_bytes(fixture.image, case_offset,
                                 {0xe8, static_cast<std::uint8_t>(relative), static_cast<std::uint8_t>(relative >> 8),
                                  static_cast<std::uint8_t>(relative >> 16), static_cast<std::uint8_t>(relative >> 24),
@@ -465,12 +466,17 @@ static JumpTableFixture make_jump_table_fixture(std::uint64_t entry, std::size_t
                                 {0xb8, static_cast<std::uint8_t>(0x10 + index), 0x00, 0x00, 0x00, 0xc3});
         } else {
             const std::uint8_t operation = static_cast<std::uint8_t>(index % 4);
-            const std::array<std::uint8_t, 3> operation_bytes = {
-                static_cast<std::uint8_t>(operation == 0 ? 0x83 : operation == 1 ? 0x83 : operation == 2 ? 0x83 : 0x83),
-                static_cast<std::uint8_t>(operation == 0 ? 0xc0 : operation == 1 ? 0xe8 : operation == 2 ? 0xf0 : 0xc8),
-                static_cast<std::uint8_t>(index + 1)};
-            write_fixture_bytes(fixture.image, case_offset, {0x8b, 0xc2, operation_bytes[0], operation_bytes[1],
-                                                              operation_bytes[2], 0xc3});
+            const std::array<std::uint8_t, 3> operation_bytes = {static_cast<std::uint8_t>(operation == 0   ? 0x83
+                                                                                           : operation == 1 ? 0x83
+                                                                                           : operation == 2 ? 0x83
+                                                                                                            : 0x83),
+                                                                 static_cast<std::uint8_t>(operation == 0   ? 0xc0
+                                                                                           : operation == 1 ? 0xe8
+                                                                                           : operation == 2 ? 0xf0
+                                                                                                            : 0xc8),
+                                                                 static_cast<std::uint8_t>(index + 1)};
+            write_fixture_bytes(fixture.image, case_offset,
+                                {0x8b, 0xc2, operation_bytes[0], operation_bytes[1], operation_bytes[2], 0xc3});
         }
     }
     if (!masked) {
@@ -666,9 +672,9 @@ static void expect_contains(std::string_view artifact, std::string_view token) {
 /// Verifies that a low-level artifact does not contain a transformation
 /// surrogate, matching XML `<stringmatch min="0" max="0">` assertions.
 static void expect_excludes(std::string_view artifact, std::string_view token) {
-    EXPECT_EQ(artifact.find(token), std::string_view::npos) << "unexpected token: " << token
-                                                            << "\nGenerated artifact:\n"
-                                                            << artifact;
+    EXPECT_EQ(artifact.find(token), std::string_view::npos)
+        << "unexpected token: " << token << "\nGenerated artifact:\n"
+        << artifact;
 }
 
 /// Returns the generated C body for one function, excluding provider-emitted
@@ -900,14 +906,10 @@ TEST(DecompilerDatatests, PortedSignedModulo) {
 /// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/modulo2.xml`.
 TEST(DecompilerDatatests, PortedModulo2) {
     const std::array<std::pair<std::uint64_t, std::vector<std::uint8_t>>, 3> cases{{
-        {0x490000,
-         {0x89, 0xc8, 0xc1, 0xe9, 0x1f, 0x01, 0xc1, 0x83, 0xe1, 0xfe, 0x29, 0xc8, 0xc3}},
-        {0x490010,
-         {0x48, 0x63, 0xc1, 0x48, 0x69, 0xc8, 0x56, 0x55, 0x55, 0x55, 0x48, 0x89, 0xca, 0x48, 0xc1,
-          0xea, 0x3f, 0x48, 0xc1, 0xe9, 0x20, 0x01, 0xd1, 0x8d, 0x0c, 0x49, 0x29, 0xc8, 0xc3}},
-        {0x490030,
-         {0x89, 0xc8, 0x8d, 0x48, 0x03, 0x85, 0xc0, 0x0f, 0x49, 0xc8, 0x83, 0xe1, 0xfc, 0x29, 0xc8,
-          0xc3}},
+        {0x490000, {0x89, 0xc8, 0xc1, 0xe9, 0x1f, 0x01, 0xc1, 0x83, 0xe1, 0xfe, 0x29, 0xc8, 0xc3}},
+        {0x490010, {0x48, 0x63, 0xc1, 0x48, 0x69, 0xc8, 0x56, 0x55, 0x55, 0x55, 0x48, 0x89, 0xca, 0x48, 0xc1,
+                    0xea, 0x3f, 0x48, 0xc1, 0xe9, 0x20, 0x01, 0xd1, 0x8d, 0x0c, 0x49, 0x29, 0xc8, 0xc3}},
+        {0x490030, {0x89, 0xc8, 0x8d, 0x48, 0x03, 0x85, 0xc0, 0x0f, 0x49, 0xc8, 0x83, 0xe1, 0xfc, 0x29, 0xc8, 0xc3}},
     }};
     const std::array<std::string_view, 3> names{"mod2", "mod3", "mod4"};
     const std::array<std::string_view, 3> expressions{"param_1 % 2", "param_1 % 3", "param_1 % 4"};
@@ -916,9 +918,10 @@ TEST(DecompilerDatatests, PortedModulo2) {
         const PrototypeDescription prototype =
             make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
                            {PrototypeParameterDescription{"param_1", "int32", Storage{"register", 8, 4}}});
-        const auto metadata = make_metadata({{entry, std::string(names[index]), ""}},
-                                            {integer_type("int32", 4, true)}, {{entry, prototype}});
-        const DecompilationResult result = decompile_embedded(entry, body, body.size(), std::string(names[index]), metadata);
+        const auto metadata = make_metadata({{entry, std::string(names[index]), ""}}, {integer_type("int32", 4, true)},
+                                            {{entry, prototype}});
+        const DecompilationResult result =
+            decompile_embedded(entry, body, body.size(), std::string(names[index]), metadata);
 
         expect_complete_analysis(result);
         expect_function_body_contains(result, names[index], expressions[index]);
@@ -1315,7 +1318,7 @@ TEST(DecompilerDatatests, PortedLongDoubleFloat10CoreBehavior) {
                        {PrototypeParameterDescription{"ptrwrite", "float10 *", Storage{"register", 0x38, 8}},
                         PrototypeParameterDescription{"valwrite", "float10", Storage{"stack", 8, 10}}});
     const ProviderContext metadata = make_metadata({SymbolDescription{entry, "writeLongDouble", ""}, constant},
-                                                    {float10, float10_pointer, double_type}, {{entry, prototype}});
+                                                   {float10, float10_pointer, double_type}, {{entry, prototype}});
 
     const DecompilationResult result = decompile_embedded_chunks(entry, {{entry, code}, {0x1012b0, "666666666666e63f"}},
                                                                  0x16, "writeLongDouble", metadata);
@@ -2606,7 +2609,7 @@ TEST(DecompilerDatatests, PortedSwitchMaskAndMultiCaseSemantics) {
         make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
                        {PrototypeParameterDescription{"selector", "int32", Storage{"register", 8, 4}}});
     ProviderContext mask_metadata = make_metadata({{mask_entry, "switchmask_case", ""}},
-                                                   {integer_type("int32", 4, true)}, {{mask_entry, mask_prototype}});
+                                                  {integer_type("int32", 4, true)}, {{mask_entry, mask_prototype}});
     FlowDescription mask_flow;
     mask_flow.jump_tables.push_back(JumpTableDescription{mask_entry + 4, mask_fixture.targets, std::nullopt, 0, 0});
     mask_metadata.flow = std::make_shared<FlowTableProvider>(
@@ -2628,7 +2631,7 @@ TEST(DecompilerDatatests, PortedSwitchMaskAndMultiCaseSemantics) {
                        {PrototypeParameterDescription{"selector", "int32", Storage{"register", 8, 4}},
                         PrototypeParameterDescription{"value", "int32", Storage{"register", 0x10, 4}}});
     ProviderContext multi_metadata = make_metadata({{multi_entry, "switchmulti_case", ""}},
-                                                    {integer_type("int32", 4, true)}, {{multi_entry, multi_prototype}});
+                                                   {integer_type("int32", 4, true)}, {{multi_entry, multi_prototype}});
     FlowDescription multi_flow;
     multi_flow.jump_tables.push_back(JumpTableDescription{multi_entry + 6, multi_fixture.targets, std::nullopt, 0, 0});
     multi_metadata.flow = std::make_shared<FlowTableProvider>(
@@ -2652,8 +2655,12 @@ TEST(DecompilerDatatests, PortedDestinationOverridesForCallAndCallother) {
     const std::uint64_t indirect_target = 0x483100;
     const std::uint64_t callother_target = 0x483200;
     const std::vector<Instruction> instructions{
-        Instruction{entry, 1, "callind", "callind", {{std::to_underlying(sleigh_runtime::PcodeOpcode::call_ind),
-                                                        std::nullopt, {Storage{"register", 8, 8}}}}},
+        Instruction{
+            entry,
+            1,
+            "callind",
+            "callind",
+            {{std::to_underlying(sleigh_runtime::PcodeOpcode::call_ind), std::nullopt, {Storage{"register", 8, 8}}}}},
         Instruction{entry + 1,
                     1,
                     "callother",
@@ -2661,12 +2668,12 @@ TEST(DecompilerDatatests, PortedDestinationOverridesForCallAndCallother) {
                     {{std::to_underlying(sleigh_runtime::PcodeOpcode::call_other),
                       std::nullopt,
                       {Storage{"const", 5, 4}, Storage{"register", 8, 4}}}}},
-        Instruction{entry + 2,
-                    1,
-                    "return",
-                    "return",
-                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt,
-                      {Storage{"const", 0, 8}}}}},
+        Instruction{
+            entry + 2,
+            1,
+            "return",
+            "return",
+            {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt, {Storage{"const", 0, 8}}}}},
     };
     FlowDescription flow;
     flow.destination_overrides = {
@@ -2674,9 +2681,9 @@ TEST(DecompilerDatatests, PortedDestinationOverridesForCallAndCallother) {
         DestinationOverrideDescription{entry + 1, callother_target, "callother_call"},
     };
     ProviderContext metadata = make_metadata({{entry, "override_root", ""},
-                                               {indirect_target, "indirect_destination", ""},
-                                               {callother_target, "callother_destination", ""}},
-                                              {integer_type("int32", 4, true)}, {});
+                                              {indirect_target, "indirect_destination", ""},
+                                              {callother_target, "callother_destination", ""}},
+                                             {integer_type("int32", 4, true)}, {});
     metadata.flow =
         std::make_shared<FlowTableProvider>(std::vector<std::pair<std::uint64_t, FlowDescription>>{{entry, flow}});
     DecompilationResult result;
@@ -2710,29 +2717,28 @@ TEST(DecompilerDatatests, PortedCallotherInjectionPayload) {
                     {{std::to_underlying(sleigh_runtime::PcodeOpcode::call_other),
                       Storage{"register", 0, 4},
                       {Storage{"const", 7, 4}, Storage{"register", 8, 4}}}}},
-        Instruction{entry + 1,
-                    1,
-                    "return",
-                    "return",
-                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt,
-                      {Storage{"const", 0, 8}}}}},
+        Instruction{
+            entry + 1,
+            1,
+            "return",
+            "return",
+            {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt, {Storage{"const", 0, 8}}}}},
     };
     CallOtherFixupDescription fixup;
     fixup.name = "provider_add_input";
     fixup.output_name = "result";
     fixup.input_names = {"value"};
     fixup.userop_index = 7;
-    fixup.operations.push_back(
-        InjectionOperation{std::to_underlying(sleigh_runtime::PcodeOpcode::copy),
-                           InjectionVarnode{InjectionVarnodeKind::output, {}, 0},
-                           {InjectionVarnode{InjectionVarnodeKind::input, {}, 0}}});
+    fixup.operations.push_back(InjectionOperation{std::to_underlying(sleigh_runtime::PcodeOpcode::copy),
+                                                  InjectionVarnode{InjectionVarnodeKind::output, {}, 0},
+                                                  {InjectionVarnode{InjectionVarnodeKind::input, {}, 0}}});
     const PrototypeDescription prototype =
         make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
                        {PrototypeParameterDescription{"value", "int32", Storage{"register", 8, 4}}});
-    ProviderContext metadata = make_metadata({{entry, "callother_payload", ""}},
-                                              {integer_type("int32", 4, true)}, {{entry, prototype}});
+    ProviderContext metadata =
+        make_metadata({{entry, "callother_payload", ""}}, {integer_type("int32", 4, true)}, {{entry, prototype}});
     metadata.injections = std::make_shared<InjectionTableProvider>(std::vector<CallFixupDescription>{},
-                                                                      std::vector<CallOtherFixupDescription>{fixup});
+                                                                   std::vector<CallOtherFixupDescription>{fixup});
     const DecompilationResult result =
         decompile_scripted(entry, 2, instructions, "callother_payload", std::move(metadata));
 
@@ -2748,30 +2754,35 @@ TEST(DecompilerDatatests, PortedCallReturnOverrideWithChildBody) {
     const std::uint64_t entry = 0x485000;
     const std::uint64_t child = entry + 0x10;
     const std::vector<Instruction> instructions{
-        Instruction{entry, 1, "branch", "branch", {{std::to_underlying(sleigh_runtime::PcodeOpcode::branch),
-                                                       std::nullopt, {Storage{"ram", child, 8}}}}},
-        Instruction{entry + 1,
-                    1,
-                    "return",
-                    "return",
-                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt,
-                      {Storage{"const", 0, 8}}}}},
-        Instruction{child,
-                    1,
-                    "return",
-                    "return",
-                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt,
-                      {Storage{"const", 0, 8}}}}},
+        Instruction{
+            entry,
+            1,
+            "branch",
+            "branch",
+            {{std::to_underlying(sleigh_runtime::PcodeOpcode::branch), std::nullopt, {Storage{"ram", child, 8}}}}},
+        Instruction{
+            entry + 1,
+            1,
+            "return",
+            "return",
+            {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt, {Storage{"const", 0, 8}}}}},
+        Instruction{
+            child,
+            1,
+            "return",
+            "return",
+            {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt, {Storage{"const", 0, 8}}}}},
     };
     FlowDescription flow;
     flow.flow_overrides.push_back(FlowOverrideDescription{entry, "callreturn"});
     const PrototypeDescription prototype = make_prototype("__cdecl", "void", std::nullopt, {});
-    ProviderContext metadata = make_metadata({{entry, "callreturn_root", ""}, {child, "callreturn_target", ""}},
-                                              {integer_type("int32", 4, true)}, {{entry, prototype}, {child, prototype}});
+    ProviderContext metadata =
+        make_metadata({{entry, "callreturn_root", ""}, {child, "callreturn_target", ""}},
+                      {integer_type("int32", 4, true)}, {{entry, prototype}, {child, prototype}});
     metadata.flow =
         std::make_shared<FlowTableProvider>(std::vector<std::pair<std::uint64_t, FlowDescription>>{{entry, flow}});
-    metadata.functions =
-        std::make_shared<FunctionTableProvider>(std::vector<FunctionDescription>{{"callreturn_target", child, child + 1}});
+    metadata.functions = std::make_shared<FunctionTableProvider>(
+        std::vector<FunctionDescription>{{"callreturn_target", child, child + 1}});
     const DecompilationResult result =
         decompile_scripted(entry, 2, instructions, "callreturn_root", std::move(metadata));
 
@@ -2792,26 +2803,28 @@ TEST(DecompilerDatatests, PortedInjectOverrideCallFixupInputContext) {
                     1,
                     "constant",
                     "constant",
-                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::copy), Storage{"register", 8, 4},
+                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::copy),
+                      Storage{"register", 8, 4},
                       {Storage{"const", 7, 4}}}}},
         Instruction{entry + 1,
                     1,
                     "call",
                     "call",
-                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::call), std::nullopt,
+                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::call),
+                      std::nullopt,
                       {Storage{"ram", target, 8}, Storage{"register", 8, 4}}}}},
-        Instruction{entry + 2,
-                    1,
-                    "return",
-                    "return",
-                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt,
-                      {Storage{"const", 0, 8}}}}},
-        Instruction{target,
-                    1,
-                    "return",
-                    "return",
-                    {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt,
-                      {Storage{"const", 0, 8}}}}},
+        Instruction{
+            entry + 2,
+            1,
+            "return",
+            "return",
+            {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt, {Storage{"const", 0, 8}}}}},
+        Instruction{
+            target,
+            1,
+            "return",
+            "return",
+            {{std::to_underlying(sleigh_runtime::PcodeOpcode::return_op), std::nullopt, {Storage{"const", 0, 8}}}}},
     };
     CallFixupDescription fixup;
     fixup.name = "provider_capture_argument";
@@ -2824,16 +2837,14 @@ TEST(DecompilerDatatests, PortedInjectOverrideCallFixupInputContext) {
         make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
                        {PrototypeParameterDescription{"value", "int32", Storage{"register", 8, 4}}});
     target_prototype.call_fixup = fixup.name;
-    const PrototypeDescription root_prototype =
-        make_prototype("__cdecl", "int32", Storage{"register", 0, 4}, {});
-    ProviderContext metadata = make_metadata({{entry, "inject_root", ""}, {target, "capture_target", ""}},
-                                              {integer_type("int32", 4, true)},
-                                              {{entry, root_prototype}, {target, target_prototype}});
+    const PrototypeDescription root_prototype = make_prototype("__cdecl", "int32", Storage{"register", 0, 4}, {});
+    ProviderContext metadata =
+        make_metadata({{entry, "inject_root", ""}, {target, "capture_target", ""}}, {integer_type("int32", 4, true)},
+                      {{entry, root_prototype}, {target, target_prototype}});
     metadata.injections = std::make_shared<InjectionTableProvider>(std::vector<CallFixupDescription>{fixup});
-    metadata.functions =
-        std::make_shared<FunctionTableProvider>(std::vector<FunctionDescription>{{"capture_target", target, target + 1}});
-    const DecompilationResult result =
-        decompile_scripted(entry, 3, instructions, "inject_root", std::move(metadata));
+    metadata.functions = std::make_shared<FunctionTableProvider>(
+        std::vector<FunctionDescription>{{"capture_target", target, target + 1}});
+    const DecompilationResult result = decompile_scripted(entry, 3, instructions, "inject_root", std::move(metadata));
 
     expect_complete_analysis(result);
     expect_contains(result.c_source, "return 7");
@@ -2846,15 +2857,16 @@ TEST(DecompilerDatatests, PortedInjectOverrideCallFixupInputContext) {
 TEST(DecompilerDatatests, PortedDeindirectTwoWithRealChildBody) {
     const std::uint64_t entry = 0x100000;
     const std::uint64_t target = 0x100046;
-    std::vector<std::uint8_t> image = bytes_from_hex(
-        "554889e54883ec3048c7c34600100048895de84889f94889f7488b5de8ffd3488d59104889036631c0c3");
+    std::vector<std::uint8_t> image =
+        bytes_from_hex("554889e54883ec3048c7c34600100048895de84889f94889f7488b5de8ffd3488d59104889036631c0c3");
     image.resize(0x4c, 0);
     write_fixture_bytes(image, 0x46, {0xc3});
     FlowDescription flow;
     flow.indirect_call_targets.push_back(IndirectCallTargetDescription{entry + 29, target});
     const PrototypeDescription prototype = make_prototype("__cdecl", "void", std::nullopt, {});
-    ProviderContext metadata = make_metadata({{entry, "deindirect_two", ""}, {target, "obtainPtr", ""}},
-                                              {integer_type("int32", 4, true)}, {{entry, prototype}, {target, prototype}});
+    ProviderContext metadata =
+        make_metadata({{entry, "deindirect_two", ""}, {target, "obtainPtr", ""}}, {integer_type("int32", 4, true)},
+                      {{entry, prototype}, {target, prototype}});
     metadata.flow =
         std::make_shared<FlowTableProvider>(std::vector<std::pair<std::uint64_t, FlowDescription>>{{entry, flow}});
     metadata.functions =
@@ -2872,9 +2884,8 @@ TEST(DecompilerDatatests, PortedDeindirectTwoWithRealChildBody) {
 /// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/revisit.xml`.
 TEST(DecompilerDatatests, PortedRevisitMixedWidthSsa) {
     const std::uint64_t entry = 0x100000;
-    std::vector<std::uint8_t> image = bytes_from_hex(
-        "488d1d6d00000048891d52000000488b0d4b0000008b0183c00a890166e84800"
-        "668b054d0000006605640066890542000000c3");
+    std::vector<std::uint8_t> image = bytes_from_hex("488d1d6d00000048891d52000000488b0d4b0000008b0183c00a890166e84800"
+                                                     "668b054d0000006605640066890542000000c3");
     image.resize(0x80, 0);
     const std::vector<SymbolDescription> symbols{{entry, "revisit", ""},
                                                  {entry + 0x74, "i", "", SymbolKind::data, 4, "int32"}};

@@ -1808,10 +1808,10 @@ public:
     /// Constructs one standalone native architecture.
     State(ArchitectureDescription description, ProviderContext context)
         : description(std::move(description)), context(std::move(context)), provider(this->context.pcode),
-           memory(this->context.memory),
-           architecture(std::make_unique<detail::ProviderArchitecture>(this->description, this->provider, this->memory,
-                                                                       this->context.injections,
-                                                                       this->context.analysis_options)) {}
+          memory(this->context.memory),
+          architecture(std::make_unique<detail::ProviderArchitecture>(this->description, this->provider, this->memory,
+                                                                      this->context.injections,
+                                                                      this->context.analysis_options)) {}
 
     ArchitectureDescription description;
     ProviderContext context;
@@ -1993,12 +1993,11 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
             enumerated_symbols.push_back(symbol);
         }
     }
-    const auto find_enumerated_symbol = [&](std::uint64_t address, SymbolKind kind)
-        -> const SymbolDescription* {
-        const auto found = std::find_if(enumerated_symbols.begin(), enumerated_symbols.end(),
-                                        [&](const SymbolDescription& candidate) {
-                                            return candidate.address == address && candidate.kind == kind;
-                                        });
+    const auto find_enumerated_symbol = [&](std::uint64_t address, SymbolKind kind) -> const SymbolDescription* {
+        const auto found =
+            std::find_if(enumerated_symbols.begin(), enumerated_symbols.end(), [&](const SymbolDescription& candidate) {
+                return candidate.address == address && candidate.kind == kind;
+            });
         return found == enumerated_symbols.end() ? nullptr : &*found;
     };
     auto add_function_symbol = [&](std::uint64_t address, const std::string& name, const std::string& namespace_name) {
