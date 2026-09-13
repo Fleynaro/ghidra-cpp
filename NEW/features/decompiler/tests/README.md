@@ -8,7 +8,7 @@ provider to exercise raw p-code materialization. `Example1StringLengthWorkerWEnd
 `Example6MetricSpentOnBankInterestEndToEnd` through `Example11GlobalSlotRegistrationEndToEnd`
 use explicit machine-code bytes and expected C from their corresponding examples without
 reading Markdown at runtime. The tests feed those bytes through the compiled Sleigh fixture at
-[`../../sleigh_runtime/test_data/x86-64.sla`](../../sleigh_runtime/test_data/x86-64.sla), then
+the module-level [`../../sleigh_runtime/specifications/x86-64.sla`](../../sleigh_runtime/specifications/x86-64.sla), then
 run the real native flow, SSA, actions, and C printer.
 
 [`native_funcproto_tests.cppm`](native_funcproto_tests.cppm) independently initializes a Toy-like
@@ -35,7 +35,7 @@ Toy context because the installed distribution has no Toy SLA, and decodes one r
 SLA per remaining family when `GHIDRA_INSTALL_DIR` is set. The test resolves only the relative
 paths under that environment variable; it does not embed a workstation path or copy every SLA
 variant. The selected source mappings are recorded in
-[`../../sleigh_runtime/test_data/README.md`](../../sleigh_runtime/test_data/README.md).
+[`../../sleigh_runtime/specifications/README.md`](../../sleigh_runtime/specifications/README.md).
 
 The target is registered by [`CMakeLists.txt`](CMakeLists.txt) and is invoked from the parent
 feature build.

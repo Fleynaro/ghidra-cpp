@@ -90,7 +90,7 @@ The smallest complete invocation uses a `.sla`, bytes, and an entry point. The d
 
 ```powershell
 $cli = ".\build\features\decompiler\new_ghidra_decompiler.exe"
-$sla = ".\features\sleigh_runtime\test_data\x86-64.sla"
+$sla = "x86-64.sla"
 
 & $cli --sla $sla --address 0x140000000 `
     --hex "b8 2a 00 00 00 c3" `
@@ -151,7 +151,7 @@ Sleigh context values are repeatable and may be decimal or hexadecimal:
     --context rexprefix=0 --context longMode=1
 ```
 
-The default context matches the checked-in x86-64 fixture. Other `.sla` files must receive the field names and values required by their processor specification.
+The default context matches the checked-in x86-64 specification. Other `.sla` files must receive the field names and values required by their processor specification. A bare filename is resolved by the shared Sleigh runtime below `features/sleigh_runtime/specifications`; explicit relative and absolute paths remain supported.
 
 ### Mapped Data
 

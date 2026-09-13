@@ -7,7 +7,7 @@ namespace {
 /// Stores command-line inputs for one autonomous FunctionID query.
 struct Options {
     std::vector<std::string> database_patterns;
-    std::filesystem::path sla_path{"features/sleigh_runtime/test_data/x86-64.sla"};
+    std::filesystem::path sla_path{"x86-64.sla"};
     std::string hex_bytes;
     std::uint64_t address{0x140000000ULL};
     std::string language_id{"x86:LE:64:default"};

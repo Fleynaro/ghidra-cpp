@@ -14,9 +14,9 @@ struct Options {
 
 /// Prints the command-line syntax and the supported processor context options.
 void print_usage(std::ostream& output) {
-    output << "Usage: sleigh_runtime_decode --sla <file.sla> --hex <bytes> [options]\n"
+    output << "Usage: sleigh_runtime_decode --sla <name-or-path> --hex <bytes> [options]\n"
            << "\nOptions:\n"
-           << "  --sla <path>          Compiled Sleigh specification\n"
+           << "  --sla <name-or-path>  SLA filename or explicit relative/absolute path\n"
            << "  --hex <bytes>         Machine code, for example: \"48 8b d9\"\n"
            << "  --address <value>     Instruction address (hex or decimal)\n"
            << "  --context <name=value> Override a Sleigh context field; repeatable\n"

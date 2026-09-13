@@ -8,7 +8,7 @@ Run from the `NEW` directory:
 
 ```powershell
 .\build\features\sleigh_runtime\sleigh_runtime_decode.exe `
-    --sla .\features\sleigh_runtime\test_data\x86-64.sla `
+    --sla x86-64.sla `
     --hex "48 8b d9"
 ```
 
@@ -20,7 +20,7 @@ The `--hex` value may contain a complete byte sequence rather than one instructi
 
 ```powershell
 .\build\features\sleigh_runtime\sleigh_runtime_decode.exe `
-    --sla .\features\sleigh_runtime\test_data\x86-64.sla `
+    --sla x86-64.sla `
     --address 0x140000000 `
     --hex "48 8b d9 48 83 ec 40"
 ```
@@ -29,7 +29,7 @@ The CLI decodes one instruction, advances by its decoded length, updates the add
 
 ## Input Rules
 
-- `--sla` is required and must point to a binary compiled `.sla` file.
+- `--sla` is required and accepts either a bare filename resolved by the runtime below `features/sleigh_runtime/specifications`, or an explicit relative/absolute path.
 - `--hex` is required and must contain complete two-digit hexadecimal byte pairs.
 - Spaces, tabs, newlines, and commas are accepted between byte pairs.
 - `--address` accepts decimal values and `0x`-prefixed hexadecimal values.

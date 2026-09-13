@@ -7,7 +7,7 @@ namespace {
 
 /// Creates the decoder from the module-local compiled x86-64 specification.
 sleigh_runtime::Decoder make_decoder() {
-    return sleigh_runtime::Decoder(std::filesystem::path("test_data") / "x86-64.sla");
+    return sleigh_runtime::Decoder("x86-64.sla");
 }
 
 /// Supplies the context values required by the x86-64 compiled specification.
@@ -519,7 +519,7 @@ TEST(SleighRuntime, DecodesEndbr64WithoutPcode) {
 
 /// Verifies ARM indirect return flow through BX LR and its condition normalization.
 TEST(SleighRuntime, DecodesArmBxLr) {
-    sleigh_runtime::Decoder decoder(std::filesystem::path("test_data") / "ARM8_le.sla");
+    sleigh_runtime::Decoder decoder("ARM8_le.sla");
     // 1e ff 2f e1 - BX LR
     const std::array<std::uint8_t, 4> bytes{0x1e, 0xff, 0x2f, 0xe1};
     const auto result = decoder.decode(0x400000ULL, bytes, {});
@@ -550,7 +550,7 @@ TEST(SleighRuntime, DecodesArmBxLr) {
 
 /// Verifies ARM supervisor-call dispatch through a system CALLOTHER operation.
 TEST(SleighRuntime, DecodesArmSvc) {
-    sleigh_runtime::Decoder decoder(std::filesystem::path("test_data") / "ARM8_le.sla");
+    sleigh_runtime::Decoder decoder("ARM8_le.sla");
     // 00 00 00 ef - SVC 0
     const std::array<std::uint8_t, 4> bytes{0x00, 0x00, 0x00, 0xef};
     const auto result = decoder.decode(0x400000ULL, bytes, {});
@@ -568,7 +568,7 @@ TEST(SleighRuntime, DecodesArmSvc) {
 
 /// Verifies ARM PC-relative literal loading and the concrete instruction address calculation.
 TEST(SleighRuntime, DecodesArmPcRelativeLoad) {
-    sleigh_runtime::Decoder decoder(std::filesystem::path("test_data") / "ARM8_le.sla");
+    sleigh_runtime::Decoder decoder("ARM8_le.sla");
     // 00 00 9f e5 - LDR R0,[PC,#0]
     const std::array<std::uint8_t, 4> bytes{0x00, 0x00, 0x9f, 0xe5};
     const auto result = decoder.decode(0x400000ULL, bytes, {});
@@ -590,7 +590,7 @@ TEST(SleighRuntime, DecodesArmPcRelativeLoad) {
 
 /// Verifies ARM multi-register stack save and writeback as repeated concrete stores.
 TEST(SleighRuntime, DecodesArmPushMultiple) {
-    sleigh_runtime::Decoder decoder(std::filesystem::path("test_data") / "ARM8_le.sla");
+    sleigh_runtime::Decoder decoder("ARM8_le.sla");
     // 10 40 2d e9 - PUSH {R4,LR}
     const std::array<std::uint8_t, 4> bytes{0x10, 0x40, 0x2d, 0xe9};
     const auto result = decoder.decode(0x400000ULL, bytes, {});
@@ -692,6 +692,15 @@ TEST(SleighRuntime, RejectsTruncatedInstruction) {
 /// Verifies SLA loading fails before decoding when the processor file is absent.
 TEST(SleighRuntime, RejectsMissingSlaFile) {
     EXPECT_THROW(sleigh_runtime::Decoder("missing-runtime-spec.sla"), std::runtime_error);
+}
+
+/// Verifies bare names use the module specification directory while qualified paths remain explicit.
+TEST(SleighRuntime, ResolvesBareAndQualifiedSlaPaths) {
+    EXPECT_EQ(sleigh_runtime::resolve_sla_path("x86-64.sla"),
+              sleigh_runtime::default_specification_directory() / "x86-64.sla");
+    const std::filesystem::path qualified = std::filesystem::path("custom") / "x86-64.sla";
+    EXPECT_EQ(sleigh_runtime::resolve_sla_path(qualified), qualified);
+    EXPECT_NO_THROW(sleigh_runtime::Decoder(sleigh_runtime::default_specification_directory() / "x86-64.sla"));
 }
 
 /// Verifies the public byte-window guard prevents silently truncating oversized input.

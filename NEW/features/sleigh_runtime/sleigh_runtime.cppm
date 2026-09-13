@@ -218,6 +218,19 @@ private:
     std::unique_ptr<Implementation> implementation_;
 };
 
+/// Returns the source-tree directory containing the module's compiled SLA specifications.
+///
+/// The directory is supplied by the module build and is shared by library users and
+/// command-line frontends. Callers may still provide an explicit relative or absolute path.
+[[nodiscard]] std::filesystem::path default_specification_directory();
+
+/// Resolves a specification name while preserving explicitly qualified paths.
+///
+/// A path containing only a filename is resolved below `default_specification_directory()`;
+/// paths with a parent component are returned unchanged. The function does not require the
+/// resulting file to exist and therefore can be used for diagnostics before loading.
+[[nodiscard]] std::filesystem::path resolve_sla_path(std::filesystem::path sla_path);
+
 /// Returns the canonical textual name of a materialized p-code opcode.
 [[nodiscard]] std::string_view opcode_name(PcodeOpcode opcode);
 

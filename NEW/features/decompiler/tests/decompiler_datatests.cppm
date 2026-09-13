@@ -312,8 +312,7 @@ static DecompilationResult decompile_embedded_at(std::uint64_t entry, std::uint6
                                                  std::string function_name, ProviderContext metadata,
                                                  ArchitectureDescription architecture) {
     const auto memory = std::make_shared<SparseMemory>(image_base, std::move(image));
-    auto provider = std::make_shared<SleighPcodeProvider>(
-        std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory, make_x86_64_context());
+    auto provider = std::make_shared<SleighPcodeProvider>("x86-64.sla", memory, make_x86_64_context());
     metadata.pcode = std::move(provider);
     metadata.memory = memory;
     Decompiler decompiler(std::move(architecture), std::move(metadata));

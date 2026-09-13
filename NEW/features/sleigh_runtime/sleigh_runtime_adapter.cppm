@@ -719,12 +719,25 @@ constexpr std::array<std::string_view, 75> opcode_names{"",
 
 } // namespace
 
+/// Returns the module-owned directory containing checked-in compiled SLA specifications.
+std::filesystem::path default_specification_directory() {
+    return std::filesystem::path(SLEIGH_RUNTIME_SPECIFICATION_DIR);
+}
+
+/// Resolves bare SLA filenames against the module specification directory.
+std::filesystem::path resolve_sla_path(std::filesystem::path sla_path) {
+    if (sla_path.empty() || !sla_path.parent_path().empty()) {
+        return sla_path;
+    }
+    return default_specification_directory() / std::move(sla_path);
+}
+
 /// Holds the legacy runtime objects and their ownership order.
 class Decoder::Implementation {
 public:
     /// Constructs an implementation and loads the compiled specification once.
     explicit Implementation(std::filesystem::path path)
-        : sla_path_(std::move(path)), image_(), context_(std::make_unique<ghidra::ContextInternal>()),
+        : sla_path_(resolve_sla_path(std::move(path))), image_(), context_(std::make_unique<ghidra::ContextInternal>()),
           translator_(std::make_unique<ghidra::Sleigh>(&image_, context_.get())) {
         if (!std::filesystem::is_regular_file(sla_path_)) {
             throw std::runtime_error("SLA file does not exist: " + sla_path_.string());

@@ -1,5 +1,7 @@
 find_package(ZLIB REQUIRED)
 
+file(TO_CMAKE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/specifications" SLEIGH_RUNTIME_SPECIFICATION_DIR)
+
 file(GLOB SLEIGH_RUNTIME_MODULES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cppm"
 )
@@ -39,6 +41,9 @@ endif()
 add_library(NewGhidra::SleighRuntime ALIAS sleigh_runtime)
 
 target_compile_features(sleigh_runtime PUBLIC cxx_std_23)
+target_compile_definitions(sleigh_runtime PUBLIC
+    SLEIGH_RUNTIME_SPECIFICATION_DIR="${SLEIGH_RUNTIME_SPECIFICATION_DIR}"
+)
 target_link_libraries(sleigh_runtime PRIVATE ZLIB::ZLIB)
 
 if(MSVC)

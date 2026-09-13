@@ -554,7 +554,7 @@ long __cdecl StringLengthWorkerW(wchar_t * param_1,__uint64 param_2,__uint64 * p
     std::vector<std::uint8_t> image_bytes = function_bytes;
     image_bytes.insert(image_bytes.end(), 16, 0x90); // Read-ahead NOP padding.
     auto memory = std::make_shared<SparseMemory>(0x1000, std::move(image_bytes));
-    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+    SleighPcodeProvider provider("x86-64.sla", memory,
                                  {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
     ProviderContext providers;
     providers.pcode = std::make_shared<SleighPcodeProvider>(std::move(provider));
@@ -751,7 +751,7 @@ TEST(DecompilerExamples, Example2BsearchEndToEnd) {
     std::vector<std::uint8_t> image_bytes = function_bytes;
     image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
     auto memory = std::make_shared<SparseMemory>(0x14170ca74, std::move(image_bytes));
-    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+    SleighPcodeProvider provider("x86-64.sla", memory,
                                  {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
     ArchitectureDescription architecture = test_architecture();
     architecture.calling_convention = "__cdecl";
@@ -1000,7 +1000,7 @@ TEST(DecompilerExamples, Example3TypedChildCallEndToEnd) {
     std::vector<std::uint8_t> image_bytes = function_bytes;
     image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
     auto memory = std::make_shared<SparseMemory>(0x140333210, std::move(image_bytes));
-    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+    SleighPcodeProvider provider("x86-64.sla", memory,
                                  {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
     ArchitectureDescription architecture = test_architecture();
     architecture.calling_convention = "__fastcall";
@@ -1130,7 +1130,7 @@ TEST(DecompilerExamples, Example4VectorConstructorIteratorEndToEnd) {
     std::vector<std::uint8_t> image_bytes = function_bytes;
     image_bytes.insert(image_bytes.end(), 16, 0x90);
     auto memory = std::make_shared<SparseMemory>(0x140001500, std::move(image_bytes));
-    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+    SleighPcodeProvider provider("x86-64.sla", memory,
                                  {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
     ArchitectureDescription architecture = test_architecture();
     architecture.calling_convention = "__cdecl";
@@ -1270,7 +1270,7 @@ TEST(DecompilerExamples, Example5SlotAppendEndToEnd) {
     std::vector<std::uint8_t> image_bytes = function_bytes;
     image_bytes.insert(image_bytes.end(), 16, 0x90);
     auto memory = std::make_shared<SparseMemory>(0x141501684, std::move(image_bytes));
-    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+    SleighPcodeProvider provider("x86-64.sla", memory,
                                  {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
     ArchitectureDescription architecture = test_architecture();
     ProviderContext providers;
@@ -1524,7 +1524,7 @@ TEST(DecompilerExamples, Example6MetricSpentOnBankInterestEndToEnd) {
     image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
     constexpr std::uint64_t entry = 0x140a6d118;
     auto memory = std::make_shared<SparseMemory>(entry, std::move(image_bytes));
-    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+    SleighPcodeProvider provider("x86-64.sla", memory,
                                  {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
     ArchitectureDescription architecture = test_architecture();
     architecture.calling_convention = "__fastcall";
@@ -1760,7 +1760,7 @@ TEST(DecompilerExamples, Example7MallocEndToEnd) {
     image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
     constexpr std::uint64_t entry = 0x14170f4e8;
     auto memory = std::make_shared<SparseMemory>(entry, std::move(image_bytes));
-    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+    SleighPcodeProvider provider("x86-64.sla", memory,
                                  {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
     ArchitectureDescription architecture = test_architecture();
     architecture.calling_convention = "__cdecl";
@@ -1921,7 +1921,7 @@ TEST(DecompilerExamples, Example8FloatingPointRoundEndToEnd) {
     image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
     constexpr std::uint64_t entry = 0x141500d88;
     auto memory = std::make_shared<SparseMemory>(entry, std::move(image_bytes));
-    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+    SleighPcodeProvider provider("x86-64.sla", memory,
                                  {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
     ArchitectureDescription architecture = test_architecture();
     ProviderContext providers;
@@ -2029,7 +2029,7 @@ TEST(DecompilerExamples, Example9TlsContextUpdateEndToEnd) {
     image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
     constexpr std::uint64_t entry = 0x141500e30;
     auto memory = std::make_shared<SparseMemory>(entry, std::move(image_bytes));
-    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+    SleighPcodeProvider provider("x86-64.sla", memory,
                                  {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
     ArchitectureDescription architecture = test_architecture();
     ProviderContext providers;
@@ -2197,7 +2197,7 @@ TEST(DecompilerExamples, Example10GlobalTableInitializationEndToEnd) {
     image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
     constexpr std::uint64_t entry = 0x141500bb0;
     auto memory = std::make_shared<SparseMemory>(entry, std::move(image_bytes));
-    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+    SleighPcodeProvider provider("x86-64.sla", memory,
                                  {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
     ArchitectureDescription architecture = test_architecture();
     ProviderContext providers;
@@ -2362,7 +2362,7 @@ TEST(DecompilerExamples, Example11GlobalSlotRegistrationEndToEnd) {
     image_bytes.insert(image_bytes.end(), 16, 0x90); // Sleigh read-ahead padding.
     constexpr std::uint64_t entry = 0x141500c44;
     auto memory = std::make_shared<SparseMemory>(entry, std::move(image_bytes));
-    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+    SleighPcodeProvider provider("x86-64.sla", memory,
                                  {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
     ArchitectureDescription architecture = test_architecture();
     ProviderContext providers;
@@ -2435,7 +2435,7 @@ TEST(SleighProvider, DecodesX86BytesIntoProviderPcode) {
         0x40, // Allocate 0x40 bytes of stack space.
     };
     auto memory = std::make_shared<SparseMemory>(0x100, instruction_bytes);
-    SleighPcodeProvider provider(std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory,
+    SleighPcodeProvider provider("x86-64.sla", memory,
                                  {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
 
     const auto decoded = provider.decode(0x100);

@@ -531,10 +531,10 @@ Options parse_options(int argc, char* argv[]) {
 /// Prints the complete command syntax and the provider metadata grammar.
 void print_usage(std::ostream& output) {
     output << R"(Usage:
-  new_ghidra_decompiler --sla <file.sla> --hex <bytes> [options]
+  new_ghidra_decompiler --sla <name-or-path> --hex <bytes> [options]
 
 Input:
-  --sla <path>                 Compiled Sleigh specification (.sla), required in direct mode
+  --sla <name-or-path>         SLA filename or explicit relative/absolute path, required in direct mode
   --hex <bytes>                Code bytes; spaces, commas, and newlines are accepted
   --hex-file <path>            Read code bytes from a text file
   --data <address:hex>         Add a mapped data chunk; repeatable

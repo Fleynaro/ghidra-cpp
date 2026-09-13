@@ -24,12 +24,12 @@ The implementation intentionally does not parse `.slaspec`. All instruction patt
 - [`cli/README.md`](cli/README.md) documents the CLI in detail.
 - [`tests/sleigh_runtime_tests.cppm`](tests/sleigh_runtime_tests.cppm) contains end-to-end runtime tests.
 - [`tests/README.md`](tests/README.md) documents the test target and fixtures.
-- [`test_data/x86-64.sla`](test_data/x86-64.sla) is the module-local compiled x86-64 processor specification.
-- [`test_data/README.md`](test_data/README.md) documents the processor fixture.
+- [`specifications/x86-64.sla`](specifications/x86-64.sla) and [`specifications/ARM8_le.sla`](specifications/ARM8_le.sla) are module-level compiled processor specifications available to library, test, and CLI consumers.
+- [`specifications/README.md`](specifications/README.md) documents the processor specifications.
 
 ## Library API
 
-Create a `sleigh_runtime::Decoder` with a compiled `.sla` path and call `decode` with an instruction address, a byte span, and optional processor context values:
+Create a `sleigh_runtime::Decoder` with a compiled `.sla` name or path and call `decode` with an instruction address, a byte span, and optional processor context values:
 
 ```cpp
 #include <array>
@@ -39,7 +39,7 @@ import sleigh_runtime;
 
 const sleigh_runtime::ProcessorContext context{
     {{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}}};
-sleigh_runtime::Decoder decoder("x86-64.sla");
+sleigh_runtime::Decoder decoder("x86-64.sla"); // Resolves below specifications/
 const std::array<std::uint8_t, 3> bytes{0x48, 0x8b, 0xd9};
 const auto result = decoder.decode(0x140000000ULL, bytes, context);
 ```
@@ -56,7 +56,7 @@ Run it from the `NEW` directory:
 
 ```powershell
 .\build\features\sleigh_runtime\sleigh_runtime_decode.exe `
-    --sla .\features\sleigh_runtime\test_data\x86-64.sla `
+    --sla x86-64.sla `
     --hex "48 8b d9 48 83 ec 40"
 ```
 
@@ -73,7 +73,7 @@ The command accepts these options:
 
 | Option | Description |
 | --- | --- |
-| `--sla <path>` | Path to the compiled binary Sleigh specification. Required. |
+| `--sla <name-or-path>` | Bare filename is resolved below `features/sleigh_runtime/specifications`; explicit relative and absolute paths are also accepted. Required. |
 | `--hex <bytes>` | One or more bytes written as two hexadecimal digits, separated by spaces, tabs, newlines, or commas. Required. |
 | `--address <value>` | Starting instruction address in decimal or `0x` hexadecimal notation. Defaults to `0x140000000`. |
 | `--context <name=value>` | Overrides a Sleigh processor context field. May be repeated. |
@@ -84,18 +84,18 @@ Examples:
 ```powershell
 # Decode one instruction.
 .\build\features\sleigh_runtime\sleigh_runtime_decode.exe `
-    --sla .\features\sleigh_runtime\test_data\x86-64.sla `
+    --sla x86-64.sla `
     --hex "48 8b d9"
 
 # Decode a sequence at a custom address.
 .\build\features\sleigh_runtime\sleigh_runtime_decode.exe `
-    --sla .\features\sleigh_runtime\test_data\x86-64.sla `
+    --sla x86-64.sla `
     --address 0x140010000 `
     --hex "57 48 83 ec 40 c3"
 
 # Override processor context values.
 .\build\features\sleigh_runtime\sleigh_runtime_decode.exe `
-    --sla .\features\sleigh_runtime\test_data\x86-64.sla `
+    --sla x86-64.sla `
     --hex "48 8b d9" `
     --context longMode=1 --context addrsize=2
 ```
