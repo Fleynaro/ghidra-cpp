@@ -265,6 +265,7 @@ TEST(AnalyzerPipelineTest, BuildsConditionalBranchCfg) {
     EXPECT_EQ(function.blocks[1].instructions, std::vector<Address>{fallthrough});
     EXPECT_EQ(function.blocks[2].instructions, std::vector<Address>{target});
     EXPECT_EQ(function.blocks[0].successors, (std::vector<Address>{target, fallthrough}));
+    EXPECT_EQ(function.simple_blocks.size(), function.blocks.size());
 }
 
 /// Verifies explicitly discovered overlapping entries retain a shared code address.
@@ -291,6 +292,53 @@ TEST(AnalyzerPipelineTest, PreservesSharedFunctionBodies) {
     ASSERT_TRUE(context.create_function(shared));
     EXPECT_TRUE(context.functions().at(first).body.contains(shared));
     EXPECT_TRUE(context.functions().at(shared).body.contains(shared));
+}
+
+/// Verifies the default CreateFunctionCmd contract carves a newly discovered
+/// entry out of an existing body instead of silently retaining overlapping
+/// ownership when shared bodies are not requested.
+TEST(AnalyzerPipelineTest, CarvesOverlappingFunctionBodyByDefault) {
+    auto context = load_fixture("disassemble_entry_points");
+    context.options().seed_provider_functions = false;
+    const auto executable =
+        std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
+                     [](const pe::MemoryRegion& region) { return region.executable; });
+    ASSERT_NE(executable, context.image().memory_regions().end());
+    const Address first = executable->start;
+    const Address shared = first + 1;
+
+    sleigh_runtime::Instruction first_instruction;
+    first_instruction.address = first;
+    first_instruction.length = 1;
+    first_instruction.flow = {sleigh_runtime::FlowKind::none, std::nullopt, true, false};
+    sleigh_runtime::Instruction shared_instruction;
+    shared_instruction.address = shared;
+    shared_instruction.length = 1;
+    shared_instruction.flow = {sleigh_runtime::FlowKind::return_op, std::nullopt, false, true};
+    ASSERT_TRUE(context.define_instruction(std::move(first_instruction)));
+    ASSERT_TRUE(context.define_instruction(std::move(shared_instruction)));
+    ASSERT_TRUE(context.create_function(first));
+    ASSERT_TRUE(context.functions().at(first).body.contains(shared));
+    ASSERT_TRUE(context.create_function(shared));
+    EXPECT_FALSE(context.functions().at(first).body.contains(shared));
+    EXPECT_TRUE(context.functions().at(shared).body.contains(shared));
+}
+
+/// Verifies CreateFunctionCmd rejects an entry that would split an existing
+/// instruction, preserving one coherent code-unit ownership boundary.
+TEST(AnalyzerPipelineTest, RejectsOffcutFunctionEntry) {
+    auto context = load_fixture("disassemble_entry_points");
+    const auto executable =
+        std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
+                     [](const pe::MemoryRegion& region) { return region.executable; });
+    ASSERT_NE(executable, context.image().memory_regions().end());
+    sleigh_runtime::Instruction instruction;
+    instruction.address = executable->start;
+    instruction.length = 2;
+    instruction.flow = {sleigh_runtime::FlowKind::return_op, std::nullopt, false, true};
+    ASSERT_TRUE(context.define_instruction(std::move(instruction)));
+    ASSERT_TRUE(context.create_function(executable->start));
+    EXPECT_FALSE(context.create_function(executable->start + 1));
 }
 
 /// Verifies the pattern phase creates the positive function-start candidate from the golden fixture.
@@ -412,6 +460,30 @@ TEST(AnalyzerPipelineTest, PropagatesPcodeArithmetic) {
         }));
     EXPECT_TRUE(std::any_of(context.constant_facts().begin(), context.constant_facts().end(),
                             [](const ConstantFact& fact) { return fact.location.offset == 16 && fact.value == 0; }));
+}
+
+/// Verifies unrestricted repeat analysis requeues existing listing state and
+/// remains idempotent instead of reseeding only the PE entry point.
+TEST(AnalyzerPipelineTest, ReAnalyzeAllIsIdempotentForExistingListing) {
+    auto context = load_fixture("reference");
+    auto& options = context.options();
+    options.function_start_search = false;
+    options.subroutine_references = false;
+    options.function_body = false;
+    options.data_reference = false;
+    options.scalar_operand_references = false;
+    options.stack = false;
+    options.constant_propagation = false;
+    options.non_returning_functions = false;
+    AutoAnalysisManager manager(context);
+    manager.register_builtin_analyzers();
+    ASSERT_TRUE(manager.analyze().completed);
+    const auto instruction_count = context.instructions().size();
+    const auto reference_count = context.references().size();
+    const auto repeated = manager.re_analyze_all();
+    ASSERT_TRUE(repeated.completed);
+    EXPECT_EQ(context.instructions().size(), instruction_count);
+    EXPECT_EQ(context.references().size(), reference_count);
 }
 
 /// Verifies stack analysis consumes real PE/Sleigh operands and reports golden local names.

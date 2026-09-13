@@ -164,7 +164,7 @@ struct BytePattern {
 }
 
 /// Loads marked byte patterns and action attributes from Ghidra XML files.
-[[nodiscard]] std::vector<BytePattern> load_patterns(const std::filesystem::path& root) {
+[[nodiscard]] std::vector<BytePattern> load_patterns(const std::filesystem::path& root, bool pre_patterns) {
     std::vector<BytePattern> patterns;
     if (root.empty() || !std::filesystem::is_directory(root)) {
         return patterns;
@@ -174,9 +174,15 @@ struct BytePattern {
             continue;
         }
         const auto filename = file.path().filename().string();
-        // The current PE context is x86-64 Windows; unrelated x86 compiler
-        // corpora must not be merged into its decision-tree result.
-        if (filename.find("x86") != std::string::npos && filename.find("x86-64win") == std::string::npos) {
+        const bool is_pre_pattern_file = filename.ends_with("_prepatterns.xml");
+        if (is_pre_pattern_file != pre_patterns) {
+            continue;
+        }
+        // The current PE context is x86-64. Ordinary corpora are selected by
+        // the x86-64 Windows constraints; the shared x86 pre-corpus is also
+        // the source selected for the x86-64 GCC pre-search constraints.
+        if (!pre_patterns && filename.find("x86") != std::string::npos &&
+            filename.find("x86-64win") == std::string::npos) {
             continue;
         }
         std::ifstream input(file.path());
@@ -352,15 +358,23 @@ struct BytePattern {
     return decoded->length != 0 && decoded->length <= 15;
 }
 
-/// Collects exported and filler-boundary candidates without reading raw data as code.
+/// Collects the selected pre- or ordinary-pattern corpus without reading raw
+/// data as code. The split corresponds to Ghidra's two constraints files.
 void collect_candidates(AnalysisContext& context, std::span<const AnalysisEvent> events,
-                        CancellationToken& cancellation) {
+                        CancellationToken& cancellation, bool pre_patterns) {
     std::set<Address> candidates;
     static_cast<void>(events);
-    const auto patterns = load_patterns(context.options().pattern_root);
+    const auto patterns = load_patterns(context.options().pattern_root, pre_patterns);
     if (!patterns.empty()) {
         for (const auto& region : context.image().memory_regions()) {
             if (!region.executable) {
+                continue;
+            }
+            if (!events.empty() && !std::any_of(events.begin(), events.end(), [&](const AnalysisEvent& event) {
+                    return std::any_of(event.addresses.begin(), event.addresses.end(), [&](Address address) {
+                        return address >= region.start && address < region.start + region.size;
+                    });
+                })) {
                 continue;
             }
             for (std::uint64_t offset = 0; offset < region.size; ++offset) {
@@ -398,21 +412,31 @@ void collect_candidates(AnalysisContext& context, std::span<const AnalysisEvent>
 
 /// Tests whether a candidate's preceding program state satisfies `after`.
 [[nodiscard]] bool satisfies_after(const AnalysisContext& context, Address address, FunctionStartAfter after) {
-    if (after == FunctionStartAfter::none || address == 0)
+    if (after == FunctionStartAfter::none)
         return true;
+    if (const auto region = context.image().find_memory_region(address); region && address == region->start) {
+        return true;
+    }
+    if (address == 0)
+        return false;
+    const Address previous = address - 1;
     const auto ends_at = [&](Address start) {
         const auto instruction = context.instructions().find(start);
-        return instruction != context.instructions().end() && instruction->second.instruction.length != 0 &&
-               start + instruction->second.instruction.length == address;
+        if (instruction == context.instructions().end() || instruction->second.instruction.length == 0) {
+            return false;
+        }
+        return previous >= start && previous < start + instruction->second.instruction.length;
     };
     const bool instruction = std::any_of(context.instructions().begin(), context.instructions().end(),
                                          [&](const auto& item) { return ends_at(item.first); });
     const bool function = std::any_of(context.functions().begin(), context.functions().end(), [&](const auto& item) {
-        return std::any_of(item.second.instruction_starts.begin(), item.second.instruction_starts.end(),
+        return item.second.body.contains(previous) ||
+               std::any_of(item.second.instruction_starts.begin(), item.second.instruction_starts.end(),
                            [&](Address start) { return ends_at(start); });
     });
-    const bool data = std::any_of(context.data().begin(), context.data().end(),
-                                  [&](const auto& item) { return item.first + item.second.size == address; });
+    const bool data = std::any_of(context.data().begin(), context.data().end(), [&](const auto& item) {
+        return previous >= item.first && previous < item.first + item.second.size;
+    });
     const auto incoming = std::count_if(context.references().begin(), context.references().end(),
                                         [&](const Reference& ref) { return ref.target == address; });
     const bool pointer =
@@ -468,30 +492,45 @@ void collect_candidates(AnalysisContext& context, std::span<const AnalysisEvent>
         return context.function_at(address) != nullptr;
     if (properties.valid_code.minimum_instructions == 0 && !properties.valid_code.subroutine)
         return true;
-    const auto start = context.instructions().find(address);
-    if (start == context.instructions().end())
+    if (!context.instructions().contains(address)) {
+        static_cast<void>(context.disassemble_flow(address));
+    }
+    if (!context.instructions().contains(address))
         return false;
     std::uint32_t count = 0;
     bool terminal = false;
-    Address cursor = address;
+    std::deque<Address> work{address};
+    std::set<Address> visited;
     const auto maximum = properties.valid_code.maximum_instructions.value_or(
         properties.valid_code.minimum_instructions == 0 ? 256U : properties.valid_code.minimum_instructions);
-    while (count < maximum) {
+    while (!work.empty() && count < maximum) {
+        const Address cursor = work.front();
+        work.pop_front();
+        if (!visited.insert(cursor).second)
+            continue;
         const auto instruction = context.instructions().find(cursor);
         if (instruction == context.instructions().end())
-            break;
+            continue;
         ++count;
         terminal = instruction->second.instruction.flow.terminal ||
                    instruction->second.instruction.flow.kind == sleigh_runtime::FlowKind::return_op;
         if (terminal)
             break;
-        if (instruction->second.instruction.flow.kind != sleigh_runtime::FlowKind::none &&
+        if (properties.valid_code.contiguous &&
+            instruction->second.instruction.flow.kind != sleigh_runtime::FlowKind::none &&
             !instruction->second.instruction.flow.has_fallthrough)
-            break;
-        const auto next = cursor + instruction->second.instruction.length;
-        if (!context.instructions().contains(next))
-            break;
-        cursor = next;
+            continue;
+        if (const auto next = cursor + instruction->second.instruction.length;
+            instruction->second.instruction.flow.has_fallthrough ||
+            instruction->second.instruction.flow.kind == sleigh_runtime::FlowKind::none) {
+            if (context.can_disassemble(next))
+                work.push_back(next);
+        }
+        if (!properties.valid_code.contiguous && instruction->second.instruction.flow.target) {
+            const auto target = instruction->second.instruction.flow.target->offset;
+            if (context.can_disassemble(target))
+                work.push_back(target);
+        }
     }
     if (count < properties.valid_code.minimum_instructions)
         return false;
@@ -499,7 +538,8 @@ void collect_candidates(AnalysisContext& context, std::span<const AnalysisEvent>
 }
 
 /// Creates a validated candidate and its Ghidra-compatible action effects.
-void materialize_candidates(AnalysisContext& context, CancellationToken& cancellation, bool allow_possible = false) {
+void materialize_candidates(AnalysisContext& context, CancellationToken& cancellation, bool allow_possible = false,
+                            bool only_existing_function = false) {
     for (const auto& [address, pattern_index] : context.potential_function_starts()) {
         if (cancellation.is_cancelled()) {
             return;
@@ -509,6 +549,8 @@ void materialize_candidates(AnalysisContext& context, CancellationToken& cancell
                                                        ? FunctionStartProperties{}
                                                        : properties_it->second;
         if (properties.possible && !allow_possible)
+            continue;
+        if (only_existing_function && !properties.valid_code.existing_function)
             continue;
         if (context.function_containing(address) && !context.function_at(address))
             continue;
@@ -544,7 +586,7 @@ void materialize_candidates(AnalysisContext& context, CancellationToken& cancell
 
 /// Returns the pre-function pattern analyzer contract.
 AnalyzerDescriptor FunctionStartPreAnalyzer::descriptor() const {
-    return {"Function Start Search Before Functions", 199, {EventKind::memory_added}, {}};
+    return {"Function Start Pre Search", 199, {EventKind::memory_added}, {}};
 }
 
 /// Collects pre-function candidates while preserving delayed constraints.
@@ -554,16 +596,13 @@ void FunctionStartPreAnalyzer::analyze(AnalysisContext& context, std::span<const
     // Ghidra/Features/BytePatterns/src/main/java/ghidra/app/analyzers/FunctionStartPreFuncAnalyzer.java
     // Relevant method: added(). Candidate state mirrors the original property map.
     if (context.options().function_start_search) {
-        collect_candidates(context, events, cancellation);
+        collect_candidates(context, events, cancellation, true);
     }
 }
 
 /// Returns the ordinary Function Start Search analyzer contract.
 AnalyzerDescriptor FunctionStartAnalyzer::descriptor() const {
-    return {"Function Start Search",
-            402,
-            {EventKind::code_added, EventKind::memory_added},
-            {"Function Start Search Before Functions"}};
+    return {"Function Start Search", 402, {EventKind::memory_added}, {"Function Start Pre Search"}};
 }
 
 /// Validates delayed candidates, disassembles them, and creates function bodies.
@@ -576,7 +615,7 @@ void FunctionStartAnalyzer::analyze(AnalysisContext& context, std::span<const An
         return;
     }
     if (context.potential_function_starts().empty()) {
-        collect_candidates(context, events, cancellation);
+        collect_candidates(context, events, cancellation, false);
     }
     materialize_candidates(context, cancellation);
 }
@@ -593,7 +632,9 @@ void FunctionStartFunctionAnalyzer::analyze(AnalysisContext& context, std::span<
     // Ghidra/Features/BytePatterns/src/main/java/ghidra/app/analyzers/FunctionStartFuncAnalyzer.java
     // Relevant method: added().
     if (context.options().function_start_search) {
-        materialize_candidates(context, cancellation, true);
+        // FunctionStartFuncAnalyzer intersects the pre-search property map
+        // and only rechecks actions declared with validcode="function".
+        materialize_candidates(context, cancellation, true, true);
     }
 }
 

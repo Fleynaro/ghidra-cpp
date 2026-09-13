@@ -28,6 +28,7 @@ struct AddressRange {
 enum class EventKind : std::uint8_t {
     memory_added,
     external_added,
+    external_changed,
     code_added,
     data_added,
     reference_added,
@@ -91,6 +92,9 @@ struct BasicBlock {
     std::vector<Address> instructions;
     std::vector<Address> successors;
     std::vector<Address> predecessors;
+
+    /// Supports exact CFG-change detection before function-change events.
+    friend bool operator==(const BasicBlock&, const BasicBlock&) = default;
 };
 
 /// Represents one stack storage object inferred from p-code or operands.
@@ -117,6 +121,9 @@ struct Function {
     std::optional<std::string> frame_pointer;
     std::vector<AddressRange> body_ranges;
     std::set<Address> instruction_starts;
+    // BasicBlockModel blocks retain calls; SimpleBlockModel blocks split on
+    // every flow instruction, including calls.
+    std::vector<BasicBlock> simple_blocks;
 };
 
 /// Represents one explicitly defined data object in program memory.
@@ -154,6 +161,8 @@ struct ConstantFact {
 
 /// Controls optional analyzers and their Ghidra-compatible thresholds.
 struct AnalysisOptions {
+    /// Controls whether disassembly is restricted to executable PE regions.
+    bool respect_execute_flag{true};
     bool disassemble_entry_points{true};
     bool function_start_search{true};
     bool function_start_after_code{};
@@ -166,14 +175,20 @@ struct AnalysisOptions {
     bool stack{true};
     bool constant_propagation{true};
     bool non_returning_functions{true};
+    bool known_non_returning_functions{true};
+    bool discovered_non_returning_functions{true};
     bool create_analysis_bookmarks{true};
     bool seed_provider_functions{true};
-    bool allow_shared_function_body{true};
+    // CreateFunctionCmd excludes existing function bodies unless explicitly
+    // requested by a shared-return or thunk recovery mode.
+    bool allow_shared_function_body{};
     bool create_stack_parameters{};
     std::uint32_t non_return_threshold{3};
     std::size_t maximum_disassembly_instructions{100000};
     std::size_t maximum_events{1000000};
     std::filesystem::path pattern_root;
+    /// Optional Ghidra no-return name file; an empty path uses repository defaults.
+    std::filesystem::path no_return_names_file;
 };
 
 /// Identifies the state immediately preceding a Function Start Search match.
@@ -267,6 +282,9 @@ public:
 
     /// Decodes one instruction through the owned Sleigh provider.
     [[nodiscard]] std::expected<sleigh_runtime::Instruction, sleigh_runtime::DecodeError> decode(Address address) const;
+
+    /// Reports whether the current options permit decoding at an address.
+    [[nodiscard]] bool can_disassemble(Address address) const noexcept;
 
     /// Decodes and records one instruction if it is valid executable code.
     [[nodiscard]] bool disassemble(Address address);

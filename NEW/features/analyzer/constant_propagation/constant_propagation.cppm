@@ -21,7 +21,8 @@ namespace {
 /// Evaluates one arithmetic operation when every input is known.
 [[nodiscard]] std::optional<std::uint64_t> evaluate_operation(const sleigh_runtime::PcodeOp& operation,
                                                               const std::map<std::string, std::uint64_t>& values,
-                                                              const std::map<std::string, std::uint64_t>& memory) {
+                                                              const std::map<std::string, std::uint64_t>& memory,
+                                                              const AnalysisContext& context) {
     const auto value_of = [&](const sleigh_runtime::Varnode& varnode) -> std::optional<std::uint64_t> {
         if (varnode.space == "const") {
             return truncate_value(varnode.offset, varnode.size);
@@ -66,7 +67,7 @@ namespace {
             return *value == 0;
         if (operation.opcode == sleigh_runtime::PcodeOpcode::int_negate)
             return ~*value;
-        return static_cast<std::uint64_t>(-static_cast<std::int64_t>(*value));
+        return std::uint64_t{0} - *value;
     }
     if (operation.opcode == sleigh_runtime::PcodeOpcode::load) {
         if (operation.inputs.empty()) {
@@ -77,8 +78,79 @@ namespace {
             return std::nullopt;
         }
         const auto key = (operation.memory_space.value_or("ram")) + ":" + std::to_string(*address);
-        const auto stored = memory.find(key);
-        return stored == memory.end() ? std::nullopt : std::optional<std::uint64_t>{stored->second};
+        if (const auto stored = memory.find(key); stored != memory.end()) {
+            return stored->second;
+        }
+        std::optional<Address> mapped;
+        if (context.image().find_memory_region(*address)) {
+            mapped = *address;
+        } else if (const auto translated = context.image().rva_to_va(static_cast<pe::Rva>(*address)); translated) {
+            mapped = *translated;
+        }
+        if (!mapped || !operation.output) {
+            return std::nullopt;
+        }
+        const auto bytes = context.image().read_memory(*mapped, operation.output->size);
+        if (!bytes) {
+            return std::nullopt;
+        }
+        std::uint64_t loaded = 0;
+        for (std::size_t index = 0; index < bytes->size() && index < sizeof(loaded); ++index) {
+            loaded |= static_cast<std::uint64_t>((*bytes)[index]) << (index * 8U);
+        }
+        return loaded;
+    }
+    if (operation.opcode == sleigh_runtime::PcodeOpcode::multiequal) {
+        if (operation.inputs.empty()) {
+            return std::nullopt;
+        }
+        const auto first = value_of(operation.inputs.front());
+        if (!first) {
+            return std::nullopt;
+        }
+        for (const auto& input : operation.inputs) {
+            if (value_of(input) != first) {
+                return std::nullopt;
+            }
+        }
+        return first;
+    }
+    if (operation.opcode == sleigh_runtime::PcodeOpcode::piece) {
+        if (operation.inputs.size() < 2) {
+            return std::nullopt;
+        }
+        const auto high = value_of(operation.inputs[operation.inputs.size() - 2]);
+        const auto low = value_of(operation.inputs.back());
+        if (!high || !low) {
+            return std::nullopt;
+        }
+        const auto low_bits = operation.inputs.back().size * 8U;
+        return low_bits >= 64 ? *low : (*high << low_bits) | *low;
+    }
+    if (operation.opcode == sleigh_runtime::PcodeOpcode::subpiece) {
+        if (operation.inputs.size() < 2) {
+            return std::nullopt;
+        }
+        const auto value = value_of(operation.inputs.front());
+        const auto offset = value_of(operation.inputs.back());
+        if (!value || !offset || *offset >= 8) {
+            return std::nullopt;
+        }
+        return *value >> (*offset * 8U);
+    }
+    if (operation.opcode == sleigh_runtime::PcodeOpcode::ptradd ||
+        operation.opcode == sleigh_runtime::PcodeOpcode::ptrsub) {
+        if (operation.inputs.size() < 3) {
+            return std::nullopt;
+        }
+        const auto base = value_of(operation.inputs[0]);
+        const auto index = value_of(operation.inputs[1]);
+        const auto element_size = value_of(operation.inputs[2]);
+        if (!base || !index || !element_size) {
+            return std::nullopt;
+        }
+        const auto displacement = *index * *element_size;
+        return operation.opcode == sleigh_runtime::PcodeOpcode::ptradd ? *base + displacement : *base - displacement;
     }
     if (operation.inputs.size() < 2) {
         return std::nullopt;
@@ -167,6 +239,33 @@ namespace {
             return (*left & ((std::uint64_t{1} << bits) - 1U)) + (*right & ((std::uint64_t{1} << bits) - 1U)) >=
                    (std::uint64_t{1} << bits);
         }
+        case sleigh_runtime::PcodeOpcode::bool_xor:
+            return ((*left != 0) != (*right != 0));
+        case sleigh_runtime::PcodeOpcode::bool_and:
+            return ((*left != 0) && (*right != 0));
+        case sleigh_runtime::PcodeOpcode::bool_or:
+            return ((*left != 0) || (*right != 0));
+        case sleigh_runtime::PcodeOpcode::int_scarry:
+        case sleigh_runtime::PcodeOpcode::int_sborrow: {
+            const auto as_signed = [](std::uint64_t value, std::uint32_t size) -> std::int64_t {
+                if (size == 0 || size >= 8)
+                    return static_cast<std::int64_t>(value);
+                const auto bits = size * 8U;
+                const auto mask = (std::uint64_t{1} << bits) - 1U;
+                value &= mask;
+                if ((value & (std::uint64_t{1} << (bits - 1U))) != 0)
+                    value |= ~mask;
+                return static_cast<std::int64_t>(value);
+            };
+            const auto left_signed = as_signed(*left, operation.inputs[operation.inputs.size() - 2].size);
+            const auto right_signed = as_signed(*right, operation.inputs.back().size);
+            if (operation.opcode == sleigh_runtime::PcodeOpcode::int_scarry) {
+                return (right_signed > 0 && left_signed > std::numeric_limits<std::int64_t>::max() - right_signed) ||
+                       (right_signed < 0 && left_signed < std::numeric_limits<std::int64_t>::min() - right_signed);
+            }
+            return (right_signed < 0 && left_signed > std::numeric_limits<std::int64_t>::max() + right_signed) ||
+                   (right_signed > 0 && left_signed < std::numeric_limits<std::int64_t>::min() + right_signed);
+        }
         default:
             return std::nullopt;
     }
@@ -219,6 +318,7 @@ void ConstantPropagationAnalyzer::analyze(AnalysisContext& context, std::span<co
         struct FlowState {
             std::map<std::string, std::uint64_t> values;
             std::map<std::string, std::uint64_t> memory;
+            bool path_stable{true};
         };
         std::map<Address, FlowState> incoming;
         std::deque<Address> worklist;
@@ -257,13 +357,13 @@ void ConstantPropagationAnalyzer::analyze(AnalysisContext& context, std::span<co
                     }
                     if (!operation.output)
                         continue;
-                    const auto value = evaluate_operation(operation, state.values, state.memory);
+                    const auto value = evaluate_operation(operation, state.values, state.memory, context);
                     if (!value)
                         continue;
                     const auto normalized = truncate_value(*value, operation.output->size);
                     state.values[location_key(*operation.output)] = normalized;
                     static_cast<void>(context.add_constant_fact(
-                        ConstantFact{address, *operation.output, normalized, function.blocks.size() == 1, entry}));
+                        ConstantFact{address, *operation.output, normalized, state.path_stable, entry}));
                 }
             }
             for (const Address successor : block_it->successors) {
@@ -274,6 +374,7 @@ void ConstantPropagationAnalyzer::analyze(AnalysisContext& context, std::span<co
                     continue;
                 }
                 FlowState joined = target->second;
+                const bool paths_match = target->second.values == state.values && target->second.memory == state.memory;
                 std::erase_if(joined.values, [&](const auto& item) {
                     const auto other = state.values.find(item.first);
                     return other == state.values.end() || other->second != item.second;
@@ -282,7 +383,9 @@ void ConstantPropagationAnalyzer::analyze(AnalysisContext& context, std::span<co
                     const auto other = state.memory.find(item.first);
                     return other == state.memory.end() || other->second != item.second;
                 });
-                if (joined.values != target->second.values || joined.memory != target->second.memory) {
+                joined.path_stable = target->second.path_stable && state.path_stable && paths_match;
+                if (joined.values != target->second.values || joined.memory != target->second.memory ||
+                    joined.path_stable != target->second.path_stable) {
                     target->second = std::move(joined);
                     worklist.push_back(successor);
                 }

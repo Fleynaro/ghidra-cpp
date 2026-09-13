@@ -20,20 +20,22 @@ void DataReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const An
     }
     const std::uint32_t pointer_size = context.image().optional_header().pe32_plus ? 8U : 4U;
     // IMAGE_BASE_RELOCATION entries are the loader's concrete evidence for
-    // pointer-sized data cells; arbitrary non-executable bytes are not data.
-    std::set<Address> relocated_data_cells;
+    // data cells. The target does not have to be relocated as well: a pointer
+    // may legitimately reference a string, code, import, or ordinary data.
+    std::map<Address, std::uint32_t> relocated_data_cells;
     for (const auto& block : context.image().relocations()) {
         for (const auto& relocation : block.entries) {
-            if (relocation.type == 0)
+            if (relocation.type == 0 || !relocation.target_file_offset) {
                 continue;
-            const auto rva = block.page_rva + (relocation.raw_value & 0x0fffU);
-            const auto address = context.image().rva_to_va(rva);
-            if (address && !context.image().is_executable(*address))
-                relocated_data_cells.insert(*address);
+            }
+            const std::uint32_t cell_size = relocation.type == 3 ? 4U : pointer_size;
+            if (!context.image().is_executable(relocation.target_va)) {
+                relocated_data_cells.emplace(relocation.target_va, cell_size);
+            }
         }
     }
-    const auto process_pointer = [&](Address source) {
-        const auto value = context.image().read_memory(source, pointer_size);
+    const auto process_pointer = [&](Address source, std::uint32_t size) {
+        const auto value = context.image().read_memory(source, size);
         if (!value) {
             return;
         }
@@ -46,20 +48,25 @@ void DataReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const An
                 Reference{source, target, ReferenceKind::data, std::nullopt, std::nullopt, FlowOverride::none, true}));
         }
     };
-    for (const Address source : relocated_data_cells) {
+    for (const auto& [source, size] : relocated_data_cells) {
         if (cancellation.is_cancelled())
             return;
-        const auto bytes = context.image().read_memory(source, pointer_size);
+        const auto bytes = context.image().read_memory(source, size);
         if (!bytes)
             continue;
         std::uint64_t target = 0;
         for (std::size_t index = 0; index < bytes->size(); ++index)
             target |= static_cast<std::uint64_t>((*bytes)[index]) << (index * 8U);
-        if (relocated_data_cells.contains(target)) {
-            static_cast<void>(context.add_data(DataObject{source, pointer_size, "relocated pointer"}));
-            static_cast<void>(context.add_data(DataObject{target, pointer_size, "relocated pointer target"}));
-            static_cast<void>(context.add_reference(
-                Reference{source, target, ReferenceKind::data, std::nullopt, std::nullopt, FlowOverride::none, true}));
+        std::optional<Address> target_address;
+        if (context.image().find_memory_region(target)) {
+            target_address = target;
+        } else if (const auto translated = context.image().rva_to_va(static_cast<pe::Rva>(target)); translated) {
+            target_address = *translated;
+        }
+        if (target_address && context.image().find_memory_region(*target_address)) {
+            static_cast<void>(context.add_data(DataObject{source, size, "relocated pointer"}));
+            static_cast<void>(context.add_reference(Reference{source, *target_address, ReferenceKind::data,
+                                                              std::nullopt, std::nullopt, FlowOverride::none, true}));
         }
     }
     for (const auto& [address, data] : context.data()) {
@@ -75,7 +82,7 @@ void DataReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const An
             if (cancellation.is_cancelled()) {
                 return;
             }
-            process_pointer(address + offset);
+            process_pointer(address + offset, pointer_size);
         }
     }
 }

@@ -20,44 +20,96 @@ namespace {
            text.find("debugbreak") != std::string::npos;
 }
 
-/// Normalizes decorated import/export names and checks the no-return set.
-[[nodiscard]] bool known_no_return_name(std::string_view name) {
+/// Loads the architecture-specific no-return database used by Ghidra's
+/// NonReturningFunctionNames helper. Repository-relative fallbacks keep the
+/// native port autonomous while installed callers can provide a file path.
+[[nodiscard]] std::set<std::string> load_no_return_names(const AnalysisContext& context) {
+    std::vector<std::filesystem::path> candidates;
+    if (!context.options().no_return_names_file.empty()) {
+        candidates.push_back(context.options().no_return_names_file);
+    }
+    constexpr std::string_view relative = "Ghidra/Features/Base/data/PEFunctionsThatDoNotReturn";
+    candidates.emplace_back(relative);
+    candidates.emplace_back(std::filesystem::path{".."} / relative);
+    candidates.emplace_back(std::filesystem::path{".."} / ".." / relative);
+    candidates.emplace_back(std::filesystem::path{".."} / ".." / ".." / relative);
+    for (const auto& candidate : candidates) {
+        std::ifstream input(candidate);
+        if (!input) {
+            continue;
+        }
+        std::set<std::string> names;
+        for (std::string line; std::getline(input, line);) {
+            if (const auto comment = line.find('#'); comment != std::string::npos) {
+                line.erase(comment);
+            }
+            const auto first = line.find_first_not_of(" \t");
+            if (first == std::string::npos) {
+                continue;
+            }
+            line.erase(0, first);
+            while (!line.empty() && std::isspace(static_cast<unsigned char>(line.back())) != 0) {
+                line.pop_back();
+            }
+            names.insert(line);
+        }
+        if (!names.empty()) {
+            return names;
+        }
+    }
+    return {"abort",
+            "CxxThrowException",
+            "CxxThrowException@8",
+            "CxxFrameHandler3",
+            "crtExitProcess",
+            "ExitProcess",
+            "ExitThread",
+            "exit",
+            "ExRaiseAccessViolation",
+            "ExRaiseDatatypeMisalignment",
+            "ExRaiseStatus",
+            "FreeLibraryAndExitThread",
+            "invalid_parameter_noinfo_noreturn",
+            "invoke_watson",
+            "KeBugCheck",
+            "KeBugCheckEx",
+            "longjmp",
+            "quick_exit",
+            "RpcRaiseException",
+            "terminate",
+            "___raise_securityfailure",
+            "___report_rangecheckfailure",
+            "?_Xregex_error@std@@YAXW4error_type@regex_constant@1@@Z",
+            "?_Xbad_alloc@std@@YAXXZ",
+            "?_Xlength_error@std@@YAXPBD@Z",
+            "?_Xout_of_range@std@@YAXPBD@Z",
+            "?_Xbad_function_call@std@@YAXXZ",
+            "?terminate@@YAXXZ"};
+}
+
+/// Normalizes decorated import/export names and checks the supplied exact or
+/// wildcard no-return set. Ghidra strips all leading underscores first.
+[[nodiscard]] bool known_no_return_name(std::string_view name, const std::set<std::string>& names) {
     std::string normalized(name);
-    std::transform(normalized.begin(), normalized.end(), normalized.begin(),
-                   [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
-    if (const auto separator = normalized.rfind('!'); separator != std::string::npos)
+    if (const auto separator = normalized.rfind('!'); separator != std::string::npos) {
         normalized.erase(0, separator + 1);
-    for (const auto prefix : {std::string_view("__imp_"), std::string_view("imp_")}) {
-        if (normalized.starts_with(prefix))
+    }
+    for (const auto prefix : {std::string_view("__imp_"), std::string_view("_imp_")}) {
+        if (normalized.starts_with(prefix)) {
             normalized.erase(0, prefix.size());
+        }
     }
-    if (normalized.starts_with('_') && !normalized.starts_with("__"))
-        normalized.erase(0, 1);
-    if (const auto at = normalized.find('@');
-        at != std::string::npos &&
-        std::all_of(normalized.begin() + static_cast<std::ptrdiff_t>(at + 1), normalized.end(),
-                    [](unsigned char value) { return std::isdigit(value) != 0; })) {
-        normalized.erase(at);
+    while (normalized.starts_with('_')) {
+        normalized.erase(normalized.begin());
     }
-    static constexpr std::array<std::string_view, 18> names{"abort",
-                                                            "exit",
-                                                            "exitprocess",
-                                                            "terminateprocess",
-                                                            "quick_exit",
-                                                            "quickexit",
-                                                            "terminate",
-                                                            "__fastfail",
-                                                            "__report_gsfailure",
-                                                            "__security_fail",
-                                                            "security_check_cookie",
-                                                            "fatal",
-                                                            "panic",
-                                                            "assert_failed",
-                                                            "raisefailfast",
-                                                            "unhandledexceptionfilter",
-                                                            "stdterminate",
-                                                            "_exit"};
-    return std::find(names.begin(), names.end(), normalized) != names.end();
+    return std::any_of(names.begin(), names.end(), [&](const std::string& candidate) {
+        std::string comparable = candidate;
+        while (comparable.starts_with('_')) {
+            comparable.erase(comparable.begin());
+        }
+        return comparable.ends_with('*') ? normalized.starts_with(comparable.substr(0, comparable.size() - 1))
+                                         : normalized == comparable;
+    });
 }
 
 /// Repairs only call references that actually target one known no-return function.
@@ -70,9 +122,18 @@ void repair_callers(AnalysisContext& context, Address target) {
 }
 
 /// Applies the early runtime-name no-return database before call-driven discovery.
-void mark_known_functions(AnalysisContext& context, CancellationToken& cancellation) {
+void mark_known_functions(AnalysisContext& context, std::span<const AnalysisEvent> events,
+                          CancellationToken& cancellation) {
+    const auto names = load_no_return_names(context);
+    std::set<Address> affected;
+    for (const auto& event : events) {
+        if (event.kind == EventKind::memory_added || event.kind == EventKind::external_added) {
+            affected.insert(event.addresses.begin(), event.addresses.end());
+        }
+    }
     for (const auto& symbol : context.image().exported_symbols()) {
-        if (cancellation.is_cancelled() || symbol.forwarded || !symbol.name || !known_no_return_name(*symbol.name))
+        if (cancellation.is_cancelled() || symbol.forwarded || !symbol.name ||
+            !known_no_return_name(*symbol.name, names) || (!affected.empty() && !affected.contains(symbol.address_va)))
             continue;
         if (!context.functions().contains(symbol.address_va)) {
             static_cast<void>(context.create_function(symbol.address_va, *symbol.name));
@@ -83,10 +144,24 @@ void mark_known_functions(AnalysisContext& context, CancellationToken& cancellat
                 Bookmark{symbol.address_va, "Non-Returning Function", "Known no-return function"}));
         repair_callers(context, symbol.address_va);
     }
+    // COFF symbols are the PE equivalent of non-exported primary symbols in
+    // Ghidra's symbol table and must participate in known-name analysis too.
+    for (const auto& symbol : context.image().coff_symbols()) {
+        const auto address = context.image().rva_to_va(static_cast<pe::Rva>(symbol.value));
+        if (!address || symbol.section_number <= 0 || cancellation.is_cancelled() ||
+            !known_no_return_name(symbol.name, names) || (!affected.empty() && !affected.contains(*address))) {
+            continue;
+        }
+        if (!context.functions().contains(*address)) {
+            static_cast<void>(context.create_function(*address, symbol.name));
+        }
+        static_cast<void>(context.set_function_no_return(*address, true));
+        repair_callers(context, *address);
+    }
     for (const auto& symbol : context.external_symbols()) {
         if (cancellation.is_cancelled())
             return;
-        if (!known_no_return_name(symbol.name))
+        if (!known_no_return_name(symbol.name, names) || (!affected.empty() && !affected.contains(symbol.iat_address)))
             continue;
         static_cast<void>(context.set_external_no_return(symbol.iat_address, true));
         if (context.options().create_analysis_bookmarks)
@@ -105,24 +180,26 @@ void mark_known_functions(AnalysisContext& context, CancellationToken& cancellat
 
 /// Returns the early known no-return analyzer contract.
 AnalyzerDescriptor KnownNoReturnFunctionsAnalyzer::descriptor() const {
-    return {"Known Non-Returning Functions", 90, {EventKind::memory_added, EventKind::external_added}, {}};
+    return {"Non-Returning Functions - Known", 97, {EventKind::memory_added, EventKind::external_added}, {}};
 }
 
 /// Marks known names before disassembly/function discovery scheduling.
-void KnownNoReturnFunctionsAnalyzer::analyze(AnalysisContext& context, std::span<const AnalysisEvent>,
+void KnownNoReturnFunctionsAnalyzer::analyze(AnalysisContext& context, std::span<const AnalysisEvent> events,
                                              CancellationToken& cancellation) {
     // Ported from Ghidra:
     // Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/analysis/NoReturnFunctionAnalyzer.java
     // Relevant methods: canAnalyze(), added(), loadFunctionNamesIfNeeded(), and known function application.
-    mark_known_functions(context, cancellation);
+    if (context.options().non_returning_functions && context.options().known_non_returning_functions) {
+        mark_known_functions(context, events, cancellation);
+    }
 }
 
 /// Returns the FindNoReturnFunctionsAnalyzer priority and code-event contract.
 AnalyzerDescriptor NonReturningFunctionsAnalyzer::descriptor() const {
-    return {"Non-Returning Functions",
+    return {"Non-Returning Functions - Discovered",
             302,
-            {EventKind::code_added, EventKind::external_added, EventKind::reference_added, EventKind::function_added,
-             EventKind::flow_changed},
+            {EventKind::code_added, EventKind::external_added, EventKind::external_changed, EventKind::reference_added,
+             EventKind::function_added, EventKind::flow_changed},
             {}};
 }
 
@@ -133,11 +210,12 @@ void NonReturningFunctionsAnalyzer::analyze(AnalysisContext& context, std::span<
     // Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/analysis/FindNoReturnFunctionsAnalyzer.java
     // Relevant methods: added(), detectNoReturn(), targetOnlyCallsNoReturn(), setNoFallThru(), and
     // fixCallingFunctionBody(). The evidence threshold and call-flow override are retained.
-    if (!context.options().non_returning_functions) {
+    if (!context.options().non_returning_functions || !context.options().discovered_non_returning_functions) {
         return;
     }
+    const auto names = load_no_return_names(context);
     for (const auto& symbol : context.image().exported_symbols()) {
-        if (symbol.forwarded || !symbol.name || !known_no_return_name(*symbol.name)) {
+        if (symbol.forwarded || !symbol.name || !known_no_return_name(*symbol.name, names)) {
             continue;
         }
         if (cancellation.is_cancelled()) {
@@ -155,7 +233,7 @@ void NonReturningFunctionsAnalyzer::analyze(AnalysisContext& context, std::span<
     for (const auto& symbol : context.external_symbols()) {
         if (cancellation.is_cancelled())
             return;
-        if (!known_no_return_name(symbol.name))
+        if (!known_no_return_name(symbol.name, names))
             continue;
         if (context.set_external_no_return(symbol.iat_address, true) && context.options().create_analysis_bookmarks) {
             static_cast<void>(context.add_bookmark(
@@ -176,13 +254,38 @@ void NonReturningFunctionsAnalyzer::analyze(AnalysisContext& context, std::span<
         if (!is_call_reference(reference.kind) || !reference.fallthrough) {
             continue;
         }
-        const auto instruction = context.instructions().find(*reference.fallthrough);
-        const bool missing_code =
-            instruction == context.instructions().end() && !context.image().is_executable(*reference.fallthrough);
-        const bool following_function = context.function_at(*reference.fallthrough) != nullptr;
-        const bool data_boundary = context.data().contains(*reference.fallthrough);
-        if ((instruction != context.instructions().end() && is_non_return_indicator(instruction->second)) ||
-            missing_code || following_function || data_boundary) {
+        const auto caller = context.function_containing(reference.source);
+        bool indicator = false;
+        bool boundary = false;
+        Address cursor = *reference.fallthrough;
+        for (std::size_t step = 0; step < 256; ++step) {
+            const auto following = context.function_containing(cursor);
+            if (following && (!caller || following->entry != caller->entry)) {
+                boundary = true;
+                break;
+            }
+            if (context.data().contains(cursor)) {
+                boundary = true;
+                break;
+            }
+            const auto instruction = context.instructions().find(cursor);
+            if (instruction == context.instructions().end()) {
+                boundary = true;
+                break;
+            }
+            if (is_non_return_indicator(instruction->second)) {
+                indicator = true;
+                break;
+            }
+            const auto next = instruction->second.instruction.flow.has_fallthrough
+                                  ? cursor + instruction->second.instruction.length
+                                  : std::numeric_limits<Address>::max();
+            if (next == std::numeric_limits<Address>::max()) {
+                break;
+            }
+            cursor = next;
+        }
+        if (indicator || boundary) {
             evidence[reference.target].insert(reference.source);
         }
     }
@@ -204,34 +307,39 @@ void NonReturningFunctionsAnalyzer::analyze(AnalysisContext& context, std::span<
     // A function with no return and only calls to already-known no-return
     // targets is itself non-returning (FindNoReturnFunctionsAnalyzer's
     // targetOnlyCallsNoReturn() rule).
-    for (const auto& [entry, function] : context.functions()) {
-        bool has_call = false;
-        bool has_return = false;
-        bool all_calls_no_return = true;
-        for (const Address address : function.instruction_starts) {
-            const auto instruction = context.instructions().find(address);
-            if (instruction == context.instructions().end())
-                continue;
-            if (instruction->second.instruction.flow.kind == sleigh_runtime::FlowKind::return_op)
-                has_return = true;
-            for (const auto reference_index : instruction->second.reference_indices) {
-                const auto& reference = context.references()[reference_index];
-                if (!is_call_reference(reference.kind))
+    for (std::size_t pass = 0; pass < context.functions().size(); ++pass) {
+        for (const auto& [entry, function] : context.functions()) {
+            bool has_call = false;
+            bool has_return = false;
+            bool all_calls_no_return = true;
+            for (const Address address : function.instruction_starts) {
+                const auto instruction = context.instructions().find(address);
+                if (instruction == context.instructions().end())
                     continue;
-                has_call = true;
-                const auto target_function = context.function_at(reference.target);
-                const auto external =
-                    std::find_if(context.external_symbols().begin(), context.external_symbols().end(),
-                                 [&](const ExternalSymbol& symbol) { return symbol.iat_address == reference.target; });
-                if ((!target_function || !target_function->no_return) &&
-                    (external == context.external_symbols().end() || !external->no_return)) {
-                    all_calls_no_return = false;
+                if (instruction->second.instruction.flow.kind == sleigh_runtime::FlowKind::return_op)
+                    has_return = true;
+                for (const auto reference_index : instruction->second.reference_indices) {
+                    const auto& reference = context.references()[reference_index];
+                    const bool flow_to_function = reference.kind == ReferenceKind::conditional_jump ||
+                                                  reference.kind == ReferenceKind::unconditional_jump ||
+                                                  reference.kind == ReferenceKind::computed_jump;
+                    if (!is_call_reference(reference.kind) && !flow_to_function)
+                        continue;
+                    has_call = true;
+                    const auto target_function = context.function_at(reference.target);
+                    const auto external = std::find_if(
+                        context.external_symbols().begin(), context.external_symbols().end(),
+                        [&](const ExternalSymbol& symbol) { return symbol.iat_address == reference.target; });
+                    if ((!target_function || !target_function->no_return) &&
+                        (external == context.external_symbols().end() || !external->no_return)) {
+                        all_calls_no_return = false;
+                    }
                 }
             }
-        }
-        if (has_call && !has_return && all_calls_no_return) {
-            static_cast<void>(context.set_function_no_return(entry, true));
-            repair_callers(context, entry);
+            if (has_call && !has_return && all_calls_no_return) {
+                static_cast<void>(context.set_function_no_return(entry, true));
+                repair_callers(context, entry);
+            }
         }
     }
 }

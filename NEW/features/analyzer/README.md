@@ -44,13 +44,17 @@ second PE parser or instruction decoder is present here.
 
 ## Pipeline
 
-The built-in priorities are: known no-return names `90`, pre-function patterns
+The built-in priorities are: known no-return names `97`, pre-function patterns
 `199`, entry disassembly `200`, discovered no-return detection `302`,
 subroutine/function creation `399`, body/CFG `400`, ordinary pattern search
 `402`, function-constrained patterns `498`, constant propagation `596`, scalar
 references `598`, references `600`, data references `602`, post-code/data
 pattern phases `898`, and stack `903`.
 Options can disable any phase without changing registration or scheduling.
+Known and discovered no-return phases can also be disabled independently. Entry
+disassembly honors `AnalysisOptions::respect_execute_flag`; the no-return phase
+loads `Ghidra/Features/Base/data/PEFunctionsThatDoNotReturn` or the explicit
+`AnalysisOptions::no_return_names_file` path.
 
 ## Provenance and fidelity
 

@@ -18,6 +18,16 @@ namespace {
     return address + displacement;
 }
 
+/// Returns the end address of a decoded instruction without permitting an
+/// overflowing length to create a wrapped body range. This mirrors the
+/// address-set checks performed by Ghidra's Address implementation.
+[[nodiscard]] std::optional<Address> instruction_end(Address address, std::size_t length) {
+    if (length == 0) {
+        return std::nullopt;
+    }
+    return checked_add(address, static_cast<std::uint64_t>(length - 1));
+}
+
 /// Formats addresses the same way Ghidra's default function names are printed.
 [[nodiscard]] std::string address_name(Address address) {
     std::ostringstream stream;
@@ -43,17 +53,22 @@ namespace {
     }
 }
 
+/// Returns the fall-through reference category used by the listing model.
+[[nodiscard]] ReferenceKind fallthrough_reference_kind() noexcept {
+    return ReferenceKind::fallthrough;
+}
+
 /// Converts a p-code target to a mapped code address when it is concrete.
 [[nodiscard]] std::optional<Address> concrete_target(const AnalysisContext& context,
                                                      const std::optional<sleigh_runtime::Varnode>& target) {
     if (!target || target->space == "register" || target->space == "const") {
         return std::nullopt;
     }
-    if (context.image().is_executable(target->offset)) {
+    if (context.image().find_memory_region(target->offset)) {
         return target->offset;
     }
     const auto translated = context.image().rva_to_va(static_cast<pe::Rva>(target->offset));
-    if (translated && context.image().is_executable(*translated)) {
+    if (translated && context.image().find_memory_region(*translated)) {
         return *translated;
     }
     return std::nullopt;
@@ -84,10 +99,11 @@ namespace {
                 continue;
             }
         }
-        if (function && function->provider_end && instruction != context.instructions().end() &&
-            instruction->second.instruction.length != 0 &&
-            checked_add(address, instruction->second.instruction.length - 1) > function->provider_end) {
-            continue;
+        if (function && function->provider_end && instruction != context.instructions().end()) {
+            const auto end = instruction_end(address, instruction->second.instruction.length);
+            if (!end || *end > *function->provider_end) {
+                continue;
+            }
         }
         if (instruction == context.instructions().end()) {
             continue;
@@ -135,11 +151,15 @@ namespace {
         const auto length = instruction == context.instructions().end() || instruction->second.instruction.length == 0
                                 ? 1U
                                 : instruction->second.instruction.length;
-        const Address end = start + length - 1;
-        if (!ranges.empty() && start <= ranges.back().end + 1) {
-            ranges.back().end = std::max(ranges.back().end, end);
+        const auto end = instruction_end(start, length);
+        if (!end) {
+            continue;
+        }
+        const auto adjacent = ranges.empty() ? std::optional<Address>{} : checked_add(ranges.back().end, 1);
+        if (!ranges.empty() && adjacent && start <= *adjacent) {
+            ranges.back().end = std::max(ranges.back().end, *end);
         } else {
-            ranges.push_back(AddressRange{start, end});
+            ranges.push_back(AddressRange{start, *end});
         }
     }
     return ranges;
@@ -169,6 +189,79 @@ void append_unique(std::vector<Address>& values, Address value) {
     }
     return std::any_of(instruction.reference_indices.begin(), instruction.reference_indices.end(),
                        [&](const auto index) { return is_flow_reference(references[index].kind); });
+}
+
+/// Builds the SimpleBlockModel view from BasicBlockModel blocks by splitting
+/// after calls while retaining the same decoded instruction ownership.
+/// Ported from Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/model/block/SimpleBlockModel.java
+/// and BasicBlockModel.java block-boundary rules.
+[[nodiscard]] std::vector<BasicBlock> build_simple_blocks(const AnalysisContext& context, const Function& function,
+                                                          const std::vector<Reference>& references) {
+    std::vector<BasicBlock> blocks;
+    for (const auto& basic : function.blocks) {
+        BasicBlock current;
+        for (const Address address : basic.instructions) {
+            const auto instruction = context.instructions().find(address);
+            if (instruction == context.instructions().end()) {
+                continue;
+            }
+            if (current.instructions.empty()) {
+                current.start = address;
+            }
+            current.instructions.push_back(address);
+            current.end = instruction_end(address, instruction->second.instruction.length).value_or(address);
+            const bool call = instruction->second.instruction.flow.kind == sleigh_runtime::FlowKind::call ||
+                              instruction->second.instruction.flow.kind == sleigh_runtime::FlowKind::indirect_call;
+            if (call) {
+                blocks.push_back(std::move(current));
+                current = BasicBlock{};
+            }
+        }
+        if (!current.instructions.empty()) {
+            blocks.push_back(std::move(current));
+        }
+    }
+    std::map<Address, std::size_t> block_by_instruction;
+    for (std::size_t index = 0; index < blocks.size(); ++index) {
+        for (const Address address : blocks[index].instructions) {
+            block_by_instruction.emplace(address, index);
+        }
+    }
+    const auto is_simple_flow = [](ReferenceKind kind) { return is_flow_reference(kind) || is_call_reference(kind); };
+    for (auto& block : blocks) {
+        if (block.instructions.empty()) {
+            continue;
+        }
+        const Address last = block.instructions.back();
+        const auto instruction = context.instructions().find(last);
+        if (instruction == context.instructions().end()) {
+            continue;
+        }
+        for (const auto reference_index : instruction->second.reference_indices) {
+            const auto& reference = references[reference_index];
+            if (is_simple_flow(reference.kind) && function.instruction_starts.contains(reference.target)) {
+                append_unique(block.successors, reference.target);
+            }
+        }
+        const bool call_return = std::any_of(instruction->second.reference_indices.begin(),
+                                             instruction->second.reference_indices.end(), [&](const auto index) {
+                                                 return is_call_reference(references[index].kind) &&
+                                                        references[index].flow_override == FlowOverride::call_return;
+                                             });
+        if (!call_return && (instruction->second.instruction.flow.has_fallthrough ||
+                             instruction->second.instruction.flow.kind == sleigh_runtime::FlowKind::none)) {
+            if (const auto next = checked_add(last, instruction->second.instruction.length);
+                next && function.instruction_starts.contains(*next)) {
+                append_unique(block.successors, *next);
+            }
+        }
+        for (const Address successor : block.successors) {
+            if (const auto target = block_by_instruction.find(successor); target != block_by_instruction.end()) {
+                append_unique(blocks[target->second].predecessors, block.start);
+            }
+        }
+    }
+    return blocks;
 }
 
 } // namespace
@@ -232,6 +325,14 @@ const AnalysisOptions& AnalysisContext::options() const noexcept {
     return options_;
 }
 
+/// Reports whether an address is mapped and allowed by the current execute
+/// policy. The policy is the native equivalent of EntryPointAnalyzer's
+/// `Respect Execute Flag` option.
+bool AnalysisContext::can_disassemble(Address address) const noexcept {
+    const auto region = image_.find_memory_region(address);
+    return region && (!options_.respect_execute_flag || region->executable);
+}
+
 /// Returns mutable analyzer options for configuration before a run.
 AnalysisOptions& AnalysisContext::options() noexcept {
     return options_;
@@ -240,8 +341,8 @@ AnalysisOptions& AnalysisContext::options() noexcept {
 /// Decodes one instruction through Sleigh and preserves provider errors.
 std::expected<sleigh_runtime::Instruction, sleigh_runtime::DecodeError> AnalysisContext::decode(Address address) const {
     const auto region = image_.find_memory_region(address);
-    if (!region || !region->executable) {
-        return std::unexpected(sleigh_runtime::DecodeError{"Address is not in executable PE memory"});
+    if (!region || (options_.respect_execute_flag && !region->executable)) {
+        return std::unexpected(sleigh_runtime::DecodeError{"Address is not in permitted PE memory"});
     }
     const auto offset = address - region->start;
     const auto available = region->size - offset;
@@ -266,13 +367,19 @@ bool AnalysisContext::define_instruction(sleigh_runtime::Instruction instruction
     emit(EventKind::code_added, address);
     if (kind) {
         const auto target = concrete_target(*this, instructions_.at(address).instruction.flow.target);
-        if (target) {
+        if (target && can_disassemble(*target)) {
             Reference reference{address, *target, *kind, std::nullopt, std::nullopt, FlowOverride::none, false};
             const auto next = checked_add(address, instructions_.at(address).instruction.length);
             if (is_call_reference(*kind)) {
                 reference.fallthrough = next;
             }
             static_cast<void>(add_reference(std::move(reference)));
+        }
+        const auto next = checked_add(address, instructions_.at(address).instruction.length);
+        if (instructions_.at(address).instruction.flow.has_fallthrough && next && can_disassemble(*next)) {
+            Reference fallthrough{
+                address, *next, fallthrough_reference_kind(), std::nullopt, std::nullopt, FlowOverride::none, false};
+            static_cast<void>(add_reference(std::move(fallthrough)));
         }
     }
     return true;
@@ -295,7 +402,7 @@ std::size_t AnalysisContext::disassemble_flow(Address seed) {
     while (!work.empty() && decoded_count < options_.maximum_disassembly_instructions) {
         const Address address = work.front();
         work.pop_front();
-        if (!visited.insert(address).second || !image_.is_executable(address)) {
+        if (!visited.insert(address).second || !can_disassemble(address)) {
             continue;
         }
         const bool was_present = instructions_.contains(address);
@@ -311,12 +418,12 @@ std::size_t AnalysisContext::disassemble_flow(Address seed) {
             continue;
         }
         const auto& flow = instruction->second.instruction.flow;
-        if (const auto target = concrete_target(*this, flow.target); target) {
+        if (const auto target = concrete_target(*this, flow.target); target && can_disassemble(*target)) {
             work.push_back(*target);
         }
         if (flow.has_fallthrough || flow.kind == sleigh_runtime::FlowKind::none) {
             if (const auto next = checked_add(address, instruction->second.instruction.length);
-                next && image_.is_executable(*next)) {
+                next && can_disassemble(*next)) {
                 work.push_back(*next);
             }
         }
@@ -324,11 +431,34 @@ std::size_t AnalysisContext::disassemble_flow(Address seed) {
     return decoded_count;
 }
 
+/// Inserts every byte in an address range without wrapping at the address
+/// space boundary. Ghidra address sets reject such wrapped ranges.
+template <typename Set> void insert_address_range(Set& addresses, const AddressRange& range) {
+    for (Address address = range.start;;) {
+        addresses.insert(address);
+        if (address == range.end) {
+            break;
+        }
+        ++address;
+    }
+}
+
 /// Creates or updates one function from the current decoded flow graph.
 bool AnalysisContext::create_function(Address entry, std::string name) {
-    if (functions_.contains(entry) || !image_.is_executable(entry)) {
+    if (functions_.contains(entry) || !can_disassemble(entry)) {
         return false;
     }
+    // CreateFunctionCmd refuses an entry in the middle of an existing
+    // instruction; accepting it would create an invalid offcut function body.
+    const bool offcut = std::any_of(instructions_.begin(), instructions_.end(), [&](const auto& item) {
+        const auto end = instruction_end(item.first, item.second.instruction.length);
+        return end && entry > item.first && entry <= *end;
+    });
+    if (offcut) {
+        return false;
+    }
+    const auto containing = function_containing(entry);
+    const std::optional<Address> carved_function = containing ? std::optional{containing->entry} : std::nullopt;
     if (!instructions_.contains(entry)) {
         static_cast<void>(disassemble_flow(entry));
     }
@@ -341,14 +471,22 @@ bool AnalysisContext::create_function(Address entry, std::string name) {
         function.instruction_starts.insert(entry);
     }
     function.body_ranges = build_body_ranges(*this, function.instruction_starts);
-    for (const auto& range : function.body_ranges)
-        for (Address address = range.start;; ++address) {
-            function.body.insert(address);
-            if (address == range.end)
-                break;
-        }
+    for (const auto& range : function.body_ranges) {
+        insert_address_range(function.body, range);
+    }
     functions_.emplace(entry, std::move(function));
     emit(EventKind::function_added, entry);
+    if (carved_function && !options_.allow_shared_function_body) {
+        auto existing = functions_.find(*carved_function);
+        if (existing != functions_.end()) {
+            for (const Address address : functions_.at(entry).body) {
+                existing->second.body.erase(address);
+                existing->second.instruction_starts.erase(address);
+            }
+            existing->second.body_ranges = build_body_ranges(*this, existing->second.instruction_starts);
+            static_cast<void>(rebuild_function_body(*carved_function));
+        }
+    }
     static_cast<void>(rebuild_function_body(entry));
     return true;
 }
@@ -359,6 +497,10 @@ bool AnalysisContext::rebuild_function_body(Address entry) {
     if (function == functions_.end()) {
         return false;
     }
+    const auto old_body = function->second.body;
+    const auto old_ranges = function->second.body_ranges;
+    const auto old_blocks = function->second.blocks;
+    const auto old_simple_blocks = function->second.simple_blocks;
     const auto body = follow_function_body(*this, entry);
     if (!body.empty()) {
         function->second.instruction_starts = body;
@@ -367,13 +509,11 @@ bool AnalysisContext::rebuild_function_body(Address entry) {
         return false;
     function->second.body_ranges = build_body_ranges(*this, function->second.instruction_starts);
     function->second.body.clear();
-    for (const auto& range : function->second.body_ranges)
-        for (Address address = range.start;; ++address) {
-            function->second.body.insert(address);
-            if (address == range.end)
-                break;
-        }
+    for (const auto& range : function->second.body_ranges) {
+        insert_address_range(function->second.body, range);
+    }
     function->second.blocks.clear();
+    function->second.simple_blocks.clear();
     if (function->second.instruction_starts.empty())
         return false;
     std::set<Address> starts{entry};
@@ -458,12 +598,31 @@ bool AnalysisContext::rebuild_function_body(Address entry) {
             }
         }
     }
-    emit(EventKind::function_changed, entry);
-    return true;
+    function->second.simple_blocks = build_simple_blocks(*this, function->second, references_);
+    const bool changed = old_body != function->second.body || old_ranges != function->second.body_ranges ||
+                         old_blocks != function->second.blocks || old_simple_blocks != function->second.simple_blocks;
+    if (changed) {
+        emit(EventKind::function_changed, entry);
+    }
+    return changed;
 }
 
 /// Adds a reference while preserving the original first-reference identity.
 bool AnalysisContext::add_reference(Reference reference) {
+    // Ghidra's ReferenceManager keeps a stronger code or symbol reference
+    // from being shadowed by a speculative operand result for the same source.
+    if (reference.analysis_source) {
+        const bool stronger_exists =
+            std::any_of(references_.begin(), references_.end(), [&](const Reference& existing) {
+                return !existing.analysis_source && existing.source == reference.source &&
+                       existing.target == reference.target &&
+                       (existing.operand_index == reference.operand_index ||
+                        (!existing.operand_index && !reference.operand_index));
+            });
+        if (stronger_exists) {
+            return false;
+        }
+    }
     const auto duplicate = std::find_if(references_.begin(), references_.end(), [&](const Reference& existing) {
         return existing.source == reference.source && existing.target == reference.target &&
                existing.kind == reference.kind && existing.operand_index == reference.operand_index &&
@@ -591,7 +750,7 @@ bool AnalysisContext::set_external_no_return(Address iat_address, bool no_return
     if (symbol == external_symbols_.end() || symbol->no_return == no_return)
         return false;
     symbol->no_return = no_return;
-    emit(EventKind::external_added, iat_address);
+    emit(EventKind::external_changed, iat_address);
     return true;
 }
 
@@ -815,6 +974,18 @@ AnalysisResult AutoAnalysisManager::analyze() {
             seeds.push_back(symbol.address_va);
         }
     }
+    if (const auto& tls = context_.image().tls(); tls) {
+        for (const Address callback : tls->callback_addresses) {
+            if (context_.image().is_executable(callback)) {
+                seeds.push_back(callback);
+            }
+        }
+    }
+    for (const auto& runtime : context_.image().exception_functions()) {
+        if (context_.image().is_executable(runtime.begin_va)) {
+            seeds.push_back(runtime.begin_va);
+        }
+    }
     return analyze(seeds);
 }
 
@@ -846,6 +1017,9 @@ AnalysisResult AutoAnalysisManager::analyze(std::span<const Address> seeds) {
     AnalysisResult result;
     if (cancellation_.is_cancelled()) {
         result.cancelled = true;
+        for (const auto& analyzer : registry_.analyzers()) {
+            analyzer->analysis_ended(context_, true);
+        }
         cancellation_.reset();
         return result;
     }
@@ -956,7 +1130,31 @@ AnalysisResult AutoAnalysisManager::analyze(std::span<const Address> seeds) {
 /// Requeues the existing listing state for a repeat analysis pass.
 AnalysisResult AutoAnalysisManager::re_analyze_all(std::span<const Address> restrict_set) {
     if (restrict_set.empty()) {
-        return analyze();
+        for (const auto& region : context_.image().memory_regions()) {
+            context_.emit(EventKind::memory_added, region.start);
+        }
+        for (const auto& [address, instruction] : context_.instructions()) {
+            static_cast<void>(instruction);
+            context_.emit(EventKind::code_added, address);
+        }
+        for (const auto& [address, data] : context_.data()) {
+            static_cast<void>(data);
+            context_.emit(EventKind::data_added, address);
+        }
+        for (const auto& [entry, function] : context_.functions()) {
+            static_cast<void>(function);
+            context_.emit(EventKind::function_added, entry);
+        }
+        for (const auto& reference : context_.references()) {
+            context_.emit(EventKind::reference_added, reference.source);
+        }
+        for (const auto& fact : context_.constant_facts()) {
+            context_.emit(EventKind::constant_added, fact.instruction);
+        }
+        for (const auto& symbol : context_.external_symbols()) {
+            context_.emit(EventKind::external_added, symbol.iat_address);
+        }
+        return analyze(std::span<const Address>{});
     }
     for (const Address address : restrict_set) {
         context_.emit(EventKind::memory_added, address);
@@ -968,6 +1166,16 @@ AnalysisResult AutoAnalysisManager::re_analyze_all(std::span<const Address> rest
         }
         if (context_.function_containing(address)) {
             context_.emit(EventKind::function_added, context_.function_containing(address)->entry);
+        }
+        for (const auto& reference : context_.references()) {
+            if (reference.source == address || reference.target == address) {
+                context_.emit(EventKind::reference_added, reference.source);
+            }
+        }
+        for (const auto& symbol : context_.external_symbols()) {
+            if (symbol.iat_address == address) {
+                context_.emit(EventKind::external_added, address);
+            }
         }
     }
     return analyze(std::span<const Address>{});

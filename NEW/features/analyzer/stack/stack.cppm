@@ -112,7 +112,12 @@ void StackAnalyzer::analyze(AnalysisContext& context, std::span<const AnalysisEv
             const auto instruction = context.instructions().find(address);
             if (instruction == context.instructions().end())
                 continue;
-            std::string assembly = instruction->second.instruction.assembly;
+            // Sleigh stores the mnemonic and operand body separately. The
+            // original NewFunctionStackAnalysisCmd consumes instruction
+            // semantics, so combine both fields before recognizing prologue
+            // and epilogue instructions.
+            std::string assembly =
+                instruction->second.instruction.mnemonic + " " + instruction->second.instruction.assembly;
             std::transform(assembly.begin(), assembly.end(), assembly.begin(),
                            [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
             if (assembly.find("sub rsp") != std::string::npos || assembly.find("sub esp") != std::string::npos) {
@@ -138,6 +143,9 @@ void StackAnalyzer::analyze(AnalysisContext& context, std::span<const AnalysisEv
                                             const std::pair<std::string, std::int64_t>& parsed) {
                 const auto& [register_name, offset] = parsed;
                 static_cast<void>(register_name);
+                if (offset >= 2048 || offset < -65536) {
+                    return;
+                }
                 const bool parameter = offset >= 0 && context.options().create_stack_parameters;
                 std::ostringstream name;
                 if (parameter)

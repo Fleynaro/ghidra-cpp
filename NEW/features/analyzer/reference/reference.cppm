@@ -69,14 +69,20 @@ namespace {
 
 /// Resolves a concrete hexadecimal address embedded in a printed memory operand.
 [[nodiscard]] std::optional<Address> printed_operand_address(const AnalysisContext& context, std::string_view text) {
-    const auto start = text.find("0x");
+    const auto lower = [&] {
+        std::string value{text};
+        std::transform(value.begin(), value.end(), value.begin(),
+                       [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
+        return value;
+    }();
+    const auto start = lower.find("0x");
     if (start == std::string_view::npos)
         return std::nullopt;
     auto end = start + 2;
-    while (end < text.size() && std::isxdigit(static_cast<unsigned char>(text[end])) != 0)
+    while (end < lower.size() && std::isxdigit(static_cast<unsigned char>(lower[end])) != 0)
         ++end;
     std::uint64_t value = 0;
-    const auto parsed = std::from_chars(text.data() + start + 2, text.data() + end, value, 16);
+    const auto parsed = std::from_chars(lower.data() + start + 2, lower.data() + end, value, 16);
     if (parsed.ec != std::errc{})
         return std::nullopt;
     return operand_address(context, value);

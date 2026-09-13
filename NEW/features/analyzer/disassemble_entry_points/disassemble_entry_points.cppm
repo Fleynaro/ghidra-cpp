@@ -19,29 +19,20 @@ void DisassembleEntryPointsAnalyzer::analyze(AnalysisContext& context, std::span
         return;
     }
     std::set<Address> seeds;
-    // Memory events wake this analyzer, but their addresses are section
-    // boundaries rather than entry points. Only PE metadata below is a valid
-    // disassembly seed, matching EntryPointAnalyzer's marker selection.
-    static_cast<void>(events);
-    if (const auto entry = context.image().entry_point_va(); entry) {
-        seeds.insert(*entry);
-    }
-    for (const auto& symbol : context.image().exported_symbols()) {
-        if (!symbol.forwarded) {
-            seeds.insert(symbol.address_va);
+    // AutoAnalysisManager converts PE entry metadata and explicit caller seeds
+    // into memory events. Consuming those addresses, rather than rebuilding a
+    // global metadata set here, preserves EntryPointAnalyzer's event scope.
+    for (const auto& event : events) {
+        if (event.kind != EventKind::memory_added) {
+            continue;
         }
-    }
-    if (const auto& tls = context.image().tls(); tls) {
-        seeds.insert(tls->callback_addresses.begin(), tls->callback_addresses.end());
-    }
-    for (const auto& runtime : context.image().exception_functions()) {
-        seeds.insert(runtime.begin_va);
+        seeds.insert(event.addresses.begin(), event.addresses.end());
     }
     for (const Address seed : seeds) {
         if (cancellation.is_cancelled()) {
             return;
         }
-        if (context.image().is_executable(seed)) {
+        if (context.can_disassemble(seed)) {
             static_cast<void>(context.disassemble_flow(seed));
         }
     }

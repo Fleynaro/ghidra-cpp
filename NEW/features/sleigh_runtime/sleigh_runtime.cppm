@@ -127,6 +127,10 @@ struct PcodeOp {
     // LOAD/STORE preserve the target address-space name separately from the
     // legacy constant selector used by native Ghidra p-code.
     std::optional<std::string> memory_space;
+    // Source operand provenance is optional because legacy SLA records do not
+    // carry the Java OperandObject association used by
+    // Ghidra/Features/Base/src/main/java/ghidra/program/util/SymbolicPropogator.java.
+    std::optional<std::size_t> source_operand;
 };
 
 /// Represents one control-flow effect discovered in the materialized p-code.
