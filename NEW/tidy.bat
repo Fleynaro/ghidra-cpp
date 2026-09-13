@@ -18,6 +18,7 @@ if /I "%MODE%"=="sleigh" set "SOURCE_DIR=%SCRIPT_DIR%features\sleigh_runtime"
 if /I "%MODE%"=="pe" set "SOURCE_DIR=%SCRIPT_DIR%features\pe_loader"
 if /I "%MODE%"=="function_id" set "SOURCE_DIR=%SCRIPT_DIR%features\function_id"
 if /I "%MODE%"=="decompiler" set "SOURCE_DIR=%SCRIPT_DIR%features\decompiler"
+if /I "%MODE%"=="analyzer" set "SOURCE_DIR=%SCRIPT_DIR%features\analyzer"
 if not defined SOURCE_DIR goto usage
 
 set "BUILD_DIR=%SCRIPT_DIR%build"
@@ -76,7 +77,7 @@ endlocal
 exit /b 0
 
 :usage
-echo Usage: tidy.bat [all^|hello^|sleigh^|pe^|function_id^|decompiler] [--check]
+echo Usage: tidy.bat [all^|hello^|sleigh^|pe^|function_id^|decompiler^|analyzer] [--check]
 echo.
 echo Default mode: all. Without --check, clang-tidy applies fixes.
 echo Use --check to analyze files without modifying source files.

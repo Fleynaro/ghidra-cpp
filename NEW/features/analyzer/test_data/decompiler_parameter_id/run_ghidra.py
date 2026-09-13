@@ -1,0 +1,210 @@
+#!/usr/bin/env python3
+"""Run Decompiler Parameter ID on explicitly prepared PE functions."""
+
+from __future__ import annotations
+
+import shutil
+import sys
+import tempfile
+from pathlib import Path
+
+
+ANALYZER = "Decompiler Parameter ID"
+DEPENDENCIES = ("PDB Universal",)
+
+
+def address_text(address) -> str:
+    """Render a Ghidra address as a stable offset."""
+    return f"0x{int(address.getOffset()):016X}"
+
+
+def configure_analysis(project, program, pdb_path: Path, include_target: bool) -> list[str]:
+    """Configure PDB type import first, then retain it while running the target analyzer."""
+    from ghidra.framework.options import OptionType
+    from ghidra.app.plugin.core.analysis import PdbUniversalAnalyzer
+    from java.io import File
+
+    options = project.getAnalysisOptions(program)
+    enabled_names = set(DEPENDENCIES)
+    if include_target:
+        enabled_names.add(ANALYZER)
+    for name in options.getOptionNames():
+        if options.getType(name) == OptionType.BOOLEAN_TYPE:
+            options.setBoolean(name, str(name) in enabled_names)
+    PdbUniversalAnalyzer.setPdbFileOption(program, File(str(pdb_path)))
+    return sorted(str(name) for name in options.getOptionNames()
+                  if options.getType(name) == OptionType.BOOLEAN_TYPE and options.getBoolean(name, False))
+
+
+def prepare_code(program) -> None:
+    """Disassemble executable bytes and create functions at executable PE symbols before analysis."""
+    from ghidra.app.cmd.disassemble import DisassembleCommand
+    from ghidra.app.cmd.function import CreateFunctionCmd
+    from ghidra.program.model.address import AddressSet
+
+    executable = AddressSet()
+    for block in program.getMemory().getBlocks():
+        if block.isExecute():
+            executable.add(block.getStart(), block.getEnd())
+    tx = program.startTransaction("Prepare fixture functions")
+    committed = False
+    try:
+        command = DisassembleCommand(executable, executable, False)
+        command.enableCodeAnalysis(False)
+        if not command.applyTo(program):
+            raise RuntimeError(f"Disassembly failed: {command.getStatusMsg()}")
+        for symbol in program.getSymbolTable().getAllSymbols(True):
+            address = symbol.getAddress()
+            if executable.contains(address) and program.getListing().getInstructionAt(address) is not None:
+                if program.getFunctionManager().getFunctionAt(address) is None:
+                    CreateFunctionCmd(address).applyTo(program)
+        committed = True
+    finally:
+        program.endTransaction(tx, committed)
+
+
+def parameter_facts(program):
+    """Extract parameter count, names, types, and storage from the named fixture function."""
+    rows = []
+    for function in program.getFunctionManager().getFunctions(True):
+        if function.isExternal() or "parameter_fixture" not in function.getName():
+            continue
+        parameters = []
+        for parameter in function.getParameters():
+            parameters.append((parameter.getName(), str(parameter.getDataType()), str(parameter.getVariableStorage())))
+        rows.append((address_text(function.getEntryPoint()), function.getName(), parameters,
+                     str(function.getReturn().getDataType())))
+    return sorted(rows)
+
+
+def fact_delta(before, after):
+    """Compare fixture signatures by entry address and classify signature changes."""
+    before_by_address = {row[0]: row for row in before}
+    after_by_address = {row[0]: row for row in after}
+    added = [after_by_address[key] for key in sorted(set(after_by_address) - set(before_by_address))]
+    removed = [before_by_address[key] for key in sorted(set(before_by_address) - set(after_by_address))]
+    changed = [(before_by_address[key], after_by_address[key])
+               for key in sorted(set(before_by_address) & set(after_by_address))
+               if before_by_address[key] != after_by_address[key]]
+    return added, removed, changed
+
+
+def signature_text(row) -> str:
+    """Render the complete analyzer-relevant function signature as one delta row."""
+    address, name, parameters, return_type = row
+    parameters_text = "; ".join(f"{pname}: {ptype} [{storage}]" for pname, ptype, storage in parameters)
+    return f"`{address}` `{name}` returns `{return_type}` parameters `{parameters_text}`"
+
+
+def delta_lines(before, after) -> list[str]:
+    """Render explicit parameter-signature delta rows, including the no-change case."""
+    added, removed, changed = fact_delta(before, after)
+    if not added and not removed and not changed:
+        return ["## Delta", "", "No changes observed", ""]
+    lines = ["## Delta", "", "### Added rows", ""]
+    if added:
+        lines.extend(f"- {signature_text(row)}" for row in added)
+    else:
+        lines.append("- None")
+    lines.extend(["", "### Removed rows", ""])
+    if removed:
+        lines.extend(f"- {signature_text(row)}" for row in removed)
+    else:
+        lines.append("- None")
+    lines.extend(["", "### Changed rows", ""])
+    if changed:
+        lines.extend(f"- {signature_text(old)} -> {signature_text(new)}" for old, new in changed)
+    else:
+        lines.append("- None")
+    lines.append("")
+    return lines
+
+
+def signature_table(lines: list[str], phase: str, rows) -> None:
+    """Append one phase table containing only fixture function parameter facts."""
+    lines.extend([f"## {phase}", "", "| Function | Name | Return type | Parameter | Type | Storage |", "| --- | --- | --- | --- | --- | --- |"])
+    for address, name, parameters, return_type in rows:
+        if not parameters:
+            lines.append(f"| `{address}` | `{name}` | `{return_type}` | | | |")
+        for pname, ptype, storage in parameters:
+            lines.append(f"| `{address}` | `{name}` | `{return_type}` | `{pname}` | `{ptype}` | `{storage}` |")
+
+
+def report(input_path: Path, enabled: list[str], before, after) -> str:
+    """Render phase signatures, an explicit delta, and meaningful-type assertions."""
+    lines = ["# Decompiler Parameter ID Behavioral Fixture", "",
+             "> Generated by PyGhidra; functions were prepared before the target analyzer ran.", "",
+             "## Analysis Configuration", "", f"- **Input:** `{input_path.name}`",
+             f"- **Enabled boolean analyzers:** `{', '.join(enabled)}`", ""]
+    signature_table(lines, "Before target analysis", before)
+    lines.append("")
+    signature_table(lines, "After target analysis", after)
+    meaningful = all(
+        "undefined" not in value.lower() and "unknown" not in value.lower()
+        for address, name, parameters, return_type in after
+        for value in [return_type, *(item for parameter in parameters for item in parameter[:2])]
+    )
+    lines.extend(["", "## Fixture Assertions", "", f"- **Fixture functions before target analysis:** `{len(before)}`", f"- **Fixture functions after target analysis:** `{len(after)}`", f"- **Meaningful post-analysis types:** `{str(meaningful).lower()}`", "- PDB Universal supplies the source-level type baseline; Decompiler Parameter ID is run afterward and must preserve it.", ""])
+    lines.extend(delta_lines(before, after))
+    return "\n".join(lines)
+
+
+def main() -> int:
+    """Create, save, reopen, analyze, save, and close an isolated Ghidra project."""
+    fixture_dir = Path(__file__).resolve().parent
+    input_path = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else fixture_dir / "test_decompiler_parameter_id.exe"
+    pdb_path = Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else fixture_dir / "test_decompiler_parameter_id.pdb"
+    output_path = Path(sys.argv[3]).resolve() if len(sys.argv) > 3 else fixture_dir / "test_decompiler_parameter_id.md"
+    if not input_path.is_file() or not pdb_path.is_file():
+        print(f"Matching executable and PDB are required: {input_path}, {pdb_path}", file=sys.stderr)
+        return 2
+    import pyghidra
+
+    pyghidra.start()
+    from ghidra.base.project import GhidraProject
+    from java.io import File
+
+    project_parent = Path(tempfile.mkdtemp(prefix="ghidra_decompiler_parameter_id_"))
+    project = None
+    try:
+        project = GhidraProject.createProject(str(project_parent), "decompiler_parameter_id", False)
+        imported = project.importProgram(File(str(input_path)))
+        if imported is None:
+            raise RuntimeError("Ghidra failed to import the fixture executable")
+        project.saveAs(imported, "/", input_path.name, True)
+        project.save(imported)
+        project.close()
+        project = None
+        project = GhidraProject.openProject(str(project_parent), "decompiler_parameter_id", True)
+        program = project.openProgram("/", input_path.name, False)
+        if program is None:
+            raise RuntimeError("Ghidra failed to reopen the saved fixture program")
+        pdb_enabled = configure_analysis(project, program, pdb_path, False)
+        if pdb_enabled != list(DEPENDENCIES):
+            raise RuntimeError(f"Unexpected PDB analysis options: {pdb_enabled}")
+        project.analyze(program)
+        prepare_code(program)
+        before = parameter_facts(program)
+        enabled = configure_analysis(project, program, pdb_path, True)
+        if enabled != sorted([ANALYZER, *DEPENDENCIES]):
+            raise RuntimeError(f"Unexpected enabled analysis options: {enabled}")
+        project.analyze(program)
+        after = parameter_facts(program)
+        if not after or any("undefined" in value.lower() or "unknown" in value.lower()
+                            for _, _, parameters, return_type in after
+                            for value in [return_type, *(item for parameter in parameters for item in parameter[:2])]):
+            raise RuntimeError(f"Meaningful parameter types were not preserved: before={before}, after={after}")
+        output_path.write_text(report(input_path, enabled, before, after), encoding="utf-8", newline="\n")
+        project.save(program)
+        print(f"[+] Wrote {output_path}")
+    finally:
+        if project is not None:
+            if "program" in locals():
+                project.save(program)
+            project.close()
+        shutil.rmtree(project_parent, ignore_errors=True)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

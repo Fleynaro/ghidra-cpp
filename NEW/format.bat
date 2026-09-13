@@ -11,6 +11,7 @@ if /I "%MODE%"=="sleigh" set "SOURCE_DIR=%SCRIPT_DIR%features\sleigh_runtime"
 if /I "%MODE%"=="pe" set "SOURCE_DIR=%SCRIPT_DIR%features\pe_loader"
 if /I "%MODE%"=="function_id" set "SOURCE_DIR=%SCRIPT_DIR%features\function_id"
 if /I "%MODE%"=="decompiler" set "SOURCE_DIR=%SCRIPT_DIR%features\decompiler"
+if /I "%MODE%"=="analyzer" set "SOURCE_DIR=%SCRIPT_DIR%features\analyzer"
 if not defined SOURCE_DIR goto usage
 
 set /a FILE_COUNT=0
@@ -40,7 +41,7 @@ endlocal
 exit /b 0
 
 :usage
-echo Usage: format.bat [all^|hello^|sleigh^|pe^|function_id^|decompiler]
+echo Usage: format.bat [all^|hello^|sleigh^|pe^|function_id^|decompiler^|analyzer]
 echo.
 echo Default mode: all.
 endlocal

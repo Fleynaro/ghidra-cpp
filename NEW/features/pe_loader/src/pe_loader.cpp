@@ -2732,6 +2732,31 @@ std::expected<FileOffset, AddressError> LoadedPeImage::rva_to_file_offset(Rva rv
         AddressError{AddressErrorCode::unmapped, rva, 1, "RVA is not covered by PE headers or a section"});
 }
 
+/// Translates the PE entry-point RVA using the preferred image base.
+std::expected<Va, AddressError> LoadedPeImage::entry_point_va() const {
+    return rva_to_va(storage_->optional.address_of_entry_point);
+}
+
+/// Finds the mapped region containing a complete virtual range.
+std::optional<MemoryRegion> LoadedPeImage::find_memory_region(Va address, std::uint64_t size) const noexcept {
+    for (const auto& region : storage_->memory_regions) {
+        if (address < region.start) {
+            continue;
+        }
+        const auto offset = address - region.start;
+        if (offset <= region.size && size <= region.size - offset) {
+            return region;
+        }
+    }
+    return std::nullopt;
+}
+
+/// Reports whether the complete range is covered by an executable region.
+bool LoadedPeImage::is_executable(Va address, std::uint64_t size) const noexcept {
+    const auto region = find_memory_region(address, size);
+    return region.has_value() && region->executable;
+}
+
 /// Converts a raw file offset to an RVA when the offset is mapped into the image.
 std::expected<Rva, AddressError> LoadedPeImage::file_offset_to_rva(FileOffset offset) const {
     if (offset < storage_->optional.size_of_headers && offset < storage_->file.size()) {

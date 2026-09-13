@@ -27,7 +27,10 @@ resource, certificate, bound/delay-import, architecture/global-pointer, CLR, and
 SectionAlignment-rounded virtual extents are retained for safe range and overlap validation, while
 exposed memory regions preserve the actual Ghidra loader block sizes from the integration fixture. It
 also owns a zero-filled preferred image view and provides checked RVA, VA, file-offset, memory-read, and
-resource-payload operations.
+resource-payload operations. `LoadedPeImage::entry_point_va()` translates the
+optional-header entry RVA with checked image-base arithmetic;
+`find_memory_region()` and `is_executable()` validate complete ranges for
+decoder and analyzer consumers without exposing mutable loader state.
 
 Strict mode (the default) returns the first malformed directory as a `ParseError`. With
 `LoadOptions::strict == false`, the loader retains the valid image and records every tolerated directory

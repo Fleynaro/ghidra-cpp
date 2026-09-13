@@ -1,6 +1,7 @@
 import decompiler;
 import ghidra.decompiler;
 import hello;
+import analyzer;
 import sleigh_runtime;
 import std;
 
@@ -78,7 +79,32 @@ public:
 } // namespace
 
 /// Runs the existing hello demonstration and the standalone decompiler smoke case.
-int main() {
+int main(int argc, char** argv) {
+    if (argc == 3) {
+        // Production path: PE Loader owns image state, Sleigh owns decoding,
+        // and AutoAnalysisManager owns the event-driven analyzer pipeline.
+        auto image = pe::PeLoader::load_file(argv[1]);
+        if (!image) {
+            std::cerr << "PE analysis failed: " << image.error().message << '\n';
+            return 1;
+        }
+        try {
+            ghidra::analyzer::AnalysisContext context(std::move(*image), argv[2]);
+            ghidra::analyzer::AutoAnalysisManager manager(context);
+            manager.register_builtin_analyzers();
+            const auto result = manager.analyze();
+            if (!result.completed) {
+                for (const auto& error : result.errors) std::cerr << error << '\n';
+                return result.cancelled ? 2 : 1;
+            }
+            std::cout << "instructions=" << context.instructions().size() << " functions=" << context.functions().size()
+                      << " references=" << context.references().size() << '\n';
+            return 0;
+        } catch (const std::exception& error) {
+            std::cerr << "PE analysis failed: " << error.what() << '\n';
+            return 1;
+        }
+    }
     if (hello::run_demo() != 0) {
         return 1;
     }
