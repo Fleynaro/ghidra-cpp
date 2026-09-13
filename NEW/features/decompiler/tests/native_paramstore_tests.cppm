@@ -624,11 +624,21 @@ public:
             return false;
         }
         for (std::size_t index = 0; index < assigned.size(); ++index) {
-            if (!compare_piece(expected[index], assigned[index])) {
+            if (!compare_piece(model, expected[index], assigned[index])) {
                 return false;
             }
         }
         return true;
+    }
+
+    /// Assigns one declaration and returns the complete native parameter pieces for metadata assertions.
+    std::vector<ghidra::ParameterPieces> assignment(ghidra::ProtoModel* model, const std::string& signature) {
+        std::istringstream stream(signature);
+        ghidra::PrototypePieces pieces{};
+        ghidra::parse_protopieces(pieces, stream, model->getArch());
+        std::vector<ghidra::ParameterPieces> assigned;
+        model->assignParameterStorage(pieces, assigned, false);
+        return assigned;
     }
 
 private:
@@ -724,12 +734,33 @@ private:
     }
 
     /// Compares one expected VarnodeData against one native ParameterPieces result.
-    static bool compare_piece(const ghidra::VarnodeData& expected, const ghidra::ParameterPieces& actual) {
+    static bool compare_piece(ghidra::ProtoModel* model, const ghidra::VarnodeData& expected,
+                              const ghidra::ParameterPieces& actual) {
         if (expected.space == nullptr) {
             return actual.type != nullptr && actual.type->getMetatype() == ghidra::TYPE_VOID;
         }
-        return expected.space == actual.addr.getSpace() && expected.offset == actual.addr.getOffset() &&
-               actual.type != nullptr && expected.size == actual.type->getSize();
+        if (expected.space != actual.addr.getSpace() || expected.offset != actual.addr.getOffset() ||
+            actual.type == nullptr || expected.size != actual.type->getSize()) {
+            return false;
+        }
+        if (expected.space->getType() != ghidra::IPTR_JOIN) {
+            return true;
+        }
+        ghidra::JoinRecord* expected_record = model->getArch()->findJoin(expected.offset);
+        ghidra::JoinRecord* actual_record = model->getArch()->findJoin(actual.addr.getOffset());
+        if (expected_record == nullptr || actual_record == nullptr ||
+            expected_record->numPieces() != actual_record->numPieces()) {
+            return false;
+        }
+        for (ghidra::int4 index = 0; index < expected_record->numPieces(); ++index) {
+            const ghidra::VarnodeData& expected_piece = expected_record->getPiece(index);
+            const ghidra::VarnodeData& actual_piece = actual_record->getPiece(index);
+            if (expected_piece.space != actual_piece.space || expected_piece.offset != actual_piece.offset ||
+                expected_piece.size != actual_piece.size) {
+                return false;
+            }
+        }
+        return true;
     }
 
     std::map<ParameterArchitecture, std::unique_ptr<ParameterStorageArchitecture>> architectures_;
@@ -933,6 +964,45 @@ TEST(NativeParamStore, Aarch64Cdecl) {
     expect_storage(environment, model, "void func(floatpairpair);", "void,join s3 s2 s1 s0");
     expect_type(environment, model, "struct doublequad { float8 a; float8 b; float8 c; float8 d; }; ");
     expect_storage(environment, model, "void func(doublequad);", "void,join d3 d2 d1 d0");
+}
+
+/// Verifies compiler-spec metadata that is not visible in the storage-only rows: stack roots and extrapop.
+TEST(NativeParamStore, CompilerSpecMetadata) {
+    // These values come directly from the authoritative compiler specifications loaded by the fixture.
+    ParamStoreEnvironment& environment = parameter_environment();
+    struct MetadataCase {
+        ParameterArchitecture architecture;
+        const char* model_name;
+        const char* stack_register;
+        std::uint64_t stack_offset;
+        ghidra::int4 stack_size;
+        ghidra::int4 extrapop;
+    };
+    const std::array cases{
+        MetadataCase{ParameterArchitecture::x64, "__stdcall", "RSP", 0x20, 8, 8},
+        MetadataCase{ParameterArchitecture::ppc64_be, "__stdcall", "r1", 0x108, 8, 0},
+        MetadataCase{ParameterArchitecture::mips32_be, "__stdcall", "sp", 0x2c, 4, 0},
+        MetadataCase{ParameterArchitecture::aarch64, "__cdecl", "sp", 0xf8, 8, 0},
+    };
+    for (const MetadataCase& test_case : cases) {
+        SCOPED_TRACE(test_case.model_name);
+        ghidra::ProtoModel* model = environment.getModel(test_case.architecture, test_case.model_name);
+        ASSERT_NE(model, nullptr);
+        EXPECT_EQ(model->getExtraPop(), test_case.extrapop);
+        EXPECT_EQ(model->getArch()->getStackSpace()->getName(), "stack");
+        const ghidra::VarnodeData& stack = model->getArch()->translate->getRegister(test_case.stack_register);
+        EXPECT_EQ(stack.offset, test_case.stack_offset);
+        EXPECT_EQ(stack.size, static_cast<ghidra::uint4>(test_case.stack_size));
+    }
+}
+
+/// Verifies the zero-flag contract on a direct return exposed by the native parameter fixture.
+TEST(NativeParamStore, ParameterMetadata) {
+    ParamStoreEnvironment& environment = parameter_environment();
+    ghidra::ProtoModel* model = environment.getModel(ParameterArchitecture::x64, "__stdcall");
+    const std::vector<ghidra::ParameterPieces> normal = environment.assignment(model, "int4 func(void);");
+    ASSERT_EQ(normal.size(), 1U);
+    EXPECT_EQ(normal[0].flags, 0U);
 }
 
 } // namespace newghidra::decompiler::tests

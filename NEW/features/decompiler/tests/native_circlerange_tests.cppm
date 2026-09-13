@@ -104,6 +104,11 @@ void expect_range(const CircleRange& actual, const ExpectedRange& expected) {
     // when its independently enumerated input cannot be represented exactly.
     if (!expected.exact) {
         EXPECT_FALSE(actual.isEmpty());
+        // The original testcirclerange.cc oracle observes the conservative
+        // one-piece approximation left behind when a push reports failure.
+        EXPECT_EQ(actual.getMin(), expected.minimum);
+        EXPECT_EQ(actual.getEnd(), expected.end);
+        EXPECT_EQ(actual.getStep(), expected.step);
         return;
     }
     if (expected.empty) {
@@ -681,7 +686,12 @@ TEST_F(NativeCircleRangeTest, PullbackPredicateScenarios) {
     for (const BinaryPullbackScenario& scenario : scenarios) {
         SCOPED_TRACE(scenario.name);
         expect_behavior(scenario.opcode, false);
-        CircleRange actual = CircleRange(scenario.output_range.left == 1);
+        // Match the original CircleRange(true/false) target using the
+        // serialized right/size/step fields, not an assumption about left.
+        CircleRange actual(scenario.output_range.right - scenario.output_range.step,
+                           scenario.output_range.right,
+                           scenario.output_range.size,
+                           scenario.output_range.step);
         const bool valid = actual.pullBackBinary(scenario.opcode, scenario.constant_value, scenario.slot,
                                                  scenario.input_size, scenario.output_range.size);
         EXPECT_EQ(valid, scenario.expected_valid);
@@ -720,7 +730,8 @@ TEST_F(NativeCircleRangeTest, PushUnaryScenarios) {
         {"circlerange_pushminus5", {0xD1, 0x11, 1, 4}, ghidra::CPUI_INT_2COMP, 1, true, {true, false, 0xF3, 0x33, 4}},
         {"circlerange_pushminus6", {0, 0x30, 1, 4}, ghidra::CPUI_INT_2COMP, 1, true, {true, false, 0xD4, 4, 4}},
         {"circlerange_pushzext1", {1, 20, 2, 1}, ghidra::CPUI_INT_ZEXT, 4, true, {true, false, 1, 20, 1}},
-        {"circlerange_pushzext2", {0xFFF0, 0xFF10, 2, 1}, ghidra::CPUI_INT_ZEXT, 4, false, {false, false, 0, 0, 1}},
+        {"circlerange_pushzext2", {0xFFF0, 0xFF10, 2, 1}, ghidra::CPUI_INT_ZEXT, 4, true,
+         {false, false, 0xFFF0, 0xFF0F, 1}},
         {"circlerange_pushzext3", {0x10, 0x30, 2, 4}, ghidra::CPUI_INT_ZEXT, 4, true, {true, false, 0x10, 0x30, 4}},
         {"circlerange_pushzext4", {0xFFF0, 0, 2, 4}, ghidra::CPUI_INT_ZEXT, 4, true, {true, false, 0xFFF0, 0x10000, 4}},
         {"circlerange_pushzext5",
@@ -732,7 +743,8 @@ TEST_F(NativeCircleRangeTest, PushUnaryScenarios) {
         {"circlerange_pushzext6", {0, 0x30, 1, 4}, ghidra::CPUI_INT_ZEXT, 2, true, {true, false, 0, 0x30, 4}},
         {"circlerange_pushzext7", {0, 0, 1, 4}, ghidra::CPUI_INT_ZEXT, 2, true, {true, false, 0, 0x100, 4}},
         {"circlerange_pushsext1", {1, 20, 2, 1}, ghidra::CPUI_INT_SEXT, 4, true, {true, false, 1, 20, 1}},
-        {"circlerange_pushsext2", {0xFFF0, 0xFF10, 2, 1}, ghidra::CPUI_INT_SEXT, 4, false, {false, false, 0, 0, 1}},
+        {"circlerange_pushsext2", {0xFFF0, 0xFF10, 2, 1}, ghidra::CPUI_INT_SEXT, 4, true,
+         {false, false, 0xFFFFFFF0ULL, 0xFFFFFF0FULL, 1}},
         {"circlerange_pushsext3", {0x10, 0x30, 2, 4}, ghidra::CPUI_INT_SEXT, 4, true, {true, false, 0x10, 0x30, 4}},
         {"circlerange_pushsext4",
          {0xFFF0, 0, 2, 4},
@@ -757,7 +769,15 @@ TEST_F(NativeCircleRangeTest, PushUnaryScenarios) {
         CircleRange actual;
         const bool valid =
             actual.pushForwardUnary(scenario.opcode, input, scenario.input_range.size, scenario.output_size);
-        EXPECT_EQ(valid, scenario.expected_valid);
+        if (scenario.expected_range.exact) {
+            EXPECT_EQ(valid, scenario.expected_valid);
+        } else {
+            // In testcirclerange.cc, testEqual() returns true after verifying
+            // an intentionally non-representable result, although the native
+            // push operation itself must return false.
+            EXPECT_TRUE(scenario.expected_valid);
+            EXPECT_FALSE(valid);
+        }
         // The original testEqual helper validates the output range even when
         // the operation reports that it cannot represent the result.
         expect_range(actual, scenario.expected_range);
@@ -876,6 +896,31 @@ TEST_F(NativeCircleRangeTest, PushBinaryScenarios) {
         // Preserve the original postcondition: a failed push may still leave
         // a documented conservative range that must remain observable.
         expect_range(actual, scenario.expected_range);
+    }
+}
+
+/// Independently enumerates a small 8-bit ZEXT family in both directions.
+/// This mirrors the finite-set oracle used by Ghidra's testcirclerange.cc
+/// without replacing any of its table-driven scenarios.
+TEST_F(NativeCircleRangeTest, ZextElementEnumerationOracle) {
+    // The input contains 0xf8 through 0xff; ZEXT to 16 bits preserves each
+    // element and therefore produces the exact half-open range [0xf8, 0x100).
+    const CircleRange input(0xF8, 0, 1, 1);
+    CircleRange pushed;
+    ASSERT_TRUE(pushed.pushForwardUnary(ghidra::CPUI_INT_ZEXT, input, 1, 2));
+    for (uintb value = 0; value < 0x100; ++value) {
+        const bool expected = value >= 0xF8;
+        EXPECT_EQ(pushed.contains(value), expected) << "push value=" << value;
+    }
+
+    // Pulling the same enumerated output back through ZEXT keeps exactly the
+    // low-byte preimage.  The rangeutil.cppm implementation documents this
+    // as intersection with the complete ZEXT image before masking to input.
+    CircleRange pulled(0xF8, 0x100, 2, 1);
+    ASSERT_TRUE(pulled.pullBackUnary(ghidra::CPUI_INT_ZEXT, 1, 2));
+    for (uintb value = 0; value < 0x100; ++value) {
+        const bool expected = value >= 0xF8;
+        EXPECT_EQ(pulled.contains(value), expected) << "pullback value=" << value;
     }
 }
 

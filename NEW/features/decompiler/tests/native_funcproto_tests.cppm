@@ -23,12 +23,21 @@ enum class StorageKind {
     join,
 };
 
+/// Describes one expected concrete constituent of a joined storage location.
+struct StorageConstituentExpectation {
+    StorageKind kind = StorageKind::invalid;
+    std::string register_name;
+    uintb offset = 0;
+    int4 size = 0;
+};
+
 /// Describes one expected concrete storage location in a table-driven case.
 struct StorageExpectation {
     StorageKind kind = StorageKind::invalid;
     std::string register_name;
     uintb offset = 0;
     int4 size = 0;
+    std::vector<StorageConstituentExpectation> constituents;
 };
 
 /// Describes the type and storage contract for one assigned prototype piece.
@@ -435,22 +444,31 @@ static ToyTestArchitecture* testArchitectureOrNull() {
 
 /// Builds a register storage expectation while keeping table rows compact.
 static StorageExpectation reg(const string& name, int4 size = 4) {
-    return StorageExpectation{StorageKind::reg, name, 0, size};
+    return StorageExpectation{StorageKind::reg, name, 0, size, {}};
 }
 
 /// Builds a stack storage expectation for a byte offset and size.
 static StorageExpectation stack(uintb offset, int4 size) {
-    return StorageExpectation{StorageKind::stack, {}, offset, size};
+    return StorageExpectation{StorageKind::stack, {}, offset, size, {}};
 }
 
 /// Builds an expectation for a logical join-space parameter.
-static StorageExpectation join() {
-    return StorageExpectation{StorageKind::join, {}, 0, 0};
+static StorageExpectation join(std::initializer_list<StorageConstituentExpectation> constituents) {
+    StorageExpectation result{StorageKind::join, {}, 0, 0, constituents};
+    for (const StorageConstituentExpectation& constituent : result.constituents) {
+        result.size += constituent.size;
+    }
+    return result;
+}
+
+/// Builds a register constituent expectation for a joined storage record.
+static StorageConstituentExpectation joinReg(const string& name, int4 size = 4) {
+    return StorageConstituentExpectation{StorageKind::reg, name, 0, size};
 }
 
 /// Builds an invalid-storage expectation used for a void return placeholder.
 static StorageExpectation invalid() {
-    return StorageExpectation{StorageKind::invalid, {}, 0, 0};
+    return StorageExpectation{StorageKind::invalid, {}, 0, 0, {}};
 }
 
 /// Builds a scalar type expectation with an optional exact type identity constraint.
@@ -476,8 +494,8 @@ static vector<AssignmentCase> assignmentCases() {
         {"smallregister",
          "__model1",
          "int4 func(char a,int4 b,int2 c,int4 d);",
-         {scalar(reg("r12"), "int4"), scalar(reg("r12"), "char"), scalar(reg("r11"), "int4"),
-          scalar(reg("r10"), "int2"), scalar(reg("r9"), "int4")}},
+          {scalar(reg("r12"), "int4"), scalar(reg("r12", 1), "char"), scalar(reg("r11"), "int4"),
+           scalar(reg("r10", 2), "int2"), scalar(reg("r9"), "int4")}},
         {"stackalign",
          "__model1",
          "int4 func(int4 a,int4 b,int4 c,int4 d,int4 e,int2 f,int1 *g);",
@@ -487,12 +505,12 @@ static vector<AssignmentCase> assignmentCases() {
         {"pointeroverflow",
          "__model1",
          "int2 func(int4 a,int8 b,int4 c);",
-         {scalar(reg("r12"), "int2"), scalar(reg("r12"), "int4"),
+         {scalar(reg("r12", 2), "int2"), scalar(reg("r12"), "int4"),
           meta(reg("r11"), TYPE_PTR, {}, "int8", ParameterPieces::indirectstorage), scalar(reg("r10"), "int4")}},
         {"stackoverflow",
          "__model2",
          "char func(int4 a,int8 b,int4 c);",
-         {scalar(reg("r12"), "char"), scalar(reg("r10"), "int4"), scalar(stack(0, 8), "int8"),
+         {scalar(reg("r12", 1), "char"), scalar(reg("r10"), "int4"), scalar(stack(0, 8), "int8"),
           scalar(reg("r9"), "int4")}},
         {"floatreg",
          "__model2",
@@ -513,7 +531,8 @@ static vector<AssignmentCase> assignmentCases() {
         {"join",
          "__model2",
          "int2 func(int8 a,int4 b,int4 c);",
-         {scalar(reg("r12"), "int2"), scalar(join(), "int8"), scalar(reg("r8"), "int4"), scalar(stack(0, 4), "int4")}},
+         {scalar(reg("r12", 2), "int2"), scalar(join({joinReg("r10"), joinReg("r9")}), "int8"),
+          scalar(reg("r8"), "int4"), scalar(stack(0, 4), "int4")}},
         {"nojoin",
          "__model2",
          "int4 func(int4 a,int8 b,int4 c);",
@@ -522,7 +541,7 @@ static vector<AssignmentCase> assignmentCases() {
         {"hiddenreturn",
          "__model1",
          "int8 func(int4 a,int4 b);",
-         {meta(reg("r12"), TYPE_PTR, {}, "int8"),
+          {meta(reg("r12"), TYPE_PTR, {}, "int8", ParameterPieces::indirectstorage),
           meta(reg("r12"), TYPE_PTR, {}, "int8", ParameterPieces::hiddenretparm), scalar(reg("r11"), "int4"),
           scalar(reg("r10"), "int4")}},
         {"mixedmeta",
@@ -615,9 +634,27 @@ static void expectParameter(const ParameterPieces& actual, const ParameterExpect
             break;
         case StorageKind::join:
             EXPECT_EQ(actual.addr.getSpace(), architecture.getJoinSpace());
+            ASSERT_EQ(actual.type->getSize(), storage.size);
+            {
+                JoinRecord* record = architecture.findJoin(actual.addr.getOffset());
+                ASSERT_NE(record, nullptr);
+                ASSERT_EQ(record->numPieces(), static_cast<int4>(storage.constituents.size()));
+                for (std::size_t index = 0; index < storage.constituents.size(); ++index) {
+                    const StorageConstituentExpectation& constituent = storage.constituents[index];
+                    const VarnodeData& piece = record->getPiece(static_cast<int4>(index));
+                    const VarnodeData& expected_location = architecture.translate->getRegister(constituent.register_name);
+                    EXPECT_EQ(piece.space, expected_location.space);
+                    EXPECT_EQ(piece.offset, expected_location.offset + constituent.offset);
+                    EXPECT_EQ(piece.size, static_cast<uint4>(constituent.size));
+                }
+            }
             break;
     }
+    ASSERT_NE(actual.type, nullptr);
     EXPECT_EQ(actual.type->getName(), expected.type_name);
+    if (storage.kind != StorageKind::invalid) {
+        EXPECT_EQ(actual.type->getSize(), storage.size);
+    }
     if (expected.metatype.has_value()) {
         EXPECT_EQ(actual.type->getMetatype(), *expected.metatype);
     }
@@ -627,12 +664,9 @@ static void expectParameter(const ParameterPieces& actual, const ParameterExpect
         ASSERT_NE(pointer_type->getPtrTo(), nullptr);
         EXPECT_EQ(pointer_type->getPtrTo()->getName(), expected.pointed_to_name);
     }
-    if (expected.required_flags != 0) {
-        // The original funcproto tests compare the complete flag word for
-        // indirectstorage and hiddenretparm; accepting a subset would hide
-        // accidental ABI flags on the recovered parameter.
-        EXPECT_EQ(actual.flags, expected.required_flags);
-    }
+    // The original funcproto tests compare the complete flag word; checking zero
+    // as well prevents accidental ABI flags on ordinary parameters being hidden.
+    EXPECT_EQ(actual.flags, expected.required_flags);
 }
 
 /// Compares one recovered trial with its optional concrete address and state expectations.
