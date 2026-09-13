@@ -432,7 +432,11 @@ Override::Record* Override::Record::allocateCallDest(const string& name, const A
         return new CallotherCall(dest);
     else if (name == CallotherBranch::NAME)
         return new CallotherBranch(dest);
-    else if (name == CallCall::NAME)
+    // The original command interface documents `callind_call` for converting
+    // CALLIND to CALL, while the persisted record historically uses the
+    // shared `call_call` implementation. Accept both spellings at the
+    // provider boundary so destination overrides remain source-compatible.
+    else if (name == CallCall::NAME || name == "callind_call")
         return new CallCall(dest);
     throw LowlevelError("Unknown call destination override name: " + name);
 }

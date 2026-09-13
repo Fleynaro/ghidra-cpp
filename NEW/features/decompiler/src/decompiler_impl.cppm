@@ -27,6 +27,10 @@ static void validate_storage(const Storage& storage, std::string_view context) {
     }
 }
 
+/// Validates the provider input count against the native p-code operation
+/// contract before `validate_instruction` accepts the record.
+static void validate_provider_pcode_arity(const PcodeOperation& operation);
+
 /// Validates one complete provider instruction at the frontend boundary.
 /// Opcode values are checked before the native enum cast, while every storage
 /// range and the instruction end address are checked for representability.
@@ -45,6 +49,7 @@ static void validate_instruction(const Instruction& instruction, std::uint64_t r
         if (operation.opcode == 0 || operation.opcode >= static_cast<std::uint32_t>(ghidra::CPUI_MAX)) {
             throw ghidra::BadDataError("Provider returned an invalid p-code opcode");
         }
+        validate_provider_pcode_arity(operation);
         if (operation.output) {
             validate_storage(*operation.output, "P-code output");
         }
@@ -80,6 +85,195 @@ static void validate_space_range(const Storage& storage, ghidra::AddrSpace* spac
     }
 }
 
+/// Returns one provider storage sequence while rejecting ambiguous single and
+/// split representations. Ordered sequences use the native decompiler's
+/// most-significant-to-least-significant convention from `translate.cc`.
+static std::vector<Storage> provider_storage_sequence(const std::optional<Storage>& single,
+                                                      const std::vector<Storage>& ordered, std::string_view context) {
+    if (single && !ordered.empty()) {
+        throw ghidra::BadDataError(std::string(context) + " specifies both one storage location and ordered pieces");
+    }
+    if (!ordered.empty()) {
+        return ordered;
+    }
+    if (single) {
+        return {*single};
+    }
+    return {};
+}
+
+/// Validates provider input counts before the native `PcodeEmitFd::dump`
+/// implementation can index its `vars` array. The fixed arities mirror the
+/// operation contracts in `typeop.cc`; CALL-like and metadata operations retain
+/// their original variable-tail forms. LOAD/STORE use one fewer public operand
+/// when `memory_space` carries the address-space selector, while a matching
+/// leading constant remains accepted for compatibility with native p-code.
+/// The frontend rejects malformed records before native emission, preserving
+/// the provider boundary's diagnostic rather than exposing a native crash.
+/// Original indexing boundary: `Ghidra/Features/Decompiler/src/decompile/cpp/funcdata.cc`,
+/// `PcodeEmitFd::dump`, and `translate.cc`, `PcodeEmit::dump` callers.
+static void validate_provider_pcode_arity(const PcodeOperation& operation) {
+    const auto opname = [&] { return std::string(ghidra::get_opname(static_cast<ghidra::OpCode>(operation.opcode))); };
+    const auto fail_exact = [&](std::size_t expected) {
+        if (operation.inputs.size() != expected) {
+            throw ghidra::BadDataError("Provider p-code " + opname() + " has " +
+                                       std::to_string(operation.inputs.size()) + " inputs; expected " +
+                                       std::to_string(expected));
+        }
+    };
+    const auto fail_minimum = [&](std::size_t expected) {
+        if (operation.inputs.size() < expected) {
+            throw ghidra::BadDataError("Provider p-code " + opname() + " has " +
+                                       std::to_string(operation.inputs.size()) + " inputs; expected at least " +
+                                       std::to_string(expected));
+        }
+    };
+    const auto fail_memory = [&](std::size_t canonical, std::size_t native) {
+        if (!operation.memory_space) {
+            fail_exact(native);
+            return;
+        }
+        if (operation.inputs.size() == canonical) {
+            return;
+        }
+        if (operation.inputs.size() == native && !operation.inputs.front().space.empty() &&
+            operation.inputs.front().space == "const") {
+            return;
+        }
+        throw ghidra::BadDataError("Provider p-code " + opname() + " has " + std::to_string(operation.inputs.size()) +
+                                   " inputs; expected " + std::to_string(canonical) + " canonical operands or " +
+                                   std::to_string(native) + " operands with a leading constant-space selector");
+    };
+
+    switch (static_cast<ghidra::OpCode>(operation.opcode)) {
+        case ghidra::CPUI_COPY:
+            fail_exact(1);
+            break;
+        case ghidra::CPUI_LOAD:
+            fail_memory(1, 2);
+            break;
+        case ghidra::CPUI_STORE:
+            fail_memory(2, 3);
+            break;
+        case ghidra::CPUI_BRANCH:
+        case ghidra::CPUI_BRANCHIND:
+            fail_exact(1);
+            break;
+        case ghidra::CPUI_CBRANCH:
+            fail_exact(2);
+            break;
+        case ghidra::CPUI_CALL:
+        case ghidra::CPUI_CALLIND:
+        case ghidra::CPUI_CALLOTHER:
+        case ghidra::CPUI_RETURN:
+        case ghidra::CPUI_MULTIEQUAL:
+        case ghidra::CPUI_CPOOLREF:
+        case ghidra::CPUI_NEW:
+            fail_minimum(1);
+            break;
+        case ghidra::CPUI_INDIRECT:
+        case ghidra::CPUI_PIECE:
+        case ghidra::CPUI_SUBPIECE:
+        case ghidra::CPUI_PTRSUB:
+            fail_exact(2);
+            break;
+        case ghidra::CPUI_PTRADD:
+        case ghidra::CPUI_SEGMENTOP:
+        case ghidra::CPUI_INSERT:
+        case ghidra::CPUI_ZPULL:
+        case ghidra::CPUI_SPULL:
+            fail_exact(3);
+            break;
+        case ghidra::CPUI_INT_EQUAL:
+        case ghidra::CPUI_INT_NOTEQUAL:
+        case ghidra::CPUI_INT_SLESS:
+        case ghidra::CPUI_INT_SLESSEQUAL:
+        case ghidra::CPUI_INT_LESS:
+        case ghidra::CPUI_INT_LESSEQUAL:
+        case ghidra::CPUI_INT_ADD:
+        case ghidra::CPUI_INT_SUB:
+        case ghidra::CPUI_INT_CARRY:
+        case ghidra::CPUI_INT_SCARRY:
+        case ghidra::CPUI_INT_SBORROW:
+        case ghidra::CPUI_INT_XOR:
+        case ghidra::CPUI_INT_AND:
+        case ghidra::CPUI_INT_OR:
+        case ghidra::CPUI_INT_LEFT:
+        case ghidra::CPUI_INT_RIGHT:
+        case ghidra::CPUI_INT_SRIGHT:
+        case ghidra::CPUI_INT_MULT:
+        case ghidra::CPUI_INT_DIV:
+        case ghidra::CPUI_INT_SDIV:
+        case ghidra::CPUI_INT_REM:
+        case ghidra::CPUI_INT_SREM:
+        case ghidra::CPUI_BOOL_XOR:
+        case ghidra::CPUI_BOOL_AND:
+        case ghidra::CPUI_BOOL_OR:
+        case ghidra::CPUI_FLOAT_EQUAL:
+        case ghidra::CPUI_FLOAT_NOTEQUAL:
+        case ghidra::CPUI_FLOAT_LESS:
+        case ghidra::CPUI_FLOAT_LESSEQUAL:
+        case ghidra::CPUI_FLOAT_ADD:
+        case ghidra::CPUI_FLOAT_DIV:
+        case ghidra::CPUI_FLOAT_MULT:
+        case ghidra::CPUI_FLOAT_SUB:
+            fail_exact(2);
+            break;
+        case ghidra::CPUI_INT_ZEXT:
+        case ghidra::CPUI_INT_SEXT:
+        case ghidra::CPUI_INT_2COMP:
+        case ghidra::CPUI_INT_NEGATE:
+        case ghidra::CPUI_BOOL_NEGATE:
+        case ghidra::CPUI_FLOAT_NAN:
+        case ghidra::CPUI_FLOAT_NEG:
+        case ghidra::CPUI_FLOAT_ABS:
+        case ghidra::CPUI_FLOAT_SQRT:
+        case ghidra::CPUI_FLOAT_INT2FLOAT:
+        case ghidra::CPUI_FLOAT_FLOAT2FLOAT:
+        case ghidra::CPUI_FLOAT_TRUNC:
+        case ghidra::CPUI_FLOAT_CEIL:
+        case ghidra::CPUI_FLOAT_FLOOR:
+        case ghidra::CPUI_FLOAT_ROUND:
+        case ghidra::CPUI_CAST:
+        case ghidra::CPUI_POPCOUNT:
+        case ghidra::CPUI_LZCOUNT:
+            fail_exact(1);
+            break;
+        default:
+            throw ghidra::BadDataError("Provider p-code opcode has no native arity contract: " +
+                                       std::to_string(operation.opcode));
+    }
+}
+
+/// Converts a provider storage sequence into a native parameter address. The
+/// native `ParameterPieces` algorithm creates a formal join address when the
+/// physical locations are not contiguous, preserving the original ABI piece
+/// ordering and endian behavior described by `fspec.cc` and `translate.cc`.
+static ghidra::ParameterPieces make_provider_storage(ghidra::Architecture* architecture, ghidra::Datatype* type,
+                                                     const std::vector<Storage>& storage, ghidra::uint4 flags,
+                                                     std::string_view context) {
+    ghidra::ParameterPieces result{};
+    result.type = type;
+    result.flags = flags;
+    if (storage.empty()) {
+        return result;
+    }
+
+    std::vector<ghidra::VarnodeData> native_pieces;
+    native_pieces.reserve(storage.size());
+    for (const Storage& piece : storage) {
+        validate_storage(piece, context);
+        ghidra::AddrSpace* space = architecture->getSpaceByName(piece.space);
+        if (space == nullptr) {
+            throw std::runtime_error(std::string(context) + " references an unknown storage space: " + piece.space);
+        }
+        validate_space_range(piece, space, context);
+        native_pieces.push_back(ghidra::VarnodeData{space, piece.offset, static_cast<ghidra::uint4>(piece.size)});
+    }
+    result.assignAddressFromPieces(native_pieces, true, architecture);
+    return result;
+}
+
 /// Adapts the provider contract to the native Ghidra Translate interface.
 class ProviderTranslate final : public ghidra::Translate {
 public:
@@ -100,14 +294,27 @@ public:
             descriptions.push_back(SpaceDescription{"ram", 8, 1, false, 2, 0, true});
             descriptions.push_back(SpaceDescription{"register", 8, 1, false, 3, 0, true});
         }
+        // Insert physical spaces first so provider overlays can resolve their
+        // containment relationship without depending on XML decode order.
         for (const SpaceDescription& space : descriptions) {
-            if (space.name == "const" || space.name == "unique" || space.name.empty()) {
+            if (space.name == "const" || space.name == "unique" || space.name.empty() || !space.overlay_base.empty()) {
                 continue;
             }
             const int index = space.index < 1 ? numSpaces() : space.index;
             insertSpace(new ghidra::AddrSpace(
                 this, this, ghidra::IPTR_PROCESSOR, space.name, space.big_endian, space.address_size, space.word_size,
                 index, space.physical ? ghidra::AddrSpace::hasphysical : 0, space.delay, space.delay));
+        }
+        for (const SpaceDescription& space : descriptions) {
+            if (space.overlay_base.empty()) {
+                continue;
+            }
+            ghidra::AddrSpace* base = getSpaceByName(space.overlay_base);
+            if (base == nullptr) {
+                throw std::invalid_argument("Provider overlay references an unknown base space: " + space.overlay_base);
+            }
+            const int index = space.index < 1 ? numSpaces() : space.index;
+            insertSpace(new ghidra::OverlaySpace(this, this, space.name, index, base));
         }
         insertSpace(new ghidra::UniqueSpace(this, this, numSpaces(), ghidra::AddrSpace::hasphysical));
 
@@ -231,6 +438,19 @@ public:
                 if (memory_space == nullptr) {
                     throw ghidra::BadDataError("P-code references an unknown memory space: " + *operation.memory_space);
                 }
+                // The original PcodeEmitFd::dump implementation treats the
+                // first input as a native varnode before creating the PcodeOp.
+                // Validate any legacy selector after resolving its target so a
+                // mismatch becomes a diagnostic, not an array access; see
+                // `funcdata.cc`, `PcodeEmitFd::dump`.
+                if (operation.inputs.size() ==
+                        (operation.opcode == static_cast<ghidra::uint4>(ghidra::CPUI_LOAD) ? 2U : 3U) &&
+                    !has_matching_memory_selector(operation, memory_space, this)) {
+                    throw ghidra::BadDataError(
+                        "Provider p-code " +
+                        std::string(ghidra::get_opname(static_cast<ghidra::OpCode>(operation.opcode))) +
+                        " has a legacy selector for a different memory space");
+                }
                 const ghidra::Address encoded_space = createConstFromSpace(memory_space);
                 inputs.push_back(ghidra::VarnodeData{getConstantSpace(), encoded_space.getOffset(),
                                                      static_cast<ghidra::uint4>(pointer_size_)});
@@ -310,7 +530,15 @@ public:
         if (!memory_) {
             throw ghidra::DataUnavailError("No memory provider is configured");
         }
-        const auto result = memory_->read(address.getOffset(), static_cast<std::size_t>(size));
+        const ghidra::AddrSpace* space = address.getSpace();
+        if (space == nullptr) {
+            throw ghidra::DataUnavailError("Provider memory request has no address space");
+        }
+        // The native LoadImage contract always carries an Address, not merely
+        // an offset. Preserve its space when crossing into the provider API;
+        // this follows `loadimage_ghidra.cc`, `LoadImageGhidra::loadFill`, and
+        // the address construction in `emulateutil.cc` and `memstate.cc`.
+        const auto result = memory_->read(space->getName(), address.getOffset(), static_cast<std::size_t>(size));
         if (!result) {
             throw ghidra::DataUnavailError(result.error().message);
         }
@@ -329,52 +557,179 @@ private:
     std::shared_ptr<MemoryProvider> memory_;
 };
 
-/// Implements the injection boundary when no architecture-specific injections are supplied.
+/// Materializes one provider-owned p-code injection against the native context.
+class ProviderInjectPayload final : public ghidra::InjectPayload {
+public:
+    /// Constructs a payload from parameter names and already materialized operations.
+    ProviderInjectPayload(ghidra::Architecture* architecture, const std::string& name, ghidra::int4 type,
+                          const std::vector<std::string>& input_names, const std::vector<std::string>& output_names,
+                          const std::vector<InjectionOperation>& operations, ghidra::int4 parameter_shift,
+                          bool incidental_copy)
+        : ghidra::InjectPayload(name, type), architecture_(architecture), operations_(operations) {
+        paramshift = parameter_shift;
+        this->incidentalCopy = incidental_copy;
+        for (const std::string& input_name : input_names) {
+            inputlist.emplace_back(input_name, 0);
+        }
+        for (const std::string& output_name : output_names) {
+            output.emplace_back(output_name, 0);
+        }
+        orderParameters();
+    }
+
+    /// Emits each provider operation after resolving context input and output placeholders.
+    void inject(ghidra::InjectContext& context, ghidra::PcodeEmit& emit) const override {
+        for (const InjectionOperation& operation : operations_) {
+            if (operation.opcode == 0 || operation.opcode >= static_cast<std::uint32_t>(ghidra::CPUI_MAX)) {
+                throw ghidra::BadDataError("Provider injection contains an invalid p-code opcode");
+            }
+            std::vector<ghidra::VarnodeData> inputs;
+            inputs.reserve(operation.inputs.size());
+            for (const InjectionVarnode& varnode : operation.inputs) {
+                inputs.push_back(resolve(varnode, context));
+            }
+            ghidra::VarnodeData output{};
+            ghidra::VarnodeData* output_pointer = nullptr;
+            if (operation.output) {
+                output = resolve(*operation.output, context);
+                output_pointer = &output;
+            }
+            emit.dump(context.baseaddr, static_cast<ghidra::OpCode>(operation.opcode), output_pointer,
+                      inputs.empty() ? nullptr : inputs.data(), static_cast<ghidra::int4>(inputs.size()));
+        }
+    }
+
+    /// Rejects XML decoding because provider payloads are supplied as structured records.
+    void decode(ghidra::Decoder&) override {
+        throw ghidra::LowlevelError("Provider injection payloads do not decode XML");
+    }
+
+    /// Prints a compact operation listing useful in native diagnostics.
+    void printTemplate(std::ostream& stream) const override {
+        stream << "provider injection " << name << " (" << operations_.size() << " operations)";
+    }
+
+    /// Identifies the provider metadata source of this payload.
+    ghidra::string getSource() const override {
+        return "provider injection: " + name;
+    }
+
+private:
+    /// Resolves one provider varnode against the current injection context.
+    ghidra::VarnodeData resolve(const InjectionVarnode& varnode, const ghidra::InjectContext& context) const {
+        if (varnode.kind == InjectionVarnodeKind::input) {
+            if (varnode.index >= context.inputlist.size()) {
+                throw ghidra::BadDataError("Provider injection input index is out of range");
+            }
+            return context.inputlist[varnode.index];
+        }
+        if (varnode.kind == InjectionVarnodeKind::output) {
+            if (varnode.index >= context.output.size()) {
+                throw ghidra::BadDataError("Provider injection output index is out of range");
+            }
+            return context.output[varnode.index];
+        }
+        detail::validate_storage(varnode.storage, "Provider injection storage");
+        ghidra::AddrSpace* space = architecture_->getSpaceByName(varnode.storage.space);
+        if (space == nullptr) {
+            throw ghidra::BadDataError("Provider injection references an unknown address space: " +
+                                       varnode.storage.space);
+        }
+        detail::validate_space_range(varnode.storage, space, "Provider injection storage");
+        return ghidra::VarnodeData{space, varnode.storage.offset, static_cast<ghidra::uint4>(varnode.storage.size)};
+    }
+
+    ghidra::Architecture* architecture_;
+    std::vector<InjectionOperation> operations_;
+};
+
+/// Implements provider-owned call-fixup and callother-fixup registration.
 class ProviderInjectLibrary final : public ghidra::PcodeInjectLibrary {
 public:
-    /// Constructs an empty injection library with the engine's temporary base.
-    ProviderInjectLibrary(ghidra::Architecture* architecture, ghidra::uint4 temporary_base)
-        : ghidra::PcodeInjectLibrary(architecture, temporary_base) {}
-
-    /// Rejects dynamic injection allocation because the provider supplied none.
-    ghidra::int4 allocateInject(const ghidra::string&, const ghidra::string&, ghidra::int4) override {
-        throw ghidra::LowlevelError("Provider injection allocation is not configured");
+    /// Constructs an injection library and registers supplied payloads before analysis.
+    ProviderInjectLibrary(ghidra::Architecture* architecture, ghidra::uint4 temporary_base,
+                          std::vector<CallFixupDescription> call_fixups,
+                          std::vector<CallOtherFixupDescription> call_other_fixups)
+        : ghidra::PcodeInjectLibrary(architecture, temporary_base), architecture_(architecture) {
+        for (const CallFixupDescription& description : call_fixups) {
+            registerCallFixupDescription(description);
+        }
+        for (const CallOtherFixupDescription& description : call_other_fixups) {
+            registerCallOtherFixupDescription(description);
+        }
     }
 
-    /// Finalizes no payloads in the empty library.
+    /// Rejects dynamic XML allocation because provider payloads are structured records.
+    ghidra::int4 allocateInject(const ghidra::string&, const ghidra::string&, ghidra::int4) override {
+        throw ghidra::LowlevelError("Provider injection allocation requires a structured provider payload");
+    }
+
+    /// Leaves provider payloads finalized during construction.
     void registerInject(ghidra::int4) override {}
 
-    /// Rejects manually supplied call-fixup text without a provider implementation.
+    /// Rejects textual SLEIGH because this boundary accepts structured p-code only.
     ghidra::int4 manualCallFixup(const ghidra::string&, const ghidra::string&) override {
-        throw ghidra::LowlevelError("Provider call-fixup injection is not configured");
+        throw ghidra::LowlevelError("Provider call-fixup requires InjectionOperation records, not SLEIGH text");
     }
 
-    /// Rejects manually supplied call-other-fixup text without a provider implementation.
+    /// Rejects textual callother SLEIGH for the same structured-provider reason.
     ghidra::int4 manualCallOtherFixup(const ghidra::string&, const ghidra::string&, const std::vector<ghidra::string>&,
                                       const ghidra::string&) override {
-        throw ghidra::LowlevelError("Provider call-other-fixup injection is not configured");
+        throw ghidra::LowlevelError("Provider callother-fixup requires InjectionOperation records, not SLEIGH text");
     }
 
-    /// Returns the reusable empty injection context.
+    /// Returns the reusable provider injection context.
     ghidra::InjectContext& getCachedContext() override {
         return context_;
     }
 
-    /// Returns the empty behavior table.
+    /// Returns native p-code behaviors for provider payload consumers.
     const std::vector<ghidra::OpBehavior*>& getBehaviors() override {
+        if (behaviors_.empty()) {
+            architecture_->collectBehaviors(behaviors_);
+        }
         return behaviors_;
     }
 
 private:
-    /// Concrete empty context required by the native abstract injection API.
+    /// Registers one call-fixup and publishes its name-to-id mapping.
+    void registerCallFixupDescription(const CallFixupDescription& description) {
+        if (description.name.empty()) {
+            throw std::invalid_argument("Provider call-fixup name must not be empty");
+        }
+        const ghidra::int4 id = static_cast<ghidra::int4>(injection.size());
+        injection.push_back(new ProviderInjectPayload(architecture_, description.name,
+                                                      ghidra::InjectPayload::CALLFIXUP_TYPE, description.input_names,
+                                                      description.output_names, description.operations,
+                                                      description.parameter_shift, description.incidental_copy));
+        registerCallFixup(description.name, id);
+    }
+
+    /// Registers one callother-fixup and publishes its target-op mapping.
+    void registerCallOtherFixupDescription(const CallOtherFixupDescription& description) {
+        if (description.name.empty()) {
+            throw std::invalid_argument("Provider callother-fixup name must not be empty");
+        }
+        const std::vector<std::string> outputs = description.output_name.empty()
+                                                     ? std::vector<std::string>{}
+                                                     : std::vector<std::string>{description.output_name};
+        const ghidra::int4 id = static_cast<ghidra::int4>(injection.size());
+        injection.push_back(
+            new ProviderInjectPayload(architecture_, description.name, ghidra::InjectPayload::CALLOTHERFIXUP_TYPE,
+                                      description.input_names, outputs, description.operations, 0, false));
+        registerCallOtherFixup(description.name, id);
+    }
+
+    /// Concrete context required by the native abstract injection API.
     class EmptyContext final : public ghidra::InjectContext {
     public:
-        /// Encodes no state because this context never crosses a provider boundary.
+        /// Encodes no state because provider contexts never cross an XML boundary.
         void encode(ghidra::Encoder&) const override {}
     };
 
     EmptyContext context_;
     std::vector<ghidra::OpBehavior*> behaviors_;
+    ghidra::Architecture* architecture_;
 };
 
 /// Owns the native Architecture subsystems configured from explicit providers.
@@ -382,8 +737,10 @@ class ProviderArchitecture final : public ghidra::Architecture {
 public:
     /// Constructs the native engine and all in-memory provider-backed services.
     ProviderArchitecture(const ArchitectureDescription& description, std::shared_ptr<PcodeProvider> provider,
-                         std::shared_ptr<MemoryProvider> memory)
-        : description_(description), provider_(std::move(provider)), memory_(std::move(memory)) {
+                         std::shared_ptr<MemoryProvider> memory, std::shared_ptr<InjectionProvider> injections,
+                         AnalysisOptions analysis_options)
+        : description_(description), provider_(std::move(provider)), memory_(std::move(memory)),
+          injections_(std::move(injections)), analysis_options_(analysis_options) {
         ghidra::forcePrintCLanguageRegistration();
         if (description_.pointer_size == 0) {
             throw std::invalid_argument("Architecture pointer size must be greater than zero");
@@ -419,6 +776,74 @@ public:
     }
 
 private:
+    /// Applies provider volatile ranges after the compiler-spec bootstrap has
+    /// created the final global scope and address-space map.
+    void apply_provider_volatile_ranges() {
+        if (!memory_) {
+            return;
+        }
+        for (const MemoryRangeDescription& volatile_range : memory_->volatile_ranges()) {
+            if (volatile_range.size == 0 ||
+                volatile_range.first > std::numeric_limits<std::uint64_t>::max() - (volatile_range.size - 1U)) {
+                throw std::invalid_argument("Provider volatile range is empty or overflows its address space");
+            }
+            ghidra::AddrSpace* space = translate->getSpaceByName(volatile_range.space);
+            if (space == nullptr) {
+                throw std::invalid_argument("Provider volatile range references an unknown space: " +
+                                            volatile_range.space);
+            }
+            const std::uint64_t last = volatile_range.first + volatile_range.size - 1U;
+            if (volatile_range.first > space->getHighest() || last > space->getHighest()) {
+                throw std::invalid_argument("Provider volatile range exceeds its address space: " +
+                                            volatile_range.space);
+            }
+            symboltab->setPropertyRange(ghidra::Varnode::volatil, ghidra::Range(space, volatile_range.first, last));
+        }
+    }
+
+    /// Applies provider-owned analysis options through the native option
+    /// dispatcher before action construction. This preserves the original
+    /// option validation and side effects instead of assigning only a subset
+    /// of the corresponding Architecture fields.
+    void apply_provider_analysis_options() {
+        if (analysis_options_.readonly_propagate) {
+            options->set(ghidra::ElementId::find("readonly", 0), "on");
+        }
+        if (analysis_options_.integer_format != DisplayFormat::none) {
+            const auto format_name = [&]() -> std::string {
+                switch (analysis_options_.integer_format) {
+                    case DisplayFormat::hexadecimal:
+                        return "hex";
+                    case DisplayFormat::decimal:
+                        return "dec";
+                    case DisplayFormat::octal:
+                        return "oct";
+                    case DisplayFormat::binary:
+                        return "bin";
+                    case DisplayFormat::character:
+                        return "char";
+                    case DisplayFormat::none:
+                        break;
+                }
+                throw std::invalid_argument("Provider integer format is invalid");
+            }();
+            options->set(ghidra::ElementId::find("integerformat", 0), format_name);
+        }
+        switch (analysis_options_.nan_handling) {
+            case NanHandling::native_default:
+                break;
+            case NanHandling::none:
+                options->set(ghidra::ElementId::find("nanignore", 0), "none");
+                break;
+            case NanHandling::compare:
+                options->set(ghidra::ElementId::find("nanignore", 0), "compare");
+                break;
+            case NanHandling::all:
+                options->set(ghidra::ElementId::find("nanignore", 0), "all");
+                break;
+        }
+    }
+
     /// Builds every native subsystem that does not require XML or Java state.
     void initialize() {
         ghidra::AttributeId::initialize();
@@ -462,8 +887,26 @@ private:
         symboltab = new ghidra::Database(this, true);
         symboltab->attachScope(new ghidra::ScopeInternal(0, "", this), nullptr);
         symboltab->addRange(symboltab->getGlobalScope(), getDefaultDataSpace(), 0, getDefaultDataSpace()->getHighest());
-        pcodeinjectlib = new ProviderInjectLibrary(this, translate->getUniqueStart(ghidra::Translate::INJECT));
+        const std::vector<CallFixupDescription> call_fixups =
+            injections_ ? injections_->call_fixups() : std::vector<CallFixupDescription>{};
+        const std::vector<CallOtherFixupDescription> call_other_fixups =
+            injections_ ? injections_->call_other_fixups() : std::vector<CallOtherFixupDescription>{};
+        pcodeinjectlib = new ProviderInjectLibrary(this, translate->getUniqueStart(ghidra::Translate::INJECT),
+                                                   call_fixups, call_other_fixups);
         userops.initialize(this);
+        for (const CallOtherFixupDescription& description : call_other_fixups) {
+            const ghidra::int4 payload_id =
+                pcodeinjectlib->getPayloadId(ghidra::InjectPayload::CALLOTHERFIXUP_TYPE, description.name);
+            if (payload_id < 0) {
+                throw std::invalid_argument("Provider callother-fixup was not registered: " + description.name);
+            }
+            userops.registerInjected(description.name, description.userop_index, payload_id);
+        }
+        // XML compiler specifications normally register these operations while
+        // decoding <volatile>. Provider architectures have no XML document, so
+        // install the native defaults explicitly before volatile analysis runs.
+        userops.registerBuiltin(ghidra::UserPcodeOp::BUILTIN_VOLATILE_READ);
+        userops.registerBuiltin(ghidra::UserPcodeOp::BUILTIN_VOLATILE_WRITE);
         ghidra::DocumentStorage specification;
         // The bootstrap model follows `architecture.cc`'s compiler-spec
         // boundary but is deliberately assembled only from provider metadata.
@@ -563,7 +1006,10 @@ private:
         if (legacy_x86) {
             // Preserve the original provider's x86-64 bootstrap contract and
             // generated C output while allowing generic descriptions below.
-            specification_xml = "<compiler_spec><global><range space=\"ram\"/></global>";
+            // The GCC compiler specification declares four-byte wchar_t; this
+            // controls ArraySequence's wcsncpy-versus-memcpy selection.
+            specification_xml = "<compiler_spec><data_organization><wchar_size value=\"4\"/></data_organization>"
+                                "<global><range space=\"ram\"/></global>";
             specification_xml += "<stackpointer register=\"RSP\" space=\"ram\"/>";
             specification_xml += "<returnaddress><varnode space=\"stack\" offset=\"0\" size=\"8\"/></returnaddress>";
             specification_xml += "<default_proto><prototype name=\"" + xml_escape(description_.calling_convention) +
@@ -592,6 +1038,8 @@ private:
         ghidra::Document* document = specification.parseDocument(specification_text);
         specification.registerTag(document->getRoot());
         parseCompilerConfig(specification);
+        apply_provider_analysis_options();
+        apply_provider_volatile_ranges();
         if (defaultfp != nullptr) {
             defaultfp->setPrintInDecl(true);
         }
@@ -650,6 +1098,8 @@ private:
     ArchitectureDescription description_;
     std::shared_ptr<PcodeProvider> provider_;
     std::shared_ptr<MemoryProvider> memory_;
+    std::shared_ptr<InjectionProvider> injections_;
+    AnalysisOptions analysis_options_;
     mutable std::ostringstream warnings_;
 };
 
@@ -681,6 +1131,40 @@ static PcodeOperation convert_operation(const sleigh_runtime::PcodeOp& value) {
     }
     result.memory_space = value.memory_space;
     return result;
+}
+
+/// Converts the provider display-format enum to the native decompiler encoding.
+///
+/// The native `Datatype` and `Scope` APIs use the historical ordinal values
+/// 1=hex, 2=decimal, 3=octal, 4=binary, and 5=character.
+static ghidra::uint4 native_display_format(DisplayFormat format) {
+    switch (format) {
+        case DisplayFormat::none:
+            return 0;
+        case DisplayFormat::hexadecimal:
+            return 1;
+        case DisplayFormat::decimal:
+            return 2;
+        case DisplayFormat::octal:
+            return 3;
+        case DisplayFormat::binary:
+            return 4;
+        case DisplayFormat::character:
+            return 5;
+    }
+    throw std::invalid_argument("Provider display format is invalid");
+}
+
+/// Applies a provider format only when it explicitly forces one.
+///
+/// Leaving the native default untouched is important for compiler-spec types
+/// shared by multiple provider records. The caller owns the returned type.
+static ghidra::Datatype* apply_type_display_format(ghidra::TypeFactory* types, ghidra::Datatype* type,
+                                                   DisplayFormat format) {
+    if (format != DisplayFormat::none) {
+        types->setDisplayFormat(type, native_display_format(format));
+    }
+    return type;
 }
 
 /// Resolves a provider type into the native type factory while retaining the
@@ -722,7 +1206,7 @@ static ghidra::Datatype* resolve_provider_type(const ProviderContext& context, g
     // reference the same metadata name.
     if (ghidra::Datatype* existing = types->findByName(effective_name); existing != nullptr) {
         cache.emplace(name, existing);
-        return existing;
+        return apply_type_display_format(types, existing, description.display_format);
     }
 
     if (description.kind == TypeKind::void_type || name == "void") {
@@ -736,17 +1220,41 @@ static ghidra::Datatype* resolve_provider_type(const ProviderContext& context, g
         if (size == 0 || size > static_cast<std::uint32_t>(std::numeric_limits<ghidra::int4>::max())) {
             throw std::invalid_argument("Provider pointer type has an invalid size: " + effective_name);
         }
+        if (!description.relative_parent_type.empty()) {
+            ghidra::Datatype* parent = resolve_provider_type(context, types, description.relative_parent_type, cache,
+                                                             pointer_size, declarations);
+            if (parent->getMetatype() != ghidra::TYPE_STRUCT && parent->getMetatype() != ghidra::TYPE_ARRAY) {
+                throw std::invalid_argument("Provider relative pointer parent is not a structure or array: " +
+                                            effective_name);
+            }
+            if (description.relative_offset == 0 || description.relative_offset >= parent->getSize() ||
+                description.relative_offset < -parent->getSize()) {
+                throw std::invalid_argument("Provider relative pointer offset is outside its parent: " +
+                                            effective_name);
+            }
+            const ghidra::uint4 word_size = types->getArch()->getDefaultDataSpace()->getWordSize();
+            ghidra::TypePointerRel* relative =
+                types->getTypePointerRel(static_cast<ghidra::int4>(size), parent, pointed_to, word_size,
+                                         description.relative_offset, effective_name);
+            cache.emplace(name, relative);
+            return apply_type_display_format(types, relative, description.display_format);
+        }
         if (ghidra::Datatype* existing = types->findByName(effective_name); existing != nullptr) {
             if (existing->getMetatype() != ghidra::TYPE_PTR || existing->getSize() != static_cast<ghidra::int4>(size)) {
                 throw std::invalid_argument("Provider pointer conflicts with an existing type: " + effective_name);
             }
             cache.emplace(name, existing);
-            return existing;
+            return apply_type_display_format(types, existing, description.display_format);
         }
+        // `TypeFactory::getTypePointer` stores the addressable-unit width in
+        // each pointer. Use the architecture data space, not byte-addressing
+        // by default; this is the same invariant used by `type.cc` and the
+        // pointer construction in `fspec.cc`.
+        const ghidra::uint4 word_size = types->getArch()->getDefaultDataSpace()->getWordSize();
         ghidra::TypePointer* pointer =
-            types->getTypePointer(static_cast<ghidra::int4>(size), pointed_to, 1, effective_name);
+            types->getTypePointer(static_cast<ghidra::int4>(size), pointed_to, word_size, effective_name);
         cache.emplace(name, pointer);
-        return pointer;
+        return apply_type_display_format(types, pointer, description.display_format);
     }
     if (description.kind == TypeKind::array) {
         if (description.element_count > static_cast<std::uint32_t>(std::numeric_limits<ghidra::int4>::max())) {
@@ -754,9 +1262,23 @@ static ghidra::Datatype* resolve_provider_type(const ProviderContext& context, g
         }
         ghidra::Datatype* element =
             resolve_provider_type(context, types, description.element_type, cache, pointer_size, declarations);
-        const std::uint64_t array_size = static_cast<std::uint64_t>(element->getSize()) * description.element_count;
+        // Native TypeArray uses the aligned element stride, not the packed
+        // nominal size. Match its constructor in `type.cc` so arrays of types
+        // with tail padding retain the original field layout.
+        const std::uint64_t element_stride = static_cast<std::uint64_t>(element->getAlignSize());
+        if (element_stride == 0 && description.element_count != 0) {
+            throw std::invalid_argument("Provider array element has no aligned storage: " + effective_name);
+        }
+        if (description.element_count != 0 &&
+            element_stride > std::numeric_limits<std::uint64_t>::max() / description.element_count) {
+            throw std::invalid_argument("Provider array size overflows the native type limit: " + effective_name);
+        }
+        const std::uint64_t array_size = element_stride * description.element_count;
         if (array_size > static_cast<std::uint64_t>(std::numeric_limits<ghidra::int4>::max())) {
             throw std::invalid_argument("Provider array size overflows the native type limit: " + effective_name);
+        }
+        if (description.size != 0 && description.size != array_size) {
+            throw std::invalid_argument("Provider array size does not match its element layout: " + effective_name);
         }
         if (ghidra::Datatype* existing = types->findByName(effective_name); existing != nullptr) {
             if (existing->getMetatype() != ghidra::TYPE_ARRAY ||
@@ -764,11 +1286,40 @@ static ghidra::Datatype* resolve_provider_type(const ProviderContext& context, g
                 throw std::invalid_argument("Provider array conflicts with an existing type: " + effective_name);
             }
             cache.emplace(name, existing);
-            return existing;
+            return apply_type_display_format(types, existing, description.display_format);
         }
         ghidra::TypeArray* array = types->getTypeArray(static_cast<ghidra::int4>(description.element_count), element);
         cache.emplace(name, array);
-        return array;
+        return apply_type_display_format(types, array, description.display_format);
+    }
+    if (description.kind == TypeKind::enumeration) {
+        const std::uint32_t enum_size = description.size == 0 ? pointer_size : description.size;
+        if (enum_size == 0 || enum_size > 8U ||
+            enum_size > static_cast<std::uint32_t>(std::numeric_limits<ghidra::int4>::max())) {
+            throw std::invalid_argument("Provider enumeration has an invalid size: " + effective_name);
+        }
+        ghidra::Datatype* existing = types->findByName(effective_name);
+        if (existing != nullptr &&
+            (!existing->isEnumType() || existing->getSize() != static_cast<ghidra::int4>(enum_size))) {
+            throw std::invalid_argument("Provider enumeration conflicts with an existing type: " + effective_name);
+        }
+        auto* enumeration =
+            existing == nullptr
+                ? types->getTypeEnum(effective_name, static_cast<ghidra::int4>(enum_size), description.signed_value)
+                : static_cast<ghidra::TypeEnum*>(existing);
+        const std::uint64_t value_mask = enum_size >= sizeof(std::uint64_t)
+                                             ? std::numeric_limits<std::uint64_t>::max()
+                                             : (std::uint64_t{1} << (enum_size * 8U)) - 1U;
+        std::map<ghidra::uintb, ghidra::string> values;
+        for (const TypeEnumValueDescription& value : description.enum_values) {
+            if (value.name.empty()) {
+                throw std::invalid_argument("Provider enumeration contains an unnamed value: " + effective_name);
+            }
+            values[static_cast<ghidra::uintb>(static_cast<std::uint64_t>(value.value) & value_mask)] = value.name;
+        }
+        types->setEnumValues(values, enumeration);
+        cache.emplace(name, enumeration);
+        return apply_type_display_format(types, enumeration, description.display_format);
     }
     if (description.kind == TypeKind::structure || description.kind == TypeKind::union_type) {
         const bool is_union = description.kind == TypeKind::union_type;
@@ -787,7 +1338,7 @@ static ghidra::Datatype* resolve_provider_type(const ProviderContext& context, g
                                                 effective_name);
                 }
                 cache.emplace(name, composite);
-                return composite;
+                return apply_type_display_format(types, composite, description.display_format);
             }
         } else {
             composite = is_union ? static_cast<ghidra::Datatype*>(types->getTypeUnion(effective_name))
@@ -796,27 +1347,146 @@ static ghidra::Datatype* resolve_provider_type(const ProviderContext& context, g
         cache.emplace(name, composite);
         std::vector<ghidra::TypeField> fields;
         ghidra::int4 field_id = 0;
-        ghidra::int4 inferred_size = 0;
-        for (const TypeFieldDescription& field : description.fields) {
-            ghidra::Datatype* field_type =
-                resolve_provider_type(context, types, field.type_name, cache, pointer_size, declarations);
-            if (!is_union && (field.offset > static_cast<std::uint32_t>(std::numeric_limits<ghidra::int4>::max()) ||
-                              field.offset > static_cast<std::uint32_t>(std::numeric_limits<ghidra::int4>::max()) -
-                                                 static_cast<std::uint32_t>(field_type->getSize()))) {
-                throw std::invalid_argument("Provider field offset overflows composite type: " + effective_name);
+        std::vector<ghidra::TypeBitField> bitfields;
+        const auto align_up = [&](std::uint64_t value, std::uint64_t alignment) -> std::uint64_t {
+            if (alignment <= 1) {
+                return value;
             }
-            const ghidra::int4 offset = is_union ? 0 : static_cast<ghidra::int4>(field.offset);
-            fields.emplace_back(field_id++, offset, field.name, field_type);
-            inferred_size = std::max(inferred_size, offset + field_type->getSize());
+            const std::uint64_t remainder = value % alignment;
+            if (remainder == 0) {
+                return value;
+            }
+            const std::uint64_t result = value + alignment - remainder;
+            if (result < value) {
+                throw std::invalid_argument("Provider composite layout overflows: " + effective_name);
+            }
+            return result;
+        };
+
+        std::uint64_t inferred_size = 0;
+        std::uint64_t maximum_alignment = 1;
+        if (is_union) {
+            for (const TypeFieldDescription& field : description.fields) {
+                ghidra::Datatype* field_type =
+                    resolve_provider_type(context, types, field.type_name, cache, pointer_size, declarations);
+                if (field_type->getSize() <= 0) {
+                    throw std::invalid_argument("Provider union field has no storage: " + effective_name);
+                }
+                fields.emplace_back(field_id++, 0, field.name, field_type);
+                inferred_size = std::max(inferred_size, static_cast<std::uint64_t>(field_type->getSize()));
+                maximum_alignment = std::max(maximum_alignment, static_cast<std::uint64_t>(field_type->getAlignment()));
+            }
+        } else {
+            const bool has_bitfields = !description.bitfields.empty();
+            std::uint64_t cursor = 0;
+            std::vector<std::uint32_t> adjusted_groups(description.fields.size() + 1U);
+            std::uint32_t padding_count = 0;
+            for (std::size_t index = 0; index < description.fields.size(); ++index) {
+                const TypeFieldDescription& field = description.fields[index];
+                ghidra::Datatype* field_type =
+                    resolve_provider_type(context, types, field.type_name, cache, pointer_size, declarations);
+                if (field_type->getSize() <= 0) {
+                    throw std::invalid_argument("Provider structure field has no storage: " + effective_name);
+                }
+                if (has_bitfields && field.offset != 0) {
+                    throw std::invalid_argument(
+                        "Provider structures with bitfields must use native declaration-order offsets: " +
+                        effective_name);
+                }
+                const std::uint64_t aligned_cursor =
+                    align_up(cursor, static_cast<std::uint64_t>(field_type->getAlignment()));
+                const std::uint64_t requested_offset = field.offset;
+                if (!has_bitfields && requested_offset < aligned_cursor) {
+                    throw std::invalid_argument("Provider structure field offsets overlap or are out of order: " +
+                                                effective_name);
+                }
+                const std::uint64_t target = has_bitfields ? aligned_cursor : requested_offset;
+                if (!has_bitfields && target > aligned_cursor) {
+                    const std::uint64_t gap = target - aligned_cursor;
+                    if (gap > static_cast<std::uint64_t>(std::numeric_limits<ghidra::int4>::max())) {
+                        throw std::invalid_argument("Provider structure padding is too large: " + effective_name);
+                    }
+                    fields.emplace_back(field_id++, -1, "__provider_padding_" + std::to_string(padding_count++),
+                                        types->getBase(static_cast<ghidra::int4>(gap), ghidra::TYPE_UNKNOWN));
+                    cursor = target;
+                }
+                if (has_bitfields) {
+                    adjusted_groups[index] = static_cast<std::uint32_t>(fields.size());
+                }
+                fields.emplace_back(field_id++, -1, field.name, field_type);
+                cursor = target + static_cast<std::uint64_t>(field_type->getAlignSize());
+                maximum_alignment = std::max(maximum_alignment, static_cast<std::uint64_t>(field_type->getAlignment()));
+            }
+            adjusted_groups.back() = static_cast<std::uint32_t>(fields.size());
+
+            std::optional<std::uint32_t> previous_group;
+            std::map<std::uint32_t, std::uint64_t> group_bits;
+            std::map<std::uint32_t, std::uint32_t> group_alignment;
+            for (const TypeBitFieldDescription& bitfield : description.bitfields) {
+                if (bitfield.name.empty() || bitfield.bit_count == 0 || bitfield.group > description.fields.size()) {
+                    throw std::invalid_argument("Provider structure contains an invalid bitfield: " + effective_name);
+                }
+                if (previous_group && bitfield.group < *previous_group) {
+                    throw std::invalid_argument("Provider bitfield groups are not in declaration order: " +
+                                                effective_name);
+                }
+                previous_group = bitfield.group;
+                ghidra::Datatype* field_type =
+                    resolve_provider_type(context, types, bitfield.type_name, cache, pointer_size, declarations);
+                const ghidra::type_metatype metatype = field_type->getMetatype();
+                if (metatype != ghidra::TYPE_INT && metatype != ghidra::TYPE_UINT && metatype != ghidra::TYPE_BOOL) {
+                    throw std::invalid_argument("Provider bitfield type is not an integer: " + effective_name);
+                }
+                const std::uint64_t type_bits = static_cast<std::uint64_t>(field_type->getSize()) * 8U;
+                if (bitfield.bit_count > type_bits) {
+                    throw std::invalid_argument("Provider bitfield exceeds its storage type: " + effective_name);
+                }
+                const std::uint32_t native_group = adjusted_groups[bitfield.group];
+                bitfields.emplace_back(
+                    static_cast<ghidra::int4>(native_group), static_cast<ghidra::int4>(bitfield.bit_count),
+                    types->getArch()->getDefaultDataSpace()->isBigEndian(), bitfield.name, field_type);
+                group_bits[native_group] += bitfield.bit_count;
+                group_alignment[native_group] =
+                    std::max(group_alignment[native_group], static_cast<std::uint32_t>(field_type->getAlignment()));
+            }
+
+            // Recalculate the exact layout used by TypeStruct::assignFieldOffsets
+            // so an explicitly reported size can be checked before and after
+            // native field assignment, including interleaved bitfield groups.
+            cursor = 0;
+            maximum_alignment = 1;
+            for (std::size_t position = 0; position <= fields.size(); ++position) {
+                const auto group = group_bits.find(static_cast<std::uint32_t>(position));
+                if (group != group_bits.end()) {
+                    const std::uint64_t alignment = group_alignment.at(group->first);
+                    cursor = align_up(cursor, alignment);
+                    cursor += (group->second + 7U) / 8U;
+                    maximum_alignment = std::max(maximum_alignment, alignment);
+                }
+                if (position == fields.size()) {
+                    break;
+                }
+                const ghidra::Datatype* field_type = fields[position].type;
+                cursor = align_up(cursor, static_cast<std::uint64_t>(field_type->getAlignment()));
+                cursor += static_cast<std::uint64_t>(field_type->getAlignSize());
+                maximum_alignment = std::max(maximum_alignment, static_cast<std::uint64_t>(field_type->getAlignment()));
+            }
+            inferred_size = align_up(cursor, maximum_alignment);
         }
         if (description.size != 0) {
             if (description.size > static_cast<std::uint32_t>(std::numeric_limits<ghidra::int4>::max()) ||
-                description.size < static_cast<std::uint32_t>(inferred_size)) {
+                description.size < inferred_size) {
                 throw std::invalid_argument("Provider composite type has an incompatible size: " + effective_name);
             }
-            if (description.size > static_cast<std::uint32_t>(inferred_size)) {
+            if (is_union) {
+                if (description.size > inferred_size) {
+                    fields.emplace_back(
+                        field_id++, 0, "__provider_padding",
+                        types->getBase(static_cast<ghidra::int4>(description.size), ghidra::TYPE_UNKNOWN));
+                }
+            } else if (description.size > inferred_size) {
                 const ghidra::int4 padding_size = static_cast<ghidra::int4>(description.size - inferred_size);
-                fields.emplace_back(field_id++, is_union ? 0 : inferred_size, "__provider_padding",
+                fields.emplace_back(field_id++, -1, "__provider_padding",
                                     types->getBase(padding_size, ghidra::TYPE_UNKNOWN));
             }
         }
@@ -825,10 +1495,12 @@ static ghidra::Datatype* resolve_provider_type(const ProviderContext& context, g
             types->assignRawFields(union_type, fields);
         } else {
             auto* structure = static_cast<ghidra::TypeStruct*>(composite);
-            std::vector<ghidra::TypeBitField> bitfields;
             types->assignRawFields(structure, fields, bitfields);
         }
-        return composite;
+        if (description.size != 0 && composite->getSize() != static_cast<ghidra::int4>(description.size)) {
+            throw std::invalid_argument("Native composite layout does not match provider size: " + effective_name);
+        }
+        return apply_type_display_format(types, composite, description.display_format);
     }
 
     if (description.kind == TypeKind::unicode_character) {
@@ -841,12 +1513,12 @@ static ghidra::Datatype* resolve_provider_type(const ProviderContext& context, g
                 throw std::invalid_argument("Provider unicode type conflicts with an existing type: " + effective_name);
             }
             cache.emplace(name, existing);
-            return existing;
+            return apply_type_display_format(types, existing, description.display_format);
         }
         ghidra::Datatype* result =
             types->getProviderUnicode(effective_name, static_cast<ghidra::int4>(size), ghidra::TYPE_INT);
         cache.emplace(name, result);
-        return result;
+        return apply_type_display_format(types, result, description.display_format);
     }
     if (description.kind == TypeKind::typedef_type) {
         if (description.size > static_cast<std::uint32_t>(std::numeric_limits<ghidra::int4>::max())) {
@@ -862,11 +1534,11 @@ static ghidra::Datatype* resolve_provider_type(const ProviderContext& context, g
                 throw std::invalid_argument("Provider typedef conflicts with an existing type: " + effective_name);
             }
             cache.emplace(name, existing);
-            return existing;
+            return apply_type_display_format(types, existing, description.display_format);
         }
         ghidra::Datatype* result = types->getTypedef(underlying, effective_name, 0, 0);
         cache.emplace(name, result);
-        return result;
+        return apply_type_display_format(types, result, description.display_format);
     }
     const ghidra::type_metatype metatype = description.kind == TypeKind::boolean            ? ghidra::TYPE_BOOL
                                            : description.kind == TypeKind::floating_point   ? ghidra::TYPE_FLOAT
@@ -883,11 +1555,11 @@ static ghidra::Datatype* resolve_provider_type(const ProviderContext& context, g
             throw std::invalid_argument("Provider base type conflicts with an existing type: " + effective_name);
         }
         cache.emplace(name, existing);
-        return existing;
+        return apply_type_display_format(types, existing, description.display_format);
     }
     ghidra::Datatype* result = types->getBase(size, metatype, effective_name);
     cache.emplace(name, result);
-    return result;
+    return apply_type_display_format(types, result, description.display_format);
 }
 
 /// Resolves a provider calling-convention name to a native model. The
@@ -922,6 +1594,20 @@ static void apply_provider_prototype(ghidra::Architecture* architecture, ghidra:
     pieces.outtype = resolve_provider_type(context, architecture->types, prototype.return_type, type_cache,
                                            pointer_size, declarations);
     pieces.firstVarArgSlot = -1;
+    if (prototype.hidden_return_storage) {
+        if (prototype.return_type.empty() || prototype.return_type == "void") {
+            throw std::invalid_argument("A hidden return storage requires a non-void provider return type");
+        }
+        const std::string hidden_type_name = prototype.return_type + " *";
+        ghidra::Datatype* hidden_type = architecture->types->findByName(hidden_type_name);
+        if (hidden_type == nullptr) {
+            const ghidra::uint4 word_size = architecture->getDefaultDataSpace()->getWordSize();
+            hidden_type = architecture->types->getTypePointer(static_cast<ghidra::int4>(pointer_size), pieces.outtype,
+                                                              word_size, hidden_type_name);
+        }
+        pieces.innames.push_back("rethidden");
+        pieces.intypes.push_back(hidden_type);
+    }
     for (const PrototypeParameterDescription& parameter : prototype.parameters) {
         pieces.innames.push_back(parameter.name);
         pieces.intypes.push_back(resolve_provider_type(context, architecture->types, parameter.type_name, type_cache,
@@ -929,32 +1615,121 @@ static void apply_provider_prototype(ghidra::Architecture* architecture, ghidra:
     }
 
     ghidra::FuncProto& function_prototype = data->getFuncProto();
-    function_prototype.setCustomStorage(true);
-    function_prototype.setPieces(pieces);
-    if (prototype.return_storage) {
-        validate_storage(*prototype.return_storage, "Prototype return storage");
-        ghidra::AddrSpace* output_space = architecture->getSpaceByName(prototype.return_storage->space);
-        if (output_space == nullptr) {
-            throw std::runtime_error("Prototype references an unknown return storage space: " +
-                                     prototype.return_storage->space);
+    const bool has_ordered_storage =
+        !prototype.return_storage_pieces.empty() ||
+        std::any_of(prototype.parameters.begin(), prototype.parameters.end(),
+                    [](const PrototypeParameterDescription& parameter) { return !parameter.storage_pieces.empty(); });
+    const std::vector<Storage> return_storage = provider_storage_sequence(
+        prototype.return_storage, prototype.return_storage_pieces, "Prototype return storage");
+    if (has_ordered_storage && !return_storage.empty()) {
+        // A custom storage vector lets FuncProto install one logical parameter
+        // over a native join address without allowing the bootstrap model to
+        // reinterpret an explicitly supplied ABI. This follows `fspec.cc`'s
+        // setCustomPieces path and the original JoinRecord contract.
+        std::vector<ghidra::ParameterPieces> storage;
+        storage.reserve(prototype.parameters.size() + 2U);
+        storage.push_back(make_provider_storage(architecture, pieces.outtype, return_storage,
+                                                ghidra::ParameterPieces::typelock | ghidra::ParameterPieces::sizelock,
+                                                "Prototype return storage"));
+        if (prototype.hidden_return_storage) {
+            const std::vector<Storage> hidden_storage =
+                provider_storage_sequence(prototype.hidden_return_storage, {}, "Prototype hidden return storage");
+            storage.push_back(
+                make_provider_storage(architecture, pieces.intypes.front(), hidden_storage,
+                                      ghidra::ParameterPieces::hiddenretparm | ghidra::ParameterPieces::typelock |
+                                          ghidra::ParameterPieces::namelock | ghidra::ParameterPieces::sizelock,
+                                      "Prototype hidden return storage"));
         }
-        validate_space_range(*prototype.return_storage, output_space, "Prototype return storage");
-        ghidra::ParameterPieces output{};
-        output.type = pieces.outtype;
-        output.flags = ghidra::ParameterPieces::typelock | ghidra::ParameterPieces::sizelock;
-        output.addr = ghidra::Address(output_space, prototype.return_storage->offset);
-        function_prototype.setOutput(output);
-    }
-    for (std::size_t index = 0; index < prototype.parameters.size(); ++index) {
-        const PrototypeParameterDescription& parameter = prototype.parameters[index];
-        if (!parameter.storage) {
-            continue;
+        const std::size_t parameter_type_offset = prototype.hidden_return_storage ? 1U : 0U;
+        for (std::size_t index = 0; index < prototype.parameters.size(); ++index) {
+            const PrototypeParameterDescription& parameter = prototype.parameters[index];
+            const std::vector<Storage> parameter_storage =
+                provider_storage_sequence(parameter.storage, parameter.storage_pieces, "Prototype parameter storage");
+            if (parameter_storage.empty()) {
+                throw ghidra::BadDataError("Ordered provider prototype requires storage for every parameter");
+            }
+            storage.push_back(
+                make_provider_storage(architecture, pieces.intypes[index + parameter_type_offset], parameter_storage,
+                                      ghidra::ParameterPieces::typelock | ghidra::ParameterPieces::namelock |
+                                          ghidra::ParameterPieces::sizelock,
+                                      "Prototype parameter storage"));
         }
-        ghidra::ParameterPieces parameter_storage{};
-        parameter_storage.type = pieces.intypes[index];
-        parameter_storage.flags =
-            ghidra::ParameterPieces::typelock | ghidra::ParameterPieces::namelock | ghidra::ParameterPieces::sizelock;
-        if (parameter.storage) {
+        function_prototype.setCustomPieces(pieces, storage);
+    } else if (has_ordered_storage) {
+        // Without an explicit output location, keep the native output intact
+        // and override only explicitly supplied input locations. This covers
+        // void functions and non-void prototypes whose ABI model supplies the
+        // return location.
+        function_prototype.setCustomStorage(true);
+        function_prototype.setPieces(pieces);
+        if (prototype.hidden_return_storage) {
+            const std::vector<Storage> hidden_storage =
+                provider_storage_sequence(prototype.hidden_return_storage, {}, "Prototype hidden return storage");
+            ghidra::ParameterPieces hidden =
+                make_provider_storage(architecture, pieces.intypes.front(), hidden_storage,
+                                      ghidra::ParameterPieces::hiddenretparm | ghidra::ParameterPieces::typelock |
+                                          ghidra::ParameterPieces::namelock | ghidra::ParameterPieces::sizelock,
+                                      "Prototype hidden return storage");
+            function_prototype.setParam(0, "rethidden", hidden);
+        }
+        const std::size_t parameter_type_offset = prototype.hidden_return_storage ? 1U : 0U;
+        for (std::size_t index = 0; index < prototype.parameters.size(); ++index) {
+            const PrototypeParameterDescription& parameter = prototype.parameters[index];
+            const std::vector<Storage> parameter_storage =
+                provider_storage_sequence(parameter.storage, parameter.storage_pieces, "Prototype parameter storage");
+            if (parameter_storage.empty()) {
+                throw ghidra::BadDataError("Ordered provider prototype requires storage for every parameter");
+            }
+            ghidra::ParameterPieces native_parameter =
+                make_provider_storage(architecture, pieces.intypes[index + parameter_type_offset], parameter_storage,
+                                      ghidra::ParameterPieces::typelock | ghidra::ParameterPieces::namelock |
+                                          ghidra::ParameterPieces::sizelock,
+                                      "Prototype parameter storage");
+            function_prototype.setParam(static_cast<ghidra::int4>(index + parameter_type_offset), parameter.name,
+                                        native_parameter);
+        }
+    } else {
+        function_prototype.setCustomStorage(true);
+        function_prototype.setPieces(pieces);
+        if (prototype.return_storage) {
+            validate_storage(*prototype.return_storage, "Prototype return storage");
+            ghidra::AddrSpace* output_space = architecture->getSpaceByName(prototype.return_storage->space);
+            if (output_space == nullptr) {
+                throw std::runtime_error("Prototype references an unknown return storage space: " +
+                                         prototype.return_storage->space);
+            }
+            validate_space_range(*prototype.return_storage, output_space, "Prototype return storage");
+            ghidra::ParameterPieces output{};
+            output.type = pieces.outtype;
+            output.flags = ghidra::ParameterPieces::typelock | ghidra::ParameterPieces::sizelock;
+            output.addr = ghidra::Address(output_space, prototype.return_storage->offset);
+            function_prototype.setOutput(output);
+        }
+        if (prototype.hidden_return_storage) {
+            validate_storage(*prototype.hidden_return_storage, "Prototype hidden return storage");
+            ghidra::AddrSpace* hidden_space = architecture->getSpaceByName(prototype.hidden_return_storage->space);
+            if (hidden_space == nullptr) {
+                throw std::runtime_error("Prototype references an unknown hidden return storage space: " +
+                                         prototype.hidden_return_storage->space);
+            }
+            validate_space_range(*prototype.hidden_return_storage, hidden_space, "Prototype hidden return storage");
+            ghidra::ParameterPieces hidden{};
+            hidden.type = pieces.intypes.front();
+            hidden.flags = ghidra::ParameterPieces::hiddenretparm | ghidra::ParameterPieces::typelock |
+                           ghidra::ParameterPieces::namelock | ghidra::ParameterPieces::sizelock;
+            hidden.addr = ghidra::Address(hidden_space, prototype.hidden_return_storage->offset);
+            function_prototype.setParam(0, "rethidden", hidden);
+        }
+        const std::size_t parameter_index_offset = prototype.hidden_return_storage ? 1U : 0U;
+        for (std::size_t index = 0; index < prototype.parameters.size(); ++index) {
+            const PrototypeParameterDescription& parameter = prototype.parameters[index];
+            if (!parameter.storage) {
+                continue;
+            }
+            ghidra::ParameterPieces parameter_storage{};
+            parameter_storage.type = pieces.intypes[index + parameter_index_offset];
+            parameter_storage.flags = ghidra::ParameterPieces::typelock | ghidra::ParameterPieces::namelock |
+                                      ghidra::ParameterPieces::sizelock;
             validate_storage(*parameter.storage, "Prototype parameter storage");
             ghidra::AddrSpace* parameter_space = architecture->getSpaceByName(parameter.storage->space);
             if (parameter_space == nullptr) {
@@ -963,10 +1738,66 @@ static void apply_provider_prototype(ghidra::Architecture* architecture, ghidra:
             }
             validate_space_range(*parameter.storage, parameter_space, "Prototype parameter storage");
             parameter_storage.addr = ghidra::Address(parameter_space, parameter.storage->offset);
+            function_prototype.setParam(static_cast<ghidra::int4>(index + parameter_index_offset), parameter.name,
+                                        parameter_storage);
         }
-        function_prototype.setParam(static_cast<ghidra::int4>(index), parameter.name, parameter_storage);
+    }
+    function_prototype.setNoReturn(prototype.no_return);
+    function_prototype.setInline(prototype.inline_function);
+    if (prototype.call_fixup) {
+        const ghidra::int4 injection_id =
+            architecture->pcodeinjectlib->getPayloadId(ghidra::InjectPayload::CALLFIXUP_TYPE, *prototype.call_fixup);
+        if (injection_id < 0) {
+            throw std::invalid_argument("Unknown provider call-fixup: " + *prototype.call_fixup);
+        }
+        function_prototype.setInjectId(injection_id);
     }
     function_prototype.clearProviderErrors();
+}
+
+/// Applies provider flow records before the native `Funcdata::followFlow` pass.
+static void apply_flow_description(ghidra::Architecture* architecture, ghidra::Funcdata* data,
+                                   const FlowDescription& description) {
+    ghidra::AddrSpace* code_space = architecture->getDefaultCodeSpace();
+    for (const IndirectCallTargetDescription& target : description.indirect_call_targets) {
+        data->getOverride().insertDeindirect(ghidra::Address(code_space, target.call_address),
+                                             ghidra::Address(code_space, target.target_address));
+    }
+    for (const JumpTableDescription& jump_table : description.jump_tables) {
+        if (jump_table.target_addresses.empty()) {
+            throw std::invalid_argument("Provider jump-table override must contain at least one target");
+        }
+        std::vector<ghidra::Address> targets;
+        targets.reserve(jump_table.target_addresses.size());
+        for (const std::uint64_t target : jump_table.target_addresses) {
+            targets.emplace_back(code_space, target);
+        }
+        ghidra::JumpTable* native_table =
+            data->installJumpTable(ghidra::Address(code_space, jump_table.branch_address));
+        const ghidra::Address normalized = jump_table.normalized_switch_address
+                                               ? ghidra::Address(code_space, *jump_table.normalized_switch_address)
+                                               : ghidra::Address();
+        native_table->setOverride(targets, normalized, jump_table.normalized_switch_hash, jump_table.starting_value);
+    }
+    for (const FlowOverrideDescription& override_description : description.flow_overrides) {
+        if (override_description.type.empty()) {
+            throw std::invalid_argument("Provider flow override type must not be empty");
+        }
+        data->getOverride().insertFlowOverride(ghidra::Address(code_space, override_description.address),
+                                               override_description.type);
+    }
+    for (const DestinationOverrideDescription& override_description : description.destination_overrides) {
+        if (override_description.type.empty()) {
+            throw std::invalid_argument("Provider destination override type must not be empty");
+        }
+        data->getOverride().insertDestinationOverride(ghidra::Address(code_space, override_description.address),
+                                                      ghidra::Address(code_space, override_description.target_address),
+                                                      override_description.type);
+    }
+    for (const ForceGotoDescription& force_goto : description.force_gotos) {
+        data->getOverride().insertForceGoto(ghidra::Address(code_space, force_goto.address),
+                                            ghidra::Address(code_space, force_goto.target_address));
+    }
 }
 
 } // namespace detail
@@ -977,8 +1808,10 @@ public:
     /// Constructs one standalone native architecture.
     State(ArchitectureDescription description, ProviderContext context)
         : description(std::move(description)), context(std::move(context)), provider(this->context.pcode),
-          memory(this->context.memory), architecture(std::make_unique<detail::ProviderArchitecture>(
-                                            this->description, this->provider, this->memory)) {}
+          memory(this->context.memory),
+          architecture(std::make_unique<detail::ProviderArchitecture>(this->description, this->provider, this->memory,
+                                                                      this->context.injections,
+                                                                      this->context.analysis_options)) {}
 
     ArchitectureDescription description;
     ProviderContext context;
@@ -1070,8 +1903,10 @@ Decompiler::Decompiler(ArchitectureDescription description, std::shared_ptr<Pcod
     ghidra::forcePrintCLanguageRegistration();
     static std::once_flag capability_initialization;
     std::call_once(capability_initialization, [] { ghidra::CapabilityPoint::initializeAll(); });
-    state_ = std::make_unique<State>(std::move(description),
-                                     ProviderContext{std::move(provider), std::move(memory), {}, {}, {}, {}, {}});
+    ProviderContext context;
+    context.pcode = std::move(provider);
+    context.memory = std::move(memory);
+    state_ = std::make_unique<State>(std::move(description), std::move(context));
 }
 
 /// Constructs the provider-backed native decompiler with all external services.
@@ -1100,89 +1935,290 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
         throw std::invalid_argument("FunctionDescription requires an end address greater than entry");
     }
     DecompilationResult result;
-    for (std::uint64_t address = function.entry; address < function.end;) {
-        const auto decoded = state_->provider->decode(address);
-        if (!decoded) {
-            throw std::runtime_error(decoded.error().message);
+    const auto decode_body = [&](const FunctionDescription& body) {
+        if (body.end <= body.entry) {
+            throw std::invalid_argument("FunctionProvider returned an invalid function range");
         }
-        try {
-            detail::validate_instruction(*decoded, address);
-        } catch (const ghidra::LowlevelError& error) {
-            throw std::runtime_error(error.explain);
+        std::vector<Instruction> instructions;
+        for (std::uint64_t address = body.entry; address < body.end;) {
+            const auto decoded = state_->provider->decode(address);
+            if (!decoded) {
+                throw std::runtime_error(decoded.error().message);
+            }
+            try {
+                detail::validate_instruction(*decoded, address);
+            } catch (const ghidra::LowlevelError& error) {
+                throw std::runtime_error(error.explain);
+            }
+            if (decoded->length > body.end - address) {
+                throw std::runtime_error("Provider returned an instruction outside the function range");
+            }
+            instructions.push_back(*decoded);
+            address += decoded->length;
         }
-        if (decoded->length > function.end - address) {
-            throw std::runtime_error("Provider returned an instruction outside the function range");
+        return instructions;
+    };
+
+    std::vector<FunctionDescription> bodies{function};
+    if (state_->context.functions) {
+        for (const FunctionDescription& supplied : state_->context.functions->functions()) {
+            if (supplied.entry == function.entry) {
+                if (supplied.end != function.end) {
+                    throw std::invalid_argument("FunctionProvider conflicts with the requested root body");
+                }
+                continue;
+            }
+            bodies.push_back(supplied);
         }
-        result.raw_instructions.push_back(*decoded);
-        address += decoded->length;
     }
+    std::map<std::uint64_t, std::vector<Instruction>> decoded_bodies;
+    for (const FunctionDescription& body : bodies) {
+        if (!decoded_bodies.emplace(body.entry, decode_body(body)).second) {
+            throw std::invalid_argument("FunctionProvider returned duplicate function entries");
+        }
+    }
+    result.raw_instructions = decoded_bodies.at(function.entry);
 
     ghidra::AddrSpace* code_space = state_->architecture->getDefaultCodeSpace();
     const ghidra::Address entry(code_space, function.entry);
-    std::string function_name = function.name;
-    std::string function_namespace;
+    auto lookup_symbol = [&](std::uint64_t address) -> std::optional<SymbolDescription> {
+        if (!state_->context.symbols) {
+            return std::nullopt;
+        }
+        return state_->context.symbols->symbol_at(address);
+    };
+    std::vector<SymbolDescription> enumerated_symbols;
     if (state_->context.symbols) {
-        const std::optional<SymbolDescription> symbol = state_->context.symbols->symbol_at(function.entry);
-        if (symbol && !symbol->name.empty()) {
-            function_name = symbol->name;
-            function_namespace = symbol->namespace_name;
+        for (const SymbolDescription& symbol : state_->context.symbols->symbols()) {
+            enumerated_symbols.push_back(symbol);
         }
     }
+    const auto find_enumerated_symbol = [&](std::uint64_t address, SymbolKind kind) -> const SymbolDescription* {
+        const auto found =
+            std::find_if(enumerated_symbols.begin(), enumerated_symbols.end(), [&](const SymbolDescription& candidate) {
+                return candidate.address == address && candidate.kind == kind;
+            });
+        return found == enumerated_symbols.end() ? nullptr : &*found;
+    };
     auto add_function_symbol = [&](std::uint64_t address, const std::string& name, const std::string& namespace_name) {
+        if (ghidra::Funcdata* existing = state_->architecture->symboltab->getGlobalScope()->queryFunction(
+                ghidra::Address(code_space, address))) {
+            // Native flow may create a fallback function shell before the
+            // provider symbol inventory is applied.  Preserve the shell's
+            // analysis state but replace its generated name with the
+            // provider-owned symbol, matching the original external-symbol
+            // resolution contract used by the decompiler datatests.
+            if (!name.empty() && existing->getSymbol()->getName() != name) {
+                existing->getSymbol()->setProviderInfo(name, existing->getSymbol()->getType());
+            }
+            return existing->getSymbol();
+        }
         ghidra::Scope* scope = state_->architecture->symboltab->getGlobalScope();
         std::string basename = name;
         if (!namespace_name.empty()) {
             scope = state_->architecture->symboltab->findCreateScopeFromSymbolName(namespace_name + "::" + name,
                                                                                    basename, scope);
         }
-        return scope->addFunction(ghidra::Address(code_space, address), basename);
+        ghidra::FunctionSymbol* created = scope->addFunction(ghidra::Address(code_space, address), basename);
+        if (!name.empty() && created->getName() != name) {
+            // Native symbols normalize names containing C++ scopes; retain the
+            // provider spelling so direct and indirect calls print identically.
+            created->setProviderInfo(name, created->getType());
+        }
+        if (!namespace_name.empty()) {
+            // Match `database_ghidra.cc`, `ScopeGhidraNamespace::addMapInternal`:
+            // namespace-owned function mappings participate in address lookup.
+            state_->architecture->symboltab->addRange(scope, code_space, address, address);
+        }
+        return created;
     };
+    std::map<std::uint64_t, ghidra::Symbol*> provider_data_symbols;
+    const auto add_data_symbol = [&](const SymbolDescription& symbol) {
+        if (symbol.kind != SymbolKind::data) {
+            return;
+        }
+        if (symbol.name.empty()) {
+            throw std::invalid_argument("Provider data symbol has an empty name");
+        }
+        // Scope::addSymbol maps the object in the scope that owns its name.
+        // Use the provider-selected space, falling back to the resolved native
+        // data space when older metadata omitted a name.
+        // Original namespace and mapping behavior: `database.cc`,
+        // `Database::findCreateScopeFromSymbolName` and `Scope::addSymbol`.
+        ghidra::AddrSpace* data_space = symbol.space.empty() ? state_->architecture->getDefaultDataSpace()
+                                                             : state_->architecture->getSpaceByName(symbol.space);
+        if (data_space == nullptr) {
+            throw std::runtime_error("Provider data symbol references an unknown space: " + symbol.space);
+        }
+        ghidra::Datatype* type = nullptr;
+        if (!symbol.type_name.empty()) {
+            type = detail::resolve_provider_type(state_->context, state_->architecture->types, symbol.type_name,
+                                                 state_->type_cache, state_->description.pointer_size,
+                                                 &state_->type_declarations);
+        } else {
+            if (symbol.size > static_cast<std::uint32_t>(std::numeric_limits<ghidra::int4>::max())) {
+                throw std::invalid_argument("Provider data symbol has an invalid size: " + symbol.name);
+            }
+            const ghidra::int4 size = static_cast<ghidra::int4>(symbol.size == 0 ? 1 : symbol.size);
+            type = state_->architecture->types->getBase(size, ghidra::TYPE_UNKNOWN);
+        }
+        if (type == nullptr || type->getSize() <= 0 ||
+            (symbol.size != 0 && type->getSize() != static_cast<ghidra::int4>(symbol.size))) {
+            throw std::invalid_argument("Provider data symbol size does not match its type: " + symbol.name);
+        }
+        if (symbol.address > data_space->getHighest() ||
+            static_cast<std::uint64_t>(type->getSize()) - 1U > data_space->getHighest() - symbol.address) {
+            throw std::invalid_argument("Provider data symbol exceeds its address space: " + symbol.name);
+        }
+        ghidra::Scope* scope = state_->architecture->symboltab->getGlobalScope();
+        std::string basename = symbol.name;
+        if (!symbol.namespace_name.empty()) {
+            scope = state_->architecture->symboltab->findCreateScopeFromSymbolName(
+                symbol.namespace_name + "::" + symbol.name, basename, scope);
+        }
+        const std::uint64_t identity = symbol.alias_identity != 0 ? symbol.alias_identity : symbol.identity;
+        ghidra::MapEntry* mapping = nullptr;
+        const auto existing_identity = provider_data_symbols.find(identity);
+        if (identity != 0 && existing_identity != provider_data_symbols.end()) {
+            mapping = scope->addMapPoint(existing_identity->second, ghidra::Address(data_space, symbol.address),
+                                         ghidra::Address());
+        } else {
+            mapping = scope->addSymbol(basename, type, ghidra::Address(data_space, symbol.address), ghidra::Address());
+            if (mapping != nullptr && identity != 0) {
+                provider_data_symbols.emplace(identity, mapping->getSymbol());
+            }
+        }
+        if (mapping == nullptr) {
+            throw std::runtime_error("Native symbol database rejected provider data symbol: " + symbol.name);
+        }
+        if (!symbol.namespace_name.empty()) {
+            // Native Ghidra's `ScopeGhidraNamespace::addMapInternal` adds the
+            // mapped range to a namespace so address-based symbol resolution
+            // can discover it without flattening the qualified name.
+            state_->architecture->symboltab->addRange(
+                scope, data_space, symbol.address, symbol.address + static_cast<std::uint64_t>(type->getSize()) - 1U);
+        }
+        ghidra::Symbol* native_symbol = mapping->getSymbol();
+        if (identity != 0) {
+            native_symbol->setProviderInfo(native_symbol->getName(), type, identity);
+        }
+        if (symbol.read_only) {
+            scope->setAttribute(native_symbol, ghidra::Varnode::readonly);
+        }
+        if (symbol.display_format != DisplayFormat::none) {
+            scope->setDisplayFormat(native_symbol, detail::native_display_format(symbol.display_format));
+        }
+    };
+    for (const SymbolDescription& symbol : enumerated_symbols) {
+        add_data_symbol(symbol);
+    }
+    std::map<std::uint64_t, ghidra::FunctionSymbol*> native_functions;
+    // The original Architecture symbol-loading path installs every function
+    // returned by LoadImage::getNextSymbol before flow recovery. Do the same
+    // for the provider inventory, including functions not reached by the root
+    // body; see `architecture.cc`, `Architecture::readLoaderSymbols` and
+    // `database.cc`, `Scope::addFunction`.
+    for (const SymbolDescription& symbol : enumerated_symbols) {
+        if (symbol.kind != SymbolKind::function) {
+            continue;
+        }
+        const std::uint64_t address = symbol.address;
+        const std::string function_name = symbol.name.empty() ? "FUN_" + std::to_string(address) : symbol.name;
+        native_functions[address] = add_function_symbol(address, function_name, symbol.namespace_name);
+    }
     auto install_external_function = [&](std::uint64_t address, const std::string& fallback_name) {
         std::string external_name = fallback_name;
         std::string external_namespace;
-        if (state_->context.symbols) {
-            const std::optional<SymbolDescription> symbol = state_->context.symbols->symbol_at(address);
-            if (symbol && !symbol->name.empty()) {
-                external_name = symbol->name;
-                external_namespace = symbol->namespace_name;
-            }
+        const SymbolDescription* enumerated = find_enumerated_symbol(address, SymbolKind::function);
+        if (enumerated != nullptr && !enumerated->name.empty()) {
+            external_name = enumerated->name;
+            external_namespace = enumerated->namespace_name;
+        } else if (const std::optional<SymbolDescription> symbol = lookup_symbol(address);
+                   symbol && symbol->kind == SymbolKind::function && !symbol->name.empty()) {
+            external_name = symbol->name;
+            external_namespace = symbol->namespace_name;
         }
         ghidra::FunctionSymbol* external_symbol = add_function_symbol(address, external_name, external_namespace);
-        ghidra::Funcdata* external_data = external_symbol->getFunction();
-        if (!state_->context.prototypes) {
-            return;
-        }
-        const std::optional<PrototypeDescription> prototype = state_->context.prototypes->prototype_at(address);
-        if (!prototype) {
-            return;
-        }
-        detail::apply_provider_prototype(state_->architecture.get(), external_data, external_name, *prototype,
-                                         state_->context, state_->description.pointer_size, state_->type_cache,
-                                         &state_->type_declarations);
+        native_functions[address] = external_symbol;
+        return external_symbol;
     };
-    for (const Instruction& instruction : result.raw_instructions) {
-        for (const PcodeOperation& operation : instruction.pcode) {
-            if (operation.opcode != static_cast<std::uint32_t>(ghidra::CPUI_CALL) || operation.inputs.empty()) {
-                continue;
+    for (const auto& [address, body] : decoded_bodies) {
+        const FunctionDescription* supplied = nullptr;
+        for (const FunctionDescription& candidate : bodies) {
+            if (candidate.entry == address) {
+                supplied = &candidate;
+                break;
             }
-            const std::uint64_t target = operation.inputs.front().offset;
-            if (target == function.entry) {
-                continue;
+        }
+        std::string name = supplied == nullptr ? "FUN_" + std::to_string(address) : supplied->name;
+        std::string namespace_name;
+        if (const SymbolDescription* enumerated = find_enumerated_symbol(address, SymbolKind::function);
+            enumerated != nullptr) {
+            name = enumerated->name.empty() ? name : enumerated->name;
+            namespace_name = enumerated->namespace_name;
+        } else if (const std::optional<SymbolDescription> symbol = lookup_symbol(address);
+                   symbol && symbol->kind == SymbolKind::function) {
+            name = symbol->name.empty() ? name : symbol->name;
+            namespace_name = symbol->namespace_name;
+        }
+        native_functions[address] = add_function_symbol(address, name, namespace_name);
+    }
+    for (const auto& [address, body] : decoded_bodies) {
+        for (const Instruction& instruction : body) {
+            for (const PcodeOperation& operation : instruction.pcode) {
+                if ((operation.opcode != static_cast<std::uint32_t>(ghidra::CPUI_CALL) &&
+                     operation.opcode != static_cast<std::uint32_t>(ghidra::CPUI_CALLIND)) ||
+                    operation.inputs.empty()) {
+                    continue;
+                }
+                if (operation.opcode == static_cast<std::uint32_t>(ghidra::CPUI_CALLIND) &&
+                    operation.inputs.front().space != "const" &&
+                    operation.inputs.front().space != state_->description.code_space) {
+                    continue;
+                }
+                const std::uint64_t target = operation.inputs.front().offset;
+                if (native_functions.find(target) == native_functions.end()) {
+                    install_external_function(target, "FUN_" + std::to_string(target));
+                }
             }
-            install_external_function(target, "FUN_" + std::to_string(target));
         }
     }
-    ghidra::FunctionSymbol* symbol = add_function_symbol(function.entry, function_name, function_namespace);
+    for (const FunctionDescription& body : bodies) {
+        if (!state_->context.flow) {
+            continue;
+        }
+        const std::optional<FlowDescription> flow = state_->context.flow->flow_at(body.entry);
+        if (!flow) {
+            continue;
+        }
+        for (const IndirectCallTargetDescription& target : flow->indirect_call_targets) {
+            if (native_functions.find(target.target_address) == native_functions.end()) {
+                install_external_function(target.target_address, "FUN_" + std::to_string(target.target_address));
+            }
+        }
+    }
+    for (const auto& [address, symbol] : native_functions) {
+        ghidra::Funcdata* native_data = symbol->getFunction();
+        std::string native_name = symbol->getName();
+        if (state_->context.prototypes) {
+            const std::optional<PrototypeDescription> prototype = state_->context.prototypes->prototype_at(address);
+            if (prototype) {
+                detail::apply_provider_prototype(state_->architecture.get(), native_data, native_name, *prototype,
+                                                 state_->context, state_->description.pointer_size, state_->type_cache,
+                                                 &state_->type_declarations);
+            }
+        }
+        if (state_->context.flow) {
+            const std::optional<FlowDescription> flow = state_->context.flow->flow_at(address);
+            if (flow) {
+                detail::apply_flow_description(state_->architecture.get(), native_data, *flow);
+            }
+        }
+    }
+    ghidra::FunctionSymbol* symbol = native_functions.at(function.entry);
     ghidra::Funcdata* data = symbol->getFunction();
+    const std::string function_name = symbol->getName();
 
-    if (state_->context.prototypes) {
-        const std::optional<PrototypeDescription> prototype = state_->context.prototypes->prototype_at(function.entry);
-        if (prototype) {
-            detail::apply_provider_prototype(state_->architecture.get(), data, function_name, *prototype,
-                                             state_->context, state_->description.pointer_size, state_->type_cache,
-                                             &state_->type_declarations);
-        }
-    }
     if (state_->context.comments) {
         for (const Instruction& instruction : result.raw_instructions) {
             const std::optional<std::string> comment = state_->context.comments->comment_at(instruction.address);
@@ -1191,6 +2227,14 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
                                                             ghidra::Address(code_space, instruction.address), *comment);
             }
         }
+    }
+    for (const FunctionDescription& body : bodies) {
+        if (body.entry == function.entry) {
+            continue;
+        }
+        native_functions.at(body.entry)
+            ->getFunction()
+            ->followFlow(ghidra::Address(code_space, body.entry), ghidra::Address(code_space, body.end));
     }
     data->followFlow(entry, ghidra::Address(code_space, function.end));
 
@@ -1220,6 +2264,55 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
         action->reset(*data);
         action->perform(*data);
     }
+    // Install provider-owned dynamic constant formats after native action
+    // analysis and before C printing. This is the same lifecycle point used by
+    // the original `force varnode` and `map convert` interface commands: the
+    // p-code use has a stable dynamic hash, while the printer has not yet
+    // emitted the function.
+    for (const ConstantFormatDescription& format : state_->context.constant_formats) {
+        if (format.format == DisplayFormat::none) {
+            throw std::invalid_argument("Provider constant format must select an integer representation");
+        }
+        if (format.size > static_cast<std::uint32_t>(std::numeric_limits<ghidra::int4>::max())) {
+            throw std::invalid_argument("Provider constant format has an invalid encoded width");
+        }
+        const std::uint32_t native_format = detail::native_display_format(format.format);
+        if (format.pcode_address > code_space->getHighest()) {
+            throw std::invalid_argument("Provider constant format address exceeds the code space");
+        }
+        bool matched = false;
+        for (auto variable = data->beginLoc(); variable != data->endLoc() && !matched; ++variable) {
+            ghidra::Varnode* varnode = *variable;
+            // A value can occur at the same p-code address with different
+            // widths after Sleigh construction. Preserve the provider's
+            // optional size discriminator before attaching a dynamic symbol.
+            if ((format.size != 0 && varnode->getSize() != format.size) || !varnode->constantMatch(format.value)) {
+                continue;
+            }
+            for (auto use = varnode->beginDescend(); use != varnode->endDescend(); ++use) {
+                if ((*use)->getAddr() != ghidra::Address(code_space, format.pcode_address)) {
+                    continue;
+                }
+                data->buildDynamicSymbol(varnode);
+                ghidra::HighVariable* high = varnode->getHigh();
+                ghidra::Symbol* symbol = high == nullptr ? nullptr : high->getSymbol();
+                if (symbol == nullptr) {
+                    throw std::runtime_error("Provider constant format could not create a dynamic symbol");
+                }
+                symbol->getScope()->setDisplayFormat(symbol, native_format);
+                symbol->getScope()->setAttribute(symbol, ghidra::Varnode::typelock);
+                matched = true;
+                break;
+            }
+        }
+        if (!matched) {
+            if (format.hash == 0) {
+                throw std::invalid_argument("Provider constant format does not identify a p-code use");
+            }
+            data->getScopeLocal()->addEquateSymbol("", native_format, format.value,
+                                                   ghidra::Address(code_space, format.pcode_address), format.hash);
+        }
+    }
     if (state_->context.variables) {
         data->getScopeLocal()->applyTypeRecommendations();
         data->getScopeLocal()->recoverNameRecommendationsForSymbols();
@@ -1233,7 +2326,8 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
                 state_->description.pointer_size, &state_->type_declarations);
             if (ghidra::MapEntry* map = data->getScopeLocal()->findOverlap(
                     ghidra::Address(variable_space, variable.storage.offset), variable_type->getSize())) {
-                map->getSymbol()->setProviderInfo(variable.name, variable_type);
+                map->getSymbol()->setProviderInfo(variable.name, variable_type, variable.identity);
+                map->getSymbol()->setIsolated(variable.isolated);
             }
         }
     }

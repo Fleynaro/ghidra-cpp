@@ -164,5 +164,26 @@ if(TARGET NewGhidra::SleighRuntime)
         target_compile_options(new_ghidra_decompiler_frontend PRIVATE -Wall -Wextra -Wpedantic)
     endif()
 
+    add_executable(decompiler_cli)
+    target_sources(decompiler_cli
+        PRIVATE
+            cli/decompiler_cli.cppm
+    )
+    set_target_properties(decompiler_cli PROPERTIES OUTPUT_NAME "new_ghidra_decompiler")
+    target_compile_features(decompiler_cli PRIVATE cxx_std_23)
+    target_link_libraries(decompiler_cli PRIVATE
+        NewGhidra::DecompilerFrontend
+    )
+    if(MSVC)
+        target_compile_options(decompiler_cli PRIVATE /W3)
+    else()
+        target_compile_options(decompiler_cli PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+
+    add_test(NAME decompiler_cli_help COMMAND decompiler_cli --help)
+    set_tests_properties(decompiler_cli_help PROPERTIES
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    )
+
     add_subdirectory(tests)
 endif()

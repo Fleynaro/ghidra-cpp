@@ -772,6 +772,14 @@ void Funcdata::followFlow(const Address& baddr, const Address& eaddr)
         return; // Already translated
     }
 
+    // Preserve the provider's body range so inlineFlow can regenerate this
+    // function without decoding into a neighboring function or data object.
+    // This supplements, rather than replaces, the native flow bound used by
+    // FlowInfo::setRange and is intentionally retained by Funcdata::clear().
+    flowStart = baddr;
+    flowEnd = eaddr;
+    flowBounded = true;
+
     uint4 fl = 0;
     fl |= glb->flowoptions; // Global flow options
     FlowInfo flow(*this, obank, bblocks, qlst);
@@ -868,8 +876,8 @@ int4 Funcdata::inlineFlow(Funcdata* inlinefd, FlowInfo& flow, PcodeOp* callop)
     inlinefd->obank.setUniqId(obank.getUniqId());
 
     // Generate the pcode ops to be inlined
-    Address baddr(baseaddr.getSpace(), 0);
-    Address eaddr(baseaddr.getSpace(), ~((uintb)0));
+    Address baddr = inlinefd->hasFlowBounds() ? inlinefd->getFlowStart() : Address(baseaddr.getSpace(), 0);
+    Address eaddr = inlinefd->hasFlowBounds() ? inlinefd->getFlowEnd() : Address(baseaddr.getSpace(), ~((uintb)0));
     inlineflow.setRange(baddr, eaddr);
     inlineflow.setFlags(FlowInfo::error_outofbounds | FlowInfo::error_unimplemented | FlowInfo::error_baddata |
                         FlowInfo::error_reinterpreted | FlowInfo::flow_forinline);

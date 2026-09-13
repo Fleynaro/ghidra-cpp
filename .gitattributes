@@ -35,7 +35,7 @@
 *.py text
 *.rxg text
 *.sh text
-*.sla text
+*.sla binary
 *.tag text
 *.tld text
 *.tool text

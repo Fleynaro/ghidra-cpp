@@ -298,15 +298,20 @@ bool Symbol::isNameUndefined(void) const
     return ((name.size() == 15) && (0 == name.compare(0, 7, "$$undef")));
 }
 
-/// Apply provider-owned local naming and typing after recovery has created the
-/// mapped symbol that will be attached to high variables by the printer.
-void Symbol::setProviderInfo(const string& nm, Datatype* ct)
+/// Apply provider-owned local naming, typing, and optional stable identity after
+/// recovery has created the mapped symbol that will be attached to high
+/// variables by the printer. A non-zero provider id is persisted so later
+/// database recommendations refer to the same logical variable even when
+/// native map insertion order changes.
+void Symbol::setProviderInfo(const string& nm, Datatype* ct, uint8 providerId)
 
 {
     name = nm;
     displayName = nm;
     type = ct;
     flags |= Varnode::typelock | Varnode::namelock;
+    if (providerId != 0)
+        symbolId = providerId;
 }
 
 /// If the given value is \b true, any Varnodes that map directly to \b this Symbol,

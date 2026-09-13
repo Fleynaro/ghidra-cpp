@@ -423,6 +423,24 @@ UserPcodeOp* UserOpManage::getOp(uint4 i) const {
     return manager->useroplist[i];
 }
 
+/// Attach a provider-owned callother payload to the CALLOTHER index emitted by
+/// the provider p-code stream. The existing unspecialized description at that
+/// index is replaced using the same ownership rules as XML callother fixups.
+/// \param nm is the source-level user-op name
+/// \param ind is the CALLOTHER constant index
+/// \param injectid is the registered payload id
+void UserOpManage::registerInjected(const string& nm, uint4 ind, int4 injectid)
+
+{
+    if (nm.size() == 0)
+        throw LowlevelError("Provider injected user-op name is empty");
+    if (injectid < 0)
+        throw LowlevelError("Provider injected user-op has an invalid payload id");
+    if (ind >= 4096)
+        throw LowlevelError("Provider injected user-op index is too large");
+    registerOp(new InjectedUserOp(nm, glb, ind, injectid));
+}
+
 /// \param nm is the low-level operation name
 /// \return the matching description object or NULL
 UserPcodeOp* UserOpManage::getOp(const string& nm) const

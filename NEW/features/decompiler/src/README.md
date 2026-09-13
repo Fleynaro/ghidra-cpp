@@ -15,3 +15,8 @@ The standalone boundary is implemented by [`decompiler_impl.cppm`](decompiler_im
 from the ported engine sources and p-code enters through the provider contract. Sleigh compiler
 and decoder implementations are intentionally absent; the production decoder remains in
 [`../../sleigh_runtime`](../../sleigh_runtime).
+
+The provider contract's [`ConstantFormatDescription`](decompiler.cppm) supports an optional encoded width,
+which is applied by [`decompiler_impl.cppm`](decompiler_impl.cppm) before native dynamic-symbol formatting.
+The x86 long-double and forced integer-format coverage is implemented in
+[`../tests/decompiler_datatests.cppm`](../tests/decompiler_datatests.cppm).

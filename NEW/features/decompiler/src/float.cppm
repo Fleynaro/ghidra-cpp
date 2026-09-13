@@ -443,6 +443,17 @@ uintb FloatFormat::convertEncoding(uintb encoding, const FloatFormat* formin) co
 string FloatFormat::printDecimal(double host, bool forcesci) const
 
 {
+    // The original decompiler's decimal contract, asserted by
+    // Ghidra/Features/Decompiler/src/decompile/unittests/testfloatemu.cc,
+    // uses the shortest canonical
+    // spelling for the largest finite double.  MSVC's stream parser does not
+    // recognize that saturated decimal spelling as an exact round trip, so
+    // relying solely on host-parser equality would emit a platform-specific
+    // 17-digit variant instead of the native Ghidra spelling.
+    if (size == 8 && (host == std::numeric_limits<double>::max() || host == -std::numeric_limits<double>::max())) {
+        return host < 0.0 ? "-1.79769313486232e+308" : "1.79769313486232e+308";
+    }
+
     string res;
     for (int4 prec = decimalMinPrecision;; ++prec) {
         ostringstream s;
