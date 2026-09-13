@@ -380,9 +380,13 @@ def main() -> int:
         from ghidra.app.plugin.core.string.variadic import FormatStringAnalyzer
         from ghidra.app.util.importer import MessageLog
 
-        FormatStringAnalyzer().added(program, program.getMemory(), TaskMonitor.DUMMY, MessageLog())
+        format_analyzer = FormatStringAnalyzer()
+        format_analyzer.optionsChanged(
+            program.getOptions(program.ANALYSIS_PROPERTIES).getOptions(ANALYZER_NAME), program
+        )
+        format_analyzer.added(program, program.getMemory(), TaskMonitor.DUMMY, MessageLog())
         after = call_inputs(program, "fixture_printf")
-        new_bookmarks = override_rows(program)
+        new_bookmarks = override_bookmarks(program)
         if not new_bookmarks:
             raise RuntimeError("Format-string signature override was not persisted")
         output_path.write_text(

@@ -27,7 +27,7 @@
 
 | Call address | Comment |
 | --- | --- |
-| `0x0000000140001068` | `int dt_6e5c842b(char * param0, int param1, char * param2)` |
+| `0x0000000140001068` | `Override for call to function fixture_printf` |
 
 ## Fixture Assertion
 

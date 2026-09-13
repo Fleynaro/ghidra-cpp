@@ -17,12 +17,11 @@ def value(address) -> int:
 
 
 def close_project(project, program) -> None:
-    """Release the saved analyzed program and close the underlying project."""
+    """Close the saved analyzed program through the GhidraProject lifecycle API."""
     if program is not None:
-        program.release(project)
-    underlying = project.getProject()
-    if underlying is not None:
-        underlying.close()
+        project.close(program)
+    else:
+        project.close()
 
 
 def configure_analysis(project, program) -> list[str]:

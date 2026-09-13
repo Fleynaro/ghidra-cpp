@@ -18,18 +18,11 @@ def offset(address) -> int:
 
 
 def close_project(project, program) -> None:
-    """Release the analyzed program and close the underlying temporary project.
-
-    GhidraProject.analyze() owns and finalizes the batch transaction itself, so
-    its wrapper close() cannot safely end that already-finalized transaction.
-    The saved program is released directly, then the underlying project is
-    closed cleanly.
-    """
+    """Close the analyzed program through the GhidraProject lifecycle API."""
     if program is not None:
-        program.release(project)
-    underlying = project.getProject()
-    if underlying is not None:
-        underlying.close()
+        project.close(program)
+    else:
+        project.close()
 
 
 def address_text(address) -> str:

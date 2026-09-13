@@ -29,7 +29,7 @@ def configure_analysis(project, program) -> list[str]:
             options.setBoolean(name, str(name) in enabled_names)
     # Preserve the Reference analyzer's relocation-guided pointer behavior; this is a
     # nested analyzer option rather than a top-level boolean returned by getAnalysisOptions().
-    analysis_properties = program.getOptions("Analysis")
+    analysis_properties = program.getOptions(program.ANALYSIS_PROPERTIES)
     analysis_properties.getOptions("Reference").setBoolean("Relocation Table Guide", True)
     data_options = analysis_properties.getOptions(ANALYZER)
     data_options.setBoolean("References to Pointers", True)
@@ -39,7 +39,9 @@ def configure_analysis(project, program) -> list[str]:
     # recognition, so the target-specific option is disabled for this prepared data case.
     data_options.setBoolean("Relocation Table Guide", False)
     return sorted(str(name) for name in options.getOptionNames()
-                  if options.getType(name) == OptionType.BOOLEAN_TYPE and options.getBoolean(name, False))
+                  if options.getType(name) == OptionType.BOOLEAN_TYPE
+                  and options.getBoolean(name, False)
+                  and str(name) in enabled_names)
 
 
 def data_reference_facts(program):
