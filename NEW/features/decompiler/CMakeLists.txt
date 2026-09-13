@@ -164,5 +164,34 @@ if(TARGET NewGhidra::SleighRuntime)
         target_compile_options(new_ghidra_decompiler_frontend PRIVATE -Wall -Wextra -Wpedantic)
     endif()
 
+    # The CLI deliberately links the test datatest module as a fixture bridge.
+    # This keeps every portable C++ datatest input in one authoritative place,
+    # while the executable only exposes captured DecompilationResult artifacts.
+    add_executable(decompiler_cli)
+    target_sources(decompiler_cli
+        PRIVATE
+            cli/decompiler_cli.cppm
+        PRIVATE
+            FILE_SET cxx_modules TYPE CXX_MODULES FILES
+                tests/decompiler_datatests.cppm
+    )
+    set_target_properties(decompiler_cli PROPERTIES OUTPUT_NAME "new_ghidra_decompiler")
+    target_compile_features(decompiler_cli PRIVATE cxx_std_23)
+    target_link_libraries(decompiler_cli PRIVATE
+        NewGhidra::DecompilerFrontend
+        GTest::gtest
+    )
+    if(MSVC)
+        target_compile_options(decompiler_cli PRIVATE /W3)
+    else()
+        target_compile_options(decompiler_cli PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+
+    add_test(NAME decompiler_cli_help COMMAND decompiler_cli --help)
+    add_test(NAME decompiler_cli_bitfield COMMAND decompiler_cli --test ProviderBitfieldExtraction --only c)
+    set_tests_properties(decompiler_cli_help decompiler_cli_bitfield PROPERTIES
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    )
+
     add_subdirectory(tests)
 endif()

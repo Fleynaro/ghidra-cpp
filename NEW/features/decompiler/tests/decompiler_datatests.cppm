@@ -11,6 +11,13 @@ import std;
 
 namespace newghidra::decompiler::datatests {
 
+/// Stores complete artifacts produced by the most recently executed portable
+/// datatest so the standalone CLI can display the same native result that the
+/// GoogleTest assertions inspect.
+/// Original test boundary: the XML `<stringmatch>` checks in
+/// `Ghidra/Features/Decompiler/src/decompile/datatests`.
+static std::vector<DecompilationResult> captured_results;
+
 /// Provides the compact symbol table used by the embedded datatest programs.
 /// Original contract: `Ghidra/Features/Decompiler/src/decompile/database.cc`
 /// and the `<symbol>` records in `Ghidra/Features/Decompiler/src/decompile/datatests`.
@@ -305,6 +312,21 @@ make_chunk_image(std::vector<std::pair<std::uint64_t, std::string>> chunks) {
     return {base_address, std::move(image)};
 }
 
+/// Resolves the checked-in x86 SLA fixture from either the source-tree test
+/// working directory or the repository's `NEW` directory.
+static std::filesystem::path find_x86_sla_fixture() {
+    const std::array<std::filesystem::path, 3> candidates{
+        std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla",
+        std::filesystem::path("features") / "sleigh_runtime" / "test_data" / "x86-64.sla",
+        std::filesystem::path("..") / ".." / "sleigh_runtime" / "test_data" / "x86-64.sla"};
+    for (const auto& candidate : candidates) {
+        if (std::filesystem::exists(candidate)) {
+            return candidate;
+        }
+    }
+    throw std::runtime_error("Could not locate NEW/features/sleigh_runtime/test_data/x86-64.sla");
+}
+
 /// Runs a bounded machine-byte image through Sleigh and the native decompiler,
 /// allowing XML-style discontiguous code and data chunks.
 /// Original pipeline: `loadimage.cc`, `translate.cc`, and `funcdata.cc`.
@@ -313,8 +335,7 @@ static DecompilationResult decompile_embedded_at(std::uint64_t entry, std::uint6
                                                  std::string function_name, ProviderContext metadata,
                                                  ArchitectureDescription architecture) {
     const auto memory = std::make_shared<SparseMemory>(image_base, std::move(image));
-    auto provider = std::make_shared<SleighPcodeProvider>(
-        std::filesystem::path("..") / "sleigh_runtime" / "test_data" / "x86-64.sla", memory, make_x86_64_context());
+    auto provider = std::make_shared<SleighPcodeProvider>(find_x86_sla_fixture(), memory, make_x86_64_context());
     metadata.pcode = std::move(provider);
     metadata.memory = memory;
     Decompiler decompiler(std::move(architecture), std::move(metadata));
@@ -649,6 +670,9 @@ make_metadata(std::vector<SymbolDescription> symbols, std::vector<TypeDescriptio
 /// Original datatest intent: every XML fixture executes decompilation and then
 /// checks one or more of these representations with `<stringmatch>`.
 static void expect_complete_analysis(const DecompilationResult& result) {
+    // Capture before assertions so a diagnostic remains available even when a
+    // future test fails one of its completeness checks.
+    captured_results.push_back(result);
     ASSERT_FALSE(result.raw_instructions.empty());
     ASSERT_FALSE(result.raw_pcode.empty());
     ASSERT_FALSE(result.high_pcode.empty());
@@ -3155,3 +3179,93 @@ TEST(DecompilerDatatestsManifest, AccountsForEveryOriginalDatatest) {
 }
 
 } // namespace newghidra::decompiler::datatests
+
+/// Lists the portable datatest names registered in the GoogleTest binary.
+/// The list is exported only for the diagnostic CLI; the test implementation
+/// remains the authority for fixture construction and expected behavior.
+export std::vector<std::string> list_decompiler_datatests() {
+    std::vector<std::string> result;
+    const testing::UnitTest* unit_test = testing::UnitTest::GetInstance();
+    for (int suite_index = 0; suite_index < unit_test->total_test_suite_count(); ++suite_index) {
+        const testing::TestSuite* suite = unit_test->GetTestSuite(suite_index);
+        if (suite == nullptr || std::string_view(suite->name()) != "DecompilerDatatests") {
+            continue;
+        }
+        for (int test_index = 0; test_index < suite->total_test_count(); ++test_index) {
+            const testing::TestInfo* test = suite->GetTestInfo(test_index);
+            if (test != nullptr) {
+                result.emplace_back(test->name());
+            }
+        }
+    }
+    return result;
+}
+
+/// Executes one registered portable datatest and returns every complete native
+/// artifact captured by its `expect_complete_analysis` calls. The GoogleTest
+/// result printer is temporarily detached so the CLI owns the presentation.
+/// The returned error describes an unknown test or a failed test assertion.
+export std::expected<std::vector<newghidra::decompiler::DecompilationResult>, std::string>
+run_decompiler_datatest(std::string_view requested_name) {
+    std::string test_name(requested_name);
+    constexpr std::string_view suite_prefix = "DecompilerDatatests.";
+    if (test_name.starts_with(suite_prefix)) {
+        test_name.erase(0, suite_prefix.size());
+    }
+
+    const std::vector<std::string> available = list_decompiler_datatests();
+    if (std::ranges::find(available, test_name) == available.end()) {
+        return std::unexpected("Unknown DecompilerDatatests case: " + test_name);
+    }
+
+    auto& unit_test = *testing::UnitTest::GetInstance();
+    static bool gtest_initialized = false;
+    if (!gtest_initialized) {
+        // The CLI is not a gtest_main executable, but GoogleTest requires its
+        // normal initialization path before UnitTest::Run is called.
+        int argc = 1;
+        char executable_name[] = "new_ghidra_decompiler";
+        char* argv[] = {executable_name, nullptr};
+        testing::InitGoogleTest(&argc, argv);
+        gtest_initialized = true;
+    }
+    auto& listeners = unit_test.listeners();
+    testing::TestEventListener* printer = listeners.Release(listeners.default_result_printer());
+    newghidra::decompiler::datatests::captured_results.clear();
+    const std::string previous_filter = testing::GTEST_FLAG(filter);
+    testing::GTEST_FLAG(filter) = "DecompilerDatatests." + test_name;
+    const int status = unit_test.Run();
+    testing::GTEST_FLAG(filter) = previous_filter;
+    if (printer != nullptr) {
+        listeners.Append(printer);
+    }
+
+    if (status != 0) {
+        std::string diagnostic = "GoogleTest case failed: " + test_name;
+        for (int suite_index = 0; suite_index < unit_test.total_test_suite_count(); ++suite_index) {
+            const testing::TestSuite* suite = unit_test.GetTestSuite(suite_index);
+            if (suite == nullptr || std::string_view(suite->name()) != "DecompilerDatatests") {
+                continue;
+            }
+            for (int test_index = 0; test_index < suite->total_test_count(); ++test_index) {
+                const testing::TestInfo* test = suite->GetTestInfo(test_index);
+                if (test == nullptr || std::string_view(test->name()) != test_name) {
+                    continue;
+                }
+                const testing::TestResult* test_result = test->result();
+                for (int part_index = 0; part_index < test_result->total_part_count(); ++part_index) {
+                    const testing::TestPartResult& part = test_result->GetTestPartResult(part_index);
+                    if (part.failed()) {
+                        diagnostic += "\n";
+                        diagnostic += part.summary();
+                    }
+                }
+            }
+        }
+        return std::unexpected(std::move(diagnostic));
+    }
+    if (newghidra::decompiler::datatests::captured_results.empty()) {
+        return std::unexpected("Test produced no complete decompilation result: " + test_name);
+    }
+    return newghidra::decompiler::datatests::captured_results;
+}
