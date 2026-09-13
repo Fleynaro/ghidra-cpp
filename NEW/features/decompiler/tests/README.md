@@ -59,6 +59,10 @@ provider-only p-code body. It verifies recursive typedef, array, structure, unio
 materialization, a namespaced address-tied data symbol with a forced hexadecimal display format, and
 an offcut load through that mapped data object.
 
+[`provider_contract_tests.cppm`](provider_contract_tests.cppm) covers production-boundary regressions:
+fixed p-code arity is rejected before native operand indexing, and a non-default address space survives
+the backward-compatible `MemoryProvider` API and `ProviderLoadImage` path.
+
 `decompiler_datatests.cppm` contains the executable category ports and a manifest of all 89 original
 XML datatests. The manifest records the remaining cases that require legacy XML commands, non-x86
 processor contexts, injection/override commands, or database-backed global mappings; aggregate fields,

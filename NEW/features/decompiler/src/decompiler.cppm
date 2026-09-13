@@ -78,6 +78,17 @@ public:
     [[nodiscard]] virtual std::expected<std::vector<std::uint8_t>, ProviderError> read(std::uint64_t address,
                                                                                        std::size_t size) const = 0;
 
+    /// Reads exactly `size` bytes in `space` beginning at `address`.
+    ///
+    /// The default forwards to the original offset-only contract so existing
+    /// providers remain source-compatible and retain their existing behavior
+    /// while multi-space providers can distinguish otherwise-identical offsets.
+    [[nodiscard]] virtual std::expected<std::vector<std::uint8_t>, ProviderError>
+    read(std::string_view space, std::uint64_t address, std::size_t size) const {
+        static_cast<void>(space);
+        return read(address, size);
+    }
+
     /// Returns memory ranges whose accesses must retain volatile side effects.
     /// The default is an empty set so existing immutable providers remain valid.
     [[nodiscard]] virtual std::vector<MemoryRangeDescription> volatile_ranges() const {

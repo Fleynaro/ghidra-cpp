@@ -290,16 +290,73 @@ static TypeDescription array_type(std::string name, std::string element_type, st
     return type;
 }
 
-/// Returns the primitive provider types shared by structure-oriented tests.
+/// Returns the provider types shared by structure-oriented tests.
 /// The original declarations come from `concat.xml`, `union_datatype.xml`,
-/// `bitfields.xml`, `retstruct.xml`, and `ptrtoarray.xml`; the current provider
-/// boundary deliberately records those aggregate names in prototypes without
-/// pretending to support the legacy database's field metadata.
+/// `bitfields.xml`, `retstruct.xml`, and `ptrtoarray.xml`. Every aggregate is
+/// intentionally described through fields, array shape, union overlap, or
+/// bitfield metadata so prototype installation and native type propagation are
+/// exercised instead of merely preserving printable names.
 static std::vector<TypeDescription> composite_types() {
-    // The current provider schema intentionally omits the original database's
-    // composite-field metadata.  Primitive and pointer types still exercise
-    // real type propagation without recursively entering unsupported layouts.
-    return {integer_type("int32", 4, true), integer_type("uint32", 4, false), floating_type("float32", 4),
+    TypeDescription row = array_type("IntRow", "int32", 2, 4);
+    row.declaration = "typedef int32 IntRow[2];";
+
+    TypeDescription record;
+    record.name = "Record";
+    record.size = 16;
+    record.declaration = "struct Record { int32 first; int32 second; IntRow values; };";
+    record.kind = TypeKind::structure;
+    record.fields = {
+        TypeFieldDescription{"first", "int32", 0},
+        TypeFieldDescription{"second", "int32", 4},
+        TypeFieldDescription{"values", "IntRow", 8},
+    };
+
+    TypeDescription pair;
+    pair.name = "Pair";
+    pair.size = 16;
+    pair.declaration = "struct Pair { int64 low; int64 high; };";
+    pair.kind = TypeKind::structure;
+    pair.fields = {
+        TypeFieldDescription{"low", "int64", 0},
+        TypeFieldDescription{"high", "int64", 8},
+    };
+
+    TypeDescription word;
+    word.name = "Word";
+    word.size = 4;
+    word.declaration = "union Word { int32 number; float32 real; };";
+    word.kind = TypeKind::union_type;
+    word.fields = {
+        TypeFieldDescription{"number", "int32", 0},
+        TypeFieldDescription{"real", "float32", 0},
+    };
+
+    TypeDescription packed;
+    packed.name = "PackedFlags";
+    packed.size = 4;
+    packed.declaration = "struct PackedFlags { uint32 low:3; uint32 mode:5; bool enabled:1; };";
+    packed.kind = TypeKind::structure;
+    packed.bitfields = {
+        TypeBitFieldDescription{"low", "uint32", 3, 0},
+        TypeBitFieldDescription{"mode", "uint32", 5, 0},
+        TypeBitFieldDescription{"enabled", "bool", 1, 0},
+    };
+
+    return {integer_type("int32", 4, true),
+            integer_type("int64", 8, true),
+            integer_type("uint32", 4, false),
+            floating_type("float32", 4),
+            TypeDescription{"bool", 1, "", TypeKind::boolean, false, "", 0, {}, {}, {}, {}},
+            row,
+            record,
+            pair,
+            word,
+            packed,
+            pointer_type("IntRow *", "IntRow"),
+            pointer_type("Record *", "Record"),
+            pointer_type("Pair *", "Pair"),
+            pointer_type("Word *", "Word"),
+            pointer_type("PackedFlags *", "PackedFlags"),
             pointer_type("float32 *", "float32")};
 }
 
@@ -357,6 +414,46 @@ static void expect_complete_analysis(const DecompilationResult& result) {
 static void expect_contains(std::string_view artifact, std::string_view token) {
     EXPECT_NE(artifact.find(token), std::string_view::npos) << "missing token: " << token << "\nGenerated artifact:\n"
                                                             << artifact;
+}
+
+/// Returns the generated C body for one function, excluding provider-emitted
+/// declarations. This keeps semantic assertions from passing on a type name
+/// that was printed before native analysis materialized the function.
+static std::string_view generated_function_body(std::string_view c_source, std::string_view function_name) {
+    const std::size_t function_position = c_source.find(function_name);
+    if (function_position == std::string_view::npos) {
+        return {};
+    }
+    const std::size_t body_start = c_source.find('{', function_position);
+    if (body_start == std::string_view::npos) {
+        return {};
+    }
+    return c_source.substr(body_start + 1);
+}
+
+/// Verifies a token in the native function body rather than in a declaration.
+/// This is the portable equivalent of an original XML `<stringmatch>` whose
+/// intent is a recovered field, enum value, or pointer expression.
+static void expect_function_body_contains(const DecompilationResult& result, std::string_view function_name,
+                                          std::string_view token) {
+    const std::string_view body = generated_function_body(result.c_source, function_name);
+    ASSERT_FALSE(body.empty()) << "missing generated body for function: " << function_name << "\nC source:\n"
+                               << result.c_source;
+    EXPECT_NE(body.find(token), std::string_view::npos)
+        << "missing semantic token: " << token << "\nGenerated function body:\n"
+        << body;
+}
+
+/// Verifies that a low-level surrogate expression did not survive into a
+/// function body after provider metadata was applied by native analysis.
+static void expect_function_body_excludes(const DecompilationResult& result, std::string_view function_name,
+                                          std::string_view token) {
+    const std::string_view body = generated_function_body(result.c_source, function_name);
+    ASSERT_FALSE(body.empty()) << "missing generated body for function: " << function_name << "\nC source:\n"
+                               << result.c_source;
+    EXPECT_EQ(body.find(token), std::string_view::npos)
+        << "unexpected low-level token: " << token << "\nGenerated function body:\n"
+        << body;
 }
 
 /// Exercises a counted loop from real x86 bytes and verifies conditional flow recovery.
@@ -567,32 +664,41 @@ TEST(DecompilerDatatests, PortedFloatingPoint) {
     expect_contains(result.c_source, "return");
 }
 
-/// Exercises typed structure fields, an embedded fixed array, and pointer stores.
+/// Exercises typed structure fields, an embedded fixed array, and a pointer to
+/// an array through real provider metadata and x86 pointer arithmetic.
 /// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/concat.xml` and
 /// `Ghidra/Features/Decompiler/src/decompile/datatests/ptrtoarray.xml`.
 TEST(DecompilerDatatests, PortedStructuresArraysAndPointers) {
     const std::uint64_t entry = 0x408000;
     const std::vector<std::uint8_t> bytes{
-        0x8b, 0x01,       // mov eax, [rcx+0]
-        0x89, 0x51, 0x04, // mov [rcx+4], edx
-        0x8b, 0x41, 0x08, // mov eax, [rcx+8], first array element
-        0xc3,             // return
+        0x8b, 0x01,             // mov eax, [rcx+0], read Record::first
+        0x03, 0x41, 0x08,       // add eax, [rcx+8], consume Record::values[0]
+        0x03, 0x02,             // add eax, [rdx], consume IntRow through a pointer-to-array
+        0x44, 0x89, 0x41, 0x04, // mov [rcx+4], r8d, write Record::second
+        0xc3,                   // return
     };
     const PrototypeDescription prototype =
         make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
                        {PrototypeParameterDescription{"record", "Record *", Storage{"register", 8, 8}},
-                        PrototypeParameterDescription{"value", "int32", Storage{"register", 0x10, 4}}});
+                        PrototypeParameterDescription{"row", "IntRow *", Storage{"register", 0x10, 8}},
+                        PrototypeParameterDescription{"value", "int32", Storage{"register", 0x80, 4}}});
     const auto metadata = make_metadata({{entry, "record_access", ""}}, composite_types(), {{entry, prototype}});
     const DecompilationResult result = decompile_embedded(entry, bytes, bytes.size(), "record_access", metadata);
 
     expect_complete_analysis(result);
-    expect_contains(result.c_source, "Record *");
-    expect_contains(result.c_source, "record + 8");
-    expect_contains(result.raw_pcode, "*(ram");
-    expect_contains(result.raw_pcode, "= u0x");
+    expect_function_body_contains(result, "record_access", "record->first");
+    expect_function_body_contains(result, "record_access", "record->values");
+    expect_function_body_contains(result, "record_access", "record->second");
+    expect_function_body_contains(result, "record_access", "row");
+    const std::string_view body = generated_function_body(result.c_source, "record_access");
+    EXPECT_TRUE(body.find("(*row)[0]") != std::string_view::npos || body.find("row[0]") != std::string_view::npos)
+        << "pointer-to-array access was not materialized in the function body:\n"
+        << body;
+    expect_function_body_excludes(result, "record_access", "CONCAT");
+    expect_function_body_excludes(result, "record_access", "ZEXT");
 }
 
-/// Exercises a union declaration and overlapping provider fields through a load.
+/// Exercises overlapping provider union fields through a typed load.
 /// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/union_datatype.xml`.
 TEST(DecompilerDatatests, PortedUnionDatatype) {
     const std::uint64_t entry = 0x409000;
@@ -608,31 +714,8 @@ TEST(DecompilerDatatests, PortedUnionDatatype) {
     const DecompilationResult result = decompile_embedded(entry, bytes, bytes.size(), "union_value", metadata);
 
     expect_complete_analysis(result);
-    expect_contains(result.c_source, "Word *");
-    expect_contains(result.c_source, "undefined4");
-    expect_contains(result.raw_pcode, "*(ram");
-}
-
-/// Exercises a bit-mask and shift over a provider declaration containing bitfields.
-/// Original source: `Ghidra/Features/Decompiler/src/decompile/datatests/bitfields.xml`.
-TEST(DecompilerDatatests, PortedBitfields) {
-    const std::uint64_t entry = 0x40a000;
-    const std::vector<std::uint8_t> bytes{
-        0x8b, 0x01,       // read Flags::raw
-        0xc1, 0xe8, 0x01, // shift the packed field
-        0x83, 0xe0, 0x07, // retain a three-bit value
-        0xc3,             // return field value
-    };
-    const PrototypeDescription prototype =
-        make_prototype("__cdecl", "uint32", Storage{"register", 0, 4},
-                       {PrototypeParameterDescription{"flags", "Flags *", Storage{"register", 8, 8}}});
-    const auto metadata = make_metadata({{entry, "bitfield_value", ""}}, composite_types(), {{entry, prototype}});
-    const DecompilationResult result = decompile_embedded(entry, bytes, bytes.size(), "bitfield_value", metadata);
-
-    expect_complete_analysis(result);
-    expect_contains(result.c_source, ">> 1 & 7");
-    expect_contains(result.raw_pcode, " >> ");
-    expect_contains(result.raw_pcode, " & ");
+    expect_function_body_contains(result, "union_value", "word->number");
+    expect_function_body_excludes(result, "union_value", "undefined4");
 }
 
 /// Exercises a direct CALL with provider-backed external symbol and prototype data.
@@ -681,20 +764,25 @@ TEST(DecompilerDatatests, PortedNamespaceAndSymbols) {
 TEST(DecompilerDatatests, PortedStructureReturn) {
     const std::uint64_t entry = 0x40d000;
     const std::vector<std::uint8_t> bytes{
-        0x48,
-        0x8b,
-        0x01, // mov rax, [rcx]
-        0xc3, // return Pair in RAX
+        0x48, 0x8b, 0x01,       // mov rax, [rcx], return Pair::low
+        0x48, 0x8b, 0x51, 0x08, // mov rdx, [rcx+8], return Pair::high
+        0xc3,                   // return Pair in RDX:RAX
     };
-    const PrototypeDescription prototype =
-        make_prototype("__cdecl", "Pair", Storage{"register", 0, 8},
+    PrototypeDescription prototype =
+        make_prototype("__cdecl", "Pair", std::nullopt,
                        {PrototypeParameterDescription{"source", "Pair *", Storage{"register", 8, 8}}});
+    prototype.return_storage_pieces = {
+        Storage{"register", 0x10, 8}, // most-significant Pair::high piece
+        Storage{"register", 0, 8},    // least-significant Pair::low piece
+    };
     const auto metadata = make_metadata({{entry, "return_pair", ""}}, composite_types(), {{entry, prototype}});
     const DecompilationResult result = decompile_embedded(entry, bytes, bytes.size(), "return_pair", metadata);
 
     expect_complete_analysis(result);
-    expect_contains(result.c_source, "Pair __cdecl");
-    expect_contains(result.c_source, "return");
+    expect_function_body_contains(result, "return_pair", "source");
+    expect_function_body_contains(result, "return_pair", "source->low");
+    expect_function_body_contains(result, "return_pair", "source->high");
+    expect_function_body_contains(result, "return_pair", "return");
 }
 
 /// Returns the named aggregate types shared by the ABI-piece datatests.
@@ -753,9 +841,10 @@ TEST(DecompilerDatatests, PortedConcatSplitAggregatePieces) {
     const DecompilationResult result = decompile_embedded(entry, bytes, bytes.size(), "test_split", metadata);
 
     expect_complete_analysis(result);
-    expect_contains(result.c_source, "out->low");
-    expect_contains(result.c_source, "out->high");
-    EXPECT_EQ(result.c_source.find("CONCAT"), std::string::npos);
+    expect_function_body_contains(result, "test_split", "out->low");
+    expect_function_body_contains(result, "test_split", "out->high");
+    expect_function_body_excludes(result, "test_split", "CONCAT");
+    expect_function_body_excludes(result, "test_split", "ZEXT");
 }
 
 /// Exercises six explicitly stored scalar inputs that populate structure fields
@@ -787,10 +876,10 @@ TEST(DecompilerDatatests, PortedPieceStructureFields) {
     const DecompilationResult result = decompile_embedded(entry, bytes, bytes.size(), "assign", metadata);
 
     expect_complete_analysis(result);
-    expect_contains(result.c_source, "out->a");
-    expect_contains(result.c_source, "out->b");
-    expect_contains(result.c_source, "out->values[0]");
-    expect_contains(result.c_source, "out->values[3]");
+    expect_function_body_contains(result, "assign", "out->a");
+    expect_function_body_contains(result, "assign", "out->b");
+    expect_function_body_contains(result, "assign", "out->values[0]");
+    expect_function_body_contains(result, "assign", "out->values[3]");
 }
 
 /// Exercises a structure return split between RDX and RAX while two typed
@@ -817,10 +906,9 @@ TEST(DecompilerDatatests, PortedMultiReturnAggregatePieces) {
     const DecompilationResult result = decompile_embedded(entry, bytes, bytes.size(), "multi_return", metadata);
 
     expect_complete_analysis(result);
-    expect_contains(result.c_source, "__cdecl multi_return");
-    expect_contains(result.c_source, "low");
-    expect_contains(result.c_source, "high");
-    expect_contains(result.c_source, "return");
+    expect_function_body_contains(result, "multi_return", "low");
+    expect_function_body_contains(result, "multi_return", "high");
+    expect_function_body_contains(result, "multi_return", "return");
 }
 
 /// Exercises the original stack-return pattern with three real child calls.
@@ -1036,45 +1124,40 @@ TEST(DecompilerDatatests, PortedPcodeTransformations) {
 // Focused provider-metadata ports for original fixtures that were previously
 // represented only by primitive fallback types or legacy database commands.
 
-/// Exercises real structure fields, a fixed array field, and a pointer-based
+/// Exercises real structure fields, a fixed array field, and a pointer-to-array
 /// load/store sequence without relying on database `map addr` commands.
-/// Original source comment from `concat.xml`: Examples of entire structures
-/// built out of PIECE and ZEXT operations should expose individual fields.
+/// Original source comments from `concat.xml` and `ptrtoarray.xml`: entire
+/// structures built out of PIECE/ZEXT operations should expose individual
+/// fields, while pointer-to-array expressions must retain their array shape.
 TEST(DecompilerDatatests, ProviderAggregateFieldsAndArrayElement) {
     const std::uint64_t entry = 0x410000;
     const std::vector<std::uint8_t> bytes{
-        0x8b, 0x01,       // mov eax, [rcx+0], read Record::first
-        0x03, 0x41, 0x08, // add eax, [rcx+8], consume Record::values[0]
-        0x89, 0x51, 0x04, // mov [rcx+4], edx, write Record::second
-        0xc3,             // return the aggregate-derived sum
-    };
-    TypeDescription row = array_type("IntRow", "int32", 2, 4);
-    TypeDescription record;
-    record.name = "Record";
-    record.size = 16;
-    record.declaration = "struct Record { int32 first; int32 second; int32 values[2]; };";
-    record.kind = TypeKind::structure;
-    record.fields = {
-        TypeFieldDescription{"first", "int32", 0},
-        TypeFieldDescription{"second", "int32", 4},
-        TypeFieldDescription{"values", "Matrix", 8},
+        0x8b, 0x01,             // mov eax, [rcx+0], read Record::first
+        0x03, 0x41, 0x08,       // add eax, [rcx+8], consume Record::values[0]
+        0x03, 0x02,             // add eax, [rdx], consume IntRow through a pointer-to-array
+        0x44, 0x89, 0x41, 0x04, // mov [rcx+4], r8d, write Record::second
+        0xc3,                   // return the aggregate-derived sum
     };
     const PrototypeDescription prototype =
         make_prototype("__cdecl", "int32", Storage{"register", 0, 4},
                        {PrototypeParameterDescription{"record", "Record *", Storage{"register", 8, 8}},
-                        PrototypeParameterDescription{"value", "int32", Storage{"register", 0x10, 4}}});
-    const auto metadata = make_metadata(
-        {{entry, "aggregate_fields", ""}},
-        {integer_type("int32", 4, true), row, record, pointer_type("Record *", "Record")}, {{entry, prototype}});
+                        PrototypeParameterDescription{"row", "IntRow *", Storage{"register", 0x10, 8}},
+                        PrototypeParameterDescription{"value", "int32", Storage{"register", 0x80, 4}}});
+    const auto metadata = make_metadata({{entry, "aggregate_fields", ""}}, composite_types(), {{entry, prototype}});
     const DecompilationResult result = decompile_embedded(entry, bytes, bytes.size(), "aggregate_fields", metadata);
 
     expect_complete_analysis(result);
-    expect_contains(result.c_source, "record->first");
-    expect_contains(result.c_source, "record->second");
+    expect_function_body_contains(result, "aggregate_fields", "record->first");
+    expect_function_body_contains(result, "aggregate_fields", "record->second");
     // C printer intentionally elides the zero subscript for an array field;
     // the recovered field type and access are still preserved semantically.
-    expect_contains(result.c_source, "record->values");
-    expect_contains(result.c_source, "struct Record");
+    expect_function_body_contains(result, "aggregate_fields", "record->values");
+    const std::string_view body = generated_function_body(result.c_source, "aggregate_fields");
+    EXPECT_TRUE(body.find("(*row)[0]") != std::string_view::npos || body.find("row[0]") != std::string_view::npos)
+        << "pointer-to-array access was not materialized in the function body:\n"
+        << body;
+    expect_function_body_excludes(result, "aggregate_fields", "CONCAT");
+    expect_function_body_excludes(result, "aggregate_fields", "ZEXT");
 }
 
 /// Exercises a provider deindirect record against a real x86 CALLIND and verifies
@@ -1103,9 +1186,10 @@ TEST(DecompilerDatatests, PortedDeindirectTargetOverride) {
 }
 
 /// Exercises destination and jump-table records through native flow metadata.
-/// Original sources: `overridedest.xml`, `switchind.xml`, `switchmask.xml`, and
-/// `switchmulti.xml`; the explicit table keeps this regression independent of
-/// processor-specific XML compiler specifications.
+/// Original sources: `switchind.xml`, `switchmask.xml`, and `switchmulti.xml`;
+/// the explicit table keeps this provider plumbing regression independent of
+/// processor-specific XML compiler specifications. It does not claim to port
+/// the original switch-restructuring fixtures.
 TEST(DecompilerDatatests, PortedDestinationAndJumpTableOverrides) {
     const std::uint64_t entry = 0x430000;
     const std::uint64_t target = entry + 0x10;
@@ -1201,8 +1285,9 @@ TEST(DecompilerDatatests, PortedStructuredCallFixupInjection) {
 
 /// Exercises overlapping union members through a typed load and verifies that
 /// provider field metadata prevents the old undefined-integer fallback.
-/// Original source comment from `union_datatype.xml`: Contrived examples of
-/// functions manipulating union data-types.
+/// Original source comment from
+/// `Ghidra/Features/Decompiler/src/decompile/datatests/union_datatype.xml`:
+/// Contrived examples of functions manipulating union data-types.
 TEST(DecompilerDatatests, ProviderUnionFieldSelection) {
     const std::uint64_t entry = 0x411000;
     const std::vector<std::uint8_t> bytes{
@@ -1229,15 +1314,16 @@ TEST(DecompilerDatatests, ProviderUnionFieldSelection) {
     const DecompilationResult result = decompile_embedded(entry, bytes, bytes.size(), "union_field", metadata);
 
     expect_complete_analysis(result);
-    expect_contains(result.c_source, "union Value");
-    expect_contains(result.c_source, "value->number");
-    EXPECT_EQ(result.c_source.find("undefined4"), std::string::npos);
+    expect_function_body_contains(result, "union_field", "value->number");
+    expect_function_body_excludes(result, "union_field", "undefined4");
 }
 
 /// Exercises named enum values in a real conditional branch so the C printer
 /// must preserve semantic names instead of emitting only their integer values.
-/// Original source comment from `enum.xml`: Functions that read enum values and
-/// compare with constant values should print those constants by name.
+/// Original source comment from
+/// `Ghidra/Features/Decompiler/src/decompile/datatests/enum.xml`: Functions
+/// that read enum values and compare with constant values should print those
+/// constants by name.
 TEST(DecompilerDatatests, ProviderEnumNamedComparison) {
     const std::uint64_t entry = 0x412000;
     const std::vector<std::uint8_t> bytes{
@@ -1265,16 +1351,17 @@ TEST(DecompilerDatatests, ProviderEnumNamedComparison) {
     const DecompilationResult result = decompile_embedded(entry, bytes, bytes.size(), "enum_compare", metadata);
 
     expect_complete_analysis(result);
-    expect_contains(result.c_source, "enum Flags");
-    expect_contains(result.c_source, "FLAG_ONE");
-    expect_contains(result.c_source, "if");
-    expect_contains(result.c_source, "return");
+    expect_function_body_contains(result, "enum_compare", "FLAG_ONE");
+    expect_function_body_contains(result, "enum_compare", "if");
+    expect_function_body_contains(result, "enum_compare", "return");
 }
 
 /// Exercises native bitfield extraction from a provider-described packed
 /// structure and verifies that the semantic field survives high-level lifting.
-/// Original source comment from `bitfields.xml`: the decompiler should expose
-/// named bitfields rather than leave shifts and masks in the final C output.
+/// Original source comment from
+/// `Ghidra/Features/Decompiler/src/decompile/datatests/bitfields.xml`: the
+/// decompiler should expose named bitfields rather than leave shifts and masks
+/// in the final C output.
 TEST(DecompilerDatatests, ProviderBitfieldExtraction) {
     const std::uint64_t entry = 0x413000;
     const std::vector<std::uint8_t> bytes{
@@ -1304,8 +1391,9 @@ TEST(DecompilerDatatests, ProviderBitfieldExtraction) {
     const DecompilationResult result = decompile_embedded(entry, bytes, bytes.size(), "bitfield_extract", metadata);
 
     expect_complete_analysis(result);
-    expect_contains(result.c_source, "struct PackedFlags");
-    expect_contains(result.c_source, "flags->mode");
+    expect_function_body_contains(result, "bitfield_extract", "flags->mode");
+    expect_function_body_excludes(result, "bitfield_extract", ">>");
+    expect_function_body_excludes(result, "bitfield_extract", "& 0x1f");
 }
 
 /// Exercises the provider volatile-range contract with an unused LOAD. The
@@ -1568,11 +1656,15 @@ static constexpr std::array<DatatestManifestEntry, 89> original_datatest_manifes
         {"noforloop_globcall.xml", false, "Negative loop classification depends on an XML-mapped global call."},
         {"noforloop_iterused.xml", false,
          "Negative loop classification depends on XML local naming and call metadata."},
-        {"offcut.xml", true, "Covered by MetadataProvider.ResolvesOffcutDataSymbol with a real interior mapped load."},
+        {"offcut.xml", false,
+         "The focused offcut check is registered in metadata_provider_tests.cppm, not this datatest executable; the "
+         "original XML mapping remains unresolved."},
         {"offsetarray.xml", false,
          "Provider data mappings now exist; the full fixture still requires XML array overlays."},
         {"orcompare.xml", false, "Requires XML boolean-equate and processor flag setup."},
-        {"overridedest.xml", true, "DestinationOverrideDescription is applied before native flow recovery."},
+        {"overridedest.xml", false,
+         "The current executable has no corresponding call/callother destination-override body; the original "
+         "override-destination fixture remains unresolved."},
         {"packstructaccess.xml", false, "Requires packed compiler layout and database field packing directives."},
         {"partialmerge.xml", false, "Requires XML partial variable merge annotations."},
         {"partialsplit.xml", false, "Requires XML partial split/database symbol state."},
@@ -1582,7 +1674,8 @@ static constexpr std::array<DatatestManifestEntry, 89> original_datatest_manifes
         {"pointerrel.xml", false, "Requires XML pointer-relative data annotations."},
         {"pointersub.xml", false, "Requires XML pointer subtraction prototype and database type maps."},
         {"promotecompare.xml", false, "Requires compiler promotion rules supplied by the original XML specification."},
-        {"ptrtoarray.xml", true, "Covered by PortedStructuresArraysAndPointers."},
+        {"ptrtoarray.xml", true,
+         "Covered by ProviderAggregateFieldsAndArrayElement with a real pointer-to-array type."},
         {"readvolatile.xml", true,
          "Covered by PortedReadonlyMemoryLoad, PortedDataSymbolMetadata, and provider volatile-range metadata."},
         {"retspecial.xml", true, "Covered by PortedSpecialReturnStorage with a provider hidden return pointer."},
@@ -1599,11 +1692,13 @@ static constexpr std::array<DatatestManifestEntry, 89> original_datatest_manifes
          "recovery."},
         {"statuscmp.xml", false, "Requires processor status-register semantics and XML flag configuration."},
         {"switchhide.xml", false, "Requires XML switch hiding override."},
-        {"switchind.xml", true, "Covered by PortedDestinationAndJumpTableOverrides with an explicit target table."},
+        {"switchind.xml", false,
+         "The provider jump-table smoke case does not recover the original indirect switch cases and calls."},
         {"switchloop.xml", false, "Requires a switch-loop XML fixture with database labels."},
-        {"switchmask.xml", true, "Covered by the provider jump-table target model used by the explicit table case."},
-        {"switchmulti.xml", true,
-         "Covered by the provider jump-table target model; multiple tables are independent records."},
+        {"switchmask.xml", false,
+         "The provider jump-table smoke case does not cover the original two masked switches and their outputs."},
+        {"switchmulti.xml", false,
+         "The provider jump-table smoke case does not cover the original loop, seven cases, and arithmetic outputs."},
         {"switchreturn.xml", true, "Covered by PortedSwitchReturn."},
         {"threedim.xml", false, "Requires XML three-dimensional data declarations and global mappings."},
         {"twodim.xml", false,
@@ -1615,12 +1710,79 @@ static constexpr std::array<DatatestManifestEntry, 89> original_datatest_manifes
     }};
 }
 
+/// Associates every portable manifest entry with a registered executable test.
+/// A fixture may share one semantic port with another fixture, but each file
+/// marked portable must still have at least one concrete test in this binary.
+struct DatatestCoverageEntry {
+    std::string_view file;
+    std::string_view test_name;
+};
+
+/// Returns the executable coverage map for portable original XML fixtures.
+/// Original source directory: `Ghidra/Features/Decompiler/src/decompile/datatests`.
+static constexpr auto portable_datatest_coverage() {
+    return std::to_array<DatatestCoverageEntry>({
+        {"bitfields.xml", "ProviderBitfieldExtraction"},
+        {"concat.xml", "ProviderAggregateFieldsAndArrayElement"},
+        {"concatsplit.xml", "PortedConcatSplitAggregatePieces"},
+        {"condconst.xml", "PortedPcodeTransformations"},
+        {"convert.xml", "PortedArithmetic"},
+        {"copytrim.xml", "PortedPcodeTransformations"},
+        {"deadvolatile.xml", "ProviderVolatileReadRetainsUnusedSideEffect"},
+        {"deindirect.xml", "PortedDeindirectTargetOverride"},
+        {"divopt.xml", "PortedSignedDivision"},
+        {"elseif.xml", "PortedIfElse"},
+        {"enum.xml", "ProviderEnumNamedComparison"},
+        {"floatcast.xml", "PortedFloatingPoint"},
+        {"forloop1.xml", "PortedForloop1"},
+        {"forloop_withskip.xml", "PortedWhileLoopControlFlow"},
+        {"heapstring.xml", "PortedHeapStringNarrow"},
+        {"injectoverride.xml", "PortedStructuredCallFixupInjection"},
+        {"inline.xml", "PortedInlineFunctionBody"},
+        {"mixfloatint.xml", "PortedMixedFloatIntegerPrototype"},
+        {"modulo.xml", "PortedSignedModulo"},
+        {"multiret.xml", "PortedMultiReturnAggregatePieces"},
+        {"namespace.xml", "PortedNamespaceAndSymbols"},
+        {"piecestruct.xml", "PortedPieceStructureFields"},
+        {"ptrtoarray.xml", "ProviderAggregateFieldsAndArrayElement"},
+        {"readvolatile.xml", "PortedDataSymbolMetadata"},
+        {"retspecial.xml", "PortedSpecialReturnStorage"},
+        {"retstruct.xml", "PortedStructureReturn"},
+        {"stackreturn.xml", "PortedStackReturnAggregateStorage"},
+        {"stackstring.xml", "PortedStackStringNarrow"},
+        {"switchreturn.xml", "PortedSwitchReturn"},
+        {"union_datatype.xml", "ProviderUnionFieldSelection"},
+    });
+}
+
+/// Checks whether Google Test registered the named executable case in the
+/// decompiler datatest suite. Registration is checked instead of trusting a
+/// free-form manifest reason, so stale portable entries fail this validator.
+static bool has_registered_datatest(std::string_view test_name) {
+    const testing::UnitTest* unit_test = testing::UnitTest::GetInstance();
+    for (int suite_index = 0; suite_index < unit_test->total_test_suite_count(); ++suite_index) {
+        const testing::TestSuite* suite = unit_test->GetTestSuite(suite_index);
+        if (suite == nullptr || std::string_view(suite->name()) != "DecompilerDatatests") {
+            continue;
+        }
+        for (int test_index = 0; test_index < suite->total_test_count(); ++test_index) {
+            const testing::TestInfo* test = suite->GetTestInfo(test_index);
+            if (test != nullptr && std::string_view(test->name()) == test_name) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 /// Verifies that every original XML datatest is accounted for without pretending
 /// that unsupported XML commands are portable provider behavior.
 /// Original source directory: `Ghidra/Features/Decompiler/src/decompile/datatests`.
 TEST(DecompilerDatatestsManifest, AccountsForEveryOriginalDatatest) {
     const auto manifest = original_datatest_manifest();
+    const auto coverage = portable_datatest_coverage();
     std::set<std::string_view> names;
+    std::set<std::string_view> covered_files;
     std::size_t portable_count = 0;
     for (const DatatestManifestEntry& entry : manifest) {
         EXPECT_TRUE(names.insert(entry.file).second) << "duplicate manifest entry: " << entry.file;
@@ -1632,9 +1794,28 @@ TEST(DecompilerDatatestsManifest, AccountsForEveryOriginalDatatest) {
             EXPECT_GT(entry.reason.size(), 20U);
         }
     }
+    for (const DatatestCoverageEntry& covered : coverage) {
+        EXPECT_TRUE(covered_files.insert(covered.file).second)
+            << "duplicate executable coverage entry: " << covered.file;
+        const auto manifest_entry =
+            std::find_if(manifest.begin(), manifest.end(),
+                         [&](const DatatestManifestEntry& entry) { return entry.file == covered.file; });
+        ASSERT_TRUE(manifest_entry != manifest.end()) << "coverage has no manifest entry: " << covered.file;
+        EXPECT_TRUE(manifest_entry->ported) << "coverage points to a nonportable fixture: " << covered.file;
+        EXPECT_TRUE(has_registered_datatest(covered.test_name))
+            << "coverage test is not registered: " << covered.test_name << " for " << covered.file;
+    }
+    for (const DatatestManifestEntry& entry : manifest) {
+        if (!entry.ported) {
+            continue;
+        }
+        EXPECT_NE(covered_files.find(entry.file), covered_files.end())
+            << "portable manifest entry has no executable coverage: " << entry.file;
+    }
     EXPECT_EQ(manifest.size(), 89U);
     EXPECT_EQ(names.size(), 89U);
-    EXPECT_GE(portable_count, 15U);
+    EXPECT_EQ(covered_files.size(), portable_count);
+    EXPECT_EQ(coverage.size(), portable_count);
 }
 
 } // namespace newghidra::decompiler::datatests

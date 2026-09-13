@@ -100,7 +100,12 @@ CircleRange make_range(const RangeSpec& spec) {
 
 /// Checks the observable CircleRange representation, including empty ranges and stride.
 void expect_range(const CircleRange& actual, const ExpectedRange& expected) {
-    ASSERT_TRUE(expected.exact);
+    // The original testEqual() only requires a non-empty conservative result
+    // when its independently enumerated input cannot be represented exactly.
+    if (!expected.exact) {
+        EXPECT_FALSE(actual.isEmpty());
+        return;
+    }
     if (expected.empty) {
         EXPECT_TRUE(actual.isEmpty());
         return;
@@ -753,8 +758,9 @@ TEST_F(NativeCircleRangeTest, PushUnaryScenarios) {
         const bool valid =
             actual.pushForwardUnary(scenario.opcode, input, scenario.input_range.size, scenario.output_size);
         EXPECT_EQ(valid, scenario.expected_valid);
-        if (scenario.expected_valid)
-            expect_range(actual, scenario.expected_range);
+        // The original testEqual helper validates the output range even when
+        // the operation reports that it cannot represent the result.
+        expect_range(actual, scenario.expected_range);
     }
 }
 
@@ -867,8 +873,9 @@ TEST_F(NativeCircleRangeTest, PushBinaryScenarios) {
         const bool valid =
             actual.pushForwardBinary(scenario.opcode, first, second, scenario.first.size, scenario.output_size, 32);
         EXPECT_EQ(valid, scenario.expected_valid);
-        if (scenario.expected_valid)
-            expect_range(actual, scenario.expected_range);
+        // Preserve the original postcondition: a failed push may still leave
+        // a documented conservative range that must remain observable.
+        expect_range(actual, scenario.expected_range);
     }
 }
 

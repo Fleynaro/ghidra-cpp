@@ -262,6 +262,7 @@ void expect_no_remaining_child(std::ostringstream& output, ghidra::Encoder& enco
     std::istringstream input(output.str());
     decoder.ingestStream(input);
     const ghidra::uint4 input_id = decoder.openElement(ghidra::ELEM_INPUT);
+    (void)input_id;
     const ghidra::uint4 off_id = decoder.openElement(ghidra::ELEM_OFF);
     decoder.closeElement(off_id);
     EXPECT_THROW(decoder.openElement(ghidra::ELEM_OFF), ghidra::DecoderError);
@@ -283,8 +284,8 @@ void expect_open_mismatch(std::ostringstream& output, ghidra::Encoder& encoder, 
 }
 
 /// Verifies the packed decoder's encoded-close-id mismatch contract from
-/// test_closemismatch in testmarshal.cc; the XML close-id check is debug-only in the
-/// exported implementation and is therefore intentionally not asserted here.
+/// test_closemismatch in testmarshal.cc after consuming the child element, so
+/// the failure is caused by the mismatched closing identifier itself.
 void expect_packed_close_mismatch(std::ostringstream& output, ghidra::PackedEncode& encoder,
                                   ghidra::PackedDecode& decoder) {
     encoder.openElement(ghidra::ELEM_INPUT);
@@ -295,7 +296,9 @@ void expect_packed_close_mismatch(std::ostringstream& output, ghidra::PackedEnco
     std::istringstream input(output.str());
     decoder.ingestStream(input);
     const ghidra::uint4 input_id = decoder.openElement(ghidra::ELEM_INPUT);
-    EXPECT_THROW(decoder.closeElement(input_id), ghidra::DecoderError);
+    const ghidra::uint4 child_id = decoder.openElement(ghidra::ELEM_OFF);
+    decoder.closeElement(child_id);
+    EXPECT_THROW(decoder.closeElement(ghidra::ELEM_OUTPUT.getId()), ghidra::DecoderError);
 }
 
 /// Verifies the exact one-buffer packed encoding boundary and all 511 alternating

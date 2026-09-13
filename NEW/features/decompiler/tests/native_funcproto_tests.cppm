@@ -627,7 +627,12 @@ static void expectParameter(const ParameterPieces& actual, const ParameterExpect
         ASSERT_NE(pointer_type->getPtrTo(), nullptr);
         EXPECT_EQ(pointer_type->getPtrTo()->getName(), expected.pointed_to_name);
     }
-    EXPECT_EQ(actual.flags & expected.required_flags, expected.required_flags);
+    if (expected.required_flags != 0) {
+        // The original funcproto tests compare the complete flag word for
+        // indirectstorage and hiddenretparm; accepting a subset would hide
+        // accidental ABI flags on the recovered parameter.
+        EXPECT_EQ(actual.flags, expected.required_flags);
+    }
 }
 
 /// Compares one recovered trial with its optional concrete address and state expectations.

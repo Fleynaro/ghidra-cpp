@@ -6,6 +6,7 @@ export module native_type_tests;
 
 import decompiler;
 import ghidra.decompiler;
+import ghidra.decompiler.grammar;
 import std;
 
 namespace newghidra::decompiler::tests {
@@ -433,6 +434,35 @@ static bool long_printed(TypeTestEnvironment& environment, ghidra::OpCode opcode
     environment.function().opSetInput(operation, shift_amount, 1);
     environment.function().newUniqueOut(constant->getSize(), operation);
     return environment.strategy().markExplicitLongSize(operation, 0);
+}
+
+/// Parses the original C-like type syntax through the native grammar entrypoint.
+/// Original source: Ghidra/Features/Decompiler/src/decompile/unittests/testtypes.cc:74-78.
+static ghidra::Datatype* parse_original_type(TypeTestEnvironment& environment, const std::string& text) {
+    std::istringstream stream(text);
+    std::string unused_name;
+    return ghidra::parse_type(stream, unused_name, &environment.architecture());
+}
+
+/// Verifies that the grammar path used by the original cast tests still creates
+/// arrays, pointers, structures, and enumerations rather than relying only on
+/// manually constructed TypeFactory objects.
+/// Original source: Ghidra/Features/Decompiler/src/decompile/unittests/testtypes.cc:123-162.
+TEST(NativeType, ParsesOriginalGrammarDeclarations) {
+    TypeTestEnvironment environment;
+    ghidra::Datatype* array = parse_original_type(environment, "int1 var[4]");
+    ASSERT_NE(array, nullptr);
+    EXPECT_EQ(array->getSize(), 4);
+    ghidra::Datatype* pointer = parse_original_type(environment, "int4 *");
+    ASSERT_NE(pointer, nullptr);
+    EXPECT_EQ(pointer->getMetatype(), ghidra::TYPE_PTR);
+    ghidra::Datatype* structure = parse_original_type(environment, "struct grammar_record { int4 a; int4 b; }");
+    ASSERT_NE(structure, nullptr);
+    EXPECT_EQ(structure->getName(), "grammar_record");
+    ghidra::Datatype* enumeration = parse_original_type(environment, "enum grammar_enum { ONE=1, TWO=2 }");
+    ASSERT_NE(enumeration, nullptr);
+    EXPECT_NE(dynamic_cast<ghidra::TypeEnum*>(enumeration), nullptr);
+    EXPECT_EQ(enumeration->getName(), "grammar_enum");
 }
 
 /// Verifies the original basic cast matrix using native primitive, unknown,

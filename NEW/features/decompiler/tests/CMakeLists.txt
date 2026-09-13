@@ -7,6 +7,7 @@ target_sources(decompiler_tests
             native_marshal_tests.cppm
             native_scalar_tests.cppm
             native_type_tests.cppm
+            provider_contract_tests.cppm
 )
 target_link_libraries(decompiler_tests PRIVATE
     NewGhidra::DecompilerFrontend
