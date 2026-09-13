@@ -43,7 +43,9 @@ extern "C" __declspec(dllexport) __declspec(noinline) void entry_point_beta() {
     fixture_sink = 0xB2;
 }
 
-__declspec(dllexport) const unsigned int data_only_marker = 0xDADA1234U;
+// Keep C++ linkage while giving the PE export a real external symbol that the
+// harness can resolve by its decorated or demangled name.
+extern __declspec(dllexport) const unsigned int data_only_marker = 0xDADA1234U;
 
 // Retain both exported code symbols and the data-only negative control.
 extern "C" __declspec(noinline) void fixture_entry() {

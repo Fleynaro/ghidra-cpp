@@ -12,16 +12,23 @@
 // pattern prerequisites exist.
 //
 // Artifact rationale and expected observable result:
-// /Od and /Oy- force ordinary x64 stack-frame prologues beginning with SUB RSP,
-// imm, while /OPT:NOREF and /OPT:NOICF retain stable function boundaries. The
-// script extracts candidate export offsets, all function entries before and
-// after analysis, and Function Start Search bookmarks. In the verified
-// standalone PyGhidra environment these real x64 prologues produced no
-// scheduled pattern-created function, so the generated report records zero
-// created entries/bookmarks instead of inventing a match; the limitation is
-// documented in the fixture README.
+// /Od and /Oy- retain the ordinary x64 stack-frame prologues used by the
+// negative candidate. The executable section also contains a deliberately
+// exported raw byte sequence whose three 0xCC prefix bytes and SUB RSP bytes match the
+// x86-64 Windows FunctionStart pattern. The harness removes only the function
+// at that positive pattern mark, retains the negative candidate as a
+// pre-existing function, and compares function/bookmark state before and after
+// the real analyzer. No expected address is inferred from compiler ordering.
 
 extern "C" volatile unsigned int function_start_sink = 0;
+
+#pragma section(".text$funcstart_fixture", read, execute)
+
+// This raw executable sequence is the positive discoverable pattern. The
+// FunctionStart pattern marks the SUB instruction three bytes after the INT3 pad.
+extern "C" __declspec(dllexport) __declspec(allocate(".text$funcstart_fixture"))
+const unsigned char function_start_positive_pattern[] = {0xCC, 0xCC, 0xCC, 0x48, 0x83, 0xEC, 0x28, 0xB8, 0x2A,
+                                                         0x00, 0x00, 0x00, 0x48, 0x83, 0xC4, 0x28, 0xC3};
 
 // Stack locals make the compiler emit the x86-64 Windows stack-allocation pattern.
 extern "C" __declspec(dllexport) __declspec(noinline) unsigned int function_start_candidate_a() {

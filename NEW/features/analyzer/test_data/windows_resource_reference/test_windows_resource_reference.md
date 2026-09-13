@@ -14,11 +14,20 @@
 
 ## PE Resource Symbols
 
-| Resource type | ID/table | Address | Loader symbol |
-| --- | --- | --- | --- |
-| `Dialog` | `409` | `0x00000001400050F0` | `Rsrc_Dialog_c9_409` |
-| `Menu` | `409` | `0x0000000140005198` | `Rsrc_Menu_12d_409` |
-| `StringTable` | `409` | `0x00000001400051D0` | `Rsrc_StringTable_7_409` |
+| Resource type | Resource ID/table | Locale | Address | Loader symbol |
+| --- | --- | --- | --- | --- |
+| `Dialog` | `201` | `0x0409` | `0x00000001400050F0` | `Rsrc_Dialog_c9_409` |
+| `Menu` | `301` | `0x0409` | `0x0000000140005198` | `Rsrc_Menu_12d_409` |
+| `StringTable` | `table 7 (IDs 101, 102)` | `0x0409` | `0x00000001400051D0` | `Rsrc_StringTable_7_409` |
+
+## Resource IDs Verified Against Inputs
+
+| Resource type | .rc/resource.h symbol | ID |
+| --- | --- | --- |
+| `Dialog` | `IDD_FIXTURE_DIALOG` | `201` |
+| `Menu` | `IDR_FIXTURE_MENU` | `301` |
+| `StringTable` | `IDS_GREETING` | `101` |
+| `StringTable` | `IDS_SECOND` | `102` |
 
 ## Analyzer DATA References
 
@@ -31,4 +40,5 @@
 
 - **Resource symbols reported:** `3`.
 - **Analyzer DATA references reported:** `2`.
-- The resource section contains STRINGTABLE, DIALOGEX, and MENU entries; the two LoadStringW calls must resolve to string-table data addresses.
+- The `.rc` LANGUAGE declaration resolves to LANGID `0x0409`; the report keeps it separate from each resource ID.
+- Resource IDs are verified against the declarations in `test_windows_resource_reference.rc` and `resource.h`; the two LoadStringW calls resolve to string-table data addresses.

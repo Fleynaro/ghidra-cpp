@@ -60,7 +60,7 @@ def configure_analysis(project, program) -> list[str]:
 
 
 def scalar_rows(program):
-    """Extract scalar operands and any operand references present after analysis."""
+    """Extract scalar values, references, and the observed acceptance outcome."""
     from ghidra.program.model.scalar import Scalar
 
     rows = []
@@ -71,25 +71,35 @@ def scalar_rows(program):
             objects = instruction.getOpObjects(operand_index)
             if not any(isinstance(obj, Scalar) for obj in objects):
                 continue
+            scalar = next(obj for obj in objects if isinstance(obj, Scalar))
             refs = instruction.getOperandReferences(operand_index)
             targets = sorted(f"0x{int(ref.getToAddress().getOffset()):016X}" for ref in refs)
+            value = int(scalar.getUnsignedValue())
+            if targets:
+                outcome = "Analyzer-created address reference"
+            elif value < 4096:
+                outcome = "Rejected small numeric control"
+            else:
+                outcome = "Rejected address-like control"
             rows.append(
                 (
                     int(instruction.getMinAddress().getOffset()),
                     operand_index,
                     str(instruction.getDefaultOperandRepresentation(operand_index)),
+                    value,
                     ", ".join(targets),
+                    outcome,
                 )
             )
     return sorted(rows)
 
 
-def render(input_path: Path, enabled: list[str], rows) -> str:
-    """Render observed scalar operands and references without hard-coded addresses."""
+def render(input_path: Path, enabled: list[str], before, after) -> str:
+    """Render before/after scalar outcomes, including positive and negative controls."""
     lines = [
         "# Scalar Operand References Behavioral Fixture",
         "",
-        "> Generated from actual Ghidra instruction and operand-reference state.",
+        "> Generated from actual Ghidra instruction and operand-reference snapshots.",
         "",
         "## Input",
         "",
@@ -102,9 +112,30 @@ def render(input_path: Path, enabled: list[str], rows) -> str:
         "| --- |",
     ]
     lines.extend(f"| `{name}` |" for name in enabled)
-    lines.extend(["", "## Scalar Operands", "", "| Instruction | Operand index | Text | Operand references |", "| --- | --- | --- | --- |"])
-    lines.extend(f"| `0x{address:016X}` | `{index}` | `{text}` | `{targets}` |" for address, index, text, targets in rows)
-    return "\n".join(lines) + "\n"
+    lines.extend([
+        "",
+        "## Scalar Operands",
+        "",
+        "| Phase | Instruction | Operand index | Text | Unsigned scalar | Operand references | Outcome |",
+        "| --- | --- | --- | --- | ---: | --- | --- |",
+    ])
+    for phase, rows in (("Before", before), ("After", after)):
+        lines.extend(
+            f"| `{phase}` | `0x{address:016X}` | `{index}` | `{text}` | `0x{value:016X}` | `{targets}` | `{outcome}` |"
+            for address, index, text, value, targets, outcome in rows
+        )
+    positive = sum(1 for row in after if row[4])
+    negative = sum(1 for row in after if not row[4])
+    lines.extend([
+        "",
+        "## Fixture Assertions",
+        "",
+        f"- **Positive analyzer references after analysis:** `{positive}`.",
+        f"- **Negative controls without references after analysis:** `{negative}`.",
+        "- Positive values are fixed image addresses; negative rows retain the rejected address-like and small numeric controls.",
+        "",
+    ])
+    return "\n".join(lines).rstrip() + "\n"
 
 
 def main() -> int:
@@ -128,9 +159,15 @@ def main() -> int:
         enabled = configure_analysis(project, program)
         if enabled != [ANALYZER_NAME]:
             raise RuntimeError(f"Unexpected enabled analysis options: {enabled}")
+        before = scalar_rows(program)
         project.analyze(program)
+        after = scalar_rows(program)
+        if not any(row[4] for row in after):
+            raise RuntimeError(f"No positive scalar operand reference was created: before={before}, after={after}")
+        if not any(not row[4] for row in after):
+            raise RuntimeError(f"No negative scalar control was retained: before={before}, after={after}")
         project.save(program)
-        output_path.write_text(render(input_path, enabled, scalar_rows(program)), encoding="utf-8", newline="\n")
+        output_path.write_text(render(input_path, enabled, before, after), encoding="utf-8", newline="\n")
         print(f"[+] Wrote {output_path}")
     except Exception as error:
         print(f"ERROR: Scalar operand analysis failed: {error}", file=sys.stderr)

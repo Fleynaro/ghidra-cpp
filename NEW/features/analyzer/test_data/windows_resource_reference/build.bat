@@ -36,6 +36,10 @@ link /nologo test_windows_resource_reference.obj test_windows_resource_reference
     /SUBSYSTEM:CONSOLE /ENTRY:fixture_entry /NODEFAULTLIB /OPT:NOREF /OPT:NOICF ^
     /INCREMENTAL:NO /Brepro
 if errorlevel 1 exit /b 1
+if not exist test_windows_resource_reference.pdb (
+    echo ERROR: The linker did not produce test_windows_resource_reference.pdb.
+    exit /b 1
+)
 
 del /q test_windows_resource_reference.obj test_windows_resource_reference.res >nul 2>&1
 del /q test_windows_resource_reference.lib test_windows_resource_reference.exp vc140.pdb >nul 2>&1

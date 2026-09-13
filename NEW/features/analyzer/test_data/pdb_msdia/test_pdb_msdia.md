@@ -19,9 +19,10 @@
 
 | Name | Value |
 | --- | --- |
-| `PDB Age` | `c` |
+| `PDB Age` | `f` |
 | `PDB File` | `test_pdb_msdia.pdb` |
-| `PDB GUID` | `7a2e3a25-772b-c44c-27fc-1f0596875ccb` |
+| `PDB GUID` | `4fe01cc2-df2c-2f49-533a-a30a7f394035` |
+| `PDB Signature` | `` |
 | `PDB Version` | `RSDS` |
 
 ## Observed Symbols Without PDB Application

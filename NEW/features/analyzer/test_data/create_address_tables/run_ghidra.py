@@ -35,24 +35,43 @@ def configure_analysis(project, program) -> list[str]:
     )
 
 
-def table_facts(program) -> list[tuple[str, int, str]]:
-    """Extract Address Table bookmarks and pointer data created by the target analyzer."""
+def fixture_table_range(program) -> tuple[int, int]:
+    """Return the exact exported fixture-table range, excluding the sentinel."""
+    table = next(iter(program.getSymbolTable().getGlobalSymbols("fixture_table")), None)
+    after = next(iter(program.getSymbolTable().getGlobalSymbols("fixture_after_table")), None)
+    if table is None or after is None:
+        raise RuntimeError("Exported fixture table boundary symbols were not imported")
+    start = int(table.getAddress().getOffset())
+    end = int(after.getAddress().getOffset()) - 1
+    if end < start:
+        raise RuntimeError(f"Invalid fixture table range: {start:#x}..{end:#x}")
+    return start, end
+
+
+def table_facts(program, table_range: tuple[int, int]) -> list[tuple[str, int, str]]:
+    """Extract only bookmark/pointer facts inside the actual fixture table range."""
+    start, end = table_range
     facts = []
     bookmarks = program.getBookmarkManager().getBookmarksIterator()
     while bookmarks.hasNext():
         bookmark = bookmarks.next()
-        if bookmark.getTypeString() == "Analysis" and bookmark.getCategory() == "Address Table":
+        address = int(bookmark.getAddress().getOffset())
+        if (bookmark.getTypeString() == "Analysis" and bookmark.getCategory() == "Address Table"
+                and start <= address <= end):
             facts.append((address_text(bookmark.getAddress()), -1, bookmark.getComment()))
     data = program.getListing().getDefinedData(program.getMemory().getLoadedAndInitializedAddressSet(), True)
     while data.hasNext():
         item = data.next()
-        if item.isPointer():
+        address = int(item.getAddress().getOffset())
+        if item.isPointer() and start <= address <= end:
             facts.append((address_text(item.getAddress()), item.getLength(), "pointer"))
     return sorted(facts)
 
 
-def report(input_path: Path, enabled: list[str], facts) -> str:
-    """Render only stable table-bookmark and pointer-data observations."""
+def report(input_path: Path, enabled: list[str], table_range, before, after) -> str:
+    """Render only target-created facts within the exported fixture-table range."""
+    created = sorted(set(after) - set(before))
+    start, end = table_range
     lines = [
         "# Create Address Tables Behavioral Fixture",
         "",
@@ -62,14 +81,15 @@ def report(input_path: Path, enabled: list[str], facts) -> str:
         "",
         f"- **Input:** `{input_path.name}`",
         f"- **Enabled boolean analyzers:** `{', '.join(enabled)}`",
+        f"- **Fixture table range:** `0x{start:016X}` through `0x{end:016X}` (the exported sentinel begins immediately afterward).",
         "",
-        "## Analyzer Discoveries",
+        "## Target-Created Fixture Table Facts",
         "",
-        "| Address | Length | Kind or bookmark comment |",
-        "| --- | ---: | --- |",
+        "| Address | Length | Kind or bookmark comment | Created by target |",
+        "| --- | ---: | --- | --- |",
     ]
-    lines.extend(f"| `{addr}` | `{length}` | `{comment}` |" for addr, length, comment in facts)
-    lines.extend(["", "## Fixture Assertions", "", f"- **Stable analyzer facts:** `{len(facts)}`", ""])
+    lines.extend(f"| `{addr}` | `{length}` | `{comment}` | `true` |" for addr, length, comment in created)
+    lines.extend(["", "## Fixture Assertions", "", f"- **Facts before analysis in fixture range:** `{len(before)}`", f"- **Facts after analysis in fixture range:** `{len(after)}`", f"- **Target-created fixture facts:** `{len(created)}`", "- Pointer metadata outside the exported table range is intentionally excluded from this report.", ""])
     return "\n".join(lines)
 
 
@@ -123,12 +143,18 @@ def main() -> int:
         finally:
             program.endTransaction(tx, committed)
 
+        table_range = fixture_table_range(program)
+        before = table_facts(program, table_range)
         enabled = configure_analysis(project, program)
         expected = sorted({ANALYZER, *DEPENDENCIES})
         if enabled != expected:
             raise RuntimeError(f"Unexpected enabled analysis options: {enabled}")
         project.analyze(program)
-        output_path.write_text(report(input_path, enabled, table_facts(program)), encoding="utf-8", newline="\n")
+        after = table_facts(program, table_range)
+        if not after or any(int(address, 16) < table_range[0] or int(address, 16) > table_range[1]
+                            for address, _, _ in after):
+            raise RuntimeError(f"No confined fixture table facts were created: before={before}, after={after}")
+        output_path.write_text(report(input_path, enabled, table_range, before, after), encoding="utf-8", newline="\n")
         project.save(program)
         print(f"[+] Wrote {output_path}")
     finally:

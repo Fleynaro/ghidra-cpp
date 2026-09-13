@@ -302,8 +302,12 @@ def main() -> int:
     fixture_dir = Path(__file__).resolve().parent
     input_path = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else fixture_dir / "test_variadic_function_signature_override.exe"
     output_path = Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else fixture_dir / "test_variadic_function_signature_override.md"
+    pdb_path = input_path.with_suffix(".pdb")
     if not input_path.is_file():
         print(f"Input file does not exist: {input_path}", file=sys.stderr)
+        return 2
+    if not pdb_path.is_file():
+        print(f"Matching PDB is required: {pdb_path}", file=sys.stderr)
         return 2
 
     import pyghidra
@@ -311,6 +315,8 @@ def main() -> int:
     pyghidra.start()
     from ghidra.base.project import GhidraProject
     from java.io import File
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from pdb_validation import validate_pdb_match
 
     parent = Path(tempfile.mkdtemp(prefix="ghidra_variadic_signature_"))
     project = None
@@ -323,10 +329,11 @@ def main() -> int:
         project.saveAs(imported, "/", input_path.name, True)
         project.close(imported)
         program = project.openProgram("/", input_path.name, False)
+        validate_pdb_match(program, pdb_path)
         prepare_disassembly(program)
         from ghidra.app.plugin.core.analysis import PdbUniversalAnalyzer
 
-        PdbUniversalAnalyzer.setPdbFileOption(program, File(str(input_path.with_suffix(".pdb"))))
+        PdbUniversalAnalyzer.setPdbFileOption(program, File(str(pdb_path)))
         configure_analysis(project, program, include_target=False)
         project.analyze(program)
         # PDB application can replace function bodies; reseed disassembly/function ranges

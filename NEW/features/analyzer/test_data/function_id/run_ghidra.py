@@ -3,12 +3,14 @@
 
 from __future__ import annotations
 
+import os
 import shutil
 import sys
 import tempfile
 from pathlib import Path
 
 ANALYZER_NAME = "Function ID"
+FID_ARTIFACT_GHIDRA_VERSION = "12.1.3"
 
 
 def value(address) -> int:
@@ -62,34 +64,43 @@ def build_fid_database(project, library_name: str, fid_path: Path) -> tuple[int,
     from java.io import File
     from java.util import ArrayList
 
-    if fid_path.exists():
-        fid_path.unlink()
+    temporary_fd, temporary_name = tempfile.mkstemp(
+        prefix=f".{fid_path.stem}.", suffix=fid_path.suffix, dir=str(fid_path.parent)
+    )
+    os.close(temporary_fd)
+    temporary_path = Path(temporary_name)
+    temporary_path.unlink()
     manager = FidFileManager.getInstance()
-    manager.createNewFidDatabase(File(str(fid_path)))
-    fid_file = manager.addUserFidFile(File(str(fid_path)))
-    if fid_file is None:
-        raise RuntimeError("Ghidra rejected the newly created packed FID database")
-
-    library = project.openProgram("/", library_name, False)
-    prepare_disassembly(library)
-    seed_export_functions(library)
-    project.save(library)
-    language_id = str(library.getLanguageID())
-    # Current repository sources use FidFilter; the verified 12.1.3 runtime
-    # predates that class and exposes the equivalent LanguageID overload.
+    fid_file = None
+    database = None
+    replacement_committed = False
     try:
-        from ghidra.feature.fid.db import FidFilter
-        filter_argument = FidFilter(language_id, "", "")
-    except ImportError:
-        from ghidra.program.model.lang import LanguageID
-        filter_argument = LanguageID(language_id)
-    domain_file = library.getDomainFile()
-    project.close(library)
+        # Build beside the committed artifact and replace it only after the
+        # complete database has been populated, saved, and re-opened.
+        manager.createNewFidDatabase(File(str(temporary_path)))
+        fid_file = manager.addUserFidFile(File(str(temporary_path)))
+        if fid_file is None:
+            raise RuntimeError("Ghidra rejected the newly created packed FID database")
 
-    program_files = ArrayList()
-    program_files.add(domain_file)
-    database = fid_file.getFidDB(True)
-    try:
+        library = project.openProgram("/", library_name, False)
+        prepare_disassembly(library)
+        seed_export_functions(library)
+        project.save(library)
+        language_id = str(library.getLanguageID())
+        # Current repository sources use FidFilter; the verified 12.1.3 runtime
+        # predates that class and exposes the equivalent LanguageID overload.
+        try:
+            from ghidra.feature.fid.db import FidFilter
+            filter_argument = FidFilter(language_id, "", "")
+        except ImportError:
+            from ghidra.program.model.lang import LanguageID
+            filter_argument = LanguageID(language_id)
+        domain_file = library.getDomainFile()
+        project.close(library)
+
+        program_files = ArrayList()
+        program_files.add(domain_file)
+        database = fid_file.getFidDB(True)
         service = FidService()
         result = service.createNewLibraryFromPrograms(
             database,
@@ -110,34 +121,55 @@ def build_fid_database(project, library_name: str, fid_path: Path) -> tuple[int,
         if not libraries:
             raise RuntimeError("FID database population produced no library records")
         added_count = int(result.getTotalAdded())
-    finally:
         database.close()
-    # FidFile caches its language filter when first opened. Re-register the
-    # now-populated packed file so the production manager queries its actual
-    # library records instead of the empty pre-population filter.
-    manager.removeUserFile(fid_file)
-    if manager.addUserFidFile(File(str(fid_path))) is None:
-        raise RuntimeError("Ghidra could not reload the populated packed FID database")
-    return added_count, language_id
+        database = None
+
+        # FidFile caches its language filter when first opened. Re-register the
+        # populated temporary file, then atomically replace the committed path.
+        manager.removeUserFile(fid_file)
+        fid_file = None
+        committed_file = File(str(fid_path))
+        for existing in list(manager.getUserAddedFiles()):
+            if Path(existing.getPath()).resolve() == fid_path.resolve():
+                manager.removeUserFile(existing)
+        os.replace(temporary_path, fid_path)
+        if manager.addUserFidFile(committed_file) is None:
+            raise RuntimeError("Ghidra could not reload the populated packed FID database")
+        replacement_committed = True
+        return added_count, language_id
+    finally:
+        if database is not None:
+            database.close()
+        if fid_file is not None:
+            manager.removeUserFile(fid_file)
+        if not replacement_committed and temporary_path.exists():
+            temporary_path.unlink()
 
 
 def configure_analysis(project, program) -> list[str]:
     """Disable unrelated boolean analyzers and explicitly enable Function ID."""
     from ghidra.framework.options import OptionType
 
-    options = project.getAnalysisOptions(program)
-    for name in options.getOptionNames():
-        if options.getType(name) == OptionType.BOOLEAN_TYPE:
-            options.setBoolean(name, str(name) == ANALYZER_NAME)
+    analysis_options = project.getAnalysisOptions(program)
+    for name in list(analysis_options.getOptionNames()):
+        if analysis_options.getType(name) == OptionType.BOOLEAN_TYPE:
+            analysis_options.setBoolean(name, str(name) == ANALYZER_NAME)
     # The default score and multi-match thresholds are intentionally retained.
-    options.setBoolean("Always Apply FID Labels", True)
-    options.setBoolean("Create Analysis Bookmarks", True)
+    fid_options = analysis_options.getOptions(ANALYZER_NAME)
+    fid_options.setBoolean("Always Apply FID Labels", True)
+    fid_options.setBoolean("Create Analysis Bookmarks", True)
     enabled = sorted(
         str(name)
-        for name in options.getOptionNames()
-        if options.getType(name) == OptionType.BOOLEAN_TYPE and options.getBoolean(name, False)
+        for name in analysis_options.getOptionNames()
+        if analysis_options.getType(name) == OptionType.BOOLEAN_TYPE
+        and analysis_options.getBoolean(name, False)
     )
-    if enabled != ["Always Apply FID Labels", "Create Analysis Bookmarks", ANALYZER_NAME]:
+    expected = [
+        ANALYZER_NAME,
+        f"{ANALYZER_NAME}.Always Apply FID Labels",
+        f"{ANALYZER_NAME}.Create Analysis Bookmarks",
+    ]
+    if enabled != sorted(expected):
         raise RuntimeError(f"Unexpected enabled Function ID options: {enabled}")
     return enabled
 
@@ -189,6 +221,7 @@ def report(input_path: Path, enabled, added_count: int, language_id: str, query_
         "",
         f"- **Target:** `{input_path.name}`",
         f"- **Target file size:** `{input_path.stat().st_size}` bytes",
+        f"- **FID artifact version:** `Ghidra {FID_ARTIFACT_GHIDRA_VERSION}`",
         f"- **FID language ID:** `{language_id}`",
         f"- **Direct FidService query results:** `{query_counts[0]}` functions, `{query_counts[1]}` matches",
         "",
@@ -254,7 +287,9 @@ def main() -> int:
         from ghidra.app.util.importer import MessageLog
         from ghidra.util.task import TaskMonitor
         fid_analyzer = FidAnalyzer()
-        fid_analyzer.optionsChanged(project.getAnalysisOptions(program), program)
+        fid_analyzer.optionsChanged(
+            project.getAnalysisOptions(program).getOptions(ANALYZER_NAME), program
+        )
         fid_analyzer.added(program, program.getMemory(), TaskMonitor.DUMMY, MessageLog())
         functions = target_rows(program)
         query_counts = query_match_count(program)

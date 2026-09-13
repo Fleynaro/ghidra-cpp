@@ -19,6 +19,8 @@
 // * extern "C" makes the target name stable and isolates parameter recovery from Microsoft
 //   name demangling; this fixture tests only parameter identification.
 // * noinline, /Ob0, and observable volatile writes prevent inlining and preserve the call graph.
+// * /Zi and /DEBUG:FULL retain the matching CodeView/PDB records so PDB Universal can supply
+//   meaningful int, const char *, and int * types before Decompiler Parameter ID runs.
 // * pointer and character parameters exercise integer, pointer, and output-storage recovery
 //   without requiring CRT types, exception handling, or runtime initialization.
 //
@@ -28,7 +30,8 @@
 // * The PyGhidra preparation step disassembles and creates functions before analysis because
 //   the Java analyzer operates on existing Function objects; those setup actions are not
 //   reported as analyzer discoveries.
-// * run_ghidra.py extracts parameter count, names, data types, and storage text only.
+// * run_ghidra.py extracts parameter count, names, data types, and storage text before and after
+//   the target analyzer and rejects undefined/unknown post-analysis placeholders.
 
 extern "C" volatile unsigned int fixture_output = 0;
 

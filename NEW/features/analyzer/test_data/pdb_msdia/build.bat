@@ -21,6 +21,10 @@ cl /nologo /c test_pdb_msdia.cpp /Fo:test_pdb_msdia.obj /Fd:test_pdb_msdia.pdb /
 if errorlevel 1 exit /b 1
 link /nologo test_pdb_msdia.obj /OUT:test_pdb_msdia.exe /SUBSYSTEM:CONSOLE /ENTRY:pdb_msdia_entry /NODEFAULTLIB /OPT:NOREF /OPT:NOICF /INCREMENTAL:NO /DEBUG:FULL /PDB:test_pdb_msdia.pdb /Brepro
 if errorlevel 1 exit /b 1
+if not exist test_pdb_msdia.pdb (
+    echo ERROR: The linker did not produce test_pdb_msdia.pdb.
+    exit /b 1
+)
 del /q test_pdb_msdia.obj test_pdb_msdia.lib test_pdb_msdia.exp >nul 2>&1
 echo Built test_pdb_msdia.exe and matching test_pdb_msdia.pdb
 exit /b 0

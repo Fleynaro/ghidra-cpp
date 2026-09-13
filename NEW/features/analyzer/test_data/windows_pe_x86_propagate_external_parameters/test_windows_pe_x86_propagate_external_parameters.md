@@ -7,6 +7,7 @@
 
 - **File:** `test_windows_pe_x86_propagate_external_parameters.exe`
 - **File size:** `3072` bytes
+- **Matching PDB:** `test_windows_pe_x86_propagate_external_parameters.pdb` (CodeView identity verified before setup)
 
 ## Analysis Configuration
 
@@ -22,10 +23,13 @@
 | `0x0040101A` | `char * text for MessageBoxA` |
 | `0x0040101F` | `void * window for MessageBoxA` |
 
-## Referenced Data Comments
+## Parameter Data Symbols
 
-| Address | Label | Plate comment |
+| Address | Symbol | Plate comment |
 | --- | --- | --- |
+| `0x00402008` | `parameter_text` | `-` |
+| `0x00402020` | `parameter_caption` | `-` |
+| `0x0040203C` | `parameter_flags` | `-` |
 
 ## External Function Baseline
 
@@ -49,5 +53,6 @@
 ## Fixture Assertion
 
 - **PUSH parameter comments:** `4`.
-- **Referenced data comments:** `0`.
+- **Parameter data symbols reported:** `3`.
 - The four EOL comments are the direct observable result of the analyzer's import-thunk PUSH propagation path.
+- Referenced data rows are restricted to the source-declared `parameter_*` symbols; setup does not invent data labels or report rows.

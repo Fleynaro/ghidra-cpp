@@ -9,7 +9,7 @@ import tempfile
 from pathlib import Path
 
 ANALYZER_NAME = "Embedded Media"
-MEDIA_TYPES = {"GIF", "PNG", "JPEG", "WAVE", "MIDI", "AU", "AIFF"}
+MEDIA_TYPES = {"GIF", "PNG", "JPEG", "WAVE", "MIDI", "AU"}
 
 
 def offset(address) -> int:
@@ -41,16 +41,16 @@ def configure_analysis(project, program) -> list[str]:
     """Disable boolean analyzers and explicitly enable only Embedded Media."""
     from ghidra.framework.options import OptionType
 
-    options = project.getAnalysisOptions(program)
-    for name in options.getOptionNames():
-        if options.getType(name) == OptionType.BOOLEAN_TYPE:
-            options.setBoolean(name, str(name) == ANALYZER_NAME)
-    options.setBoolean("Create Analysis Bookmarks", True)
+    analysis_options = project.getAnalysisOptions(program)
+    for name in list(analysis_options.getOptionNames()):
+        if analysis_options.getType(name) == OptionType.BOOLEAN_TYPE:
+            analysis_options.setBoolean(name, str(name) == ANALYZER_NAME)
+    analysis_options.getOptions(ANALYZER_NAME).setBoolean("Create Analysis Bookmarks", True)
     enabled = [
         str(name)
-        for name in options.getOptionNames()
-        if options.getType(name) == OptionType.BOOLEAN_TYPE
-        and options.getBoolean(name, False)
+        for name in analysis_options.getOptionNames()
+        if analysis_options.getType(name) == OptionType.BOOLEAN_TYPE
+        and analysis_options.getBoolean(name, False)
     ]
     analyzers = [name for name in enabled if name == ANALYZER_NAME]
     if analyzers != [ANALYZER_NAME]:
@@ -146,11 +146,17 @@ def main() -> int:
         from ghidra.app.util.importer import MessageLog
         from ghidra.util.task import TaskMonitor
         media_analyzer = EmbeddedMediaAnalyzer()
-        media_analyzer.optionsChanged(project.getAnalysisOptions(program), program)
+        media_analyzer.optionsChanged(
+            project.getAnalysisOptions(program).getOptions(ANALYZER_NAME), program
+        )
         media_analyzer.added(program, program.getMemory(), TaskMonitor.DUMMY, MessageLog())
         project.analyze(program)
         data_rows = media_rows(program)
         bookmarks = bookmark_rows(program)
+        if sum(name.startswith("GIF") for _, name, _ in data_rows) < 2:
+            raise RuntimeError(f"The real GIF87 positive case was not created alongside GIF89a: {data_rows}")
+        if not data_rows:
+            raise RuntimeError("Embedded Media created no supported positive data objects")
         project.save(program)
         output_path.write_text(report(input_path, enabled, data_rows, bookmarks), encoding="utf-8", newline="\n")
         print(f"[+] Wrote {output_path}")

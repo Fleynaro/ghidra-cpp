@@ -61,14 +61,15 @@ extern "C" __declspec(dllexport) __declspec(noinline) void table_target_four() {
 using table_target = void (*)();
 
 // NOLINTNEXTLINE(modernize-avoid-c-arrays): MSVC section allocation requires a native array.
-__declspec(allocate(".rdata$fixture")) const table_target fixture_table[] = {
+extern "C" __declspec(dllexport) __declspec(allocate(".rdata$fixture")) const table_target fixture_table[] = {
     table_target_one,
     table_target_two,
     table_target_three,
     table_target_four,
 };
 
-__declspec(allocate(".rdata$fixture")) const unsigned long long fixture_after_table = 0x0102030405060708ULL;
+extern "C" __declspec(dllexport) __declspec(allocate(".rdata$fixture")) const unsigned long long fixture_after_table =
+    0x0102030405060708ULL;
 
 // Retain the table and sentinel through a normal executable call path.
 extern "C" __declspec(noinline) void fixture_entry() {

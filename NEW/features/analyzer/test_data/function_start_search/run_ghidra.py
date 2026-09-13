@@ -9,6 +9,8 @@ import tempfile
 from pathlib import Path
 
 ANALYZERS = ["Function Start Search", "Function Start Search After Code", "Function Start Search After Data"]
+POSITIVE_SYMBOL = "function_start_positive_pattern"
+POSITIVE_MARK_OFFSET = 3
 
 
 def value(address) -> int:
@@ -29,15 +31,17 @@ def configure_analysis(project, program) -> list[str]:
     """Enable the main and registered post-search phases explicitly."""
     from ghidra.framework.options import OptionType
 
-    options = project.getAnalysisOptions(program)
-    for name in options.getOptionNames():
-        if options.getType(name) == OptionType.BOOLEAN_TYPE:
-            options.setBoolean(name, str(name) in ANALYZERS)
-    options.setBoolean("Bookmark Functions", True)
+    analysis_options = project.getAnalysisOptions(program)
+    for name in list(analysis_options.getOptionNames()):
+        if analysis_options.getType(name) == OptionType.BOOLEAN_TYPE:
+            analysis_options.setBoolean(name, str(name) in ANALYZERS)
+    function_start_options = analysis_options.getOptions(ANALYZERS[0])
+    function_start_options.setBoolean("Bookmark Functions", True)
     enabled = sorted(
         str(name)
-        for name in options.getOptionNames()
-        if options.getType(name) == OptionType.BOOLEAN_TYPE and options.getBoolean(name, False)
+        for name in analysis_options.getOptionNames()
+        if analysis_options.getType(name) == OptionType.BOOLEAN_TYPE
+        and analysis_options.getBoolean(name, False)
     )
     analyzer_enabled = sorted(name for name in ANALYZERS if name in enabled)
     expected = sorted(ANALYZERS[:1])
@@ -70,7 +74,9 @@ def names_and_entries(program):
     while symbols.hasNext():
         symbol = symbols.next()
         name = str(symbol.getName(False))
-        if name.startswith("function_start_candidate_"):
+        if name == POSITIVE_SYMBOL:
+            candidates[name] = value(symbol.getAddress()) + POSITIVE_MARK_OFFSET
+        elif name.startswith("function_start_candidate_"):
             candidates[name] = value(symbol.getAddress())
     entries = sorted(
         value(function.getEntryPoint())
@@ -80,15 +86,14 @@ def names_and_entries(program):
     return candidates, entries
 
 
-def remove_candidate_functions(program, candidates) -> None:
-    """Remove loader-created export functions so pattern creation is observable."""
+def remove_positive_function(program, candidates) -> None:
+    """Remove only the positive candidate function so the negative remains a control."""
     address_space = program.getAddressFactory().getDefaultAddressSpace()
     manager = program.getFunctionManager()
     transaction = program.startTransaction("Remove pre-existing candidate functions")
     committed = False
     try:
-        for address in candidates.values():
-            manager.removeFunction(address_space.getAddress(address))
+        manager.removeFunction(address_space.getAddress(candidates[POSITIVE_SYMBOL]))
         committed = True
     finally:
         program.endTransaction(transaction, committed)
@@ -113,12 +118,14 @@ def run_authoritative_search(program) -> None:
     from ghidra.util.task import TaskMonitor
 
     analyzer = FunctionStartAnalyzer()
-    analyzer.optionsChanged(program.getOptions(program.ANALYSIS_PROPERTIES), program)
+    analyzer.optionsChanged(
+        program.getOptions(program.ANALYSIS_PROPERTIES).getOptions(ANALYZERS[0]), program
+    )
     analyzer.added(program, program.getMemory(), TaskMonitor.DUMMY, MessageLog())
 
 
-def report(input_path: Path, enabled, candidates, before, after, marks) -> str:
-    """Render actual candidate, function, and bookmark observations."""
+def report(input_path: Path, enabled, candidates, before, after, marks_before, marks_after) -> str:
+    """Render before/after candidate evidence and the rejected negative control."""
     created = sorted(set(after) - set(before))
     lines = [
         "# Function Start Search Behavioral Fixture",
@@ -138,16 +145,30 @@ def report(input_path: Path, enabled, candidates, before, after, marks) -> str:
         "",
         "## Candidate Export Offsets",
         "",
-        "| Symbol | Offset | Discovered function |",
-        "| --- | --- | --- |",
+        "| Symbol | Offset | Before function | After function | Created by target |",
+        "| --- | --- | --- | --- | --- |",
     ]
     for name, address in sorted(candidates.items()):
-        lines.append(f"| `{name}` | `0x{address:016X}` | `{str(address in after).lower()}` |")
+        lines.append(
+            f"| `{name}` | `0x{address:016X}` | `{str(address in before).lower()}` | `{str(address in after).lower()}` | `{str(address in after and address not in before).lower()}` |"
+        )
     lines.extend(["", "## Functions Created By Pattern Search", "", "| Offset |", "| --- |"])
     lines.extend(f"| `0x{address:016X}` |" for address in created)
-    lines.extend(["", "## Function Start Search Bookmarks", "", "| Offset | Category | Comment |", "| --- | --- | --- |"])
-    lines.extend(f"| `0x{address:016X}` | `{category}` | `{comment}` |" for address, category, comment in marks)
-    lines.extend(["", "## Fixture Assertions", "", f"- **Candidate exports:** `{len(candidates)}`.", f"- **Functions created:** `{len(created)}`.", f"- **Pattern bookmarks:** `{len(marks)}`.", "", "## Standalone Trigger Note", "", "The real x64 prologues were present in the PE, but this verified standalone PyGhidra run scheduled no pattern-created function. The zero result is retained as the observed analyzer behavior; the pre-search phase has no matching x64 Windows pattern section.", ""])
+    lines.extend(["", "## Function Start Search Bookmarks Before Analysis", "", "| Offset | Category | Comment |", "| --- | --- | --- |"])
+    lines.extend(f"| `0x{address:016X}` | `{category}` | `{comment}` |" for address, category, comment in marks_before)
+    lines.extend(["", "## Function Start Search Bookmarks After Analysis", "", "| Offset | Category | Comment |", "| --- | --- | --- |"])
+    lines.extend(f"| `0x{address:016X}` | `{category}` | `{comment}` |" for address, category, comment in marks_after)
+    lines.extend([
+        "",
+        "## Fixture Assertions",
+        "",
+        f"- **Candidate exports:** `{len(candidates)}`.",
+        f"- **Functions created:** `{len(created)}`.",
+        f"- **Pattern bookmarks before/after:** `{len(marks_before)}` / `{len(marks_after)}`.",
+        f"- **Positive candidate discovered:** `{str(candidates[POSITIVE_SYMBOL] in after and candidates[POSITIVE_SYMBOL] not in before).lower()}`.",
+        "- The ordinary exported candidate remains a rejected negative control because it is already a function before the target analyzer runs.",
+        "",
+    ])
     return "\n".join(lines)
 
 
@@ -179,16 +200,22 @@ def main() -> int:
         program = project.openProgram("/", input_path.name, False)
         prepare_disassembly(program)
         candidates, before = names_and_entries(program)
-        remove_candidate_functions(program, candidates)
+        remove_positive_function(program, candidates)
         before = names_and_entries(program)[1]
+        marks_before = bookmarks(program)
         enabled = configure_analysis(project, program)
         project.analyze(program)
         run_authoritative_search(program)
         project.analyze(program)
         candidates, after = names_and_entries(program)
-        marks = bookmarks(program)
+        marks_after = bookmarks(program)
+        if candidates[POSITIVE_SYMBOL] in before or candidates[POSITIVE_SYMBOL] not in after:
+            raise RuntimeError(f"Positive Function Start candidate was not discovered: before={before}, after={after}")
+        negative = [address for name, address in candidates.items() if name.startswith("function_start_candidate_")]
+        if not negative or not all(address in before and address in after for address in negative):
+            raise RuntimeError(f"Negative Function Start candidate evidence is incomplete: candidates={candidates}, before={before}, after={after}")
         project.save(program)
-        output_path.write_text(report(input_path, enabled, candidates, before, after, marks), encoding="utf-8", newline="\n")
+        output_path.write_text(report(input_path, enabled, candidates, before, after, marks_before, marks_after), encoding="utf-8", newline="\n")
         print(f"[+] Wrote {output_path}")
     finally:
         if project is not None:

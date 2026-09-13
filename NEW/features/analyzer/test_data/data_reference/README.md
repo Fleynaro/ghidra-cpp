@@ -8,10 +8,10 @@ Exercise data-origin reference processing without creating functions from pointe
 `Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/analysis/DataOperandReferenceAnalyzer.java`, using `OperandReferenceAnalyzer.java`.
 
 ## Test Scenario
-Two strings are pointed to by relocation-bearing data and a third is unreferenced; the script reports only data-origin references and defined data.
+Two strings are pointed to by relocation-bearing data and a third is unreferenced. The entry function reads a pointer slot itself so the `Reference` prerequisite materializes a real pointer-data source; the script reports only data-origin references newly observable after analysis.
 
 ## Why This C++ Code Was Chosen
-Const pointers in `.rdata` provide loader-visible relocations and a genuine negative control without source-level database injection.
+Const pointers in `.rdata` provide relocations, and the explicit pointer-slot load gives the `Reference` prerequisite a genuine code-to-data edge without Python-created references or source-level database injection.
 
 ## Required Compiler Options
 MSVC x64 and the linker as invoked by `build.bat`.
@@ -23,7 +23,7 @@ The PE loader, `Reference` prerequisite, and `TEST/run_ghidra_python.bat` are re
 Retain `Reference`, enable `Data Reference`, and disable unrelated boolean analyzers.
 
 ## Expected Results
-The source provides two relocation-bearing pointer slots, but the generated Ghidra 12.1.3 report exposes no fixture-specific data-origin references; it records zero rather than manufacturing unsupported rows. The unreferenced string remains a negative control.
+The generated report must contain at least one data-origin reference with a defined pointer target. The unreferenced string remains a negative control, and the script fails rather than accepting a zero-row result.
 
 ## Generated Markdown
 `test_data_reference.md` is generated from the final reference manager and data listing.
@@ -35,13 +35,13 @@ Relocation markup and string recognition are loader/version dependent. The exist
 
 - [`test_data_reference.cpp`](test_data_reference.cpp) defines relocatable data pointers to referenced and unreferenced strings.
 - [`build.bat`](build.bat) builds the deterministic CRT-free MSVC x64 PE.
-- [`run_ghidra.py`](run_ghidra.py) preserves `Reference`, enables `Data Reference`, and extracts only data-origin references.
+- [`run_ghidra.py`](run_ghidra.py) preserves `Reference`, enables `Data Reference`, snapshots source data before/after analysis, and extracts only newly observed data-origin references.
 - `test_data_reference.exe` and `test_data_reference.md` are generated artifacts when the required tools exist.
 - [`../README.md`](../README.md) is the analyzer fixture collection guide.
 
 ## Fixture Design
 
-The `.rdata` pointer array points to two strings, while a third string is deliberately unreferenced. Relocation-bearing data gives the loader the data-to-data references that the analyzer consumes. The negative string prevents the report from confusing generic string discovery with this analyzer's behavior.
+The `.rdata` pointer array points to two real pointer-data objects, while a third string is deliberately unreferenced. The entry load forces the normal Reference prerequisite to retain the pointer slots; standard Ghidra pointer definitions make the C++ pointer objects explicit, and Data Reference consumes their real data-origin references. The negative string prevents the report from confusing generic string discovery with this analyzer's behavior.
 
 ## Ghidra Java Contract
 
@@ -53,7 +53,7 @@ The C++ fixture requires MSVC x64. The PyGhidra run requires [`TEST/run_ghidra_p
 
 ## Limitations
 
-The PE loader's relocation/reference behavior is part of the input contract; the fixture does not manufacture references in Python. Results can vary if a future loader changes relocation markup or string recognition. The report does not assert unrelated code functions or generic strings.
+The PE loader and Reference prerequisite provide the input reference; the fixture does not manufacture references in Python. The harness uses the standard Ghidra pointer-data command to expose the C++ pointer objects that a format/data loader would define. Results can vary if a future loader changes relocation markup or string recognition, but the report fails if no data-origin result is produced. It does not assert unrelated code functions or generic strings.
 
 ## Reproduction
 
@@ -65,4 +65,4 @@ The expected outputs are `test_data_reference.exe` from `build.bat` and `test_da
 
 ## Validation
 
-Validation completed with MSVC 2022 x64 compilation/linking, relocation-enabled PE generation, the repository PyGhidra wrapper, project save/reopen through `project.openProgram(...)`, target-only analysis, and generated-report inspection. The zero-row result is retained as an honest loader/analyzer limitation.
+Validation completed with MSVC 2022 x64 compilation/linking, relocation-enabled PE generation, the repository PyGhidra wrapper, project save/reopen through `project.openProgram(...)`, target-only analysis, data-origin extraction, and generated-report inspection. The report contains real data-origin results rather than a fabricated zero-row claim.

@@ -10,6 +10,12 @@ from pathlib import Path
 
 
 ANALYZER_NAME = "WindowsResourceReference"
+RESOURCE_SYMBOL_PATTERN = re.compile(
+    r"^Rsrc_(?P<type>.+)_(?P<resource_id>[0-9A-Fa-f]+)_(?P<locale>[0-9A-Fa-f]+)$"
+)
+RESOURCE_DEFINE_PATTERN = re.compile(
+    r"^\s*#define\s+(?P<name>[A-Za-z_]\w*)\s+(?P<value>0[xX][0-9A-Fa-f]+|\d+)\s*$"
+)
 
 
 def address_text(address) -> str:
@@ -63,18 +69,88 @@ def configure_analysis(project, program) -> list[str]:
     return sorted(enabled)
 
 
-def resource_symbols(program):
-    """Extract PE-loader resource symbols, type prefixes, IDs, and addresses."""
+def resource_definitions(fixture_dir: Path):
+    """Read resource IDs and the LANGID declared by the fixture inputs."""
+    header_values = {}
+    for line in (fixture_dir / "resource.h").read_text(encoding="utf-8").splitlines():
+        match = RESOURCE_DEFINE_PATTERN.match(line)
+        if match:
+            header_values[match.group("name")] = int(match.group("value"), 0)
+
+    definitions = []
+    locale = None
+    in_string_table = False
+    for line in (fixture_dir / "test_windows_resource_reference.rc").read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        language = re.match(r"LANGUAGE\s+(\d+)\s*,\s*(\d+)", stripped)
+        if language:
+            primary = int(language.group(1))
+            sublanguage = int(language.group(2))
+            locale = (sublanguage << 10) | primary
+            continue
+        if stripped == "STRINGTABLE":
+            in_string_table = True
+            continue
+        if in_string_table and stripped == "END":
+            in_string_table = False
+            continue
+
+        declaration = None
+        resource_type = None
+        if in_string_table:
+            declaration = re.match(r"(?P<name>[A-Za-z_]\w*)\s+\"", stripped)
+            resource_type = "StringTable"
+        else:
+            declaration = re.match(r"(?P<name>[A-Za-z_]\w*)\s+(?P<kind>DIALOGEX?|MENU)\b", stripped)
+            if declaration:
+                resource_type = "Dialog" if declaration.group("kind").startswith("DIALOG") else "Menu"
+        if declaration:
+            name = declaration.group("name")
+            if name not in header_values:
+                raise RuntimeError(f"Resource declaration {name} is missing from resource.h")
+            definitions.append((resource_type, name, header_values[name]))
+
+    if locale is None:
+        raise RuntimeError("The resource .rc file does not declare a LANGUAGE")
+    if not definitions:
+        raise RuntimeError("The resource .rc file declares no test resources")
+    return sorted(definitions), locale
+
+
+def resource_symbols(program, definitions, expected_locale):
+    """Extract loader IDs separately from LANGID suffixes and verify fixture IDs."""
+    expected_by_type = {}
+    for resource_type, _, identifier in definitions:
+        expected_by_type.setdefault(resource_type, []).append(identifier)
+    string_ids = sorted(expected_by_type.get("StringTable", []))
+    expected_string_table = (min(string_ids) - 1) // 16 + 1 if string_ids else None
     rows = []
     for symbol in program.getSymbolTable().getAllSymbols(True):
         name = str(symbol.getName())
         if not name.startswith("Rsrc_"):
             continue
-        resource_type = name.split("_", 2)[1] if "_" in name else name
-        identifiers = re.findall(r"_[0-9A-Fa-f]+", name)
-        identifier = identifiers[-1][1:] if identifiers else "table"
-        rows.append((resource_type, identifier, int(symbol.getAddress().getOffset()), name))
-    return sorted(rows, key=lambda row: (row[0], row[2], row[3]))
+        match = RESOURCE_SYMBOL_PATTERN.match(name)
+        if not match:
+            raise RuntimeError(f"Unrecognized PE resource symbol format: {name}")
+        resource_type = match.group("type")
+        resource_id = int(match.group("resource_id"), 16)
+        locale = int(match.group("locale"), 16)
+        if locale != expected_locale:
+            raise RuntimeError(f"Resource symbol {name} has LANGID 0x{locale:X}, expected 0x{expected_locale:X}")
+        expected_ids = expected_by_type.get(resource_type, [])
+        if resource_type == "StringTable":
+            if resource_id != expected_string_table:
+                raise RuntimeError(
+                    f"String-table symbol {name} encodes table {resource_id}, expected table {expected_string_table} "
+                    f"for resource IDs {string_ids}"
+                )
+            identifier = f"table {resource_id} (IDs {', '.join(str(value) for value in string_ids)})"
+        else:
+            if resource_id not in expected_ids:
+                raise RuntimeError(f"Resource symbol {name} has ID {resource_id}, expected {expected_ids}")
+            identifier = str(resource_id)
+        rows.append((resource_type, identifier, f"0x{locale:04X}", int(symbol.getAddress().getOffset()), name))
+    return sorted(rows, key=lambda row: (row[0], row[2], row[3], row[4]))
 
 
 def resource_references(program):
@@ -93,7 +169,7 @@ def resource_references(program):
     return sorted(set(rows))
 
 
-def markdown(input_path: Path, enabled: list[str], symbols, references) -> str:
+def markdown(input_path: Path, enabled: list[str], symbols, references, definitions, locale) -> str:
     """Render actual resource types/IDs/addresses and analyzer-created DATA references."""
     lines = [
         "# Windows Resource Reference Behavioral Fixture",
@@ -112,11 +188,14 @@ def markdown(input_path: Path, enabled: list[str], symbols, references) -> str:
         "",
         "## PE Resource Symbols",
         "",
-        "| Resource type | ID/table | Address | Loader symbol |",
-        "| --- | --- | --- | --- |",
+        "| Resource type | Resource ID/table | Locale | Address | Loader symbol |",
+        "| --- | --- | --- | --- | --- |",
     ]
-    for resource_type, identifier, address, name in symbols:
-        lines.append(f"| `{resource_type}` | `{identifier}` | `0x{address:016X}` | `{name}` |")
+    for resource_type, identifier, resource_locale, address, name in symbols:
+        lines.append(f"| `{resource_type}` | `{identifier}` | `{resource_locale}` | `0x{address:016X}` | `{name}` |")
+    lines.extend(["", "## Resource IDs Verified Against Inputs", "", "| Resource type | .rc/resource.h symbol | ID |", "| --- | --- | --- |"])
+    for resource_type, name, identifier in definitions:
+        lines.append(f"| `{resource_type}` | `{name}` | `{identifier}` |")
     lines.extend(["", "## Analyzer DATA References", "", "| Instruction | Resource address | Resource symbol |", "| --- | --- | --- |"])
     for instruction, target, name in references:
         lines.append(f"| `0x{instruction:016X}` | `0x{target:016X}` | `{name}` |")
@@ -127,7 +206,8 @@ def markdown(input_path: Path, enabled: list[str], symbols, references) -> str:
             "",
             f"- **Resource symbols reported:** `{len(symbols)}`.",
             f"- **Analyzer DATA references reported:** `{len(references)}`.",
-            "- The resource section contains STRINGTABLE, DIALOGEX, and MENU entries; the two LoadStringW calls must resolve to string-table data addresses.",
+            f"- The `.rc` LANGUAGE declaration resolves to LANGID `0x{locale:04X}`; the report keeps it separate from each resource ID.",
+            "- Resource IDs are verified against the declarations in `test_windows_resource_reference.rc` and `resource.h`; the two LoadStringW calls resolve to string-table data addresses.",
             "",
         ]
     )
@@ -170,11 +250,12 @@ def main() -> int:
         prepare_disassembly(program)
         enabled = configure_analysis(project, program)
         project.analyze(program)
-        symbols = resource_symbols(program)
+        definitions, locale = resource_definitions(fixture_dir)
+        symbols = resource_symbols(program, definitions, locale)
         references = resource_references(program)
         if not symbols or not references:
             raise RuntimeError(f"Expected loader resource symbols and DATA references, got {len(symbols)} and {len(references)}")
-        output_path.write_text(markdown(input_path, enabled, symbols, references), encoding="utf-8", newline="\n")
+        output_path.write_text(markdown(input_path, enabled, symbols, references, definitions, locale), encoding="utf-8", newline="\n")
         project.save(program)
     finally:
         if project is not None and program is not None:

@@ -13,7 +13,7 @@ if errorlevel 1 (
 )
 cl /nologo /c test_scalar_operand_references.cpp /Fo:test_scalar_operand_references.obj /O1 /Ob0 /Oi- /Oy- /GS- /GR- /EHs-c- /GL- /Gy- /Gw- /Zc:inline- /W4 /WX /Brepro
 if errorlevel 1 exit /b 1
-link /nologo test_scalar_operand_references.obj /OUT:test_scalar_operand_references.exe /SUBSYSTEM:CONSOLE /ENTRY:scalar_operand_references_entry /NODEFAULTLIB /OPT:NOREF /OPT:NOICF /INCREMENTAL:NO /DEBUG:NONE /Brepro
+link /nologo test_scalar_operand_references.obj /OUT:test_scalar_operand_references.exe /SUBSYSTEM:CONSOLE /ENTRY:scalar_operand_references_entry /BASE:0x140000000 /NODEFAULTLIB /OPT:NOREF /OPT:NOICF /INCREMENTAL:NO /DEBUG:NONE /Brepro
 if errorlevel 1 exit /b 1
 del /q test_scalar_operand_references.obj test_scalar_operand_references.lib test_scalar_operand_references.exp >nul 2>&1
 echo Built test_scalar_operand_references.exe

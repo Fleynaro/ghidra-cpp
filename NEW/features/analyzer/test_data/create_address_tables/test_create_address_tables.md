@@ -6,24 +6,20 @@
 
 - **Input:** `test_create_address_tables.exe`
 - **Enabled boolean analyzers:** `Create Address Tables`
+- **Fixture table range:** `0x0000000140002038` through `0x0000000140002057` (the exported sentinel begins immediately afterward).
 
-## Analyzer Discoveries
+## Target-Created Fixture Table Facts
 
-| Address | Length | Kind or bookmark comment |
-| --- | ---: | --- |
-| `0x0000000140002038` | `8` | `pointer` |
-| `0x0000000140002040` | `8` | `pointer` |
-| `0x0000000140002048` | `8` | `pointer` |
-| `0x0000000140002050` | `8` | `pointer` |
-| `0x0000000140002198` | `4` | `pointer` |
-| `0x000000014000219C` | `4` | `pointer` |
-| `0x00000001400021A0` | `4` | `pointer` |
-| `0x00000001400021A4` | `4` | `pointer` |
-| `0x00000001400021A8` | `4` | `pointer` |
-| `0x00000001400021AC` | `4` | `pointer` |
-| `0x00000001400021B0` | `4` | `pointer` |
-| `0x00000001400021B4` | `4` | `pointer` |
+| Address | Length | Kind or bookmark comment | Created by target |
+| --- | ---: | --- | --- |
+| `0x0000000140002038` | `8` | `pointer` | `true` |
+| `0x0000000140002040` | `8` | `pointer` | `true` |
+| `0x0000000140002048` | `8` | `pointer` | `true` |
+| `0x0000000140002050` | `8` | `pointer` | `true` |
 
 ## Fixture Assertions
 
-- **Stable analyzer facts:** `12`
+- **Facts before analysis in fixture range:** `0`
+- **Facts after analysis in fixture range:** `4`
+- **Target-created fixture facts:** `4`
+- Pointer metadata outside the exported table range is intentionally excluded from this report.

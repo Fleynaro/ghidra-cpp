@@ -79,12 +79,28 @@ def references(program):
     return sorted(rows)
 
 
-def render(input_path: Path, enabled: list[str], rows) -> str:
-    """Render only observed references and configuration, never guessed expectations."""
+def render(input_path: Path, enabled: list[str], before, after) -> str:
+    """Render before/after references and classify their real source provenance."""
+    before_keys = {
+        (source, target, operand, kind)
+        for source, target, operand, kind, _ in before
+    }
+    after_rows = []
+    for source, target, operand, kind, source_kind in after:
+        key = (source, target, operand, kind)
+        if key in before_keys:
+            origin = "Pre-existing disassembler reference"
+        elif source_kind == "ANALYSIS":
+            origin = "Analyzer-created reference"
+        else:
+            origin = f"Post-analysis {source_kind.lower()} reference"
+        after_rows.append((source, target, operand, kind, source_kind, origin))
+
+    created = [row for row in after_rows if row[5] == "Analyzer-created reference"]
     lines = [
         "# Reference Behavioral Fixture",
         "",
-        "> Generated from actual Ghidra reference-manager state after analysis.",
+        "> Generated from actual Ghidra reference-manager snapshots before and after analysis.",
         "",
         "## Input",
         "",
@@ -97,12 +113,32 @@ def render(input_path: Path, enabled: list[str], rows) -> str:
         "| --- |",
     ]
     lines.extend(f"| `{name}` |" for name in enabled)
-    lines.extend(["", "## Analyzer-Created Memory References", "", "| Source | Target | Operand | Type | Source kind |", "| --- | --- | --- | --- | --- |"])
-    lines.extend(
-        f"| `0x{source:016X}` | `0x{target:016X}` | `{operand}` | `{kind}` | `{source_kind}` |"
-        for source, target, operand, kind, source_kind in rows
-    )
-    return "\n".join(lines) + "\n"
+    lines.extend([
+        "",
+        "## Reference Provenance",
+        "",
+        "| Phase | Source | Target | Operand | Type | Ghidra source | Provenance |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ])
+    for source, target, operand, kind, source_kind in before:
+        lines.append(
+            f"| Before | `0x{source:016X}` | `0x{target:016X}` | `{operand}` | `{kind}` | `{source_kind}` | `Pre-existing disassembler reference` |"
+        )
+    for source, target, operand, kind, source_kind, origin in after_rows:
+        lines.append(
+            f"| After | `0x{source:016X}` | `0x{target:016X}` | `{operand}` | `{kind}` | `{source_kind}` | `{origin}` |"
+        )
+    lines.extend([
+        "",
+        "## Fixture Assertions",
+        "",
+        f"- **References before analysis:** `{len(before)}`.",
+        f"- **References after analysis:** `{len(after)}`.",
+        f"- **Analyzer-created references:** `{len(created)}`.",
+        "- `DEFAULT` references present in both snapshots are disassembler output, not Reference-analyzer output.",
+        "",
+    ])
+    return "\n".join(lines).rstrip() + "\n"
 
 
 def main() -> int:
@@ -126,9 +162,11 @@ def main() -> int:
         enabled = configure_analysis(project, program)
         if enabled != [ANALYZER_NAME]:
             raise RuntimeError(f"Unexpected enabled analysis options: {enabled}")
+        before = references(program)
         project.analyze(program)
+        after = references(program)
         project.save(program)
-        output_path.write_text(render(input_path, enabled, references(program)), encoding="utf-8", newline="\n")
+        output_path.write_text(render(input_path, enabled, before, after), encoding="utf-8", newline="\n")
         print(f"[+] Wrote {output_path}")
     except Exception as error:
         print(f"ERROR: Reference analysis failed: {error}", file=sys.stderr)

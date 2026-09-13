@@ -10,6 +10,7 @@ in the C++ project.
 - [`test_data/external_entry_references/README.md`](test_data/external_entry_references/README.md) describes the PE-export entry-reference fixture.
 - [`test_data/function_id/README.md`](test_data/function_id/README.md) describes the real generated FID database fixture.
 - [`test_data/function_start_search/README.md`](test_data/function_start_search/README.md) describes the x64 pattern-search fixture.
+- [`test_data/pdb_validation.py`](test_data/pdb_validation.py) validates PE CodeView and PDB identity for PDB-dependent runners.
 - [`test_data/non_returning_functions_discovered/README.md`](test_data/non_returning_functions_discovered/README.md) describes the thresholded INT3 evidence fixture.
 - [`test_data/non_returning_functions_known/README.md`](test_data/non_returning_functions_known/README.md) describes the PE known-name fixture.
 - [`test_data/subroutine_references/README.md`](test_data/subroutine_references/README.md) describes the existing Subroutine References fixture.

@@ -127,12 +127,15 @@ def main() -> int:
     import pyghidra
     pyghidra.start()
     from ghidra.base.project import GhidraProject
+    sys.path.insert(0, str(fixture_dir.parent))
+    from pdb_validation import validate_pdb_match
 
     project_parent = Path(tempfile.mkdtemp(prefix="ghidra_pdb_msdia_"))
     project = None
     try:
         project = GhidraProject.createProject(str(project_parent), "pdb_msdia", False)
         program = import_and_reopen(project, input_path)
+        validate_pdb_match(program, pdb_path)
         enabled = configure_analysis(project, program, pdb_path)
         if enabled != [ANALYZER_NAME]:
             raise RuntimeError(f"Unexpected enabled analysis options: {enabled}")

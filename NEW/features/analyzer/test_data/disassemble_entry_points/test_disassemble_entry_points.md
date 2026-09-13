@@ -7,13 +7,15 @@
 - **Input:** `test_disassemble_entry_points.exe`
 - **Enabled boolean analyzers:** `Disassemble Entry Points`
 
-## Analyzer Discoveries
+## Before/After Entry State
 
-| Symbol | Address | Instruction at entry | Function at entry |
-| --- | --- | --- | --- |
-| `entry_point_alpha` | `0x0000000140001000` | `true` | `false` |
-| `entry_point_beta` | `0x0000000140001014` | `true` | `false` |
+| Symbol | Linkage | Address | Before instruction | After instruction | Before function | After function |
+| --- | --- | --- | --- | --- | --- | --- |
+| `data_only_marker` | `C++ decorated` | `0x0000000140002000` | `false` | `false` | `false` | `false` |
+| `entry_point_alpha` | `C` | `0x0000000140001000` | `false` | `true` | `false` | `false` |
+| `entry_point_beta` | `C` | `0x0000000140001014` | `false` | `true` | `false` | `false` |
 
 ## Fixture Assertions
 
-- **Selected PE symbols:** `2`
+- **Selected PE symbols:** `3`
+- The `data_only_marker` C++-linkage symbol remains non-instructional and functionless in both snapshots.

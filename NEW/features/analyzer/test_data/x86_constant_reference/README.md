@@ -45,7 +45,8 @@ DATA reference to the fixture value.
 - [`run_ghidra.py`](run_ghidra.py) uses `project.openProgram(...)`, isolates the exact
   processor-specific analyzer, analyzes the PE, and extracts LEA operand references.
 - [`test_x86_constant_reference.exe`](test_x86_constant_reference.exe) and its PDB are
-  generated artifacts when the x86 MSVC tools are available.
+  trackable generated artifacts when the x86 MSVC tools are available; `build.bat` fails
+  if the linker does not emit the PDB.
 - [`test_x86_constant_reference.md`](test_x86_constant_reference.md) is the generated report.
 
 ## Why x86 is mandatory

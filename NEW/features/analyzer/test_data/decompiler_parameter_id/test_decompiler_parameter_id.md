@@ -5,16 +5,21 @@
 ## Analysis Configuration
 
 - **Input:** `test_decompiler_parameter_id.exe`
-- **Enabled boolean analyzers:** `Decompiler Parameter ID`
+- **Enabled boolean analyzers:** `Decompiler Parameter ID, PDB Universal`
 
-## Analyzer Discoveries
+## Before/After Signature Facts
 
-| Function | Name | Return type | Parameter | Type | Storage |
-| --- | --- | --- | --- | --- | --- |
-| `0x0000000140001000` | `parameter_fixture` | `undefined` | `param_1` | `undefined4` | `ECX:4` |
-| `0x0000000140001000` | `parameter_fixture` | `undefined` | `param_2` | `undefined8` | `RDX:8` |
-| `0x0000000140001000` | `parameter_fixture` | `undefined` | `param_3` | `undefined8` | `R8:8` |
+| Phase | Function | Name | Return type | Parameter | Type | Storage |
+| --- | --- | --- | --- | --- | --- | --- |
+| `Before target` | `0x0000000140001000` | `parameter_fixture` | `int` | `param_1` | `int` | `ECX:4` |
+| `Before target` | `0x0000000140001000` | `parameter_fixture` | `int` | `param_2` | `char *` | `RDX:8` |
+| `Before target` | `0x0000000140001000` | `parameter_fixture` | `int` | `param_3` | `int *` | `R8:8` |
+| `After target` | `0x0000000140001000` | `parameter_fixture` | `int` | `param_1` | `int` | `ECX:4` |
+| `After target` | `0x0000000140001000` | `parameter_fixture` | `int` | `param_2` | `char *` | `RDX:8` |
+| `After target` | `0x0000000140001000` | `parameter_fixture` | `int` | `param_3` | `int *` | `R8:8` |
 
 ## Fixture Assertions
 
 - **Recovered fixture functions:** `1`
+- **Meaningful post-analysis types:** `true`
+- PDB Universal supplies the source-level type baseline; Decompiler Parameter ID is run afterward and must preserve it.

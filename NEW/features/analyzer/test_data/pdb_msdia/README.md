@@ -41,8 +41,8 @@ properties rather than from guessed addresses.
 
 - [`test_pdb_msdia.cpp`](test_pdb_msdia.cpp) defines the symbols and types expected to be discoverable from the PDB.
 - [`build.bat`](build.bat) finds MSVC x64 tools and builds the PE with `/Zi`, `/DEBUG:FULL`, and a matching PDB.
-- [`run_ghidra.py`](run_ghidra.py) creates a temporary project, reopens the imported executable with `project.openProgram(...)`, explicitly selects `PDB MSDIA`, and writes a report from actual program state.
-- [`test_pdb_msdia.exe`](test_pdb_msdia.exe) and [`test_pdb_msdia.pdb`](test_pdb_msdia.pdb) are generated artifacts when the build prerequisites exist.
+- [`run_ghidra.py`](run_ghidra.py) creates a temporary project, reopens the imported executable with `project.openProgram(...)`, validates the selected PDB's existence and PE CodeView identity, explicitly selects `PDB MSDIA`, and writes a report from actual program state.
+- [`test_pdb_msdia.exe`](test_pdb_msdia.exe) and [`test_pdb_msdia.pdb`](test_pdb_msdia.pdb) are trackable generated artifacts when the build prerequisites exist.
 - [`test_pdb_msdia.md`](test_pdb_msdia.md) is generated only after the PyGhidra run completes.
 - [`../../README.md`](../../README.md) describes the fixture collection boundary.
 
@@ -54,8 +54,9 @@ Raw PDB processing requires the Microsoft DIA SDK and is Windows-only. The build
 script can create a valid matching PDB without installing DIA, but `run_ghidra.py`
 will report an honest failure if the Ghidra installation cannot load DIA. A
 preprocessed `.pdb.xml` is an alternative supported by the Java implementation, but
-this fixture does not fabricate one. The executable, PDB, and report are not checked
-in when those local prerequisites are unavailable.
+this fixture does not fabricate one. The runner uses the shared
+[`../pdb_validation.py`](../pdb_validation.py) before invoking analysis, so a stale or
+mispaired PDB fails instead of producing misleading DIA output.
 
 ## Reproduction
 

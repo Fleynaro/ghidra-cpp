@@ -11,6 +11,8 @@ from pathlib import Path
 
 ANALYZER_NAME = "ASCII Strings"
 DEPENDENCIES: tuple[str, ...] = ()
+POSITIVE_SYMBOLS = ("ascii_welcome", "ascii_protocol")
+NEGATIVE_SYMBOLS = ("ascii_short", "ascii_unterminated", "ascii_non_ascii")
 
 
 def address_text(address) -> str:
@@ -35,21 +37,33 @@ def configure_analysis(project, program) -> list[str]:
     )
 
 
-def extract_strings(program) -> list[tuple[int, int, str]]:
-    """Extract final defined string data units and their decoded values."""
+def fixture_symbol(program, name):
+    """Find one exported fixture symbol by its stable C-linkage name."""
+    return next(iter(program.getSymbolTable().getGlobalSymbols(name)), None)
+
+
+def fixture_string_facts(program):
+    """Extract only data at exported positive/negative fixture symbols."""
     rows = []
-    iterator = program.getListing().getDefinedData(True)
-    while iterator.hasNext():
-        data = iterator.next()
-        if data.getDataType().getName().lower().find("string") < 0:
-            continue
-        value = data.getValue()
-        rows.append((int(data.getMinAddress().getOffset()), int(data.getMaxAddress().getOffset()), str(value)))
-    return sorted(rows)
+    listing = program.getListing()
+    for expected, names in (("positive", POSITIVE_SYMBOLS), ("negative", NEGATIVE_SYMBOLS)):
+        for name in names:
+            symbol = fixture_symbol(program, name)
+            if symbol is None:
+                raise RuntimeError(f"Fixture symbol was not imported: {name}")
+            address = symbol.getAddress()
+            data = listing.getDataAt(address)
+            defined = data is not None and data.isDefined()
+            data_type = str(data.getDataType()) if defined else "undefined"
+            is_string = defined and "string" in str(data.getDataType().getName()).lower()
+            value = str(data.getValue()) if is_string else ""
+            end = int(data.getMaxAddress().getOffset()) if defined else int(address.getOffset())
+            rows.append((expected, name, int(address.getOffset()), end, defined, data_type, value, is_string))
+    return sorted(rows, key=lambda row: row[2])
 
 
-def write_report(output_path: Path, input_path: Path, enabled: list[str], rows) -> None:
-    """Write only stable analyzer-specific configuration and created string data."""
+def write_report(output_path: Path, input_path: Path, enabled: list[str], before, after) -> None:
+    """Write fixture-owned positive strings and retained negative-control context."""
     lines = [
         "# ASCII Strings Behavioral Fixture",
         "",
@@ -66,13 +80,33 @@ def write_report(output_path: Path, input_path: Path, enabled: list[str], rows) 
         "- **Minimum string length:** `5` (authoritative default)",
         "- **Require null termination:** `true` (authoritative default)",
         "",
-        "## Strings Created",
+        "## Fixture-Owned Strings Created",
         "",
-        "| Start | End | Value |",
-        "| --- | --- | --- |",
+        "| Symbol | Start | End | Data type | Value |",
+        "| --- | --- | --- | --- | --- |",
     ]
-    lines.extend(f"| `0x{start:016X}` | `0x{end:016X}` | `{value}` |" for start, end, value in rows)
-    lines.extend(["", f"- **Created string count:** `{len(rows)}`.", ""])
+    positive = [row for row in after if row[0] == "positive" and row[7]]
+    for _, name, address, end, _, data_type, value, _ in positive:
+        lines.append(f"| `{name}` | `0x{address:016X}` | `0x{end:016X}` | `{data_type}` | `{value}` |")
+    negatives = [row for row in after if row[0] == "negative"]
+    lines.extend([
+        "",
+        "## Negative Controls",
+        "",
+        "| Symbol | Address | Defined data | Data type | Accepted as ASCII string |",
+        "| --- | --- | --- | --- | --- |",
+    ])
+    lines.extend(
+        f"| `{name}` | `0x{address:016X}` | `{str(defined).lower()}` | `{data_type}` | `{str(is_string).lower()}` |"
+        for _, name, address, _, defined, data_type, _, is_string in negatives
+    )
+    lines.extend([
+        "",
+        f"- **Fixture-owned strings created:** `{len(positive)}`.",
+        f"- **Negative controls retained:** `{len(negatives)}`.",
+        "- PE metadata, import names, and unrelated initialized text are excluded by symbol ownership rather than mistaken for fixture discoveries.",
+        "",
+    ])
     output_path.write_text("\n".join(lines), encoding="utf-8", newline="\n")
 
 
@@ -108,8 +142,14 @@ def main() -> int:
         enabled = configure_analysis(project, program)
         if ANALYZER_NAME not in enabled:
             raise RuntimeError(f"Target analyzer was not enabled: {enabled}")
+        before = fixture_string_facts(program)
         project.analyze(program)
-        write_report(output_path, input_path, enabled, extract_strings(program))
+        after = fixture_string_facts(program)
+        if not all(row[7] for row in after if row[0] == "positive"):
+            raise RuntimeError(f"Not all positive fixture strings were created: before={before}, after={after}")
+        if any(row[7] for row in after if row[0] == "negative"):
+            raise RuntimeError(f"A negative fixture string was accepted: before={before}, after={after}")
+        write_report(output_path, input_path, enabled, before, after)
         project.save(program)
         print(f"[+] Wrote {output_path}")
     finally:

@@ -27,6 +27,10 @@ link /nologo test_variadic_function_signature_override.obj ^
     /DEBUG:FULL /SUBSYSTEM:CONSOLE /ENTRY:fixture_entry /NODEFAULTLIB ^
     /OPT:NOREF /OPT:NOICF /INCREMENTAL:NO /Brepro
 if errorlevel 1 exit /b 1
+if not exist test_variadic_function_signature_override.pdb (
+    echo ERROR: The linker did not produce test_variadic_function_signature_override.pdb.
+    exit /b 1
+)
 
 del /q test_variadic_function_signature_override.obj >nul 2>&1
 del /q printf_fixture.lib printf_fixture.exp test_variadic_function_signature_override.lib test_variadic_function_signature_override.exp vc140.pdb >nul 2>&1

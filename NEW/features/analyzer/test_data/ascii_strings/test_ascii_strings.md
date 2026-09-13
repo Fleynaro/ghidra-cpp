@@ -5,7 +5,7 @@
 ## Input
 
 - **File:** `test_ascii_strings.exe`
-- **File size:** `2048` bytes
+- **File size:** `2560` bytes
 
 ## Analysis Configuration
 
@@ -13,16 +13,21 @@
 - **Minimum string length:** `5` (authoritative default)
 - **Require null termination:** `true` (authoritative default)
 
-## Strings Created
+## Fixture-Owned Strings Created
 
-| Start | End | Value |
-| --- | --- | --- |
-| `0x0000000140002000` | `0x000000014000202B` | `The quick brown fox jumps over the lazy dog` |
-| `0x0000000140002030` | `0x0000000140002064` | `Ghidra ASCII string analysis discovers readable data` |
-| `0x00000001400020E2` | `0x00000001400020F8` | `test_ascii_strings.exe` |
-| `0x00000001400020F9` | `0x000000014000210C` | `ascii_strings_entry` |
-| `0x0000000140002150` | `0x0000000140002156` | `.rdata` |
-| `0x0000000140002160` | `0x0000000140002166` | `.edata` |
-| `0x0000000140002170` | `0x000000014000217D` | `.rdata$voltmd` |
+| Symbol | Start | End | Data type | Value |
+| --- | --- | --- | --- | --- |
+| `ascii_welcome` | `0x0000000140002000` | `0x000000014000202B` | `string` | `The quick brown fox jumps over the lazy dog` |
+| `ascii_protocol` | `0x0000000140002030` | `0x0000000140002064` | `string` | `Ghidra ASCII string analysis discovers readable data` |
 
-- **Created string count:** `7`.
+## Negative Controls
+
+| Symbol | Address | Defined data | Data type | Accepted as ASCII string |
+| --- | --- | --- | --- | --- |
+| `ascii_short` | `0x000000014000202C` | `false` | `undefined` | `false` |
+| `ascii_unterminated` | `0x0000000140002068` | `false` | `undefined` | `false` |
+| `ascii_non_ascii` | `0x000000014000206C` | `false` | `undefined` | `false` |
+
+- **Fixture-owned strings created:** `2`.
+- **Negative controls retained:** `3`.
+- PE metadata, import names, and unrelated initialized text are excluded by symbol ownership rather than mistaken for fixture discoveries.

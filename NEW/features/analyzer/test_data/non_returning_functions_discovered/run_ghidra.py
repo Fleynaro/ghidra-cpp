@@ -59,17 +59,19 @@ def configure_analysis(project, program) -> list[str]:
     """Enable only discovered no-return analysis and set its stable threshold/options."""
     from ghidra.framework.options import OptionType
 
-    options = project.getAnalysisOptions(program)
-    for name in options.getOptionNames():
-        if options.getType(name) == OptionType.BOOLEAN_TYPE:
-            options.setBoolean(name, str(name) == ANALYZER_NAME)
-    options.setInt("Function Non-return Threshold", 3)
-    options.setBoolean("Repair Flow Damage", False)
-    options.setBoolean("Create Analysis Bookmarks", True)
+    analysis_options = project.getAnalysisOptions(program)
+    for name in list(analysis_options.getOptionNames()):
+        if analysis_options.getType(name) == OptionType.BOOLEAN_TYPE:
+            analysis_options.setBoolean(name, str(name) == ANALYZER_NAME)
+    analyzer_options = analysis_options.getOptions(ANALYZER_NAME)
+    analyzer_options.setInt("Function Non-return Threshold", 3)
+    analyzer_options.setBoolean("Repair Flow Damage", False)
+    analyzer_options.setBoolean("Create Analysis Bookmarks", True)
     enabled = [
         str(name)
-        for name in options.getOptionNames()
-        if options.getType(name) == OptionType.BOOLEAN_TYPE and options.getBoolean(name, False)
+        for name in analysis_options.getOptionNames()
+        if analysis_options.getType(name) == OptionType.BOOLEAN_TYPE
+        and analysis_options.getBoolean(name, False)
     ]
     if ANALYZER_NAME not in enabled:
         raise RuntimeError(f"Discovered no-return analyzer is not enabled: {sorted(enabled)}")
@@ -188,7 +190,9 @@ def main() -> int:
         from ghidra.app.util.importer import MessageLog
         from ghidra.util.task import TaskMonitor
         discovered_analyzer = FindNoReturnFunctionsAnalyzer()
-        discovered_analyzer.optionsChanged(project.getAnalysisOptions(program), program)
+        discovered_analyzer.optionsChanged(
+            project.getAnalysisOptions(program).getOptions(ANALYZER_NAME), program
+        )
         discovered_analyzer.added(program, program.getMemory(), TaskMonitor.DUMMY, MessageLog())
         project.analyze(program)
         functions = function_rows(program)

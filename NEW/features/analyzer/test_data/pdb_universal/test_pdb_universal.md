@@ -19,10 +19,11 @@
 
 | Name | Value |
 | --- | --- |
-| `PDB Age` | `9` |
+| `PDB Age` | `c` |
 | `PDB File` | `test_pdb_universal.pdb` |
-| `PDB GUID` | `91fdae52-3865-6733-92c2-825d062d58a6` |
+| `PDB GUID` | `4d1a0d5b-567a-67c8-83ba-d3f22c4b9fbf` |
 | `PDB Loaded` | `true` |
+| `PDB Signature` | `` |
 | `PDB Version` | `RSDS` |
 
 ## PDB-Derived Symbols

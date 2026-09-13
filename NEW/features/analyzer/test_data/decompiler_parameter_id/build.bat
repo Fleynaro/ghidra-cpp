@@ -17,12 +17,12 @@ if errorlevel 1 (
 )
 
 cl /nologo /c test_decompiler_parameter_id.cpp /Fo:test_decompiler_parameter_id.obj ^
-    /O1 /Ob0 /Oi- /Oy- /GS- /GR- /EHs-c- /GL- /Gy- /Gw- /Zc:inline- /W4 /WX /Brepro
+    /O1 /Ob0 /Oi- /Oy- /GS- /GR- /EHs-c- /GL- /Gy- /Gw- /Zc:inline- /Zi /W4 /WX /Brepro
 if errorlevel 1 exit /b 1
 link /nologo test_decompiler_parameter_id.obj /OUT:test_decompiler_parameter_id.exe ^
     /SUBSYSTEM:CONSOLE /ENTRY:fixture_entry /NODEFAULTLIB /OPT:NOREF /OPT:NOICF ^
-    /INCREMENTAL:NO /DEBUG:NONE /Brepro
+    /PDB:test_decompiler_parameter_id.pdb /DEBUG:FULL /INCREMENTAL:NO /Brepro
 if errorlevel 1 exit /b 1
-del /q test_decompiler_parameter_id.obj test_decompiler_parameter_id.lib test_decompiler_parameter_id.exp >nul 2>&1
-echo Built test_decompiler_parameter_id.exe
+del /q test_decompiler_parameter_id.obj test_decompiler_parameter_id.lib test_decompiler_parameter_id.exp vc140.pdb >nul 2>&1
+echo Built test_decompiler_parameter_id.exe and test_decompiler_parameter_id.pdb
 exit /b 0

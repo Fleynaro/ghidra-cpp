@@ -4,7 +4,7 @@
 // Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/analysis/EmbeddedMediaAnalyzer.java
 // (added(), addByteSearchPattern(), and the Create Analysis Bookmarks option).
 // The analyzer scans loaded initialized memory for the exact signatures of GIF,
-// PNG, JPEG, WAVE, MIDI, AU, and AIFF and applies a matching DataType. These
+// PNG, JPEG, WAVE, MIDI, and AU and applies a matching DataType. These
 // arrays are real minimal media containers, not marker-only byte strings, so a
 // successful CreateDataCmd is an observable contract of the fixture.
 //
@@ -22,6 +22,12 @@
 extern "C" __declspec(allocate(".rdata$media"))
 const unsigned char embedded_gif[] = {'G', 'I', 'F', '8', '9', 'a', 1, 0, 1, 0, 0x80, 0, 0, 0,    0, 0, 0,  0,
                                       0,   ',', 0,   0,   0,   0,   1, 0, 1, 0, 0,    2, 2, 0x44, 1, 0, ';'};
+
+// A second complete 1x1 GIF uses the older GIF87a signature. It is a real
+// positive replacement for the unsupported AIFF fixture case.
+extern "C" __declspec(allocate(".rdata$media"))
+const unsigned char embedded_gif87[] = {'G', 'I', 'F', '8', '7', 'a', 1, 0, 1, 0, 0x80, 0, 0, 0,    0, 0, 0,  0,
+                                        0,   ',', 0,   0,   0,   0,   1, 0, 1, 0, 0,    2, 2, 0x44, 1, 0, ';'};
 
 // A complete 1x1 indexed PNG copied as a real binary payload. Its chunk CRCs
 // are valid because PngResource verifies every chunk before CreateDataCmd runs.
@@ -119,14 +125,10 @@ extern "C" __declspec(allocate(".rdata$media")) const unsigned char embedded_mid
 extern "C" __declspec(allocate(".rdata$media")) const unsigned char embedded_au[] = {
     '.', 's', 'n', 'd', 0, 0, 0, 0x18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0};
 
-// AIFF container with an empty sound-data chunk.
-extern "C" __declspec(allocate(".rdata$media"))
-const unsigned char embedded_aiff[] = {'F', 'O', 'R', 'M', 0, 0, 0, 4, 'A', 'I', 'F', 'F'};
-
 extern "C" volatile unsigned int embedded_media_sink = 0;
 
 // Reads every payload so the linker keeps the real media bytes in the PE.
 extern "C" __declspec(noinline) void fixture_entry() {
-    embedded_media_sink = embedded_gif[0] + embedded_png[1] + embedded_jpeg[1] + embedded_wave[0] + embedded_midi[0] +
-                          embedded_au[0] + embedded_aiff[0];
+    embedded_media_sink = embedded_gif[0] + embedded_gif87[0] + embedded_png[1] + embedded_jpeg[1] + embedded_wave[0] +
+                          embedded_midi[0] + embedded_au[0];
 }

@@ -21,6 +21,10 @@ cl /nologo /c test_pdb_universal.cpp /Fo:test_pdb_universal.obj /Fd:test_pdb_uni
 if errorlevel 1 exit /b 1
 link /nologo test_pdb_universal.obj /OUT:test_pdb_universal.exe /SUBSYSTEM:CONSOLE /ENTRY:pdb_universal_entry /NODEFAULTLIB /OPT:NOREF /OPT:NOICF /INCREMENTAL:NO /DEBUG:FULL /PDB:test_pdb_universal.pdb /Brepro
 if errorlevel 1 exit /b 1
+if not exist test_pdb_universal.pdb (
+    echo ERROR: The linker did not produce test_pdb_universal.pdb.
+    exit /b 1
+)
 del /q test_pdb_universal.obj test_pdb_universal.lib test_pdb_universal.exp >nul 2>&1
 echo Built test_pdb_universal.exe and matching test_pdb_universal.pdb
 exit /b 0

@@ -8,7 +8,7 @@ Exercise instruction and data operand reference creation from loaded bytes and e
 `Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/analysis/OperandReferenceAnalyzer.java` and `DataOperandReferenceAnalyzer.java`.
 
 ## Test Scenario
-The script disassembles first, enables only `Reference`, and extracts actual memory and operand reference-manager rows from pointer data and calls.
+The script disassembles first, snapshots the resulting references, enables only `Reference`, and compares the final reference-manager rows with that baseline. Every row is labeled as either pre-existing disassembler output or genuinely added by the analyzer.
 
 ## Why This C++ Code Was Chosen
 Real strings, values, pointer-bearing data, and direct calls provide multiple reference classes without hand-written expected addresses.
@@ -23,7 +23,7 @@ The PE loader, disassembler, and `TEST/run_ghidra_python.bat` are required; no m
 Enable only `Reference` after the script's explicit disassembly prerequisite.
 
 ## Expected Results
-References that satisfy memory, symbol, relocation, offcut, and existing-reference checks should appear in the report.
+References that satisfy memory, symbol, relocation, offcut, and existing-reference checks should appear in the report. A reference present in the disassembly snapshot is not misreported as analyzer-created merely because it is listed after analysis.
 
 ## Generated Markdown
 `test_reference.md` is generated from Ghidra's reference manager by `run_ghidra.py`.
@@ -36,11 +36,16 @@ real pointer-bearing data, a string, and calls whose operand and data references
 discovered from the loaded bytes. The report is generated from Ghidra's reference
 manager and does not contain hand-written expected addresses.
 
+With the current MSVC/Ghidra combination, all four eligible rows are already present as
+`DEFAULT` disassembler references, so the target analyzer adds zero new rows. The report
+preserves that result and the before/after evidence; it must not be read as proof of a
+positive `ANALYSIS` reference until a compiler variant produces an unresolved operand case.
+
 ## Navigation
 
 - [`test_reference.cpp`](test_reference.cpp) defines the referenced data and code.
 - [`build.bat`](build.bat) builds a deterministic CRT-free MSVC x64 executable.
-- [`run_ghidra.py`](run_ghidra.py) reopens the executable with `project.openProgram(...)`, configures `Reference` and its deliberate disassembly prerequisite, and extracts reference rows.
+- [`run_ghidra.py`](run_ghidra.py) reopens the executable with `project.openProgram(...)`, snapshots the deliberate disassembly prerequisite, configures `Reference`, and extracts before/after reference rows with provenance labels.
 - [`test_reference.exe`](test_reference.exe) and [`test_reference.md`](test_reference.md) are generated artifacts when the local toolchain and Ghidra environment are available.
 - [`../../README.md`](../../README.md) describes the fixture collection boundary.
 
@@ -52,7 +57,9 @@ It examines existing instructions, data, relocations, and operand objects, rejec
 references outside memory or inside offcut functions and preserving stronger existing
 references. This fixture therefore explicitly disassembles executable bytes first,
 then enables only `Reference`; the script reports the actual memory/operand references
-after analysis and leaves compiler-dependent instruction addresses unasserted.
+before and after analysis, preserving the distinction between `DEFAULT` disassembler
+references and `ANALYSIS` references created by the analyzer while leaving
+compiler-dependent instruction addresses unasserted.
 
 ## Reproduction
 

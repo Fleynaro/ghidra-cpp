@@ -57,8 +57,8 @@ expanded the call-site signature after import; it does not merely report the PDB
 - [`test_variadic_function_signature_override.cpp`](test_variadic_function_signature_override.cpp)
   contains the local variadic declaration, format string, and live call.
 - [`build.bat`](build.bat) builds x64 code and emits the PDB used to seed the fixed signature.
-- [`run_ghidra.py`](run_ghidra.py) imports, reopens through `project.openProgram(...)`, isolates
-  the target analyzer plus its explicit `PDB Universal` dependency, and extracts before/after
+- [`run_ghidra.py`](run_ghidra.py) imports, reopens through `project.openProgram(...)`, validates
+  the matching PDB's CodeView identity, isolates the target analyzer plus its explicit `PDB Universal` dependency, and extracts before/after
   P-code call inputs. The PDB dependency runs first so the report can distinguish
   the PDB baseline from the format-string override.
 - [`test_variadic_function_signature_override.exe`](test_variadic_function_signature_override.exe)

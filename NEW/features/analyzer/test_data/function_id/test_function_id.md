@@ -6,6 +6,7 @@
 
 - **Target:** `test_function_id.exe`
 - **Target file size:** `2560` bytes
+- **FID artifact version:** `Ghidra 12.1.3`
 - **FID language ID:** `x86:LE:64:default`
 - **Direct FidService query results:** `2` functions, `2` matches
 
@@ -13,9 +14,9 @@
 
 | Enabled boolean option |
 | --- |
-| `Always Apply FID Labels` |
-| `Create Analysis Bookmarks` |
 | `Function ID` |
+| `Function ID.Always Apply FID Labels` |
+| `Function ID.Create Analysis Bookmarks` |
 
 ## Target Functions After Function ID
 

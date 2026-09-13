@@ -11,9 +11,11 @@
 //   (the user-visible Data Reference analysis option name).
 //
 // Tested behavior:
-// * fixture_pointer_data contains relocatable pointers to two strings. The PE loader supplies
-//   data-origin memory references; DataOperandReferenceAnalyzer must follow them and define the
-//   referenced strings/pointers without creating functions from the pointer values.
+// * fixture_pointer_data contains relocatable pointers to two pointer-data objects. The executable
+//   path reads the pointer value itself, rather than only dereferencing a character, so the
+//   Reference prerequisite has a genuine code-to-pointer-data edge to materialize the source
+//   array. DataOperandReferenceAnalyzer then consumes the data-origin references to the target
+//   pointer objects without creating functions from pointer values.
 // * fixture_unreferenced_text is deliberately not referenced by data. It is a negative case:
 //   this analyzer must not report or define it merely because it is a valid ASCII sequence.
 //
@@ -45,19 +47,28 @@ __declspec(allocate(".rdata$fixture")) extern "C" __declspec(dllexport) const ch
 __declspec(allocate(".rdata$fixture")) extern "C" __declspec(dllexport) const char fixture_unreferenced_text[] =
     "unreferenced-negative";
 
+// These are real data objects whose pointer values lead to the two strings.
+__declspec(allocate(".rdata$fixture")) extern "C" __declspec(dllexport) const char* const fixture_pointer_target_one =
+    fixture_text_one;
+
+__declspec(allocate(".rdata$fixture")) extern "C" __declspec(dllexport) const char* const fixture_pointer_target_two =
+    fixture_text_two;
+
 __declspec(allocate(".rdata$fixture")) extern "C" __declspec(dllexport) const char* const fixture_pointer_data[] = {
-    fixture_text_one,
-    fixture_text_two,
+    reinterpret_cast<const char*>(&fixture_pointer_target_one),
+    reinterpret_cast<const char*>(&fixture_pointer_target_two),
 };
 
 // Keep the exported code path alive while the analyzer examines only data-origin references.
 extern "C" __declspec(dllexport) __declspec(noinline) void data_reference_target() {
-    fixture_sink = static_cast<unsigned long long>(fixture_pointer_data[0][0]) +
-                   static_cast<unsigned long long>(fixture_pointer_data[1][0]);
+    fixture_sink = reinterpret_cast<unsigned long long>(fixture_pointer_data[0]) +
+                   reinterpret_cast<unsigned long long>(fixture_pointer_data[1]);
 }
 
 // Retain the pointer array and provide a normal executable entry for the PE loader.
 extern "C" __declspec(noinline) void fixture_entry() {
     data_reference_target();
-    fixture_sink ^= reinterpret_cast<unsigned long long>(fixture_pointer_data);
+    // Reading an array element forces a load from the pointer slot. Taking the array address
+    // would only produce an instruction scalar and would not exercise Data Reference.
+    fixture_sink ^= reinterpret_cast<unsigned long long>(fixture_pointer_data[0]);
 }
