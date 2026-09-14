@@ -4,7 +4,8 @@ module;
 
 export module function_start_search_tests;
 
-import analyzer;
+import analyzer_disassemble_entry_points;
+import analyzer_function_start_search;
 import analyzer_test_support;
 import std;
 

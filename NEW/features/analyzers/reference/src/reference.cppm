@@ -1,6 +1,19 @@
-module analyzer;
+export module analyzer_reference;
 
+import analyzer;
 import std;
+
+/// Owns the p-code memory-reference analyzer declaration and implementation.
+export namespace ghidra::analyzer {
+class ReferenceAnalyzer final : public Analyzer {
+public:
+    /// Returns the OperandReferenceAnalyzer-compatible contract.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override;
+
+    /// Creates direct data references from LOAD and STORE semantics.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+};
+} // namespace ghidra::analyzer
 
 namespace ghidra::analyzer {
 namespace {

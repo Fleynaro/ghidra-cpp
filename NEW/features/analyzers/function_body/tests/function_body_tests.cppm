@@ -4,7 +4,7 @@ module;
 
 export module function_body_tests;
 
-import analyzer;
+import analyzer_function_body;
 import analyzer_test_support;
 import std;
 

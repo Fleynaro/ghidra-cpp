@@ -1,6 +1,19 @@
-module analyzer;
+export module analyzer_stack;
 
+import analyzer;
 import std;
+
+/// Owns the stack variable analyzer declaration and implementation.
+export namespace ghidra::analyzer {
+class StackAnalyzer final : public Analyzer {
+public:
+    /// Returns the StackVariableAnalyzer-compatible contract.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override;
+
+    /// Performs stack-frame discovery for newly created functions.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+};
+} // namespace ghidra::analyzer
 
 namespace ghidra::analyzer {
 namespace {

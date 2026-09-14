@@ -1,6 +1,19 @@
-module analyzer;
+export module analyzer_scalar_operand_references;
 
+import analyzer;
 import std;
+
+/// Owns the scalar operand reference analyzer declaration and implementation.
+export namespace ghidra::analyzer {
+class ScalarOperandReferencesAnalyzer final : public Analyzer {
+public:
+    /// Returns the ScalarOperandAnalyzer-compatible contract.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override;
+
+    /// Applies Ghidra's size, mapping, and offcut rejection rules.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+};
+} // namespace ghidra::analyzer
 
 namespace ghidra::analyzer {
 

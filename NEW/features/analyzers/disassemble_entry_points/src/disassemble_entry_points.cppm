@@ -1,6 +1,19 @@
-module analyzer;
+export module analyzer_disassemble_entry_points;
 
+import analyzer;
 import std;
+
+/// Owns the entry-point disassembly analyzer declaration and implementation.
+export namespace ghidra::analyzer {
+class DisassembleEntryPointsAnalyzer final : public Analyzer {
+public:
+    /// Returns the Ghidra analyzer name and block-analysis priority.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override;
+
+    /// Processes new memory and external-entry events.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+};
+} // namespace ghidra::analyzer
 
 namespace ghidra::analyzer {
 

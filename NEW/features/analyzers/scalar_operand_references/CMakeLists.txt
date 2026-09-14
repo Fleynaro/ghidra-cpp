@@ -1,7 +1,7 @@
 # Each analyzer owns this source and test registration boundary.
 
 add_library(analyzer_scalar_operand_references STATIC)
-target_sources(analyzer_scalar_operand_references PRIVATE src/scalar_operand_references.cppm)
+target_sources(analyzer_scalar_operand_references PUBLIC FILE_SET cxx_modules TYPE CXX_MODULES FILES src/scalar_operand_references.cppm)
 target_link_libraries(analyzer_scalar_operand_references PUBLIC NewGhidra::AnalyzerShared)
 
 if(BUILD_TESTING)

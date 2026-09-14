@@ -4,7 +4,11 @@ module;
 
 export module reference_tests;
 
-import analyzer;
+import analyzer_constant_propagation;
+import analyzer_disassemble_entry_points;
+import analyzer_function_body;
+import analyzer_reference;
+import analyzer_subroutine_references;
 import analyzer_test_support;
 import std;
 

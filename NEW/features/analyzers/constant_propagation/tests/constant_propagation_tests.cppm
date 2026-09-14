@@ -4,7 +4,9 @@ module;
 
 export module constant_propagation_tests;
 
-import analyzer;
+import analyzer_constant_propagation;
+import analyzer_function_body;
+import analyzer_subroutine_references;
 import analyzer_test_support;
 import std;
 

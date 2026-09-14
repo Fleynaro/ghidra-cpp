@@ -1,6 +1,19 @@
-module analyzer;
+export module analyzer_subroutine_references;
 
+import analyzer;
 import std;
+
+/// Owns the direct-call function discovery analyzer declaration and implementation.
+export namespace ghidra::analyzer {
+class SubroutineReferencesAnalyzer final : public Analyzer {
+public:
+    /// Returns the FunctionAnalyzer-compatible priority contract.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override;
+
+    /// Creates missing direct-call targets without scanning raw bytes.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+};
+} // namespace ghidra::analyzer
 
 namespace ghidra::analyzer {
 

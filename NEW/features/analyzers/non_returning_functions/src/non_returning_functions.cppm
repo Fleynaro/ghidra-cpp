@@ -1,6 +1,28 @@
-module analyzer;
+export module analyzer_non_returning_functions;
 
+import analyzer;
 import std;
+
+/// Owns both no-return analysis phases provided by this feature module.
+export namespace ghidra::analyzer {
+class KnownNoReturnFunctionsAnalyzer final : public Analyzer {
+public:
+    /// Returns the early no-return priority and metadata event contract.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override;
+
+    /// Marks known local and imported no-return symbols before flow discovery.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+};
+
+class NonReturningFunctionsAnalyzer final : public Analyzer {
+public:
+    /// Returns the FindNoReturnFunctionsAnalyzer-compatible contract.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override;
+
+    /// Applies known-name and repeated post-call evidence rules.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+};
+} // namespace ghidra::analyzer
 
 namespace ghidra::analyzer {
 namespace {

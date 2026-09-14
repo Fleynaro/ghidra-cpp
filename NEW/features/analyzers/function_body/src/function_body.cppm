@@ -1,6 +1,19 @@
-module analyzer;
+export module analyzer_function_body;
 
+import analyzer;
 import std;
+
+/// Owns the function-body and CFG analyzer declaration and implementation.
+export namespace ghidra::analyzer {
+class FunctionBodyAnalyzer final : public Analyzer {
+public:
+    /// Returns the function-body analyzer contract.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override;
+
+    /// Rebuilds affected function bodies and their CFGs.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+};
+} // namespace ghidra::analyzer
 
 namespace ghidra::analyzer {
 

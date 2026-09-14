@@ -1,6 +1,19 @@
-module analyzer;
+export module analyzer_constant_propagation;
 
+import analyzer;
 import std;
+
+/// Owns the p-code constant propagation analyzer declaration and implementation.
+export namespace ghidra::analyzer {
+class ConstantPropagationAnalyzer final : public Analyzer {
+public:
+    /// Returns the ConstantPropagationAnalyzer-compatible contract.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override;
+
+    /// Runs bounded fixed-point symbolic propagation over affected functions.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+};
+} // namespace ghidra::analyzer
 
 namespace ghidra::analyzer {
 namespace {

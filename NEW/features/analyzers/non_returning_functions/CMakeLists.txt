@@ -1,7 +1,7 @@
 # Each analyzer owns this source and test registration boundary.
 
 add_library(analyzer_non_returning_functions STATIC)
-target_sources(analyzer_non_returning_functions PRIVATE src/non_returning_functions.cppm)
+target_sources(analyzer_non_returning_functions PUBLIC FILE_SET cxx_modules TYPE CXX_MODULES FILES src/non_returning_functions.cppm)
 target_link_libraries(analyzer_non_returning_functions PUBLIC NewGhidra::AnalyzerShared)
 
 if(BUILD_TESTING)

@@ -1,7 +1,7 @@
 # Each analyzer owns this source and test registration boundary.
 
 add_library(analyzer_function_body STATIC)
-target_sources(analyzer_function_body PRIVATE src/function_body.cppm)
+target_sources(analyzer_function_body PUBLIC FILE_SET cxx_modules TYPE CXX_MODULES FILES src/function_body.cppm)
 target_link_libraries(analyzer_function_body PUBLIC NewGhidra::AnalyzerShared)
 
 if(BUILD_TESTING)

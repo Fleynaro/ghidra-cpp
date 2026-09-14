@@ -1,7 +1,7 @@
 # Each analyzer owns this source and test registration boundary.
 
 add_library(analyzer_constant_propagation STATIC)
-target_sources(analyzer_constant_propagation PRIVATE src/constant_propagation.cppm)
+target_sources(analyzer_constant_propagation PUBLIC FILE_SET cxx_modules TYPE CXX_MODULES FILES src/constant_propagation.cppm)
 target_link_libraries(analyzer_constant_propagation PUBLIC NewGhidra::AnalyzerShared)
 
 if(BUILD_TESTING)

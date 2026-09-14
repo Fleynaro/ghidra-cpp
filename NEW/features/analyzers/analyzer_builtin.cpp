@@ -1,4 +1,14 @@
 import analyzer;
+import analyzer_constant_propagation;
+import analyzer_data_reference;
+import analyzer_disassemble_entry_points;
+import analyzer_function_body;
+import analyzer_function_start_search;
+import analyzer_non_returning_functions;
+import analyzer_reference;
+import analyzer_scalar_operand_references;
+import analyzer_stack;
+import analyzer_subroutine_references;
 
 namespace ghidra::analyzer {
 

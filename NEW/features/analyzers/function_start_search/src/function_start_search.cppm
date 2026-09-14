@@ -1,6 +1,55 @@
-module analyzer;
+export module analyzer_function_start_search;
 
+import analyzer;
 import std;
+
+/// Owns the six delayed Function Start Search phase declarations and implementations.
+export namespace ghidra::analyzer {
+class FunctionStartPreAnalyzer final : public Analyzer {
+public:
+    /// Returns the pre-function pattern analyzer contract.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override;
+
+    /// Searches executable boundaries before ordinary function creation.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+};
+
+class FunctionStartAnalyzer final : public Analyzer {
+public:
+    /// Returns the byte-analysis pattern analyzer contract.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override;
+
+    /// Validates candidates, disassembles them, and creates functions.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+};
+
+class FunctionStartFunctionAnalyzer final : public Analyzer {
+public:
+    /// Returns the function-constrained pattern analyzer contract.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override;
+
+    /// Re-evaluates retained candidates after function events.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+};
+
+class FunctionStartPostAnalyzer final : public Analyzer {
+public:
+    /// Returns the post-code pattern analyzer contract.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override;
+
+    /// Rechecks unresolved candidates after code analysis.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+};
+
+class FunctionStartDataPostAnalyzer final : public Analyzer {
+public:
+    /// Returns the post-data pattern analyzer contract.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override;
+
+    /// Rechecks unresolved candidates after data analysis.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+};
+} // namespace ghidra::analyzer
 
 namespace ghidra::analyzer {
 namespace {

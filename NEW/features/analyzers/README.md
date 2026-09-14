@@ -10,7 +10,7 @@ decode instructions itself.
 - [`CMakeLists.txt`](CMakeLists.txt) builds `NewGhidra::Analyzer` and its tests.
 - Each implemented analyzer `CMakeLists.txt` defines a separate static `analyzer_<name>` library; `analyzer` is only the aggregate application target.
 - [`build.bat`](build.bat) builds and tests only this module through the parent script; tests are enabled by default.
-- [`shared/src/analyzer.cppm`](shared/src/analyzer.cppm) defines `AnalysisContext`, state entities, events, analyzer contracts, and `AutoAnalysisManager`.
+- [`shared/src/analyzer.cppm`](shared/src/analyzer.cppm) defines `AnalysisContext`, state entities, events, the base `Analyzer` contract, and `AutoAnalysisManager`; concrete analyzer declarations are exported by their own feature modules.
 - [`shared/src/analyzer.cpp`](shared/src/analyzer.cpp) implements provider-backed state mutation, flow/body construction, and scheduling.
 - [`shared/test_support/`](shared/test_support/) contains shared C++23 test helpers and Python fixture helpers used by analyzer tests.
 - [`disassemble_entry_points/`](disassemble_entry_points/) ports entry-point disassembly.
@@ -23,6 +23,7 @@ decode instructions itself.
 - [`stack/`](stack/) ports stack-frame/local-variable discovery.
 - [`constant_propagation/`](constant_propagation/) ports the p-code symbolic propagation pass.
 - [`non_returning_functions/`](non_returning_functions/) ports known/evidence-backed no-return analysis.
+- Each concrete analyzer source is an independent exported module, such as [`constant_propagation/src/constant_propagation.cppm`](constant_propagation/src/constant_propagation.cppm) exporting `analyzer_constant_propagation`; consumers must import the feature module rather than relying on `analyzer` to expose concrete classes.
 - Each implemented analyzer owns its Google Test module under its own `tests/` directory; for example [`disassemble_entry_points/tests/disassemble_entry_points_tests.cppm`](disassemble_entry_points/tests/disassemble_entry_points_tests.cppm).
 - Each analyzer directory contains its own `src/` when implemented, `CMakeLists.txt`, `build.bat`, and `tests/data/` for executable fixtures and Ghidra golden reports. Additional fixture sets can be added as files or subdirectories there.
 

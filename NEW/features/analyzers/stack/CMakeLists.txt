@@ -1,7 +1,7 @@
 # Each analyzer owns this source and test registration boundary.
 
 add_library(analyzer_stack STATIC)
-target_sources(analyzer_stack PRIVATE src/stack.cppm)
+target_sources(analyzer_stack PUBLIC FILE_SET cxx_modules TYPE CXX_MODULES FILES src/stack.cppm)
 target_link_libraries(analyzer_stack PUBLIC NewGhidra::AnalyzerShared)
 
 if(BUILD_TESTING)

@@ -1,6 +1,19 @@
-module analyzer;
+export module analyzer_data_reference;
 
+import analyzer;
 import std;
+
+/// Owns the data-origin reference analyzer declaration and implementation.
+export namespace ghidra::analyzer {
+class DataReferenceAnalyzer final : public Analyzer {
+public:
+    /// Returns the DataOperandReferenceAnalyzer-compatible contract.
+    [[nodiscard]] AnalyzerDescriptor descriptor() const override;
+
+    /// Resolves mapped pointer values without creating functions from them.
+    void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+};
+} // namespace ghidra::analyzer
 
 namespace ghidra::analyzer {
 
