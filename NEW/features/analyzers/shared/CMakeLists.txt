@@ -4,3 +4,5 @@ target_sources(analyzer_shared
     PRIVATE
         src/analyzer.cpp
 )
+
+add_subdirectory(test_support)

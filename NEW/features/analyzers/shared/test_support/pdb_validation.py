@@ -1,4 +1,4 @@
-﻿"""Validate the CodeView identity shared by PE/PDB analyzer fixtures."""
+"""Validate the CodeView identity shared by PE/PDB analyzer fixtures."""
 
 from __future__ import annotations
 
@@ -11,12 +11,7 @@ def _normalise_guid(value) -> str:
 
 
 def validate_pdb_match(program, pdb_path: Path) -> None:
-    """Require a readable PDB whose identity matches the imported PE CodeView record.
-
-    The PE identity is read from Ghidra's authoritative ``Program.PROGRAM_INFO``
-    properties, while the PDB identity is read through the production PDB2 parser.
-    GUID/age is used for modern RSDS records and signature/age for legacy NB records.
-    """
+    """Require a readable PDB whose identity matches the imported PE CodeView record."""
     from ghidra.app.util.bin.format.pdb import PdbParserConstants
     from ghidra.app.util.bin.format.pdb2.pdbreader import PdbParser, PdbReaderOptions
     from ghidra.program.model.listing import Program
@@ -29,9 +24,7 @@ def validate_pdb_match(program, pdb_path: Path) -> None:
     program_info = program.getOptions(Program.PROGRAM_INFO)
     embedded_name = str(program_info.getString(PdbParserConstants.PDB_FILE, "")).replace("\\", "/")
     if embedded_name and Path(embedded_name).name.casefold() != pdb_path.name.casefold():
-        raise RuntimeError(
-            f"PE references PDB {Path(embedded_name).name!r}, but the runner selected {pdb_path.name!r}"
-        )
+        raise RuntimeError(f"PE references PDB {Path(embedded_name).name!r}, but the runner selected {pdb_path.name!r}")
 
     expected_guid = str(program_info.getString(PdbParserConstants.PDB_GUID, ""))
     expected_signature = str(program_info.getString(PdbParserConstants.PDB_SIGNATURE, ""))
@@ -48,20 +41,12 @@ def validate_pdb_match(program, pdb_path: Path) -> None:
         identifiers = pdb.getIdentifiers()
         actual_age = int(identifiers.getAge()) & 0xFFFFFFFF
         if actual_age != expected_age:
-            raise RuntimeError(
-                f"PE/PDB age mismatch: PE={expected_age:X}, PDB={actual_age:X} ({pdb_path})"
-            )
-
+            raise RuntimeError(f"PE/PDB age mismatch: PE={expected_age:X}, PDB={actual_age:X} ({pdb_path})")
         actual_guid = identifiers.getGuid()
         if expected_guid:
             if actual_guid is None or _normalise_guid(actual_guid) != _normalise_guid(expected_guid):
-                raise RuntimeError(
-                    f"PE/PDB GUID mismatch: PE={expected_guid}, PDB={actual_guid} ({pdb_path})"
-                )
+                raise RuntimeError(f"PE/PDB GUID mismatch: PE={expected_guid}, PDB={actual_guid} ({pdb_path})")
         elif int(identifiers.getSignature()) & 0xFFFFFFFF != int(expected_signature, 16):
-            raise RuntimeError(
-                f"PE/PDB signature mismatch: PE={expected_signature}, "
-                f"PDB={int(identifiers.getSignature()) & 0xFFFFFFFF:08X} ({pdb_path})"
-            )
+            raise RuntimeError(f"PE/PDB signature mismatch: PE={expected_signature}, PDB={int(identifiers.getSignature()) & 0xFFFFFFFF:08X} ({pdb_path})")
     finally:
         pdb.close()

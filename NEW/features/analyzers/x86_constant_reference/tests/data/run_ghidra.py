@@ -177,7 +177,7 @@ def main() -> int:
     pyghidra.start()
     from ghidra.base.project import GhidraProject
     from java.io import File
-    sys.path.insert(0, str(fixture_dir.parents[2] / "test_support"))
+    sys.path.insert(0, str(fixture_dir.parents[2] / "shared" / "test_support"))
     from pdb_validation import validate_pdb_match
 
     parent = Path(tempfile.mkdtemp(prefix="ghidra_x86_constant_reference_"))

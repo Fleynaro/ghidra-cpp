@@ -16,8 +16,8 @@ Ports the `FunctionStartPreFuncAnalyzer`, `FunctionStartAnalyzer`,
 Candidates are retained in `AnalysisContext::potential_function_starts()` like
 Ghidra's property map. When `AnalysisOptions::pattern_root` is configured, the
 pass loads masked hexadecimal/binary patterns, marked patternpairs, and action
-attributes from the original `<data>` XML patterns and validates each match
-through Sleigh. Without a pattern directory the analyzer reports that it cannot
+attributes from the bundled [`data/patterns/`](data/patterns/) XML corpus and
+validates each match through Sleigh. Without a pattern directory the analyzer reports that it cannot
 analyze rather than inventing filler-boundary functions. Candidates are
 restricted to executable memory, rejected when already functions, and
 materialized through the same flow-based function creation path. Pattern

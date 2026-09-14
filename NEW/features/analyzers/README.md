@@ -12,6 +12,7 @@ decode instructions itself.
 - [`build.bat`](build.bat) builds and tests only this module through the parent script; tests are enabled by default.
 - [`shared/src/analyzer.cppm`](shared/src/analyzer.cppm) defines `AnalysisContext`, state entities, events, analyzer contracts, and `AutoAnalysisManager`.
 - [`shared/src/analyzer.cpp`](shared/src/analyzer.cpp) implements provider-backed state mutation, flow/body construction, and scheduling.
+- [`shared/test_support/`](shared/test_support/) contains shared C++23 test helpers and Python fixture helpers used by analyzer tests.
 - [`disassemble_entry_points/`](disassemble_entry_points/) ports entry-point disassembly.
 - [`function_start_search/`](function_start_search/) ports the pre/function/post pattern phases.
 - [`subroutine_references/`](subroutine_references/) ports call-driven function discovery.

@@ -8,7 +8,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "test_support"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "shared" / "test_support"))
 from evidence import render_evidence
 
 ANALYZER_NAME = "Non-Returning Functions - Known"

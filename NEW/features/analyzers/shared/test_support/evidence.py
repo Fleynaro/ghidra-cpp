@@ -1,4 +1,4 @@
-﻿"""Shared rendering helpers for analyzer before/after behavioral evidence."""
+"""Shared rendering helpers for analyzer before/after behavioral evidence."""
 
 from __future__ import annotations
 
@@ -21,10 +21,9 @@ def _ordered_rows(rows: Iterable[tuple[str, str]]) -> list[tuple[str, str]]:
 def render_evidence(before: EvidenceSnapshot, after: EvidenceSnapshot) -> list[str]:
     """Render target-phase snapshots and exact keyed deltas for analyzer reports.
 
-    A row key identifies the same target-specific object across phases.  Equal keys
+    A row key identifies the same target-specific object across phases. Equal keys
     with different values are reported as changes; keys present in only one phase
-    are reported as additions or removals.  This avoids mistaking a final-state dump
-    for evidence of what the target analyzer changed.
+    are reported as additions or removals.
     """
     categories = list(dict.fromkeys((*before.keys(), *after.keys())))
     lines = ["## Before target analysis", ""]
@@ -41,10 +40,7 @@ def render_evidence(before: EvidenceSnapshot, after: EvidenceSnapshot) -> list[s
         else:
             any_changes = True
             lines.extend(["| Change | Key | Before | After |", "| --- | --- | --- | --- |"])
-            lines.extend(
-                f"| `{change}` | `{key}` | `{old_value}` | `{new_value}` |"
-                for change, key, old_value, new_value in delta
-            )
+            lines.extend(f"| `{change}` | `{key}` | `{old_value}` | `{new_value}` |" for change, key, old_value, new_value in delta)
         lines.append("")
     if not any_changes:
         lines.append("No changes observed.")
