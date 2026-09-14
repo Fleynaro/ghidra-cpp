@@ -30,7 +30,7 @@ target_link_libraries(native_paramstore_tests PRIVATE
     GTest::gtest_main
 )
 target_compile_definitions(native_paramstore_tests PRIVATE
-    NATIVE_PARAMSTORE_SOURCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/../../../.."
+    NATIVE_PARAMSTORE_DATA_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/data/compiler_specs"
 )
 target_compile_features(native_paramstore_tests PRIVATE cxx_std_23)
 

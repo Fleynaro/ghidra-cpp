@@ -21,8 +21,8 @@ without depending on the legacy test harness.
 [`native_paramstore_tests.cppm`](native_paramstore_tests.cppm) ports
 `Ghidra/Features/Decompiler/src/decompile/unittests/testparamstore.cc` without its XML
 capability or test harness. It supplies processor spaces and register aliases through a
-provider translator, loads the corresponding authoritative compiler specifications from
-[`../../../../Ghidra/Processors`](../../../../Ghidra/Processors), and invokes the exported
+provider translator, loads the module-local compiler-spec fixtures from
+[`data/compiler_specs`](data/compiler_specs), and invokes the exported
 `ghidra::parse_C`, `ghidra::parse_protopieces`, and `ghidra::ProtoModel::assignParameterStorage`
 algorithms directly. The x64, PPC64 big-endian, MIPS32 big-endian, and AArch64 cases are
 kept as exact storage assertions; endian-aware subregister justification and architecture-
@@ -30,11 +30,9 @@ specific joins are not skipped or weakened.
 
 [`decompiler_architecture_tests.cppm`](decompiler_architecture_tests.cppm) adds a focused
 provider-boundary inventory for MIPS32, ARM32, AArch64, PPC32, 68000, 8051, Toy, and x86-32.
-It constructs every `ArchitectureDescription` without external files, uses a provider-only
-Toy context because the installed distribution has no Toy SLA, and decodes one real installed
-SLA per remaining family when `GHIDRA_INSTALL_DIR` is set. The test resolves only the relative
-paths under that environment variable; it does not embed a workstation path or copy every SLA
-variant. The selected source mappings are recorded in
+It constructs every `ArchitectureDescription` without external files and decodes the real SLA
+fixtures stored in [`../../sleigh_runtime/specifications`](../../sleigh_runtime/specifications).
+The selected source mappings are recorded in
 [`../../sleigh_runtime/specifications/README.md`](../../sleigh_runtime/specifications/README.md).
 
 The target is registered by [`CMakeLists.txt`](CMakeLists.txt) and is invoked from the parent

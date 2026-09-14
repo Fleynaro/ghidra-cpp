@@ -51,13 +51,13 @@ struct ParameterArchitectureConfig {
     std::vector<ProviderRegister> registers;
 };
 
-/// Resolves an authoritative repository file from the CMake-provided source root rather than the process directory.
+/// Resolves a compiler specification from the module-local test data rather than the process directory.
 static std::filesystem::path repository_file(std::string_view relative_path) {
-    const std::filesystem::path configured_root(NATIVE_PARAMSTORE_SOURCE_ROOT);
+    const std::filesystem::path configured_root(NATIVE_PARAMSTORE_DATA_ROOT);
     if (!configured_root.empty()) {
         return configured_root / relative_path;
     }
-    return std::filesystem::path("..") / ".." / ".." / relative_path;
+    return std::filesystem::path("data") / "compiler_specs" / relative_path;
 }
 
 /// Adds one named register binding to a provider architecture description.
@@ -117,7 +117,7 @@ static ParameterArchitectureConfig x64_config() {
         "ram",
         "ram",
         "RSP",
-        repository_file("Ghidra/Processors/x86/data/languages/x86-64-gcc.cspec"),
+        repository_file("x86-64-gcc.cspec"),
         {{"ram", 8, 1, false, 2}, {"register", 8, 1, false, 3}},
         {},
     };
@@ -134,7 +134,7 @@ static ParameterArchitectureConfig ppc64_be_config() {
         "ram",
         "ram",
         "r1",
-        repository_file("Ghidra/Processors/PowerPC/data/languages/ppc_64_be.cspec"),
+        repository_file("ppc_64_be.cspec"),
         {{"ram", 8, 1, true, 2}, {"register", 8, 1, true, 3}},
         {},
     };
@@ -157,7 +157,7 @@ static ParameterArchitectureConfig mips32_be_config() {
         "ram",
         "ram",
         "sp",
-        repository_file("Ghidra/Processors/MIPS/data/languages/mips32be.cspec"),
+        repository_file("mips32be.cspec"),
         {{"ram", 4, 1, true, 2}, {"register", 4, 1, true, 3}},
         {},
     };
@@ -191,7 +191,7 @@ static ParameterArchitectureConfig aarch64_config() {
         "ram",
         "ram",
         "sp",
-        repository_file("Ghidra/Processors/AARCH64/data/languages/AARCH64.cspec"),
+        repository_file("AARCH64.cspec"),
         {{"ram", 8, 1, false, 2}, {"register", 8, 1, false, 3}},
         {},
     };

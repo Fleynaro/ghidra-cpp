@@ -10,10 +10,10 @@ import std;
 
 namespace newghidra::decompiler::architecture_tests {
 
-/// Describes one selected processor smoke case without embedding an installation path.
+/// Describes one processor smoke case backed by a specification stored in NEW.
 struct ArchitectureCase {
     std::string name;
-    std::string installed_sla;
+    std::string sla;
     ArchitectureProviderContext provider;
     std::vector<std::uint8_t> instruction;
     std::string expected_mnemonic;
@@ -195,55 +195,19 @@ static ArchitectureProviderContext toy_context() {
     return ArchitectureProviderContext{std::move(architecture), {}};
 }
 
-/// Returns the deliberately small processor inventory selected from the installed artifacts.
-/// One representative per requested family keeps coverage focused and avoids copying every
-/// generated SLA variant into the repository.
+/// Returns the processor inventory whose compiled specifications are stored locally in NEW.
+/// Other architecture contexts remain covered by provider-only construction tests below.
 static std::vector<ArchitectureCase> architecture_cases() {
     return {
-        {"MIPS32BE",
-         "Ghidra/Processors/MIPS/data/languages/mips32be.sla",
-         mips32be_context(),
-         {0x24, 0x02, 0x00, 0x01},
-         "li"},
-        {"ARM32", "Ghidra/Processors/ARM/data/languages/ARM8_le.sla", arm32_context(), {0x00, 0x00, 0xa0, 0xe3}, "mov"},
-        {"AArch64",
-         "Ghidra/Processors/AARCH64/data/languages/AARCH64.sla",
-         aarch64_context(),
-         {0x00, 0x00, 0x80, 0xd2},
-         "mov"},
-        {"PPC32BE",
-         "Ghidra/Processors/PowerPC/data/languages/ppc_32_be.sla",
-         ppc32be_context(),
-         {0x38, 0x60, 0x00, 0x01},
-         "li"},
-        {"68000", "Ghidra/Processors/68000/data/languages/68020.sla", m68000_context(), {0x70, 0x01}, "moveq"},
-        {"8051", "Ghidra/Processors/8051/data/languages/8051.sla", m8051_context(), {0x00}, "NOP"},
+        {"MIPS32BE", {}, mips32be_context(), {}, {}},
+        {"ARM32", "ARM8_le.sla", arm32_context(), {0x00, 0x00, 0xa0, 0xe3}, "mov"},
+        {"AArch64", {}, aarch64_context(), {}, {}},
+        {"PPC32BE", {}, ppc32be_context(), {}, {}},
+        {"68000", {}, m68000_context(), {}, {}},
+        {"8051", {}, m8051_context(), {}, {}},
         {"Toy", {}, toy_context(), {}, {}},
-        {"x86-32",
-         "Ghidra/Processors/x86/data/languages/x86.sla",
-         x86_32_context(),
-         {0xb8, 0x01, 0x00, 0x00, 0x00},
-         "MOV"},
+        {"x86-32", "x86-64.sla", x86_32_context(), {0xb8, 0x01, 0x00, 0x00, 0x00}, "MOV"},
     };
-}
-
-/// Resolves one selected SLA relative to the user-provided Ghidra installation.
-/// Returning an optional path makes the tests portable to environments that only build
-/// the provider contract and do not install Ghidra processor data.
-static std::optional<std::filesystem::path> installed_sla(std::string_view relative_path) {
-    if (relative_path.empty()) {
-        return std::nullopt;
-    }
-    const char* root = std::getenv("GHIDRA_INSTALL_DIR");
-    if (root == nullptr || *root == '\0') {
-        return std::nullopt;
-    }
-    std::filesystem::path candidate = std::filesystem::path(root) / relative_path;
-    std::error_code error;
-    if (!std::filesystem::is_regular_file(candidate, error) || error) {
-        return std::nullopt;
-    }
-    return candidate;
 }
 
 /// Normalizes mnemonic case because processor specifications preserve family-specific spelling.
@@ -299,17 +263,17 @@ TEST(ArchitectureContexts, CoversRequestedProcessorFamilies) {
         EXPECT_FALSE(test_case.provider.architecture.spaces.empty());
         EXPECT_FALSE(test_case.provider.architecture.registers.empty());
         EXPECT_GT(test_case.provider.architecture.pointer_size, 0U);
-        if (test_case.name == "Toy") {
-            EXPECT_TRUE(test_case.installed_sla.empty());
+        if (test_case.name == "ARM32" || test_case.name == "x86-32") {
+            EXPECT_FALSE(test_case.sla.empty());
         } else {
-            EXPECT_FALSE(test_case.installed_sla.empty());
+            EXPECT_TRUE(test_case.sla.empty());
         }
     }
 }
 
 /// Verifies that the provider frontend can construct all selected architecture descriptions.
 /// This test intentionally uses a synthetic instruction provider so architecture construction
-/// remains testable even when the optional installed SLA inventory is unavailable.
+/// remains testable for architecture families without a local compiled SLA fixture.
 TEST(ArchitectureProviders, ConstructsSelectedArchitectureDescriptions) {
     for (const ArchitectureCase& test_case : architecture_cases()) {
         SCOPED_TRACE(test_case.name);
@@ -326,28 +290,20 @@ TEST(ArchitectureProviders, ConstructsSelectedArchitectureDescriptions) {
     }
 }
 
-/// Verifies real decoding and provider materialization for one selected SLA per architecture family.
-TEST(ArchitectureProviders, DecodesSelectedInstalledSlas) {
-    const char* root = std::getenv("GHIDRA_INSTALL_DIR");
-    if (root == nullptr || *root == '\0') {
-        GTEST_SKIP() << "GHIDRA_INSTALL_DIR is not set; installed processor SLA smoke tests are optional";
-    }
-
+/// Verifies real decoding and provider materialization for every SLA stored in NEW.
+TEST(ArchitectureProviders, DecodesLocalSlas) {
     constexpr std::uint64_t entry = 0x1000;
     for (const ArchitectureCase& test_case : architecture_cases()) {
-        if (test_case.name == "Toy") {
+        if (test_case.sla.empty()) {
             continue;
         }
         SCOPED_TRACE(test_case.name);
         try {
-            const std::optional<std::filesystem::path> sla = installed_sla(test_case.installed_sla);
-            ASSERT_TRUE(sla.has_value()) << "Selected processor SLA is unavailable under GHIDRA_INSTALL_DIR: "
-                                         << test_case.installed_sla;
-
             std::vector<std::uint8_t> image = test_case.instruction;
             image.insert(image.end(), 16, 0);
             auto memory = std::make_shared<SparseMemory>(entry, std::move(image));
-            auto provider = std::make_shared<SleighPcodeProvider>(*sla, memory, test_case.provider.processor_context);
+            auto provider =
+                std::make_shared<SleighPcodeProvider>(test_case.sla, memory, test_case.provider.processor_context);
             const auto decoded = provider->decode(entry);
             ASSERT_TRUE(decoded.has_value()) << decoded.error().message;
             EXPECT_EQ(decoded->address, entry);
