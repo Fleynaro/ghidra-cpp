@@ -1,10 +1,16 @@
-export module function_id;
+export module function_id:types;
 
 import std;
-import sleigh_runtime;
+
+// Ported/adapted from Ghidra:
+// Features/FunctionID/src/main/java/ghidra/feature/fid/hash/FunctionRecord.java
+// Features/FunctionID/src/main/java/ghidra/feature/fid/db/LibraryRecord.java
+// Features/FunctionID/src/main/java/ghidra/feature/fid/hash/FidHashQuad.java
+// Features/FunctionID/src/main/java/ghidra/feature/fid/service/FidProgramSeeker.java
 
 export namespace fid {
 
+/// Names one byte in a FunctionID instruction or database record.
 using Byte = std::uint8_t;
 
 /// Identifies a failure while hashing, opening, or querying a FunctionID database.
@@ -43,7 +49,7 @@ struct OperandObject {
     bool relocated{};
 };
 
-/// Describes one instruction in the order used by a FunctionBodyFunctionExtentGenerator.
+/// Describes one instruction in the order used by FunctionBodyFunctionExtentGenerator.
 /// The instruction mask and operand masks use the same byte ordering as the instruction bytes.
 struct Instruction {
     std::vector<Byte> bytes;
@@ -69,19 +75,6 @@ struct HashQuad {
 
     /// Compares all FunctionID hash fields.
     friend bool operator==(const HashQuad&, const HashQuad&) = default;
-};
-
-/// Hashes a caller-provided instruction extent using Ghidra's FunctionID algorithm.
-class Hasher final {
-public:
-    /// Hashes instructions, returning no value when fewer than four effective units exist.
-    [[nodiscard]] static std::expected<HashQuad, Error> hash(std::span<const Instruction> instructions,
-                                                             std::int8_t short_limit = 4);
-
-    /// Hashes the abstract instruction records emitted by the autonomous Sleigh runtime.
-    [[nodiscard]] static std::expected<HashQuad, Error>
-    hash_sleigh(std::span<const sleigh_runtime::Instruction> instructions, std::span<const Relocation> relocations = {},
-                std::int8_t short_limit = 4);
 };
 
 /// Identifies one source/compiler context used for library filtering.
@@ -125,16 +118,30 @@ struct FunctionRecord {
     std::string domain_path;
     std::uint8_t flags{};
 
-    /// Returns whether the function body contained a terminator.
-    [[nodiscard]] bool has_terminator() const noexcept;
-    /// Returns whether the record receives the medium-size automatic pass floor.
-    [[nodiscard]] bool auto_pass() const noexcept;
-    /// Returns whether this candidate is rejected before scoring.
-    [[nodiscard]] bool auto_fail() const noexcept;
-    /// Returns whether the specific hash must match.
-    [[nodiscard]] bool force_specific() const noexcept;
-    /// Returns whether at least one child relation must match.
-    [[nodiscard]] bool force_relation() const noexcept;
+    /// Returns whether the function body contained a terminator, matching FunctionRecord.hasTerminator().
+    [[nodiscard]] bool has_terminator() const noexcept {
+        return (flags & 0x01U) != 0;
+    }
+
+    /// Returns whether the record receives the medium-size automatic pass floor, matching autoPass().
+    [[nodiscard]] bool auto_pass() const noexcept {
+        return (flags & 0x02U) != 0;
+    }
+
+    /// Returns whether this candidate is rejected before scoring, matching autoFail().
+    [[nodiscard]] bool auto_fail() const noexcept {
+        return (flags & 0x04U) != 0;
+    }
+
+    /// Returns whether the specific hash must match, matching forceSpecific().
+    [[nodiscard]] bool force_specific() const noexcept {
+        return (flags & 0x08U) != 0;
+    }
+
+    /// Returns whether at least one child relation must match, matching forceRelation().
+    [[nodiscard]] bool force_relation() const noexcept {
+        return (flags & 0x10U) != 0;
+    }
 };
 
 /// Identifies the lookup mode used for a successful candidate.
@@ -153,7 +160,9 @@ struct Match {
     float parent_score{};
 
     /// Returns the total score used for descending candidate ordering.
-    [[nodiscard]] float overall_score() const noexcept;
+    [[nodiscard]] float overall_score() const noexcept {
+        return function_score + child_score + parent_score;
+    }
 };
 
 /// Returns all best-scoring candidates and their deduplicated raw names.
@@ -162,46 +171,5 @@ struct IdentificationResult {
     std::vector<Match> matches;
     std::vector<std::string> names;
 };
-
-/// Opens and queries one original Ghidra packed `.fidb` database.
-class Database final {
-public:
-    /// Opens a packed `.fidb` path read-only without converting or rewriting it.
-    [[nodiscard]] static std::expected<Database, Error> open(const std::filesystem::path& path);
-
-    /// Releases the immutable database storage.
-    ~Database();
-    Database(Database&&) noexcept;
-    Database& operator=(Database&&) noexcept;
-    Database(const Database&) = delete;
-    Database& operator=(const Database&) = delete;
-
-    /// Returns the decoded library records in primary-key order.
-    [[nodiscard]] std::span<const LibraryRecord> libraries() const noexcept;
-    /// Returns all records sharing a full hash, preserving database order.
-    [[nodiscard]] std::vector<FunctionRecord> find_full_hash(std::uint64_t hash) const;
-    /// Returns all records sharing a specific hash by the original full-table scan semantics.
-    [[nodiscard]] std::vector<FunctionRecord> find_specific_hash(std::uint64_t hash) const;
-    /// Returns all decoded function records.
-    [[nodiscard]] std::span<const FunctionRecord> functions() const noexcept;
-    /// Returns the raw database buffer size for diagnostics and tests.
-    [[nodiscard]] std::size_t buffer_size() const noexcept;
-
-    /// Identifies one function using Ghidra's candidate filtering and scoring behavior.
-    [[nodiscard]] std::expected<IdentificationResult, Error> identify(const FunctionContext& context,
-                                                                      const ProgramInfo& program,
-                                                                      float score_threshold = 14.6F,
-                                                                      std::int16_t medium_limit = 24) const;
-
-private:
-    class Storage;
-    std::unique_ptr<Storage> storage_;
-    explicit Database(std::unique_ptr<Storage> storage);
-};
-
-/// Computes the signed-64-bit relation key used by the original RelationsTable.
-[[nodiscard]] std::uint64_t superior_relation_key(std::int64_t superior_id, std::uint64_t inferior_full_hash) noexcept;
-/// Computes the signed-64-bit reverse relation key used by the original RelationsTable.
-[[nodiscard]] std::uint64_t inferior_relation_key(std::uint64_t superior_full_hash, std::int64_t inferior_id) noexcept;
 
 } // namespace fid

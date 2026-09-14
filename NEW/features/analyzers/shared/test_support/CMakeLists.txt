@@ -7,5 +7,7 @@ if(BUILD_TESTING)
     )
     target_compile_features(analyzer_test_support PUBLIC cxx_std_23)
     target_compile_definitions(analyzer_test_support PUBLIC ANALYZER_FIXTURE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../..")
-    target_link_libraries(analyzer_test_support PUBLIC NewGhidra::AnalyzerShared GTest::gtest)
+    # The manager's inline built-in-registration method delegates to the
+    # aggregate adapter, which is intentionally outside the shared runtime.
+    target_link_libraries(analyzer_test_support PUBLIC analyzer NewGhidra::AnalyzerShared GTest::gtest)
 endif()

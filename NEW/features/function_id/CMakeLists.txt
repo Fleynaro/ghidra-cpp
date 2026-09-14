@@ -2,11 +2,24 @@ find_package(ZLIB REQUIRED)
 
 add_library(function_id STATIC)
 
+# The primary interface re-exports these partitions. Keep the list explicit so
+# each class and private storage boundary remains visible in the build graph.
+set(FUNCTION_ID_MODULES
+    src/types.cppm
+    src/parse_exception.cppm
+    src/storage_helpers.cppm
+    src/buffer_file.cppm
+    src/hasher.cppm
+    src/database.cppm
+)
+
 target_sources(function_id
     PUBLIC
-        FILE_SET cxx_modules TYPE CXX_MODULES FILES function_id.cppm
-    PRIVATE
-        src/function_id.cpp
+        FILE_SET cxx_modules TYPE CXX_MODULES FILES src/function_id.cppm
+    PUBLIC
+        FILE_SET function_id_modules TYPE CXX_MODULES
+        BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        FILES ${FUNCTION_ID_MODULES}
 )
 
 add_library(NewGhidra::FunctionId ALIAS function_id)

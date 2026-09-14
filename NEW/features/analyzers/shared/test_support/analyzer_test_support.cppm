@@ -4,8 +4,16 @@ module;
 
 export module analyzer_test_support;
 
-import analyzer;
+export import analyzer;
 import std;
+
+// The support library also exports inline fixture helpers to test module
+// consumers, which requires the same MSVC static-library emission workaround.
+#if defined(_MSC_VER)
+#define GHIDRA_ANALYZER_TEST_MODULE_EXPORT __declspec(dllexport)
+#else
+#define GHIDRA_ANALYZER_TEST_MODULE_EXPORT
+#endif
 
 export namespace ghidra::analyzer::tests {
 
@@ -13,7 +21,7 @@ export namespace ghidra::analyzer::tests {
 ///
 /// The `ANALYZER_FIXTURE_DIR` definition is supplied by the analyzer CMake
 /// target and points at the directory containing all feature fixtures.
-[[nodiscard]] AnalysisContext load_fixture(std::string_view fixture) {
+[[nodiscard]] GHIDRA_ANALYZER_TEST_MODULE_EXPORT AnalysisContext load_fixture(std::string_view fixture) {
     const auto path = std::filesystem::path(ANALYZER_FIXTURE_DIR) / fixture / "tests" / "data" /
                       ("test_" + std::string(fixture) + ".exe");
     auto image = pe::PeLoader::load_file(path);
@@ -30,7 +38,8 @@ struct ExpectedFunctionBody {
 };
 
 /// Verifies complete byte ranges without reading a report at test runtime.
-void expect_function_bodies(const AnalysisContext& context, std::span<const ExpectedFunctionBody> expected) {
+GHIDRA_ANALYZER_TEST_MODULE_EXPORT void expect_function_bodies(const AnalysisContext& context,
+                                                               std::span<const ExpectedFunctionBody> expected) {
     for (const auto& row : expected) {
         const auto function = context.function_at(row.entry);
         ASSERT_NE(function, nullptr) << "missing function at 0x" << std::hex << row.entry;
