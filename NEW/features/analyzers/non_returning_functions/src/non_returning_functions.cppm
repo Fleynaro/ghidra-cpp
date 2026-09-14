@@ -138,7 +138,16 @@ namespace {
 void repair_callers(AnalysisContext& context, Address target) {
     for (const auto& reference : context.references()) {
         if (reference.target == target && is_call_reference(reference.kind)) {
-            static_cast<void>(context.set_flow_override(reference.source, FlowOverride::call_return, target));
+            if (context.set_flow_override(reference.source, FlowOverride::call_return, target)) {
+                // FindNoReturnFunctionsAnalyzer.fixCallingFunctionBody()
+                // immediately invokes CreateFunctionCmd.fixupFunctionBody()
+                // after setting CALL_RETURN.  Without this synchronous repair
+                // the override would be stored but the caller would retain an
+                // invalid post-call fall-through in its body and CFG.
+                if (const auto caller = context.function_containing(reference.source)) {
+                    static_cast<void>(context.rebuild_function_body(caller->entry));
+                }
+            }
         }
     }
 }
@@ -188,12 +197,7 @@ void mark_known_functions(AnalysisContext& context, std::span<const AnalysisEven
         if (context.options().create_analysis_bookmarks)
             static_cast<void>(context.add_bookmark(
                 Bookmark{symbol.iat_address, "Non-Returning Function", "Known external no-return function"}));
-        for (const auto& reference : context.references()) {
-            if (reference.kind == ReferenceKind::external && reference.target == symbol.iat_address) {
-                static_cast<void>(
-                    context.set_flow_override(reference.source, FlowOverride::call_return, symbol.iat_address));
-            }
-        }
+        repair_callers(context, symbol.iat_address);
     }
 }
 
@@ -260,12 +264,7 @@ void NonReturningFunctionsAnalyzer::analyze(AnalysisContext& context, std::span<
             static_cast<void>(context.add_bookmark(
                 Bookmark{symbol.iat_address, "Non-Returning Function", "External no-return function"}));
         }
-        for (const auto& reference : context.references()) {
-            if (reference.kind == ReferenceKind::external && reference.target == symbol.iat_address) {
-                static_cast<void>(
-                    context.set_flow_override(reference.source, FlowOverride::call_return, symbol.iat_address));
-            }
-        }
+        repair_callers(context, symbol.iat_address);
     }
     std::map<Address, std::set<Address>> evidence;
     for (const auto& reference : context.references()) {
@@ -321,9 +320,7 @@ void NonReturningFunctionsAnalyzer::analyze(AnalysisContext& context, std::span<
             static_cast<void>(
                 context.add_bookmark(Bookmark{target, "Non-Returning Function", "Non-Returning Function Found"}));
         }
-        for (const Address caller : callers) {
-            static_cast<void>(context.set_flow_override(caller, FlowOverride::call_return, target));
-        }
+        repair_callers(context, target);
     }
     // A function with no return and only calls to already-known no-return
     // targets is itself non-returning (FindNoReturnFunctionsAnalyzer's

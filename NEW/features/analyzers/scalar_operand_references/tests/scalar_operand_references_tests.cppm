@@ -6,7 +6,6 @@ export module scalar_operand_references_tests;
 
 import analyzer_constant_propagation;
 import analyzer_disassemble_entry_points;
-import analyzer_function_body;
 import analyzer_scalar_operand_references;
 import analyzer_subroutine_references;
 import analyzer_test_support;
@@ -22,7 +21,6 @@ TEST(AnalyzerPipelineTest, ScalarReferencesOnlyUseMappedLargeValues) {
     options.disassemble_entry_points = true;
     options.function_start_search = false;
     options.subroutine_references = false;
-    options.function_body = false;
     options.reference = false;
     options.data_reference = false;
     options.stack = false;
@@ -31,7 +29,6 @@ TEST(AnalyzerPipelineTest, ScalarReferencesOnlyUseMappedLargeValues) {
     AutoAnalysisManager manager(context);
     manager.register_analyzer(std::make_unique<DisassembleEntryPointsAnalyzer>());
     manager.register_analyzer(std::make_unique<SubroutineReferencesAnalyzer>());
-    manager.register_analyzer(std::make_unique<FunctionBodyAnalyzer>());
     manager.register_analyzer(std::make_unique<ConstantPropagationAnalyzer>());
     manager.register_analyzer(std::make_unique<ScalarOperandReferencesAnalyzer>());
     const auto result = manager.analyze();

@@ -6,7 +6,6 @@ export module reference_tests;
 
 import analyzer_constant_propagation;
 import analyzer_disassemble_entry_points;
-import analyzer_function_body;
 import analyzer_reference;
 import analyzer_subroutine_references;
 import analyzer_test_support;
@@ -21,7 +20,6 @@ TEST(AnalyzerPipelineTest, MaterializesMemoryReferences) {
     auto& options = context.options();
     options.function_start_search = false;
     options.subroutine_references = false;
-    options.function_body = false;
     options.data_reference = false;
     options.scalar_operand_references = false;
     options.stack = false;
@@ -30,7 +28,6 @@ TEST(AnalyzerPipelineTest, MaterializesMemoryReferences) {
     AutoAnalysisManager manager(context);
     manager.register_analyzer(std::make_unique<DisassembleEntryPointsAnalyzer>());
     manager.register_analyzer(std::make_unique<SubroutineReferencesAnalyzer>());
-    manager.register_analyzer(std::make_unique<FunctionBodyAnalyzer>());
     manager.register_analyzer(std::make_unique<ConstantPropagationAnalyzer>());
     manager.register_analyzer(std::make_unique<ReferenceAnalyzer>());
     const auto result = manager.analyze();
@@ -48,7 +45,6 @@ TEST(AnalyzerPipelineTest, ReAnalyzeAllIsIdempotentForExistingListing) {
     auto& options = context.options();
     options.function_start_search = false;
     options.subroutine_references = false;
-    options.function_body = false;
     options.data_reference = false;
     options.scalar_operand_references = false;
     options.stack = false;
@@ -57,7 +53,6 @@ TEST(AnalyzerPipelineTest, ReAnalyzeAllIsIdempotentForExistingListing) {
     AutoAnalysisManager manager(context);
     manager.register_analyzer(std::make_unique<DisassembleEntryPointsAnalyzer>());
     manager.register_analyzer(std::make_unique<SubroutineReferencesAnalyzer>());
-    manager.register_analyzer(std::make_unique<FunctionBodyAnalyzer>());
     manager.register_analyzer(std::make_unique<ConstantPropagationAnalyzer>());
     manager.register_analyzer(std::make_unique<ReferenceAnalyzer>());
     ASSERT_TRUE(manager.analyze().completed);

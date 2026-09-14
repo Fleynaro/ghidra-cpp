@@ -5,7 +5,6 @@ module;
 export module constant_propagation_tests;
 
 import analyzer_constant_propagation;
-import analyzer_function_body;
 import analyzer_subroutine_references;
 import analyzer_test_support;
 import std;
@@ -60,7 +59,6 @@ TEST(AnalyzerPipelineTest, PropagatesPcodeArithmetic) {
     context.options() = {};
     AutoAnalysisManager manager(context);
     manager.register_analyzer(std::make_unique<SubroutineReferencesAnalyzer>());
-    manager.register_analyzer(std::make_unique<FunctionBodyAnalyzer>());
     manager.register_analyzer(std::make_unique<ConstantPropagationAnalyzer>());
     const auto result = manager.analyze(std::array<Address, 1>{first_address});
     ASSERT_TRUE(result.completed);

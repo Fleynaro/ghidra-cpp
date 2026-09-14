@@ -312,7 +312,10 @@ store_value(const sleigh_runtime::PcodeOp& operation, const std::map<std::string
 
 /// Returns the Constant Propagation priority and code-event contract.
 AnalyzerDescriptor ConstantPropagationAnalyzer::descriptor() const {
-    return {"Constant Propagation", 596, {EventKind::code_added, EventKind::function_added}, {"Function Body"}};
+    // Function bodies are available synchronously from CreateFunctionCmd's
+    // native context implementation; original Ghidra has no body analyzer
+    // prerequisite to schedule here.
+    return {"Constant Propagation", 596, {EventKind::code_added, EventKind::function_added}, {}};
 }
 
 /// Runs bounded p-code symbolic propagation through all affected functions.

@@ -197,23 +197,28 @@ private:
 
 /// Maps p-code operations to the first control-flow effect in emission order.
 [[nodiscard]] FlowInfo find_flow(std::span<const PcodeOp> operations) {
+    std::optional<Varnode> conditional_target;
+    bool has_conditional_branch = false;
     for (const PcodeOp& operation : operations) {
         FlowKind kind = FlowKind::none;
         switch (operation.opcode) {
             case PcodeOpcode::branch:
-                kind = FlowKind::branch;
+                kind = has_conditional_branch ? FlowKind::conditional_branch : FlowKind::branch;
                 break;
             case PcodeOpcode::cbranch:
-                kind = FlowKind::conditional_branch;
+                has_conditional_branch = true;
+                if (!operation.inputs.empty()) {
+                    conditional_target = operation.inputs.front();
+                }
                 break;
             case PcodeOpcode::branch_ind:
                 kind = FlowKind::indirect_branch;
                 break;
             case PcodeOpcode::call:
-                kind = FlowKind::call;
+                kind = has_conditional_branch ? FlowKind::conditional_call : FlowKind::call;
                 break;
             case PcodeOpcode::call_ind:
-                kind = FlowKind::indirect_call;
+                kind = has_conditional_branch ? FlowKind::conditional_call : FlowKind::indirect_call;
                 break;
             case PcodeOpcode::return_op:
                 kind = FlowKind::return_op;
@@ -226,12 +231,28 @@ private:
             if (!operation.inputs.empty()) {
                 flow.target = operation.inputs.front();
             }
-            flow.has_fallthrough =
-                kind == FlowKind::conditional_branch || kind == FlowKind::call || kind == FlowKind::indirect_call;
+            if (kind == FlowKind::conditional_call && conditional_target) {
+                // A conditional call's first p-code input is the call
+                // destination; the cbranch condition is not a reference
+                // destination.  This mirrors Sleigh's FlowType mapping rather
+                // than manufacturing a second control-flow edge.
+                flow.target = operation.inputs.empty() ? conditional_target : operation.inputs.front();
+            } else if (kind == FlowKind::conditional_branch && conditional_target) {
+                flow.target = conditional_target;
+            }
+            flow.has_fallthrough = kind == FlowKind::conditional_branch || kind == FlowKind::conditional_call ||
+                                   kind == FlowKind::call || kind == FlowKind::indirect_call;
             flow.terminal =
                 kind == FlowKind::branch || kind == FlowKind::indirect_branch || kind == FlowKind::return_op;
             return flow;
         }
+    }
+    if (has_conditional_branch) {
+        // A cbranch without a following call or branch is itself the first
+        // control-flow effect.  Delaying this return is what lets a Sleigh
+        // conditional-call sequence retain its call destination while still
+        // preserving ordinary conditional branches.
+        return {FlowKind::conditional_branch, conditional_target, true, false};
     }
     return {};
 }

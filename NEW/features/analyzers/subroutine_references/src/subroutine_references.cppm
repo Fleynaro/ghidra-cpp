@@ -17,12 +17,13 @@ public:
 
 namespace ghidra::analyzer {
 
-/// Returns the Subroutine References priority and code-event contract.
+/// Returns the Subroutine References priority and code/reference event contract.
 AnalyzerDescriptor SubroutineReferencesAnalyzer::descriptor() const {
-    return {"Subroutine References", 399, {EventKind::code_added}, {}};
+    return {
+        "Subroutine References", 399, {EventKind::code_added, EventKind::reference_added, EventKind::flow_changed}, {}};
 }
 
-/// Creates functions only from already materialized direct CALL references.
+/// Creates functions only from already materialized call references.
 void SubroutineReferencesAnalyzer::analyze(AnalysisContext& context, std::span<const AnalysisEvent> events,
                                            CancellationToken& cancellation) {
     // Ported from Ghidra:
@@ -33,7 +34,8 @@ void SubroutineReferencesAnalyzer::analyze(AnalysisContext& context, std::span<c
     }
     std::set<Address> changed_sources;
     for (const auto& event : events) {
-        if (event.kind == EventKind::code_added) {
+        if (event.kind == EventKind::code_added || event.kind == EventKind::reference_added ||
+            event.kind == EventKind::flow_changed) {
             changed_sources.insert(event.addresses.begin(), event.addresses.end());
         }
     }
@@ -45,28 +47,55 @@ void SubroutineReferencesAnalyzer::analyze(AnalysisContext& context, std::span<c
         if (cancellation.is_cancelled()) {
             return;
         }
-        if ((!changed_sources.empty() && !changed_sources.contains(reference.source)) ||
-            (reference.kind != ReferenceKind::unconditional_call &&
-             reference.kind != ReferenceKind::conditional_call)) {
+        if (!changed_sources.empty() && !changed_sources.contains(reference.source)) {
             continue;
         }
-        if ((reference.kind == ReferenceKind::unconditional_call ||
-             reference.kind == ReferenceKind::conditional_call) &&
-            reference.target != reference.fallthrough.value_or(0)) {
+        const auto instruction = context.instructions().find(reference.source);
+        if (instruction == context.instructions().end() ||
+            (instruction->second.instruction.flow.kind != sleigh_runtime::FlowKind::conditional_call &&
+             instruction->second.instruction.flow.kind != sleigh_runtime::FlowKind::call &&
+             instruction->second.instruction.flow.kind != sleigh_runtime::FlowKind::indirect_call)) {
+            continue;
+        }
+        if (reference.kind != ReferenceKind::unconditional_call && reference.kind != ReferenceKind::conditional_call &&
+            reference.kind != ReferenceKind::computed_call && reference.kind != ReferenceKind::external) {
+            continue;
+        }
+        // FunctionAnalyzer.fallthroughCall() compares the actual fall-through
+        // address.  A missing fall-through is not address zero and must not be
+        // converted into a synthetic comparison value.
+        if (!reference.fallthrough || reference.target != *reference.fallthrough) {
             targets.insert(reference.target);
         }
     }
     for (const Address target : targets) {
+        if (cancellation.is_cancelled()) {
+            return;
+        }
         if (const auto existing = context.function_at(target); existing) {
             // FunctionAnalyzer repairs importer-created one-instruction
             // placeholders when a real call reference supplies the target.
-            if (existing->body.size() <= 1U) {
+            const auto target_instruction = context.instructions().find(target);
+            if (existing->body.size() == 1U && target_instruction != context.instructions().end() &&
+                (target_instruction->second.instruction.length > 1U ||
+                 !target_instruction->second.instruction.flow.terminal)) {
+                // This is FunctionAnalyzer's precise one-address placeholder
+                // predicate, not a blanket rewrite of real one-byte returns.
                 static_cast<void>(context.disassemble_flow(target));
                 static_cast<void>(context.rebuild_function_body(target));
             }
             continue;
         }
-        if (context.executable_region(target)) {
+        if (context.options().create_only_thunks && !context.thunk_target(target)) {
+            // FunctionAnalyzer.createOnlyThunks performs this filter after
+            // removing existing function symbols, so placeholder repair above
+            // remains active while ordinary missing targets are ignored.
+            continue;
+        }
+        // CreateFunctionCmd only succeeds when a code unit already exists at
+        // the target.  Do not guess through an unmapped, data, or merely
+        // executable-but-undecoded address.
+        if (context.instructions().contains(target) && context.executable_region(target)) {
             static_cast<void>(context.create_function(target));
         }
     }

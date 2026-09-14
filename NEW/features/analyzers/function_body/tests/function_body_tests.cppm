@@ -4,7 +4,6 @@ module;
 
 export module function_body_tests;
 
-import analyzer_function_body;
 import analyzer_test_support;
 import std;
 
@@ -141,6 +140,91 @@ TEST(AnalyzerPipelineTest, CarvesOverlappingFunctionBodyByDefault) {
     ASSERT_TRUE(context.create_function(shared));
     EXPECT_FALSE(context.functions().at(first).body.contains(shared));
     EXPECT_TRUE(context.functions().at(shared).body.contains(shared));
+}
+
+/// Verifies that overlap carving remains authoritative when an existing
+/// function reaches shared interior code through a branch that does not pass
+/// through the newly created function entry. Recomputing the old body after
+/// insertion would incorrectly reclaim the shared address.
+TEST(AnalyzerPipelineTest, PreservesCarvingAgainstInteriorSharedReachability) {
+    auto context = load_fixture("disassemble_entry_points");
+    context.options().seed_provider_functions = false;
+    const auto executable =
+        std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
+                     [](const pe::MemoryRegion& region) { return region.executable; });
+    ASSERT_NE(executable, context.image().memory_regions().end());
+
+    const Address first = executable->start;
+    const Address existing_branch = first + 1U;
+    const Address new_entry = first + 0x10U;
+    const Address shared = first + 0x20U;
+
+    sleigh_runtime::Instruction first_instruction;
+    first_instruction.address = first;
+    first_instruction.length = 1;
+    first_instruction.flow = {sleigh_runtime::FlowKind::none, std::nullopt, true, false};
+    sleigh_runtime::Instruction existing_branch_instruction;
+    existing_branch_instruction.address = existing_branch;
+    existing_branch_instruction.length = 1;
+    existing_branch_instruction.flow = {sleigh_runtime::FlowKind::conditional_branch,
+                                        sleigh_runtime::Varnode{"ram", shared, 8}, false, false};
+    sleigh_runtime::Instruction new_entry_instruction;
+    new_entry_instruction.address = new_entry;
+    new_entry_instruction.length = 1;
+    new_entry_instruction.flow = {sleigh_runtime::FlowKind::conditional_branch,
+                                  sleigh_runtime::Varnode{"ram", shared, 8}, false, false};
+    sleigh_runtime::Instruction shared_instruction;
+    shared_instruction.address = shared;
+    shared_instruction.length = 1;
+    shared_instruction.flow = {sleigh_runtime::FlowKind::return_op, std::nullopt, false, true};
+
+    ASSERT_TRUE(context.define_instruction(std::move(first_instruction)));
+    ASSERT_TRUE(context.define_instruction(std::move(existing_branch_instruction)));
+    ASSERT_TRUE(context.define_instruction(std::move(new_entry_instruction)));
+    ASSERT_TRUE(context.define_instruction(std::move(shared_instruction)));
+    static_cast<void>(context.add_reference(Reference{existing_branch, shared, ReferenceKind::conditional_jump,
+                                                      std::nullopt, std::nullopt, FlowOverride::none, false}));
+    static_cast<void>(context.add_reference(Reference{new_entry, shared, ReferenceKind::conditional_jump, std::nullopt,
+                                                      std::nullopt, FlowOverride::none, false}));
+
+    ASSERT_TRUE(context.create_function(first));
+    ASSERT_TRUE(context.create_function(new_entry));
+    EXPECT_FALSE(context.functions().at(first).body.contains(shared));
+    EXPECT_TRUE(context.functions().at(new_entry).body.contains(shared));
+}
+
+/// Verifies that a branch with a p-code memory store is not promoted to a
+/// thunk. Ghidra's CreateThunkFunctionCmd rejects STORE side effects even when
+/// the final control flow has a resolved destination.
+TEST(AnalyzerPipelineTest, RejectsThunkWithMemorySideEffect) {
+    auto context = load_fixture("disassemble_entry_points");
+    context.options().seed_provider_functions = false;
+    const auto executable =
+        std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
+                     [](const pe::MemoryRegion& region) { return region.executable; });
+    ASSERT_NE(executable, context.image().memory_regions().end());
+
+    const Address entry = executable->start;
+    const Address target = entry + 0x10U;
+    sleigh_runtime::Instruction branch;
+    branch.address = entry;
+    branch.length = 1;
+    branch.flow = {sleigh_runtime::FlowKind::branch, sleigh_runtime::Varnode{"ram", target, 8}, false, true};
+    sleigh_runtime::PcodeOp store;
+    store.opcode = sleigh_runtime::PcodeOpcode::store;
+    branch.pcode.push_back(store);
+    sleigh_runtime::Instruction destination;
+    destination.address = target;
+    destination.length = 1;
+    destination.flow = {sleigh_runtime::FlowKind::return_op, std::nullopt, false, true};
+
+    ASSERT_TRUE(context.define_instruction(std::move(branch)));
+    ASSERT_TRUE(context.define_instruction(std::move(destination)));
+    static_cast<void>(context.add_reference(Reference{entry, target, ReferenceKind::unconditional_jump, std::nullopt,
+                                                      std::nullopt, FlowOverride::none, false}));
+    ASSERT_TRUE(context.create_function(entry));
+    EXPECT_FALSE(context.functions().at(entry).thunk);
+    EXPECT_TRUE(context.functions().at(entry).body.contains(target));
 }
 
 /// Verifies CreateFunctionCmd rejects an entry that would split an existing

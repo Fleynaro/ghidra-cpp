@@ -116,7 +116,6 @@ TEST(AnalyzerPipelineTest, DisassemblesEntryPointsWithoutCreatingFunctions) {
     options.seed_provider_functions = false;
     options.function_start_search = false;
     options.subroutine_references = false;
-    options.function_body = false;
     options.reference = false;
     options.data_reference = false;
     options.scalar_operand_references = false;

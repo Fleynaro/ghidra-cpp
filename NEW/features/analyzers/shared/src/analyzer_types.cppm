@@ -132,6 +132,10 @@ struct Function {
     // BasicBlockModel blocks retain calls; SimpleBlockModel blocks split on
     // every flow instruction, including calls.
     std::vector<BasicBlock> simple_blocks;
+    /// Concrete destination used when CreateThunkFunctionCmd semantics identify
+    /// this entry as a thunk.  The optional value keeps the native model's
+    /// thunk relationship observable instead of reducing it to a boolean.
+    std::optional<Address> thunk_target;
 };
 
 /// Represents one explicitly defined data object in program memory.
@@ -176,7 +180,6 @@ struct AnalysisOptions {
     bool function_start_after_code{};
     bool function_start_after_data{};
     bool subroutine_references{true};
-    bool function_body{true};
     bool reference{true};
     bool data_reference{true};
     bool scalar_operand_references{true};
@@ -190,6 +193,9 @@ struct AnalysisOptions {
     // CreateFunctionCmd excludes existing function bodies unless explicitly
     // requested by a shared-return or thunk recovery mode.
     bool allow_shared_function_body{};
+    // FunctionAnalyzer's createOnlyThunks mode filters missing call targets
+    // through CreateThunkFunctionCmd before scheduling function creation.
+    bool create_only_thunks{};
     bool create_stack_parameters{};
     std::uint32_t non_return_threshold{3};
     std::size_t maximum_disassembly_instructions{100000};

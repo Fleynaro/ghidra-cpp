@@ -127,6 +127,7 @@ enum class FlowKind : std::uint8_t {
     none,
     branch,
     conditional_branch,
+    conditional_call,
     call,
     indirect_branch,
     indirect_call,

@@ -133,7 +133,8 @@ void ReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const Analys
                     const bool external =
                         std::any_of(context.external_symbols().begin(), context.external_symbols().end(),
                                     [&](const ExternalSymbol& symbol) { return symbol.iat_address == *target; });
-                    const bool call_flow = record.instruction.flow.kind == sleigh_runtime::FlowKind::call ||
+                    const bool call_flow = record.instruction.flow.kind == sleigh_runtime::FlowKind::conditional_call ||
+                                           record.instruction.flow.kind == sleigh_runtime::FlowKind::call ||
                                            record.instruction.flow.kind == sleigh_runtime::FlowKind::indirect_call;
                     std::optional<Address> fallthrough;
                     if (external && call_flow) {
@@ -159,7 +160,8 @@ void ReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const Analys
             const bool external =
                 std::any_of(context.external_symbols().begin(), context.external_symbols().end(),
                             [&](const ExternalSymbol& symbol) { return symbol.iat_address == *target; });
-            const bool call_flow = record.instruction.flow.kind == sleigh_runtime::FlowKind::call ||
+            const bool call_flow = record.instruction.flow.kind == sleigh_runtime::FlowKind::conditional_call ||
+                                   record.instruction.flow.kind == sleigh_runtime::FlowKind::call ||
                                    record.instruction.flow.kind == sleigh_runtime::FlowKind::indirect_call;
             std::optional<Address> fallthrough;
             if (external && call_flow) {

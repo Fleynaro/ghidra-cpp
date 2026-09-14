@@ -5,7 +5,6 @@ module;
 export module stack_tests;
 
 import analyzer_disassemble_entry_points;
-import analyzer_function_body;
 import analyzer_stack;
 import analyzer_subroutine_references;
 import analyzer_test_support;
@@ -27,7 +26,6 @@ TEST(AnalyzerPipelineTest, FindsStackVariablesAndReferences) {
     AutoAnalysisManager manager(context);
     manager.register_analyzer(std::make_unique<DisassembleEntryPointsAnalyzer>());
     manager.register_analyzer(std::make_unique<SubroutineReferencesAnalyzer>());
-    manager.register_analyzer(std::make_unique<FunctionBodyAnalyzer>());
     manager.register_analyzer(std::make_unique<StackAnalyzer>());
     const auto result = manager.analyze();
     ASSERT_TRUE(result.completed);
