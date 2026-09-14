@@ -1,1 +1,13 @@
-# Each analyzer owns this source and test registration boundary.
+add_library(analyzer_ascii_strings STATIC)
+target_sources(analyzer_ascii_strings PUBLIC FILE_SET cxx_modules TYPE CXX_MODULES FILES src/ascii_strings.cppm)
+target_link_libraries(analyzer_ascii_strings PUBLIC NewGhidra::AnalyzerShared)
+target_compile_features(analyzer_ascii_strings PUBLIC cxx_std_23)
+
+if(BUILD_TESTING)
+    find_package(GTest CONFIG REQUIRED)
+    add_executable(analyzer_ascii_strings_tests)
+    target_sources(analyzer_ascii_strings_tests PRIVATE FILE_SET cxx_modules TYPE CXX_MODULES FILES tests/ascii_strings_tests.cppm)
+    target_link_libraries(analyzer_ascii_strings_tests PRIVATE analyzer_ascii_strings NewGhidra::AnalyzerTestSupport GTest::gtest_main)
+    target_compile_features(analyzer_ascii_strings_tests PRIVATE cxx_std_23)
+    add_test(NAME analyzer_ascii_strings_tests COMMAND analyzer_ascii_strings_tests)
+endif()

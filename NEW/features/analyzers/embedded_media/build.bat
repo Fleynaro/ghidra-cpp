@@ -1,3 +1,3 @@
 @echo off
-call "%~dp0..\..\..\build.bat" analyzer %*
+call "%~dp0..\..\..\build.bat" embedded_media %*
 exit /b %errorlevel%

@@ -271,6 +271,29 @@ public:
             for (const auto& symbol : context_.external_symbols()) {
                 context_.emit(EventKind::external_added, symbol.iat_address);
             }
+            for (const auto& address : context_.external_entries()) {
+                context_.emit(EventKind::external_entry_added, address);
+            }
+            for (const auto& symbol : context_.symbols()) {
+                context_.emit(EventKind::symbol_added, symbol.address);
+            }
+            for (const auto& archive : context_.data_archives()) {
+                static_cast<void>(archive);
+                context_.emit(EventKind::data_archive_added, 0);
+            }
+            for (const auto& table : context_.address_tables()) {
+                context_.emit(EventKind::address_table_added, table.address);
+            }
+            for (const auto& media : context_.embedded_media()) {
+                context_.emit(EventKind::embedded_media_added, media.address);
+            }
+            for (const auto& symbol : context_.pdb_symbols()) {
+                context_.emit(EventKind::pdb_symbol_added, symbol.address);
+            }
+            for (const auto& type : context_.pdb_types()) {
+                static_cast<void>(type);
+                context_.emit(EventKind::pdb_type_added, 0);
+            }
             return analyze(std::span<const Address>{});
         }
         for (const Address address : restrict_set) {
@@ -292,6 +315,29 @@ public:
             for (const auto& symbol : context_.external_symbols()) {
                 if (symbol.iat_address == address) {
                     context_.emit(EventKind::external_added, address);
+                }
+            }
+            if (context_.external_entries().contains(address)) {
+                context_.emit(EventKind::external_entry_added, address);
+            }
+            for (const auto& symbol : context_.symbols()) {
+                if (symbol.address == address) {
+                    context_.emit(EventKind::symbol_added, address);
+                }
+            }
+            for (const auto& table : context_.address_tables()) {
+                if (table.address == address) {
+                    context_.emit(EventKind::address_table_added, address);
+                }
+            }
+            for (const auto& media : context_.embedded_media()) {
+                if (media.address == address) {
+                    context_.emit(EventKind::embedded_media_added, address);
+                }
+            }
+            for (const auto& symbol : context_.pdb_symbols()) {
+                if (symbol.address == address) {
+                    context_.emit(EventKind::pdb_symbol_added, address);
                 }
             }
         }

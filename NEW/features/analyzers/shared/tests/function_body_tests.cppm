@@ -299,5 +299,125 @@ TEST(AnalyzerPipelineTest, HandlesCallsLoopsAndNoReturnBodyRepair) {
     EXPECT_FALSE(repaired.body.contains(callee));
 }
 
+/// Verifies the extended native listing model keeps string data and committed
+/// signatures as first-class state instead of forcing analyzers to encode them
+/// as unrelated bookmarks or comments.
+TEST(AnalyzerPipelineTest, StoresStringAndFunctionSignatureState) {
+    auto context = load_shared_fixture("function_body");
+    context.options().seed_provider_functions = false;
+    const auto executable =
+        std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
+                     [](const pe::MemoryRegion& region) { return region.executable; });
+    ASSERT_NE(executable, context.image().memory_regions().end());
+    const Address entry = executable->start + 0x200U;
+    sleigh_runtime::Instruction instruction;
+    instruction.address = entry;
+    instruction.length = 1;
+    instruction.flow = {sleigh_runtime::FlowKind::return_op, std::nullopt, false, true};
+    ASSERT_TRUE(context.define_instruction(std::move(instruction)));
+    ASSERT_TRUE(context.create_function(entry));
+
+    const auto string_region =
+        std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
+                     [](const pe::MemoryRegion& region) { return !region.executable && region.size >= 6U; });
+    ASSERT_NE(string_region, context.image().memory_regions().end());
+    const Address string_address = string_region->start;
+    EXPECT_TRUE(context.add_string(StringRecord{string_address, 6U, 1U, "hello", "string", true, true, false}));
+    EXPECT_EQ(context.strings().size(), 1U);
+    EXPECT_EQ(context.data().at(string_address).type, "string");
+
+    const std::vector<FunctionParameter> parameters{{"value", "int32", "register", 0x20, 4, false}};
+    EXPECT_TRUE(context.set_function_signature(entry, "__cdecl", "int32", parameters, false));
+    ASSERT_EQ(context.functions().at(entry).parameters, parameters);
+    EXPECT_EQ(context.functions().at(entry).calling_convention, "__cdecl");
+    EXPECT_TRUE(context.functions().at(entry).signature_committed);
+}
+
+/// Verifies flow repair accepts a shared-return jump and converts it to a
+/// call-return edge, matching SharedReturnJumpAnalyzer's required mutation.
+TEST(AnalyzerPipelineTest, ConvertsSharedReturnJumpToCallReturn) {
+    auto context = load_shared_fixture("function_body");
+    context.options().seed_provider_functions = false;
+    const auto executable =
+        std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
+                     [](const pe::MemoryRegion& region) { return region.executable; });
+    ASSERT_NE(executable, context.image().memory_regions().end());
+    const Address source = executable->start + 0x300U;
+    const Address target = source + 0x10U;
+    sleigh_runtime::Instruction source_instruction;
+    source_instruction.address = source;
+    source_instruction.length = 2;
+    source_instruction.flow = {sleigh_runtime::FlowKind::branch, sleigh_runtime::Varnode{"ram", target, 8}, false,
+                               true};
+    sleigh_runtime::Instruction target_instruction;
+    target_instruction.address = target;
+    target_instruction.length = 1;
+    target_instruction.flow = {sleigh_runtime::FlowKind::return_op, std::nullopt, false, true};
+    ASSERT_TRUE(context.define_instruction(std::move(source_instruction)));
+    ASSERT_TRUE(context.define_instruction(std::move(target_instruction)));
+    ASSERT_TRUE(context.add_reference(Reference{source, target, ReferenceKind::unconditional_jump, std::nullopt,
+                                                std::nullopt, FlowOverride::none, false}));
+    ASSERT_TRUE(context.set_flow_override(source, FlowOverride::call_return, target));
+    const auto& reference = context.references().back();
+    EXPECT_EQ(reference.kind, ReferenceKind::unconditional_call);
+    EXPECT_EQ(reference.flow_override, FlowOverride::call_return);
+    EXPECT_EQ(reference.fallthrough, std::optional<Address>{source + 2U});
+    ASSERT_TRUE(context.set_flow_override(source, FlowOverride::none, target));
+    EXPECT_EQ(context.references().back().kind, ReferenceKind::unconditional_jump);
+    EXPECT_EQ(context.references().back().flow_override, FlowOverride::none);
+}
+
+/// Verifies address-table publication is atomic when the table range collides
+/// with code, preventing a record without corresponding listing data.
+TEST(AnalyzerPipelineTest, RejectsAddressTableThatCannotCreateData) {
+    auto context = load_shared_fixture("function_body");
+    context.options().seed_provider_functions = false;
+    const auto executable =
+        std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
+                     [](const pe::MemoryRegion& region) { return region.executable; });
+    ASSERT_NE(executable, context.image().memory_regions().end());
+    const Address entry = executable->start + 0x400U;
+    sleigh_runtime::Instruction instruction;
+    instruction.address = entry;
+    instruction.length = 8;
+    instruction.flow = {sleigh_runtime::FlowKind::return_op, std::nullopt, false, true};
+    ASSERT_TRUE(context.define_instruction(std::move(instruction)));
+    EXPECT_FALSE(context.add_address_table(AddressTableRecord{entry, 8U, {entry + 0x20U}, false, false, false}));
+    EXPECT_TRUE(context.address_tables().empty());
+    EXPECT_FALSE(context.data().contains(entry));
+}
+
+/// Verifies code-unit insertion rejects a data collision and accepts the
+/// inclusive maximum-address one-byte boundary without arithmetic overflow.
+TEST(AnalyzerPipelineTest, EnforcesCodeDataExclusionAndMaximumAddress) {
+    auto context = load_shared_fixture("function_body");
+    // These defaults are part of the original analyzer contracts: Condense
+    // Filler Bytes is enabled, while Address Tables is explicitly opt-in.
+    EXPECT_TRUE(context.options().condense_filler_bytes);
+    EXPECT_FALSE(context.options().create_address_tables);
+    EXPECT_TRUE(context.options().shared_return_assume_contiguous_functions_only);
+    EXPECT_FALSE(context.options().shared_return_allow_conditional_jumps);
+    const auto non_executable =
+        std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
+                     [](const pe::MemoryRegion& region) { return !region.executable; });
+    ASSERT_NE(non_executable, context.image().memory_regions().end());
+    Address collision = non_executable->start;
+    while (context.instructions().contains(collision) || context.data().contains(collision)) {
+        ++collision;
+    }
+    ASSERT_TRUE(context.add_data(DataObject{collision, 1U, "byte"}));
+    sleigh_runtime::Instruction conflicting;
+    conflicting.address = collision;
+    conflicting.length = 1U;
+    conflicting.flow = {sleigh_runtime::FlowKind::return_op, std::nullopt, false, true};
+    EXPECT_FALSE(context.define_instruction(std::move(conflicting)));
+
+    sleigh_runtime::Instruction boundary;
+    boundary.address = std::numeric_limits<Address>::max();
+    boundary.length = 1U;
+    boundary.flow = {sleigh_runtime::FlowKind::return_op, std::nullopt, false, true};
+    EXPECT_TRUE(context.define_instruction(std::move(boundary)));
+}
+
 } // namespace
 } // namespace ghidra::analyzer::tests

@@ -446,6 +446,14 @@ private:
     std::vector<Bookmark> bookmarks_;
     std::vector<ConstantFact> constant_facts_;
     std::vector<ExternalSymbol> external_symbols_;
+    std::vector<StringRecord> strings_;
+    std::vector<SymbolRecord> symbols_;
+    std::vector<DataArchiveRecord> data_archives_;
+    std::vector<AddressTableRecord> address_tables_;
+    std::vector<EmbeddedMediaRecord> embedded_media_;
+    std::vector<PdbSymbolRecord> pdb_symbols_;
+    std::vector<PdbTypeRecord> pdb_types_;
+    std::set<Address> external_entries_;
     std::map<Address, std::size_t> potential_function_starts_;
     std::map<Address, FunctionStartProperties> potential_function_properties_;
     std::vector<AnalysisEvent> pending_events_;
@@ -482,6 +490,12 @@ public:
                     ExternalSymbol{descriptor.dll_name, name, symbol.iat_slot_va, symbol.ordinal, true});
                 emit(EventKind::external_added, symbol.iat_slot_va);
             }
+        }
+        // PE exports are the native equivalent of Ghidra's external-entry
+        // symbols: they are callable entry points outside the current local
+        // call graph and are eligible for ExternalEntryFunctionAnalyzer.
+        for (const auto& symbol : image_.exported_symbols()) {
+            external_entries_.insert(symbol.address_va);
         }
     }
 
@@ -591,8 +605,15 @@ public:
 
     /// Adds a decoded instruction supplied by a unit test or an adapter.
     [[nodiscard]] bool define_instruction(sleigh_runtime::Instruction instruction) {
-        if (instruction.length == 0 || instruction.address > std::numeric_limits<Address>::max() - instruction.length) {
+        if (instruction.length == 0 || !instruction_end(instruction.address, instruction.length)) {
             return false;
+        }
+        const Address instruction_end_address = *instruction_end(instruction.address, instruction.length);
+        for (const auto& [data_address, data] : data_) {
+            const auto data_end = checked_add(data_address, static_cast<std::uint64_t>(data.size - 1U));
+            if (data_end && !(instruction_end_address < data_address || instruction.address > *data_end)) {
+                return false;
+            }
         }
         if (instructions_.contains(instruction.address)) {
             return false;
@@ -951,16 +972,26 @@ public:
         if (data.size == 0) {
             return false;
         }
-        if (!image_.find_memory_region(data.address, data.size)) {
+        const auto end = checked_add(data.address, static_cast<std::uint64_t>(data.size - 1U));
+        if (!end || !image_.find_memory_region(data.address, data.size)) {
             return false;
         }
-        const Address end = data.address + data.size - 1;
+        // CreateDataCmd refuses a range that intersects an instruction code
+        // unit. This shared guard keeps media, strings, alignment, and pointer
+        // analyzers from silently converting code into data.
+        for (const auto& [instruction_address, instruction] : instructions_) {
+            const auto instruction_end_address = instruction_end(instruction_address, instruction.instruction.length);
+            if (instruction_end_address &&
+                !(end.value() < instruction_address || data.address > *instruction_end_address)) {
+                return false;
+            }
+        }
         for (const auto& [address, existing] : data_) {
             if (address == data.address) {
                 continue;
             }
-            const Address existing_end = address + existing.size - 1;
-            if (!(end < address || data.address > existing_end)) {
+            const auto existing_end = checked_add(address, static_cast<std::uint64_t>(existing.size - 1U));
+            if (!existing_end || !(end.value() < address || data.address > *existing_end)) {
                 return false;
             }
         }
@@ -975,6 +1006,238 @@ public:
         const Address address = data.address;
         data_.emplace(address, std::move(data));
         emit(EventKind::data_added, address);
+        return true;
+    }
+
+    /// Adds one recovered string and the corresponding listing data object.
+    [[nodiscard]] bool add_string(StringRecord string) {
+        if (string.size == 0 || string.value.empty() || string.character_width == 0) {
+            return false;
+        }
+        const auto encoded_size = string.value.size() * static_cast<std::size_t>(string.character_width);
+        if (encoded_size > string.size) {
+            return false;
+        }
+        const auto duplicate = std::find_if(strings_.begin(), strings_.end(), [&](const StringRecord& existing) {
+            return existing.address == string.address && existing.size >= string.size;
+        });
+        if (duplicate != strings_.end()) {
+            return false;
+        }
+        const Address address = string.address;
+        const auto size = string.size;
+        const auto type = string.type;
+        if (!add_data(
+                DataObject{address, size, type, string.value, false, string.aligned, true, string.character_width})) {
+            return false;
+        }
+        strings_.push_back(std::move(string));
+        return true;
+    }
+
+    /// Adds one symbol while preserving one primary symbol per address.
+    [[nodiscard]] bool add_symbol(SymbolRecord symbol) {
+        const auto duplicate = std::find_if(symbols_.begin(), symbols_.end(), [&](const SymbolRecord& existing) {
+            return existing.address == symbol.address && existing.demangled_name == symbol.demangled_name &&
+                   existing.kind == symbol.kind;
+        });
+        if (duplicate != symbols_.end()) {
+            return false;
+        }
+        if (symbol.primary) {
+            for (auto& existing : symbols_) {
+                if (existing.address == symbol.address && existing.primary) {
+                    existing.primary = false;
+                }
+            }
+        }
+        symbols_.push_back(std::move(symbol));
+        emit(EventKind::symbol_added, symbols_.back().address);
+        return true;
+    }
+
+    /// Records one discovered address table and emits the table's data event.
+    [[nodiscard]] bool add_address_table(AddressTableRecord table) {
+        if (table.targets.empty() || table.entry_size == 0) {
+            return false;
+        }
+        if (table.targets.size() > std::numeric_limits<std::uint32_t>::max() / table.entry_size) {
+            return false;
+        }
+        const auto byte_size = static_cast<std::uint64_t>(table.entry_size) * table.targets.size();
+        if (byte_size > std::numeric_limits<std::uint32_t>::max()) {
+            return false;
+        }
+        const auto duplicate = std::find_if(address_tables_.begin(), address_tables_.end(),
+                                            [&](const auto& existing) { return existing.address == table.address; });
+        if (duplicate != address_tables_.end()) {
+            return false;
+        }
+        // AddressTable.makeTable creates one pointer code unit per entry. Do
+        // a complete collision preflight first so a later bad cell cannot
+        // leave a partially materialized table in the listing.
+        for (std::size_t index = 0; index < table.targets.size(); ++index) {
+            const auto offset = static_cast<std::uint64_t>(index) * table.entry_size;
+            const auto cell = checked_add(table.address, offset);
+            if (!cell || !image_.find_memory_region(*cell, table.entry_size)) {
+                return false;
+            }
+            const auto cell_end = checked_add(*cell, table.entry_size - 1U);
+            for (const auto& [instruction_address, instruction] : instructions_) {
+                const auto instruction_end_address =
+                    instruction_end(instruction_address, instruction.instruction.length);
+                if (cell_end && instruction_end_address &&
+                    !(*cell_end < instruction_address || *cell > *instruction_end_address)) {
+                    return false;
+                }
+            }
+            for (const auto& [data_address, data] : data_) {
+                const auto data_end = checked_add(data_address, data.size - 1U);
+                if (data_end && cell_end && !(*cell_end < data_address || *cell > *data_end) &&
+                    !(data_address == *cell && data.size == table.entry_size && data.type == "pointer")) {
+                    return false;
+                }
+            }
+        }
+        for (std::size_t index = 0; index < table.targets.size(); ++index) {
+            const auto cell = checked_add(table.address, static_cast<std::uint64_t>(index) * table.entry_size);
+            if (!cell || !add_data(DataObject{*cell, table.entry_size, "pointer"})) {
+                return false;
+            }
+        }
+        address_tables_.push_back(std::move(table));
+        emit(EventKind::address_table_added, address_tables_.back().address);
+        return true;
+    }
+
+    /// Records one validated embedded media object and exposes it as listing data.
+    [[nodiscard]] bool add_embedded_media(EmbeddedMediaRecord media) {
+        if (!media.validated || media.size == 0) {
+            return false;
+        }
+        const auto duplicate = std::find_if(embedded_media_.begin(), embedded_media_.end(),
+                                            [&](const auto& existing) { return existing.address == media.address; });
+        if (duplicate != embedded_media_.end()) {
+            return false;
+        }
+        if (!add_data(DataObject{media.address, media.size, media.type})) {
+            return false;
+        }
+        embedded_media_.push_back(std::move(media));
+        emit(EventKind::embedded_media_added, embedded_media_.back().address);
+        return true;
+    }
+
+    /// Records a selected datatype archive and whether its application succeeded.
+    [[nodiscard]] bool add_data_archive(DataArchiveRecord archive) {
+        const auto duplicate = std::find_if(data_archives_.begin(), data_archives_.end(),
+                                            [&](const auto& existing) { return existing.path == archive.path; });
+        if (duplicate != data_archives_.end()) {
+            return false;
+        }
+        data_archives_.push_back(std::move(archive));
+        emit(EventKind::data_archive_added, 0);
+        return true;
+    }
+
+    /// Stores one PDB symbol without duplicating a previously applied record.
+    [[nodiscard]] bool add_pdb_symbol(PdbSymbolRecord symbol) {
+        const auto duplicate = std::find_if(pdb_symbols_.begin(), pdb_symbols_.end(), [&](const auto& existing) {
+            return existing.address == symbol.address && existing.name == symbol.name;
+        });
+        if (duplicate != pdb_symbols_.end()) {
+            return false;
+        }
+        pdb_symbols_.push_back(std::move(symbol));
+        emit(EventKind::pdb_symbol_added, pdb_symbols_.back().address);
+        return true;
+    }
+
+    /// Stores one PDB type without replacing an existing declaration.
+    [[nodiscard]] bool add_pdb_type(PdbTypeRecord type) {
+        const auto duplicate = std::find_if(pdb_types_.begin(), pdb_types_.end(),
+                                            [&](const auto& existing) { return existing.name == type.name; });
+        if (duplicate != pdb_types_.end()) {
+            return false;
+        }
+        pdb_types_.push_back(std::move(type));
+        emit(EventKind::pdb_type_added, 0);
+        return true;
+    }
+
+    /// Marks a local address as an external entry point.
+    [[nodiscard]] bool add_external_entry(Address address) {
+        if (!external_entries_.insert(address).second) {
+            return false;
+        }
+        emit(EventKind::external_entry_added, address);
+        return true;
+    }
+
+    /// Updates a function signature only when the recovered contract changes.
+    [[nodiscard]] bool set_function_signature(Address entry, std::string calling_convention, std::string return_type,
+                                              std::vector<FunctionParameter> parameters, bool variadic,
+                                              bool committed = true) {
+        auto function = functions_.find(entry);
+        if (function == functions_.end()) {
+            return false;
+        }
+        if (function->second.calling_convention == calling_convention && function->second.return_type == return_type &&
+            function->second.parameters == parameters && function->second.variadic == variadic &&
+            function->second.signature_committed == committed) {
+            return false;
+        }
+        function->second.calling_convention = std::move(calling_convention);
+        function->second.return_type = std::move(return_type);
+        function->second.parameters = std::move(parameters);
+        function->second.variadic = variadic;
+        function->second.signature_committed = committed;
+        emit(EventKind::function_changed, entry);
+        return true;
+    }
+
+    /// Changes the primary function name while retaining its recovered body.
+    [[nodiscard]] bool set_function_name(Address entry, std::string name) {
+        auto function = functions_.find(entry);
+        if (function == functions_.end() || function->second.name == name || name.empty()) {
+            return false;
+        }
+        function->second.name = std::move(name);
+        emit(EventKind::function_changed, entry);
+        return true;
+    }
+
+    /// Applies a demangled name to an imported symbol and emits a symbol event.
+    [[nodiscard]] bool set_external_demangled_name(Address iat_address, std::string name) {
+        auto symbol = std::find_if(external_symbols_.begin(), external_symbols_.end(),
+                                   [&](const ExternalSymbol& item) { return item.iat_address == iat_address; });
+        if (symbol == external_symbols_.end() || name.empty() || symbol->demangled_name == name) {
+            return false;
+        }
+        symbol->demangled_name = std::move(name);
+        emit(EventKind::external_changed, iat_address);
+        return true;
+    }
+
+    /// Marks a function's recovered parameter analysis as complete.
+    [[nodiscard]] bool set_parameter_id_complete(Address entry, bool complete = true) {
+        auto function = functions_.find(entry);
+        if (function == functions_.end() || function->second.parameter_id_complete == complete) {
+            return false;
+        }
+        function->second.parameter_id_complete = complete;
+        emit(EventKind::function_changed, entry);
+        return true;
+    }
+
+    /// Marks a function as having an applied decompiler switch model.
+    [[nodiscard]] bool set_switch_recovered(Address entry, bool recovered = true) {
+        auto function = functions_.find(entry);
+        if (function == functions_.end() || function->second.switch_recovered == recovered) {
+            return false;
+        }
+        function->second.switch_recovered = recovered;
+        emit(EventKind::function_changed, entry);
         return true;
     }
 
@@ -1003,7 +1266,32 @@ public:
         bool changed = false;
         for (auto& reference : references_) {
             if (reference.source == source && (!target || reference.target == *target) &&
-                is_call_reference(reference.kind) && reference.flow_override != override_kind) {
+                (is_call_reference(reference.kind) || reference.kind == ReferenceKind::unconditional_jump ||
+                 reference.kind == ReferenceKind::conditional_jump || reference.flow_original_kind) &&
+                reference.flow_override != override_kind) {
+                if (override_kind == FlowOverride::none && reference.flow_original_kind) {
+                    reference.kind = *reference.flow_original_kind;
+                    reference.fallthrough = reference.flow_original_fallthrough;
+                    reference.flow_original_kind.reset();
+                    reference.flow_original_fallthrough.reset();
+                    reference.flow_override = FlowOverride::none;
+                    changed = true;
+                    continue;
+                }
+                if (override_kind == FlowOverride::call_return &&
+                    (reference.kind == ReferenceKind::unconditional_jump ||
+                     reference.kind == ReferenceKind::conditional_jump)) {
+                    // SharedReturnJumpAnalyzer converts a jump into a call-like
+                    // edge before ClearFlowAndRepairCmd rebuilds the caller.
+                    reference.flow_original_kind = reference.kind;
+                    reference.flow_original_fallthrough = reference.fallthrough;
+                    reference.kind = reference.kind == ReferenceKind::conditional_jump
+                                         ? ReferenceKind::conditional_call
+                                         : ReferenceKind::unconditional_call;
+                    if (const auto instruction = instructions_.find(source); instruction != instructions_.end()) {
+                        reference.fallthrough = checked_add(source, instruction->second.instruction.length);
+                    }
+                }
                 reference.flow_override = override_kind;
                 changed = true;
             }
@@ -1153,6 +1441,46 @@ public:
     /// Returns parsed PE imports represented as external symbols.
     [[nodiscard]] const std::vector<ExternalSymbol>& external_symbols() const noexcept {
         return external_symbols_;
+    }
+
+    /// Returns all strings created by the string model.
+    [[nodiscard]] const std::vector<StringRecord>& strings() const noexcept {
+        return strings_;
+    }
+
+    /// Returns local, external, and demangled symbols.
+    [[nodiscard]] const std::vector<SymbolRecord>& symbols() const noexcept {
+        return symbols_;
+    }
+
+    /// Returns archives selected or rejected by the datatype archive analyzer.
+    [[nodiscard]] const std::vector<DataArchiveRecord>& data_archives() const noexcept {
+        return data_archives_;
+    }
+
+    /// Returns validated address tables.
+    [[nodiscard]] const std::vector<AddressTableRecord>& address_tables() const noexcept {
+        return address_tables_;
+    }
+
+    /// Returns validated embedded media records.
+    [[nodiscard]] const std::vector<EmbeddedMediaRecord>& embedded_media() const noexcept {
+        return embedded_media_;
+    }
+
+    /// Returns symbols applied from a PDB provider.
+    [[nodiscard]] const std::vector<PdbSymbolRecord>& pdb_symbols() const noexcept {
+        return pdb_symbols_;
+    }
+
+    /// Returns datatype declarations applied from a PDB provider.
+    [[nodiscard]] const std::vector<PdbTypeRecord>& pdb_types() const noexcept {
+        return pdb_types_;
+    }
+
+    /// Returns all local addresses marked as external entry points.
+    [[nodiscard]] const std::set<Address>& external_entries() const noexcept {
+        return external_entries_;
     }
 
     /// Returns all delayed function candidates and their pattern indexes.

@@ -1,1 +1,13 @@
-# Each analyzer owns this source and test registration boundary.
+add_library(analyzer_windows_resource_reference STATIC)
+target_sources(analyzer_windows_resource_reference PUBLIC FILE_SET cxx_modules TYPE CXX_MODULES FILES src/windows_resource_reference.cppm)
+target_link_libraries(analyzer_windows_resource_reference PUBLIC NewGhidra::AnalyzerShared)
+target_compile_features(analyzer_windows_resource_reference PUBLIC cxx_std_23)
+
+if(BUILD_TESTING)
+    find_package(GTest CONFIG REQUIRED)
+    add_executable(analyzer_windows_resource_reference_tests)
+    target_sources(analyzer_windows_resource_reference_tests PRIVATE FILE_SET cxx_modules TYPE CXX_MODULES FILES tests/windows_resource_reference_tests.cppm)
+    target_link_libraries(analyzer_windows_resource_reference_tests PRIVATE analyzer_windows_resource_reference analyzer_reference analyzer_disassemble_entry_points NewGhidra::AnalyzerTestSupport GTest::gtest_main)
+    target_compile_features(analyzer_windows_resource_reference_tests PRIVATE cxx_std_23)
+    add_test(NAME analyzer_windows_resource_reference_tests COMMAND analyzer_windows_resource_reference_tests)
+endif()

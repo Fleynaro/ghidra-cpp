@@ -1,3 +1,3 @@
 @echo off
-call "%~dp0..\..\..\build.bat" analyzer %*
+call "%~dp0..\..\..\build.bat" ascii_strings %*
 exit /b %errorlevel%

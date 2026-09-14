@@ -1,3 +1,15 @@
 # Decompiler Parameter ID
 
-This analyzer is reserved for the fixture-backed implementation. Its behavioral fixture is in [`tests/data/`](tests/data/). Add implementation sources under `src/` and Google Tests under `tests/` when the native module is ported.
+This analyzer runs the existing native decompiler frontend over bounded
+function bodies and records completion only after a non-empty decompilation
+artifact is produced. Parameter storage and types are not guessed in the
+analyzer.
+
+- [`src/decompiler_parameter_id.cppm`](src/decompiler_parameter_id.cppm) is the single module implementation.
+- [`tests/decompiler_parameter_id_tests.cppm`](tests/decompiler_parameter_id_tests.cppm) contains hardcoded tests.
+- [`tests/data/`](tests/data/) contains the fixture and original report.
+- [`CMakeLists.txt`](CMakeLists.txt) defines the target and CTest registration.
+- [`build.bat`](build.bat) selects the focused build from `NEW/build.bat`.
+- [`../../decompiler/README.md`](../../decompiler/README.md) documents the frontend contract.
+- [`../../sleigh_runtime/README.md`](../../sleigh_runtime/README.md) documents the decoder dependency.
+- [`../README.md`](../README.md) documents analyzer-family integration.

@@ -37,8 +37,15 @@ enum class EventKind : std::uint8_t {
     memory_added,
     external_added,
     external_changed,
+    external_entry_added,
     code_added,
     data_added,
+    data_archive_added,
+    address_table_added,
+    embedded_media_added,
+    symbol_added,
+    pdb_symbol_added,
+    pdb_type_added,
     reference_added,
     function_added,
     function_changed,
@@ -85,6 +92,8 @@ struct Reference {
     FlowOverride flow_override{FlowOverride::none};
     bool analysis_source{};
     std::optional<std::int64_t> stack_offset;
+    std::optional<ReferenceKind> flow_original_kind;
+    std::optional<Address> flow_original_fallthrough;
 };
 
 /// Owns one decoded instruction and the references originating from it.
@@ -113,6 +122,19 @@ struct StackVariable {
     bool parameter{};
 };
 
+/// Describes one recovered formal parameter in a function signature.
+struct FunctionParameter {
+    std::string name;
+    std::string type;
+    std::string storage;
+    std::int64_t storage_offset{};
+    std::uint32_t size{};
+    bool indirect{};
+
+    /// Supports exact signature-change detection in the analysis context.
+    friend bool operator==(const FunctionParameter&, const FunctionParameter&) = default;
+};
+
 /// Represents one function, including its body, CFG, and no-return property.
 struct Function {
     Address entry{};
@@ -136,6 +158,13 @@ struct Function {
     /// this entry as a thunk.  The optional value keeps the native model's
     /// thunk relationship observable instead of reducing it to a boolean.
     std::optional<Address> thunk_target;
+    std::string calling_convention;
+    std::string return_type{"void"};
+    std::vector<FunctionParameter> parameters;
+    bool variadic{};
+    bool signature_committed{};
+    bool parameter_id_complete{};
+    bool switch_recovered{};
 };
 
 /// Represents one explicitly defined data object in program memory.
@@ -143,6 +172,11 @@ struct DataObject {
     Address address{};
     std::uint32_t size{};
     std::string type;
+    std::string value;
+    bool read_only{};
+    bool alignment{};
+    bool string_data{};
+    std::uint32_t character_width{1};
 };
 
 /// Represents one PE import without treating the external namespace as local code.
@@ -153,6 +187,80 @@ struct ExternalSymbol {
     std::optional<std::uint16_t> ordinal;
     bool delay_loaded{};
     bool no_return{};
+    bool function{};
+    bool external_entry{};
+    std::string demangled_name;
+};
+
+/// Stores one string model result, including the terminator and encoding rules.
+struct StringRecord {
+    Address address{};
+    std::uint32_t size{};
+    std::uint32_t character_width{1};
+    std::string value;
+    std::string type{"string"};
+    bool terminated{};
+    bool aligned{};
+    bool existing{};
+};
+
+/// Stores one local or external symbol after demangling and namespace recovery.
+struct SymbolRecord {
+    Address address{};
+    std::string mangled_name;
+    std::string demangled_name;
+    std::string namespace_name;
+    std::string kind;
+    bool external{};
+    bool primary{};
+};
+
+/// Describes one datatype archive selected by Apply Data Archives.
+struct DataArchiveRecord {
+    std::filesystem::path path;
+    std::string name;
+    std::string source_language;
+    std::vector<std::string> types;
+    bool built_in{};
+    bool applied{};
+    std::string error;
+};
+
+/// Stores a validated address table and the pointers it contributed.
+struct AddressTableRecord {
+    Address address{};
+    std::uint32_t entry_size{};
+    std::vector<Address> targets;
+    bool relative{};
+    bool relocation_backed{};
+    bool split{};
+};
+
+/// Stores the semantic result of a discovered embedded media object.
+struct EmbeddedMediaRecord {
+    Address address{};
+    std::uint32_t size{};
+    std::string type;
+    bool validated{};
+};
+
+/// Stores one PDB symbol applied to the native program model.
+struct PdbSymbolRecord {
+    Address address{};
+    std::string name;
+    std::string namespace_name;
+    std::string type;
+    std::uint32_t size{};
+    bool function{};
+    bool external{};
+};
+
+/// Stores one PDB type declaration retained by the applicator.
+struct PdbTypeRecord {
+    std::string name;
+    std::string kind;
+    std::uint32_t size{};
+    std::vector<std::pair<std::string, std::string>> fields;
 };
 
 /// Represents one analysis bookmark retained in the observable state.
@@ -203,6 +311,60 @@ struct AnalysisOptions {
     std::filesystem::path pattern_root;
     /// Optional Ghidra no-return name file; an empty path uses repository defaults.
     std::filesystem::path no_return_names_file;
+    bool aggressive_instruction_finder{};
+    bool apply_data_archives{};
+    bool ascii_strings{true};
+    bool call_convention_id{};
+    bool call_fixup_installer{true};
+    bool condense_filler_bytes{true};
+    bool create_address_tables{};
+    bool decompiler_parameter_id{};
+    bool decompiler_switch_analysis{};
+    bool demangler_microsoft{true};
+    bool embedded_media{true};
+    bool external_entry_references{true};
+    bool function_id{true};
+    bool pdb_msdia{};
+    bool pdb_universal{};
+    bool shared_return_calls{true};
+    bool shared_return_assume_contiguous_functions_only{true};
+    bool shared_return_allow_conditional_jumps{};
+    bool variadic_function_signature_override{};
+    bool windows_pe_x86_propagate_external_parameters{true};
+    bool windows_resource_reference{true};
+    bool x86_constant_reference{true};
+    std::uint32_t aggressive_minimum_functions{20};
+    std::uint32_t ascii_minimum_length{5};
+    std::uint32_t ascii_alignment{1};
+    std::uint32_t ascii_end_alignment{4};
+    bool ascii_require_null_termination{true};
+    bool ascii_allow_middle_references{true};
+    bool ascii_allow_existing_substrings{true};
+    bool ascii_search_accessible_memory{true};
+    bool ascii_force_model_reload{};
+    std::filesystem::path ascii_model_file{"StringModel.sng"};
+    bool ascii_create_one_time{true};
+    std::uint32_t filler_minimum_length{1};
+    std::uint8_t filler_byte{0};
+    bool filler_auto_detect{true};
+    std::uint32_t address_table_minimum_entries{2};
+    std::uint32_t address_table_alignment{4};
+    std::uint32_t address_table_pointer_alignment{1};
+    std::uint64_t address_table_minimum_pointer_address{0x1024};
+    std::uint32_t address_table_maximum_distance{0xffffff};
+    bool address_table_auto_label{};
+    bool address_table_relocation_guide{true};
+    bool address_table_allow_offcuts{};
+    std::uint32_t function_id_minimum_instructions{10};
+    std::uint32_t function_id_maximum_matches{3};
+    std::chrono::milliseconds decompiler_timeout{std::chrono::seconds(30)};
+    std::vector<std::filesystem::path> data_archive_paths;
+    std::vector<std::filesystem::path> fid_database_paths;
+    std::filesystem::path pdb_path;
+    std::string source_language;
+    bool apply_source_language_archives{true};
+    bool demangler_apply_function_signatures{true};
+    bool demangler_apply_namespaces{true};
 };
 
 /// Identifies the state immediately preceding a Function Start Search match.
