@@ -64,7 +64,7 @@ if /I "%MODE%"=="disassemble_entry_points" (
     goto mode_selected
 )
 if /I "%MODE%"=="function_body" (
-    set "BUILD_TARGET=analyzer_function_body analyzer_function_body_tests"
+    set "BUILD_TARGET=analyzer_function_body_tests"
     set "TEST_FILTER=^analyzer_function_body_tests$"
     goto mode_selected
 )
@@ -124,7 +124,7 @@ if "%RUN_TESTS%"=="0" (
     if /I "%MODE%"=="constant_propagation" set "BUILD_TARGET=analyzer_constant_propagation"
     if /I "%MODE%"=="data_reference" set "BUILD_TARGET=analyzer_data_reference"
     if /I "%MODE%"=="disassemble_entry_points" set "BUILD_TARGET=analyzer_disassemble_entry_points"
-    if /I "%MODE%"=="function_body" set "BUILD_TARGET=analyzer_function_body"
+    if /I "%MODE%"=="function_body" set "BUILD_TARGET=analyzer_shared"
     if /I "%MODE%"=="function_start_search" set "BUILD_TARGET=analyzer_function_start_search"
     if /I "%MODE%"=="non_returning_functions" set "BUILD_TARGET=analyzer_non_returning_functions"
     if /I "%MODE%"=="reference" set "BUILD_TARGET=analyzer_reference"

@@ -136,6 +136,8 @@ std::string_view flow_name(sleigh_runtime::FlowKind flow) {
             return "conditional branch";
         case sleigh_runtime::FlowKind::call:
             return "call";
+        case sleigh_runtime::FlowKind::conditional_call:
+            return "conditional call";
         case sleigh_runtime::FlowKind::indirect_branch:
             return "indirect branch";
         case sleigh_runtime::FlowKind::indirect_call:

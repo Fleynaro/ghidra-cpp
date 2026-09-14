@@ -5,7 +5,6 @@ module;
 export module non_returning_functions_tests;
 
 import analyzer_disassemble_entry_points;
-import analyzer_function_body;
 import analyzer_non_returning_functions;
 import analyzer_subroutine_references;
 import analyzer_test_support;
@@ -20,7 +19,6 @@ TEST(AnalyzerPipelineTest, KnownNoReturnFunctionsAreMarked) {
     auto& options = context.options();
     options.function_start_search = false;
     options.subroutine_references = false;
-    options.function_body = false;
     options.reference = false;
     options.data_reference = false;
     options.scalar_operand_references = false;
@@ -29,7 +27,6 @@ TEST(AnalyzerPipelineTest, KnownNoReturnFunctionsAreMarked) {
     AutoAnalysisManager manager(context);
     manager.register_analyzer(std::make_unique<DisassembleEntryPointsAnalyzer>());
     manager.register_analyzer(std::make_unique<SubroutineReferencesAnalyzer>());
-    manager.register_analyzer(std::make_unique<FunctionBodyAnalyzer>());
     manager.register_analyzer(std::make_unique<NonReturningFunctionsAnalyzer>());
     const auto result = manager.analyze();
     ASSERT_TRUE(result.completed);
@@ -49,7 +46,6 @@ TEST(AnalyzerPipelineTest, DiscoversNoReturnFromCallEvidence) {
     auto& options = context.options();
     options.function_start_search = false;
     options.subroutine_references = true;
-    options.function_body = true;
     options.reference = false;
     options.data_reference = false;
     options.scalar_operand_references = false;
@@ -58,7 +54,6 @@ TEST(AnalyzerPipelineTest, DiscoversNoReturnFromCallEvidence) {
     AutoAnalysisManager manager(context);
     manager.register_analyzer(std::make_unique<DisassembleEntryPointsAnalyzer>());
     manager.register_analyzer(std::make_unique<SubroutineReferencesAnalyzer>());
-    manager.register_analyzer(std::make_unique<FunctionBodyAnalyzer>());
     manager.register_analyzer(std::make_unique<NonReturningFunctionsAnalyzer>());
     const auto result = manager.analyze();
     ASSERT_TRUE(result.completed);

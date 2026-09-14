@@ -2,7 +2,6 @@ import analyzer;
 import analyzer_constant_propagation;
 import analyzer_data_reference;
 import analyzer_disassemble_entry_points;
-import analyzer_function_body;
 import analyzer_function_start_search;
 import analyzer_non_returning_functions;
 import analyzer_reference;
@@ -20,7 +19,6 @@ void register_builtin_analyzers_impl(AutoAnalysisManager& manager) {
     manager.register_analyzer(std::make_unique<FunctionStartPreAnalyzer>());
     manager.register_analyzer(std::make_unique<NonReturningFunctionsAnalyzer>());
     manager.register_analyzer(std::make_unique<SubroutineReferencesAnalyzer>());
-    manager.register_analyzer(std::make_unique<FunctionBodyAnalyzer>());
     manager.register_analyzer(std::make_unique<KnownNoReturnFunctionsAnalyzer>());
     manager.register_analyzer(std::make_unique<FunctionStartAnalyzer>());
     manager.register_analyzer(std::make_unique<FunctionStartFunctionAnalyzer>());

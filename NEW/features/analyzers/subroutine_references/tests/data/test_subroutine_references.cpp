@@ -1,85 +1,190 @@
 // MSVC x64 integration fixture for Ghidra's "Subroutine References" analyzer.
 //
-// Behavioral contract covered by this fixture:
+// This deliberately uses ordinary machine-code constructs rather than a mock
+// reference table. The harness disassembles the PE first, then enables only
+// FunctionAnalyzer's "Subroutine References" option. Expected function, body,
+// and reference state is copied from the generated Ghidra Delta into the C++
+// tests; the tests never parse that report at runtime.
 //
-// * The original analyzer is an instruction analyzer. It scans existing direct
-//   call references, collects each call target, ignores a target that is also
-//   the call instruction's fall-through address, removes targets that already
-//   have a function symbol, and asks AutoAnalysisManager to create the rest.
-// * caller_one, caller_two, and caller_three are deliberately not exported or
-//   named in the PE. They are reached by direct calls from fixture_entry, while
-//   target_shared is reached by all three callers. target_alpha is reached by
-//   one caller and target_beta by one caller. The target functions have no exception
-//   metadata and are therefore unknown before analysis; the callers may be
-//   initially represented by the PE's x64 unwind metadata, which is loader data
-//   rather than an unrelated analyzer creating them.
-// * fixture_entry directly calls caller_one and caller_two, which the MSVC x64
-//   PE's unwind metadata makes initially known functions. FunctionAnalyzer.java
-//   must therefore remove those targets from its creation set instead of
-//   attempting to create duplicate functions. This is the explicit negative
-//   case; it follows the analyzer's real existing-function filter.
-// * The fixture is compiled without the CRT and without linker folding. The
-//   Python harness disassembles all executable bytes before analysis, with code
-//   analysis disabled, so no unrelated analyzer is responsible for discovering
-//   or creating these functions.
-//
-// The source behavior is taken from:
-// * Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/function/FunctionAnalyzer.java
-//   (added(), fallthroughCall(), and the function-entry filtering pass).
-// * Ghidra/Features/Base/src/main/java/ghidra/app/cmd/function/CreateFunctionCmd.java
-//   (automatic body construction and the requirement that a code unit exists at
-//   the requested entry before a function can be created).
+// Original behavior under test:
+// * FunctionAnalyzer.added() gathers every reference whose ReferenceType.isCall()
+//   is true, deduplicates targets with AddressSet, ignores fall-through calls,
+//   and removes already-existing function entries.
+// * CreateFunctionCmd.getFunctionBody() uses FollowFlow while excluding call
+//   destinations, so a caller retains its fall-through path but never absorbs
+//   the callee body.
+// * CreateFunctionCmd.subtractBodyFromExisting() reconciles overlapping and
+//   shared code, while CreateThunkFunctionCmd handles simple jump thunks.
+// * Repeated analysis must be idempotent: ReferenceManager and FunctionManager
+//   do not gain duplicate references or duplicate function entries.
 
-// Observable global state keeps each caller's second call live and prevents
-// MSVC from turning the final call into a tail jump.
+// The volatile sink prevents the optimizer from deleting calls or folding the
+// control-flow cases into constants. /OPT:NOREF and /OPT:NOICF keep all cases
+// as separate, inspectable code in the generated PE.
 extern "C" volatile unsigned int fixture_sink = 0U;
 
-// A no-inline target with observable volatile code prevents the compiler from
-// deleting the target or replacing its direct call with an inline expression.
+// Three callers share this target. FunctionAnalyzer must create exactly one
+// function even though it sees multiple independent call references.
 extern "C" __declspec(noinline) void target_shared() {
     fixture_sink = 0x11U;
 }
 
-// This target is called only by caller_one and must still be discovered from a
-// direct CALL reference rather than from a pre-existing function definition.
+// These unique targets distinguish independent discovery from target fan-in.
 extern "C" __declspec(noinline) void target_alpha() {
     fixture_sink = 0x22U;
 }
 
-// This target is called only by caller_two and is intentionally different from
-// target_alpha so the report contains independent call targets.
 extern "C" __declspec(noinline) void target_beta() {
     fixture_sink = 0x33U;
 }
 
-// The first caller contributes one shared-target call and one unique-target
-// call. The noinline attribute preserves both direct CALL instructions.
+extern "C" __declspec(noinline) void target_conditional() {
+    fixture_sink = 0x44U;
+}
+
+extern "C" __declspec(noinline) void target_recursive_leaf() {
+    fixture_sink ^= 0x55U;
+}
+
+// This target is reached through the wrapper below. On x64 MSVC a wrapper with
+// no post-call side effect commonly becomes a tail jump, which exercises the
+// native CreateThunkFunctionCmd-style simple jump recognition.
+extern "C" __declspec(noinline) void target_thunked() {
+    fixture_sink ^= 0x66U;
+}
+
+// An exported function is the existing-function negative case. Depending on
+// the PE importer it may already have a function at analysis start; in either
+// case the call-driven analyzer must never create a duplicate entry.
+extern "C" __declspec(dllexport) __declspec(noinline) void known_existing() {
+    fixture_sink ^= 0x77U;
+}
+
+// The first caller supplies a shared target, a unique target, a conditional
+// branch around a call, and a repeated call to the same target. FollowFlow must
+// retain both branch paths in the caller body while FunctionAnalyzer creates
+// only the call targets.
 extern "C" __declspec(noinline) void caller_one() {
     target_shared();
     fixture_sink += 1U;
     target_alpha();
     fixture_sink += 1U;
+    if ((fixture_sink & 1U) != 0U) {
+        target_conditional();
+    }
+    target_shared();
 }
 
-// The second caller contributes another shared-target call and the beta call.
+// The second caller contributes another shared target and a different unique
+// target, then calls the already-known exported function.
 extern "C" __declspec(noinline) void caller_two() {
     target_shared();
     fixture_sink += 2U;
     target_beta();
     fixture_sink += 2U;
+    known_existing();
 }
 
-// A third caller creates the multiple-callers-to-one-target case without adding
-// another unique target that would obscure the report.
+// A third caller creates another duplicate target and calls it twice. AddressSet
+// target collection must collapse all shared calls.
 extern "C" __declspec(noinline) void caller_three() {
     target_shared();
     fixture_sink += 3U;
+    target_shared();
 }
 
-// The linker entry provides direct calls to the callers, while the callers
-// provide all target cases.
+// This nested chain makes the discovered target also a caller. It verifies
+// transitive scheduling without relying on a separate body analyzer.
+extern "C" __declspec(noinline) void nested_inner() {
+    target_recursive_leaf();
+}
+
+extern "C" __declspec(noinline) void nested_middle() {
+    nested_inner();
+    target_shared();
+}
+
+extern "C" __declspec(noinline) void nested_outer() {
+    nested_middle();
+    target_alpha();
+}
+
+// The recursive call is conditional, so this function contains a loop and a
+// call reference to itself. Body traversal must terminate after one visit per
+// instruction.
+extern "C" __declspec(noinline) void recursive_case(unsigned int depth) {
+    if (depth != 0U) {
+        recursive_case(depth - 1U);
+    }
+    fixture_sink += depth;
+}
+
+// Mutually recursive functions exercise duplicate discovery through a cycle;
+// neither function may be recreated when the other is analyzed later.
+extern "C" __declspec(noinline) void mutual_b(unsigned int depth);
+
+extern "C" __declspec(noinline) void mutual_a(unsigned int depth) {
+    if (depth != 0U) {
+        mutual_b(depth - 1U);
+    }
+    fixture_sink += 0x80U;
+}
+
+extern "C" __declspec(noinline) void mutual_b(unsigned int depth) {
+    if (depth != 0U) {
+        mutual_a(depth - 1U);
+    }
+    fixture_sink += 0x81U;
+}
+
+// A wrapper with no post-call side effect is a thunk candidate. The target is
+// intentionally not called from fixture_entry directly, so it is discovered
+// through the wrapper's call/jump relationship.
+extern "C" __declspec(noinline) void thunk_like() {
+    target_thunked();
+}
+
+// Alignment makes the terminal-flow boundary visible in the body report.
+__declspec(align(32)) extern "C" __declspec(noinline) void padded_terminal() {
+    fixture_sink ^= 0x90U;
+}
+
+// This function mixes a call, conditional jumps, and a final target call. It
+// gives BasicBlockModel and SimpleBlockModel distinct leaders and successors
+// without relying on compiler-generated jump-table data.
+extern "C" __declspec(noinline) void mixed_flow(unsigned int selector) {
+    target_beta();
+    if ((selector & 1U) != 0U) {
+        fixture_sink += 1U;
+    } else if ((selector & 2U) != 0U) {
+        fixture_sink += 2U;
+    } else {
+        fixture_sink += 3U;
+    }
+    padded_terminal();
+}
+
+// The indirect call has no statically resolved target reference. It must not
+// cause the analyzer to invent a function at an arbitrary register value.
+using FixtureFunction = void (*)();
+volatile FixtureFunction indirect_slot = target_conditional;
+
+extern "C" __declspec(noinline) void unresolved_indirect_call() {
+    indirect_slot();
+    fixture_sink += 4U;
+}
+
+// The linker entry reaches every caller family so fan-in, nested discovery,
+// existing functions, recursive cycles, thunk-like code, terminal flow, and
+// unresolved indirect flow all occur in one deterministic PE fixture.
 extern "C" __declspec(noinline) void fixture_entry() {
     caller_one();
     caller_two();
     caller_three();
+    nested_outer();
+    recursive_case(2U);
+    mutual_a(2U);
+    thunk_like();
+    mixed_flow(1U);
+    unresolved_indirect_call();
 }

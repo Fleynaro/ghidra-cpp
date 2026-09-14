@@ -103,7 +103,9 @@ namespace {
 
 /// Returns the Stack analyzer priority and function-event contract.
 AnalyzerDescriptor StackAnalyzer::descriptor() const {
-    return {"Stack", 903, {EventKind::function_added, EventKind::function_changed}, {"Function Body"}};
+    // Function bodies and CFGs are already materialized by function creation;
+    // there is no separate upstream FunctionBodyAnalyzer prerequisite.
+    return {"Stack", 903, {EventKind::function_added, EventKind::function_changed}, {}};
 }
 
 /// Creates stack-frame metadata, typed locals/parameters, and stack references.

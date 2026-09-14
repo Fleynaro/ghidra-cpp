@@ -6,7 +6,6 @@ export module data_reference_tests;
 
 import analyzer_constant_propagation;
 import analyzer_data_reference;
-import analyzer_function_body;
 import analyzer_reference;
 import analyzer_subroutine_references;
 import analyzer_test_support;
@@ -22,7 +21,6 @@ TEST(AnalyzerPipelineTest, FollowsDataSectionPointers) {
     options.disassemble_entry_points = false;
     options.function_start_search = false;
     options.subroutine_references = false;
-    options.function_body = false;
     options.reference = false;
     options.scalar_operand_references = false;
     options.stack = false;
@@ -30,7 +28,6 @@ TEST(AnalyzerPipelineTest, FollowsDataSectionPointers) {
     options.non_returning_functions = false;
     AutoAnalysisManager manager(context);
     manager.register_analyzer(std::make_unique<SubroutineReferencesAnalyzer>());
-    manager.register_analyzer(std::make_unique<FunctionBodyAnalyzer>());
     manager.register_analyzer(std::make_unique<ConstantPropagationAnalyzer>());
     manager.register_analyzer(std::make_unique<ReferenceAnalyzer>());
     manager.register_analyzer(std::make_unique<DataReferenceAnalyzer>());

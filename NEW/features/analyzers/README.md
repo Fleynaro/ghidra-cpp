@@ -16,7 +16,7 @@ decode instructions itself.
 - [`disassemble_entry_points/`](disassemble_entry_points/) ports entry-point disassembly.
 - [`function_start_search/`](function_start_search/) ports the pre/function/post pattern phases.
 - [`subroutine_references/`](subroutine_references/) ports call-driven function discovery.
-- [`function_body/`](function_body/) ports `CreateFunctionCmd`, `FollowFlow`, `SimpleBlockModel`, and `BasicBlockModel` concepts.
+- [`function_body/`](function_body/) contains focused tests for the `CreateFunctionCmd`/`FollowFlow` body logic implemented in shared context; it is not a separate upstream-style analyzer.
 - [`reference/`](reference/) ports instruction operand-reference creation.
 - [`data_reference/`](data_reference/) ports data-origin pointer references.
 - [`scalar_operand_references/`](scalar_operand_references/) ports scalar address-reference filtering.
@@ -52,10 +52,11 @@ second PE parser or instruction decoder is present here.
 
 The built-in priorities are: known no-return names `97`, pre-function patterns
 `199`, entry disassembly `200`, discovered no-return detection `302`,
-subroutine/function creation `399`, body/CFG `400`, ordinary pattern search
-`402`, function-constrained patterns `498`, constant propagation `596`, scalar
+subroutine/function creation `399`, ordinary pattern search `402`,
+function-constrained patterns `498`, constant propagation `596`, scalar
 references `598`, references `600`, data references `602`, post-code/data
-pattern phases `898`, and stack `903`.
+pattern phases `898`, and stack `903`. Function bodies and CFGs are constructed
+synchronously by function creation rather than by a priority-400 analyzer.
 Options can disable any phase without changing registration or scheduling.
 Known and discovered no-return phases can also be disabled independently. Entry
 disassembly honors `AnalysisOptions::respect_execute_flag`; the no-return phase

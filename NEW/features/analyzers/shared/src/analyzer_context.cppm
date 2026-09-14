@@ -40,6 +40,22 @@ private:
         return checked_add(address, static_cast<std::uint64_t>(length - 1));
     }
 
+    /// Finds an existing instruction code unit containing an address in
+    /// logarithmic time, preserving Listing offcut rejection without scanning
+    /// every decoded instruction.
+    [[nodiscard]] static bool is_instruction_offcut(const AnalysisContext& context, Address address) {
+        const auto iterator = context.instructions_.upper_bound(address);
+        if (iterator == context.instructions_.begin()) {
+            return false;
+        }
+        const auto previous = std::prev(iterator);
+        if (address == previous->first) {
+            return false;
+        }
+        const auto end = instruction_end(previous->first, previous->second.instruction.length);
+        return end && address <= *end;
+    }
+
     /// Formats addresses the same way Ghidra's default function names are printed.
     [[nodiscard]] static std::string address_name(Address address) {
         std::ostringstream stream;
@@ -54,6 +70,8 @@ private:
                 return ReferenceKind::unconditional_jump;
             case sleigh_runtime::FlowKind::conditional_branch:
                 return ReferenceKind::conditional_jump;
+            case sleigh_runtime::FlowKind::conditional_call:
+                return ReferenceKind::conditional_call;
             case sleigh_runtime::FlowKind::call:
                 return ReferenceKind::unconditional_call;
             case sleigh_runtime::FlowKind::indirect_branch:
@@ -69,6 +87,27 @@ private:
     [[nodiscard]] static bool is_call_reference(ReferenceKind kind) {
         return kind == ReferenceKind::unconditional_call || kind == ReferenceKind::conditional_call ||
                kind == ReferenceKind::computed_call || kind == ReferenceKind::external;
+    }
+
+    /// Returns whether an instruction has a side effect that
+    /// CreateThunkFunctionCmd's p-code analysis rejects for automatic thunk
+    /// recognition.
+    [[nodiscard]] static bool has_thunk_side_effects(const sleigh_runtime::Instruction& instruction) {
+        for (const auto& operation : instruction.pcode) {
+            if (operation.opcode == sleigh_runtime::PcodeOpcode::store) {
+                return true;
+            }
+            if (operation.output && operation.output->space == "register") {
+                return true;
+            }
+            if (operation.opcode == sleigh_runtime::PcodeOpcode::call ||
+                operation.opcode == sleigh_runtime::PcodeOpcode::call_ind ||
+                operation.opcode == sleigh_runtime::PcodeOpcode::call_other ||
+                operation.opcode == sleigh_runtime::PcodeOpcode::cbranch) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /// Returns whether a reference is a flow reference usable by CFG construction.
@@ -107,7 +146,12 @@ private:
             }
             const auto instruction = context.instructions().find(address);
             if (address != entry) {
-                if (const auto containing = context.function_containing(address);
+                // FollowFlow(..., followIntoFunctions=false) stops at another
+                // function *entry* and at a fall-through symbol, not at every
+                // byte already owned by another function.  Interior shared
+                // code is handled later by CreateFunctionCmd's overlap
+                // reconciliation.
+                if (const auto containing = context.function_at(address);
                     containing && containing->entry != entry && !context.options().allow_shared_function_body) {
                     continue;
                 }
@@ -170,7 +214,8 @@ private:
                 continue;
             }
             const auto adjacent = ranges.empty() ? std::optional<Address>{} : checked_add(ranges.back().end, 1);
-            if (!ranges.empty() && adjacent && start <= *adjacent) {
+            const bool same_listing_range = !ranges.empty() && adjacent && start <= *adjacent;
+            if (same_listing_range) {
                 ranges.back().end = std::max(ranges.back().end, *end);
             } else {
                 ranges.push_back(AddressRange{start, *end});
@@ -218,8 +263,10 @@ private:
                 }
                 current.instructions.push_back(address);
                 current.end = instruction_end(address, instruction->second.instruction.length).value_or(address);
-                const bool call = instruction->second.instruction.flow.kind == sleigh_runtime::FlowKind::call ||
-                                  instruction->second.instruction.flow.kind == sleigh_runtime::FlowKind::indirect_call;
+                const bool call =
+                    instruction->second.instruction.flow.kind == sleigh_runtime::FlowKind::conditional_call ||
+                    instruction->second.instruction.flow.kind == sleigh_runtime::FlowKind::call ||
+                    instruction->second.instruction.flow.kind == sleigh_runtime::FlowKind::indirect_call;
                 if (call) {
                     blocks.push_back(std::move(current));
                     current = BasicBlock{};
@@ -286,6 +333,79 @@ private:
         }
     }
 
+    /// Rebuilds the byte body and normalized ranges from instruction starts.
+    /// CreateFunctionCmd stores byte addresses while FollowFlow discovers
+    /// instruction entry points, so both views must remain synchronized.
+    static void assign_body_from_starts(const AnalysisContext& context, Function& function, std::set<Address> starts) {
+        function.instruction_starts = std::move(starts);
+        function.body_ranges = build_body_ranges(context, function.instruction_starts);
+        function.body.clear();
+        for (const auto& range : function.body_ranges) {
+            insert_address_range(function.body, range);
+        }
+    }
+
+    /// Returns whether an instruction is fully retained by a byte body after
+    /// CreateFunctionCmd overlap carving.
+    [[nodiscard]] static bool contains_instruction(const AnalysisContext& context, const std::set<Address>& body,
+                                                   Address start) {
+        const auto instruction = context.instructions_.find(start);
+        if (instruction == context.instructions_.end()) {
+            return false;
+        }
+        const auto end = instruction_end(start, instruction->second.instruction.length);
+        if (!end) {
+            return false;
+        }
+        for (Address address = start;;) {
+            if (!body.contains(address)) {
+                return false;
+            }
+            if (address == *end) {
+                return true;
+            }
+            ++address;
+        }
+    }
+
+    /// Recognizes the bounded simple thunk flow used by
+    /// CreateThunkFunctionCmd.getThunkedAddr().  The native Sleigh provider
+    /// does not expose Java p-code register side-effect analysis here, so only
+    /// fall-through instructions followed by one resolved unconditional jump
+    /// are accepted; unresolved or conditional flows remain ordinary code.
+    [[nodiscard]] std::optional<Address> simple_thunk_target(Address entry) const {
+        Address cursor = entry;
+        std::set<Address> visited;
+        for (std::size_t count = 0; count < 8U && visited.insert(cursor).second; ++count) {
+            const auto instruction = instructions_.find(cursor);
+            if (instruction == instructions_.end()) {
+                return std::nullopt;
+            }
+            if (has_thunk_side_effects(instruction->second.instruction)) {
+                return std::nullopt;
+            }
+            const auto& flow = instruction->second.instruction.flow;
+            const auto target = concrete_target(*this, flow.target);
+            if ((flow.kind == sleigh_runtime::FlowKind::branch ||
+                 flow.kind == sleigh_runtime::FlowKind::indirect_branch ||
+                 ((flow.kind == sleigh_runtime::FlowKind::call ||
+                   flow.kind == sleigh_runtime::FlowKind::indirect_call) &&
+                  flow.terminal)) &&
+                target) {
+                return *target;
+            }
+            if (flow.kind != sleigh_runtime::FlowKind::none || !flow.has_fallthrough) {
+                return std::nullopt;
+            }
+            const auto next = checked_add(cursor, instruction->second.instruction.length);
+            if (!next) {
+                return std::nullopt;
+            }
+            cursor = *next;
+        }
+        return std::nullopt;
+    }
+
     /// Appends a state event for the manager to consume after the current task.
     void emit(EventKind kind, Address address, bool removed = false) {
         pending_events_.push_back(AnalysisEvent{kind, {address}, next_event_sequence_++, removed});
@@ -322,6 +442,7 @@ private:
     std::vector<Reference> references_;
     std::map<Address, DataObject> data_;
     std::map<Address, Function> functions_;
+    std::set<Address> function_creation_stack_;
     std::vector<Bookmark> bookmarks_;
     std::vector<ConstantFact> constant_facts_;
     std::vector<ExternalSymbol> external_symbols_;
@@ -418,6 +539,13 @@ public:
         if (instructions_.contains(address)) {
             return false;
         }
+        // A Ghidra Listing cannot hold a second instruction start inside an
+        // existing code unit.  This guard is required when EntryPointAnalyzer
+        // receives a whole newly-added memory range rather than one reachable
+        // flow seed.
+        if (is_instruction_offcut(*this, address)) {
+            return false;
+        }
         const auto decoded = decode(address);
         return decoded && define_instruction(*decoded);
     }
@@ -493,48 +621,170 @@ public:
         return true;
     }
 
-    /// Creates a function body using the current instruction flow graph.
+    /// Creates a function using CreateFunctionCmd's flow, overlap, and thunk
+    /// responsibilities.  The body is constructed synchronously here; there
+    /// is no upstream FunctionBodyAnalyzer that performs a second pass.
     [[nodiscard]] bool create_function(Address entry, std::string name = {}) {
-        if (functions_.contains(entry) || !can_disassemble(entry)) {
+        // Ghidra retries thunk/function creation around overlapping-function
+        // exceptions.  This guard supplies the equivalent circular-thunk
+        // protection for the native recursive target-creation path.
+        if (!function_creation_stack_.insert(entry).second) {
+            return false;
+        }
+        const auto cleanup_function = [this, entry](int*) { function_creation_stack_.erase(entry); };
+        const std::unique_ptr<int, decltype(cleanup_function)> cleanup(nullptr, cleanup_function);
+
+        if (functions_.contains(entry)) {
             return false;
         }
         // CreateFunctionCmd refuses an entry in the middle of an existing
         // instruction; accepting it would create an invalid offcut function body.
-        const bool offcut = std::any_of(instructions_.begin(), instructions_.end(), [&](const auto& item) {
-            const auto end = instruction_end(item.first, item.second.instruction.length);
-            return end && entry > item.first && entry <= *end;
-        });
-        if (offcut) {
+        if (is_instruction_offcut(*this, entry)) {
             return false;
         }
-        const auto containing = function_containing(entry);
-        const std::optional<Address> carved_function = containing ? std::optional{containing->entry} : std::nullopt;
+        // CreateFunctionCmd requires a code unit at the requested entry.  The
+        // native disassembler may materialize it when this command is used by
+        // an entry-point analyzer, but an unresolved call target must not be
+        // guessed into a function by this command.
+        if (!instructions_.contains(entry) && !can_disassemble(entry)) {
+            return false;
+        }
         if (!instructions_.contains(entry)) {
             static_cast<void>(disassemble_flow(entry));
         }
         if (!instructions_.contains(entry)) {
             return false;
         }
-        Function function{entry, name.empty() ? address_name(entry) : std::move(name), {}, {}, {}, false, false};
-        function.instruction_starts = follow_function_body(*this, entry);
-        if (function.instruction_starts.empty()) {
-            function.instruction_starts.insert(entry);
+
+        const auto thunk_target = simple_thunk_target(entry);
+        if (thunk_target && *thunk_target != entry) {
+            if (!instructions_.contains(*thunk_target)) {
+                static_cast<void>(disassemble_flow(*thunk_target));
+            }
+            if (!instructions_.contains(*thunk_target)) {
+                return false;
+            }
+            if (!functions_.contains(*thunk_target) && !create_function(*thunk_target)) {
+                return false;
+            }
         }
-        function.body_ranges = build_body_ranges(*this, function.instruction_starts);
-        for (const auto& range : function.body_ranges) {
-            insert_address_range(function.body, range);
+
+        std::set<Address> discovered =
+            thunk_target && *thunk_target != entry ? std::set<Address>{entry} : follow_function_body(*this, entry);
+        if (discovered.empty()) {
+            discovered.insert(entry);
+        }
+        std::set<Address> new_body;
+        for (const Address start : discovered) {
+            const auto instruction = instructions_.find(start);
+            if (instruction == instructions_.end()) {
+                continue;
+            }
+            const auto end = instruction_end(start, instruction->second.instruction.length);
+            if (!end) {
+                continue;
+            }
+            for (Address address = start;;) {
+                new_body.insert(address);
+                if (address == *end) {
+                    break;
+                }
+                ++address;
+            }
+        }
+        if (new_body.empty() || !new_body.contains(entry)) {
+            return false;
+        }
+
+        // Mirror subtractBodyFromExisting(): preserve the original bodies so
+        // a later failure can restore every changed owner, then carve only the
+        // address interval that belongs to the new entry.
+        std::vector<std::pair<Address, Function>> original_functions;
+        const Address new_end = *new_body.rbegin();
+        for (auto& [existing_entry, existing] : functions_) {
+            if (options_.allow_shared_function_body || existing_entry == entry) {
+                continue;
+            }
+            const bool overlaps = std::any_of(new_body.begin(), new_body.end(),
+                                              [&](Address address) { return existing.body.contains(address); });
+            if (!overlaps) {
+                continue;
+            }
+            original_functions.emplace_back(existing_entry, existing);
+            if (existing.body.size() == 1U) {
+                const auto placeholder_starts = follow_function_body(*this, existing_entry);
+                if (placeholder_starts.contains(entry)) {
+                    // This is the special placeholder case in
+                    // CreateFunctionCmd.subtractBodyFromExisting().
+                    continue;
+                }
+                assign_body_from_starts(*this, existing, placeholder_starts);
+            }
+            const Address carve_start = entry;
+            const auto carve_end =
+                existing_entry < entry
+                    ? std::optional<Address>{new_end}
+                    : (existing_entry == 0U ? std::nullopt : std::optional<Address>{existing_entry - 1U});
+            if (carve_end && carve_start <= *carve_end) {
+                for (auto iterator = existing.body.begin(); iterator != existing.body.end();) {
+                    if (*iterator >= carve_start && *iterator <= *carve_end) {
+                        iterator = existing.body.erase(iterator);
+                    } else {
+                        ++iterator;
+                    }
+                }
+                for (auto iterator = new_body.begin(); iterator != new_body.end();) {
+                    if (existing.body.contains(*iterator)) {
+                        iterator = new_body.erase(iterator);
+                    } else {
+                        ++iterator;
+                    }
+                }
+                std::set<Address> retained_starts;
+                for (const Address start : original_functions.back().second.instruction_starts) {
+                    if (contains_instruction(*this, existing.body, start)) {
+                        retained_starts.insert(start);
+                    }
+                }
+                assign_body_from_starts(*this, existing, std::move(retained_starts));
+            }
+        }
+        if (!new_body.contains(entry)) {
+            for (auto& [original_entry, original] : original_functions) {
+                functions_.at(original_entry) = std::move(original);
+            }
+            return false;
+        }
+
+        std::set<Address> new_starts;
+        for (const Address start : discovered) {
+            if (contains_instruction(*this, new_body, start)) {
+                new_starts.insert(start);
+            }
+        }
+        if (new_starts.empty()) {
+            for (auto& [original_entry, original] : original_functions) {
+                functions_.at(original_entry) = std::move(original);
+            }
+            return false;
+        }
+
+        Function function{entry, name.empty() ? address_name(entry) : std::move(name), {}, {}, {}, false, false};
+        assign_body_from_starts(*this, function, std::move(new_starts));
+        if (thunk_target && *thunk_target != entry) {
+            function.thunk = true;
+            function.thunk_target = thunk_target;
         }
         functions_.emplace(entry, std::move(function));
         emit(EventKind::function_added, entry);
-        if (carved_function && !options_.allow_shared_function_body) {
-            auto existing = functions_.find(*carved_function);
-            if (existing != functions_.end()) {
-                for (const Address address : functions_.at(entry).body) {
-                    existing->second.body.erase(address);
-                    existing->second.instruction_starts.erase(address);
-                }
-                existing->second.body_ranges = build_body_ranges(*this, existing->second.instruction_starts);
-                static_cast<void>(rebuild_function_body(*carved_function));
+        for (const auto& [existing_entry, original] : original_functions) {
+            const auto& current = functions_.at(existing_entry);
+            if (current.body != original.body || current.body_ranges != original.body_ranges ||
+                current.instruction_starts != original.instruction_starts) {
+                // CreateFunctionCmd records the already-carved body change;
+                // rebuilding from flow here could reclaim shared interior code
+                // that now belongs to the newly created function.
+                emit(EventKind::function_changed, existing_entry);
             }
         }
         static_cast<void>(rebuild_function_body(entry));
@@ -939,6 +1189,12 @@ public:
             return std::nullopt;
         }
         return region;
+    }
+
+    /// Returns the resolved simple thunk destination used by
+    /// FunctionAnalyzer's optional createOnlyThunks mode.
+    [[nodiscard]] std::optional<Address> thunk_target(Address entry) const {
+        return simple_thunk_target(entry);
     }
 };
 

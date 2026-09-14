@@ -119,7 +119,8 @@ public:
                     instruction.bytes.size() == decoded.length &&
                         (instruction.instruction_mask.empty() || instruction.instruction_mask.size() == decoded.length),
                     ErrorCode::invalid_input, "Sleigh instruction bytes and mask lengths differ");
-                instruction.is_call = decoded.flow.kind == sleigh_runtime::FlowKind::call ||
+                instruction.is_call = decoded.flow.kind == sleigh_runtime::FlowKind::conditional_call ||
+                                      decoded.flow.kind == sleigh_runtime::FlowKind::call ||
                                       decoded.flow.kind == sleigh_runtime::FlowKind::indirect_call;
                 for (const auto& decoded_operand : decoded.operands) {
                     instruction.operand_masks.push_back(decoded_operand.value_mask);

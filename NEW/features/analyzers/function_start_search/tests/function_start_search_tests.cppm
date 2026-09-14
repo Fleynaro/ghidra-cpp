@@ -22,7 +22,6 @@ TEST(AnalyzerPipelineTest, PatternSearchCreatesPositiveCandidate) {
     options.disassemble_entry_points = true;
     options.pattern_root = std::filesystem::path(ANALYZER_FIXTURE_DIR) / "function_start_search" / "data" / "patterns";
     options.subroutine_references = false;
-    options.function_body = false;
     options.reference = false;
     options.data_reference = false;
     options.scalar_operand_references = false;

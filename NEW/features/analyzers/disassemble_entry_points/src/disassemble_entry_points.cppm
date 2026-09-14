@@ -46,6 +46,10 @@ void DisassembleEntryPointsAnalyzer::analyze(AnalysisContext& context, std::span
             return;
         }
         if (context.can_disassemble(seed)) {
+            // EntryPointAnalyzer disassembles the requested entry set. It does
+            // not turn an executable memory block into a whole-section scan;
+            // callers that need exhaustive fixture disassembly must prepare it
+            // explicitly before analysis.
             static_cast<void>(context.disassemble_flow(seed));
         }
     }

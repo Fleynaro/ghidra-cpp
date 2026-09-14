@@ -5,15 +5,30 @@ Ports `FunctionAnalyzer.added()` and `fallthroughCall()` from
 
 ## Contract
 
-- Required state: existing decoded instructions and direct CALL references.
-- Consumes: `code_added` and `reference_added`.
-- Produces: missing functions and `function_added` events.
+- Required state: existing decoded instructions and materialized call references.
+- Consumes: `code_added`, `reference_added`, and `flow_changed` events.
+- Produces: missing functions, thunk relationships, body changes, and
+  `function_added` events.
 - Priority: `399`.
-- Consumer: Function Body.
+- Function construction is synchronous in [`AnalysisContext::create_function`](../shared/src/analyzer_context.cppm),
+  which is the native equivalent of `CreateFunctionCmd.applyTo()` and its
+  `FollowFlow`/overlap-repair calls.
 
-The analyzer never scans raw PE bytes. It rejects computed calls and calls whose
-target is the recorded fall-through, preserves existing functions, and creates
-targets only after the decoder has materialized the call flow. The resulting
-body is built by the separate Function Body analyzer.
+The analyzer never scans raw PE bytes. It accepts unconditional, conditional,
+and resolved computed call references, rejects calls whose destination is the
+actual fall-through, preserves real existing functions, repairs only precise
+one-address placeholders, and creates targets only after the decoder has
+materialized the call flow.
 
-Golden evidence: [`tests/data/`](tests/data/).
+## FunctionBodyAnalyzer investigation
+
+Original Ghidra has no `FunctionBodyAnalyzer` class. Body construction happens
+inside `CreateFunctionCmd.getFunctionBody()` and `fixupFunctionBody()`, which
+delegate traversal to `FollowFlow`; block views are derived by
+`BasicBlockModel` and `SimpleBlockModel`. The native `function_body` directory
+now contains focused context tests only; no body analyzer target is registered
+by the built-in pipeline. This removes the incorrect dependency where
+`Subroutine References` waited for a separate body analyzer.
+
+Porting evidence: [`GHIDRA_PORT.md`](GHIDRA_PORT.md). Golden evidence:
+[`tests/data/`](tests/data/).
