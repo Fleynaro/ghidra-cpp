@@ -23,6 +23,15 @@ extern "C" __declspec(dllexport) __declspec(noinline) void abort() {
     non_returning_known_sink = 0xab;
 }
 
+// Case: a leading-underscore spelling of a known no-return name.
+// Purpose: exercise NonReturningFunctionNames' decoration normalization while
+// retaining a separate exact-name negative control below.
+// Expected Ghidra behavior: `_abort` is normalized to `abort` and marked too.
+// This catches: ports that compare only the literal exported spelling.
+extern "C" __declspec(dllexport) __declspec(noinline) void _abort() {
+    non_returning_known_sink = 0xae;
+}
+
 // A differently named export is the negative control for exact-name matching.
 extern "C" __declspec(dllexport) __declspec(noinline) void returning_control() {
     non_returning_known_sink = 0xcd;
@@ -31,5 +40,6 @@ extern "C" __declspec(dllexport) __declspec(noinline) void returning_control() {
 // References both functions so they remain in the standalone executable.
 extern "C" __declspec(noinline) void fixture_entry() {
     abort();
+    _abort();
     returning_control();
 }

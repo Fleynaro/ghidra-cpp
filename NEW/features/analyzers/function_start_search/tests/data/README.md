@@ -8,7 +8,7 @@ Exercise architecture-pattern searches that create function starts and analysis 
 `Ghidra/Features/BytePatterns/src/main/java/ghidra/app/analyzers/FunctionStartAnalyzer.java` and its phase analyzers `FunctionStartPostAnalyzer.java`, `FunctionStartDataPostAnalyzer.java`, and `FunctionStartFuncAnalyzer.java`.
 
 ## Test Scenario
-The fixture exports ordinary no-inline x64 functions as negative controls and embeds an exported raw executable byte sequence containing the x86-64 Windows FunctionStart pattern as a positive candidate. The script removes only the positive candidate function, retains the negative function, and compares function entries and Function Start Search bookmarks before and after analysis.
+The fixture exports ordinary no-inline x64 functions as negative controls and embeds two independent exported raw executable byte sequences containing the x86-64 Windows FunctionStart pattern as positive candidates. The script removes only the positive candidate functions, retains the negative functions, and compares entries and bookmarks before and after analysis.
 
 ## Why This C++ Code Was Chosen
 The raw sequence is an actual byte-level match for the installed x64 Windows pattern, while the ordinary compiler-generated function supplies a real already-defined negative control. No inline assembly or guessed source-level address is required.
@@ -38,7 +38,7 @@ real x86-64 Windows `SUB RSP, imm` patterns in the local
 
 ## Navigation
 
-- [`test_function_start_search.cpp`](test_function_start_search.cpp) embeds the positive raw pattern, exports two stack-using negative candidates, and defines a caller.
+- [`test_function_start_search.cpp`](test_function_start_search.cpp) embeds two positive raw patterns, exports two stack-using negative candidates, and defines a caller.
 - [`build.bat`](build.bat) builds the CRT-free MSVC x64 PE without optimizing away the prologues.
 - [`run_ghidra.py`](run_ghidra.py) reopens the imported program, enables the main and phase-specific Function Start Search analyzers, analyzes it, and extracts created entries/bookmarks.
 - [`test_function_start_search.exe`](test_function_start_search.exe) is the generated PE input when available.

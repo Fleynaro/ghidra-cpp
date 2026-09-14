@@ -11,7 +11,9 @@ Exercise instruction and data operand reference creation from loaded bytes and e
 The script disassembles first, snapshots the resulting references, enables only `Reference`, and compares the final reference-manager rows with that baseline. Every row is labeled as either pre-existing disassembler output or genuinely added by the analyzer.
 
 ## Why This C++ Code Was Chosen
-Real strings, values, pointer-bearing data, and direct calls provide multiple reference classes without hand-written expected addresses.
+Real strings, values, pointer-bearing data, direct calls, and a branch-selected
+multi-read helper provide multiple reference classes without hand-written
+fixture assumptions.
 
 ## Required Compiler Options
 MSVC x64 and the deterministic linker configuration in `build.bat`.
@@ -45,7 +47,7 @@ real pointer-bearing data, a string, and calls whose operand and data references
 discovered from the loaded bytes. The report is generated from Ghidra's reference
 manager and does not contain hand-written expected addresses.
 
-With the current MSVC/Ghidra combination, all four eligible rows are already present as
+With the current MSVC/Ghidra combination, all seven eligible rows are already present as
 `DEFAULT` disassembler references, so the target analyzer adds zero new rows. The report
 preserves that result and the before/after evidence; it must not be read as proof of a
 positive `ANALYSIS` reference until a compiler variant produces an unresolved operand case.

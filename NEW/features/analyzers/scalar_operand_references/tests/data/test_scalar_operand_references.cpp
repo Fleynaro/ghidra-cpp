@@ -41,11 +41,24 @@ extern "C" __declspec(noinline) unsigned long long scalar_operand_small_value() 
     return 17ULL;
 }
 
+// Case: an absolute scalar into a mapped non-code section, distinct from the
+// first data slot and executable entry point.
+// Purpose: exercise address-space probing for a valid image address that is
+// neither a function entry nor the original positive data target.
+// Expected Ghidra behavior: the scalar receives a memory reference when the
+// target is mapped and no stronger operand reference already exists.
+// This catches: implementations that only recognize one section or hard-code
+// the first positive target.
+extern "C" __declspec(noinline) unsigned long long scalar_operand_positive_rdata() {
+    return 0x0000000140002000ULL;
+}
+
 // Keep all scalar cases observable in a single entry function.
 extern "C" __declspec(noinline) void scalar_operand_references_entry() {
     scalar_operand_data = scalar_operand_positive_data();
     scalar_operand_data ^= scalar_operand_positive_code();
     scalar_operand_data ^= scalar_operand_negative();
     scalar_operand_data ^= scalar_operand_small_value();
+    scalar_operand_data ^= scalar_operand_positive_rdata();
     scalar_operand_data ^= scalar_operand_number;
 }

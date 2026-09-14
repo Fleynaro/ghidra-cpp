@@ -74,6 +74,10 @@ namespace {
         return 1;
     if (text.find("qword ptr") != std::string::npos)
         return 8;
+    // Check dword before the substring-compatible `word ptr` case. Without
+    // this ordering a 32-bit stack access is incorrectly reduced to 2 bytes.
+    if (text.find("dword ptr") != std::string::npos)
+        return 4;
     if (text.find("word ptr") != std::string::npos)
         return 2;
     return 4;

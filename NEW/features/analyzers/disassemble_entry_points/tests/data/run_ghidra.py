@@ -11,7 +11,7 @@ from pathlib import Path
 
 ANALYZER = "Disassemble Entry Points"
 DEPENDENCIES: tuple[str, ...] = ()
-TARGETS = ("entry_point_alpha", "entry_point_beta", "data_only_marker")
+TARGETS = ("entry_point_alpha", "entry_point_beta", "entry_point_gamma", "entry_point_delta", "data_only_marker")
 
 
 def configure_analysis(project, program) -> list[str]:

@@ -31,6 +31,22 @@ export namespace ghidra::analyzer::tests {
     return AnalysisContext(std::move(*image), "x86-64.sla");
 }
 
+/// Loads a fixture owned by the shared analyzer-infrastructure tests.
+///
+/// Shared tests are compiled through the aggregate analyzer support library,
+/// while their data lives below `shared/tests/data` rather than a feature
+/// analyzer directory. Keeping this path explicit prevents infrastructure
+/// tests from depending on an unrelated analyzer's executable fixture.
+[[nodiscard]] GHIDRA_ANALYZER_TEST_MODULE_EXPORT AnalysisContext load_shared_fixture(std::string_view fixture) {
+    const auto path = std::filesystem::path(ANALYZER_FIXTURE_DIR) / "shared" / "tests" / "data" /
+                      ("test_" + std::string(fixture) + ".exe");
+    auto image = pe::PeLoader::load_file(path);
+    if (!image) {
+        throw std::runtime_error(image.error().message);
+    }
+    return AnalysisContext(std::move(*image), "x86-64.sla");
+}
+
 /// Describes a function body copied from a fixture's Ghidra Delta report.
 struct ExpectedFunctionBody {
     Address entry{};

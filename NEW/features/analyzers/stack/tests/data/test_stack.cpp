@@ -20,9 +20,11 @@ extern "C" volatile unsigned int stack_sink = 0U;
 extern "C" __declspec(noinline) unsigned int stack_worker(unsigned int seed) {
     volatile unsigned int local_value = seed + 3U;
     volatile unsigned int local_copy = local_value ^ 0x55U;
+    volatile auto local_byte = static_cast<unsigned char>(seed);
+    volatile unsigned long long local_wide = static_cast<unsigned long long>(local_value) << 32U;
     volatile unsigned int* local_pointer = &local_copy;
     stack_sink += *local_pointer;
-    return local_value + local_copy;
+    return local_value + local_copy + local_byte + static_cast<unsigned int>(local_wide >> 32U);
 }
 
 // Keep a separate caller frame and a live local across the call.

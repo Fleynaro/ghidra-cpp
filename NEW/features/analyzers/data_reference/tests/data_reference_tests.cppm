@@ -34,14 +34,26 @@ TEST(AnalyzerPipelineTest, FollowsDataSectionPointers) {
     const auto result = manager.analyze();
     ASSERT_TRUE(result.completed);
     // Copied from the data-reference Ghidra Delta pointer rows.
-    EXPECT_TRUE(std::any_of(context.references().begin(), context.references().end(), [](const Reference& reference) {
-        return reference.source == 0x140002058 && reference.target == 0x140002048 &&
-               reference.kind == ReferenceKind::data;
-    }));
-    EXPECT_TRUE(std::any_of(context.references().begin(), context.references().end(), [](const Reference& reference) {
-        return reference.source == 0x140002060 && reference.target == 0x140002050 &&
-               reference.kind == ReferenceKind::data;
-    }));
+    std::set<std::pair<Address, Address>> actual;
+    for (const auto& reference : context.references()) {
+        if (reference.kind == ReferenceKind::data && reference.source >= 0x140002000 &&
+            reference.source < 0x140002100) {
+            actual.emplace(reference.source, reference.target);
+        }
+    }
+    EXPECT_EQ(actual, (std::set<std::pair<Address, Address>>{{0x140002058, 0x140002048}, {0x140002060, 0x140002050}}));
+    // Ghidra defines pointer data at the referenced pointer target, not at the
+    // relocation cell that stores the pointer. This distinguishes the data
+    // object contract from the reference source/target relation.
+    ASSERT_TRUE(context.data().contains(0x140002048));
+    ASSERT_TRUE(context.data().contains(0x140002050));
+    EXPECT_EQ(context.data().at(0x140002048).size, 8U);
+    EXPECT_EQ(context.data().at(0x140002050).size, 8U);
+    EXPECT_EQ(context.data().at(0x140002048).type, "relocated pointer");
+    EXPECT_EQ(context.data().at(0x140002050).type, "relocated pointer");
+    EXPECT_FALSE(context.functions().contains(0x140002040));
+    EXPECT_FALSE(context.functions().contains(0x140002048));
+    EXPECT_FALSE(context.functions().contains(0x140002050));
 }
 
 } // namespace

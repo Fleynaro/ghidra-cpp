@@ -8,11 +8,11 @@ import sys
 import tempfile
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "shared" / "test_support"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "shared" / "test_support"))
 from evidence import render_evidence
 
 ANALYZERS = ["Function Start Search", "Function Start Search After Code", "Function Start Search After Data"]
-POSITIVE_SYMBOL = "function_start_positive_pattern"
+POSITIVE_SYMBOLS = ("function_start_positive_pattern", "function_start_positive_pattern_two")
 POSITIVE_MARK_OFFSET = 3
 
 
@@ -76,7 +76,7 @@ def names_and_entries(program):
     while symbols.hasNext():
         symbol = symbols.next()
         name = str(symbol.getName(False))
-        if name == POSITIVE_SYMBOL:
+        if name in POSITIVE_SYMBOLS:
             candidates[name] = value(symbol.getAddress()) + POSITIVE_MARK_OFFSET
         elif name.startswith("function_start_candidate_"):
             candidates[name] = value(symbol.getAddress())
@@ -95,7 +95,8 @@ def remove_positive_function(program, candidates) -> None:
     transaction = program.startTransaction("Remove pre-existing candidate functions")
     committed = False
     try:
-        manager.removeFunction(address_space.getAddress(candidates[POSITIVE_SYMBOL]))
+        for name in POSITIVE_SYMBOLS:
+            manager.removeFunction(address_space.getAddress(candidates[name]))
         committed = True
     finally:
         program.endTransaction(transaction, committed)
@@ -198,7 +199,7 @@ def report(input_path: Path, enabled, candidates, before, after, marks_before, m
         f"- **Candidate exports:** `{len(candidates)}`.",
         f"- **Functions created:** `{len(created)}`.",
         f"- **Pattern bookmarks before/after:** `{len(marks_before)}` / `{len(marks_after)}`.",
-        f"- **Positive candidate discovered:** `{str(candidates[POSITIVE_SYMBOL] in after and candidates[POSITIVE_SYMBOL] not in before).lower()}`.",
+        f"- **Positive candidates discovered:** `{str(all(candidates[name] in after and candidates[name] not in before for name in POSITIVE_SYMBOLS)).lower()}`.",
         "- The ordinary exported candidate remains a rejected negative control because it is already a function before the target analyzer runs.",
         "",
     ])
@@ -247,8 +248,8 @@ def main() -> int:
         candidates, after = names_and_entries(program)
         marks_after = bookmarks(program)
         after_evidence = evidence_snapshot(project, program, candidates)
-        if candidates[POSITIVE_SYMBOL] in before or candidates[POSITIVE_SYMBOL] not in after:
-            raise RuntimeError(f"Positive Function Start candidate was not discovered: before={before}, after={after}")
+        if any(candidates[name] in before or candidates[name] not in after for name in POSITIVE_SYMBOLS):
+            raise RuntimeError(f"Positive Function Start candidates were not discovered: before={before}, after={after}")
         negative = [address for name, address in candidates.items() if name.startswith("function_start_candidate_")]
         if not negative or not all(address in before and address in after for address in negative):
             raise RuntimeError(f"Negative Function Start candidate evidence is incomplete: candidates={candidates}, before={before}, after={after}")

@@ -19,4 +19,5 @@ bounded CFG worklist with conservative state joins. Values are width-truncated
 at p-code destinations and division by zero remains unknown. Unresolved
 indirect control flow is not guessed.
 
-Golden constant evidence: [`../x86_constant_reference/tests/data/`](../x86_constant_reference/tests/data/).
+Golden constant evidence: [`tests/data/`](tests/data/), with the related x86 LEA
+fixture retained at [`../x86_constant_reference/tests/data/`](../x86_constant_reference/tests/data/).

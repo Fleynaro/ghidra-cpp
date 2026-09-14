@@ -238,33 +238,37 @@ void NonReturningFunctionsAnalyzer::analyze(AnalysisContext& context, std::span<
     if (!context.options().non_returning_functions || !context.options().discovered_non_returning_functions) {
         return;
     }
-    const auto names = load_no_return_names(context);
-    for (const auto& symbol : context.image().exported_symbols()) {
-        if (symbol.forwarded || !symbol.name || !known_no_return_name(*symbol.name, names)) {
-            continue;
+    if (context.options().known_non_returning_functions) {
+        const auto names = load_no_return_names(context);
+        for (const auto& symbol : context.image().exported_symbols()) {
+            if (symbol.forwarded || !symbol.name || !known_no_return_name(*symbol.name, names)) {
+                continue;
+            }
+            if (cancellation.is_cancelled()) {
+                return;
+            }
+            if (!context.functions().contains(symbol.address_va)) {
+                static_cast<void>(context.create_function(symbol.address_va, *symbol.name));
+            }
+            if (context.set_function_no_return(symbol.address_va, true) &&
+                context.options().create_analysis_bookmarks) {
+                static_cast<void>(context.add_bookmark(
+                    Bookmark{symbol.address_va, "Non-Returning Function", "Non-Returning Function Identified"}));
+            }
+            repair_callers(context, symbol.address_va);
         }
-        if (cancellation.is_cancelled()) {
-            return;
+        for (const auto& symbol : context.external_symbols()) {
+            if (cancellation.is_cancelled())
+                return;
+            if (!known_no_return_name(symbol.name, names))
+                continue;
+            if (context.set_external_no_return(symbol.iat_address, true) &&
+                context.options().create_analysis_bookmarks) {
+                static_cast<void>(context.add_bookmark(
+                    Bookmark{symbol.iat_address, "Non-Returning Function", "External no-return function"}));
+            }
+            repair_callers(context, symbol.iat_address);
         }
-        if (!context.functions().contains(symbol.address_va)) {
-            static_cast<void>(context.create_function(symbol.address_va, *symbol.name));
-        }
-        if (context.set_function_no_return(symbol.address_va, true) && context.options().create_analysis_bookmarks) {
-            static_cast<void>(context.add_bookmark(
-                Bookmark{symbol.address_va, "Non-Returning Function", "Non-Returning Function Identified"}));
-        }
-        repair_callers(context, symbol.address_va);
-    }
-    for (const auto& symbol : context.external_symbols()) {
-        if (cancellation.is_cancelled())
-            return;
-        if (!known_no_return_name(symbol.name, names))
-            continue;
-        if (context.set_external_no_return(symbol.iat_address, true) && context.options().create_analysis_bookmarks) {
-            static_cast<void>(context.add_bookmark(
-                Bookmark{symbol.iat_address, "Non-Returning Function", "External no-return function"}));
-        }
-        repair_callers(context, symbol.iat_address);
     }
     std::map<Address, std::set<Address>> evidence;
     for (const auto& reference : context.references()) {

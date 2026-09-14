@@ -25,7 +25,21 @@ extern "C" __declspec(noinline) unsigned long long reference_read() {
     return reference_value ^ reference_table[1];
 }
 
+// Case: multiple memory reads selected by a branch and a variable offset.
+// Purpose: make Reference inspect several operand positions and targets in one
+// function instead of only one read and one write.
+// Expected Ghidra behavior: each concrete memory access has its own exact
+// source, target, operand, and access direction; no reference is invented for
+// a computed address itself.
+// This catches: ports that collapse references by target or only process the
+// first memory operation in a basic block.
+extern "C" __declspec(noinline) unsigned long long reference_mixed_reads(unsigned int selector) {
+    const unsigned long long selected = (selector & 1U) != 0U ? reference_table[0] : reference_table[2];
+    return selected ^ static_cast<unsigned long long>(selector);
+}
+
 // Retain an ordinary direct call that the generic reference analyzer can observe.
 extern "C" __declspec(noinline) void reference_entry() {
     reference_value = reference_read();
+    reference_value ^= reference_mixed_reads(static_cast<unsigned int>(reference_value));
 }

@@ -11,3 +11,4 @@ target_sources(analyzer_shared
 )
 
 add_subdirectory(test_support)
+add_subdirectory(tests)

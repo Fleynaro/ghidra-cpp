@@ -12,7 +12,7 @@ decode instructions itself.
 - [`build.bat`](build.bat) builds and tests only this module through the parent script; tests are enabled by default.
 - [`shared/src/analyzer.cppm`](shared/src/analyzer.cppm) defines `AnalysisContext`, state entities, events, the base `Analyzer` contract, and `AutoAnalysisManager`; concrete analyzer declarations are exported by their own feature modules.
 - [`shared/src/analyzer.cpp`](shared/src/analyzer.cpp) implements provider-backed state mutation, flow/body construction, and scheduling.
-- [`shared/test_support/`](shared/test_support/) contains shared C++23 test helpers and Python fixture helpers used by analyzer tests.
+- [`shared/test_support/`](shared/test_support/) contains shared C++23 test helpers and [`shared/tests/`](shared/tests/) contains shared infrastructure tests and fixtures.
 - [`disassemble_entry_points/`](disassemble_entry_points/) ports entry-point disassembly.
 - [`function_start_search/`](function_start_search/) ports the pre/function/post pattern phases.
 - [`subroutine_references/`](subroutine_references/) ports call-driven function discovery.
@@ -24,7 +24,7 @@ decode instructions itself.
 - [`constant_propagation/`](constant_propagation/) ports the p-code symbolic propagation pass.
 - [`non_returning_functions/`](non_returning_functions/) ports known/evidence-backed no-return analysis.
 - Each concrete analyzer source is an independent exported module, such as [`constant_propagation/src/constant_propagation.cppm`](constant_propagation/src/constant_propagation.cppm) exporting `analyzer_constant_propagation`; consumers must import the feature module rather than relying on `analyzer` to expose concrete classes.
-- Each implemented analyzer owns its Google Test module under its own `tests/` directory; for example [`disassemble_entry_points/tests/disassemble_entry_points_tests.cppm`](disassemble_entry_points/tests/disassemble_entry_points_tests.cppm).
+- Each implemented analyzer owns its Google Test module under its own `tests/` directory; for example [`disassemble_entry_points/tests/disassemble_entry_points_tests.cppm`](disassemble_entry_points/tests/disassemble_entry_points_tests.cppm). Function body/CFG tests are the documented exception because Ghidra creates bodies synchronously in shared `AnalysisContext`; they live under [`shared/tests/function_body_tests.cppm`](shared/tests/function_body_tests.cppm).
 - Each analyzer directory contains its own `src/` when implemented, `CMakeLists.txt`, `build.bat`, and `tests/data/` for executable fixtures and Ghidra golden reports. Additional fixture sets can be added as files or subdirectories there.
 
 Run `build.bat` from this directory for the focused analyzer build and test. Use `build.bat --no-test` for a compile-only check and `build.bat --clean` only when a clean rebuild is required.

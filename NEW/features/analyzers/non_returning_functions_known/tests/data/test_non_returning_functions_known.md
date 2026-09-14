@@ -18,13 +18,15 @@
 | Entry offset | Name | No Return |
 | --- | --- | --- |
 | `0x0000000140001000` | `abort` | `true` |
-| `0x0000000140001028` | `entry` | `false` |
+| `0x0000000140001014` | `_abort` | `true` |
+| `0x000000014000103C` | `entry` | `false` |
 
 ## Non-Returning Function Bookmarks
 
 | Entry offset | Comment |
 | --- | --- |
 | `0x0000000140001000` | `Non-Returning Function Identified` |
+| `0x0000000140001014` | `Non-Returning Function Identified` |
 
 ## Before target analysis
 
@@ -38,7 +40,7 @@
 
 | Key | State |
 | --- | --- |
-| `0x0000000140001028` | `entry \| no-return: false` |
+| `0x000000014000103C` | `entry \| no-return: false` |
 
 ### Bookmarks
 
@@ -67,13 +69,15 @@
 | Key | State |
 | --- | --- |
 | `0x0000000140001000` | `abort \| no-return: true` |
-| `0x0000000140001028` | `entry \| no-return: false` |
+| `0x0000000140001014` | `_abort \| no-return: true` |
+| `0x000000014000103C` | `entry \| no-return: false` |
 
 ### Bookmarks
 
 | Key | State |
 | --- | --- |
 | `0x0000000140001000 Non-Returning Function` | `Non-Returning Function Identified` |
+| `0x0000000140001014 Non-Returning Function` | `Non-Returning Function Identified` |
 
 ### Options
 
@@ -94,12 +98,14 @@ No changes observed.
 | Change | Key | Before | After |
 | --- | --- | --- | --- |
 | `Added` | `0x0000000140001000` | `` | `abort \| no-return: true` |
+| `Added` | `0x0000000140001014` | `` | `_abort \| no-return: true` |
 
 ### Bookmarks
 
 | Change | Key | Before | After |
 | --- | --- | --- | --- |
 | `Added` | `0x0000000140001000 Non-Returning Function` | `` | `Non-Returning Function Identified` |
+| `Added` | `0x0000000140001014 Non-Returning Function` | `` | `Non-Returning Function Identified` |
 
 ### Options
 
@@ -109,4 +115,4 @@ No changes observed.
 
 - **Exact `abort` functions observed:** `1`.
 - **Exact `abort` functions marked no-return:** `1`.
-- **Known-name bookmarks:** `1`.
+- **Known-name bookmarks:** `2`.

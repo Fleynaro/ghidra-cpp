@@ -63,9 +63,9 @@ if /I "%MODE%"=="disassemble_entry_points" (
     set "TEST_FILTER=^analyzer_disassemble_entry_points_tests$"
     goto mode_selected
 )
-if /I "%MODE%"=="function_body" (
-    set "BUILD_TARGET=analyzer_function_body_tests"
-    set "TEST_FILTER=^analyzer_function_body_tests$"
+if /I "%MODE%"=="shared_function_body" (
+    set "BUILD_TARGET=analyzer_shared_function_body_tests"
+    set "TEST_FILTER=^analyzer_shared_function_body_tests$"
     goto mode_selected
 )
 if /I "%MODE%"=="function_start_search" (
@@ -99,8 +99,8 @@ if /I "%MODE%"=="subroutine_references" (
     goto mode_selected
 )
 if /I "%MODE%"=="analyzer" (
-    set "BUILD_TARGET=analyzer_disassemble_entry_points_tests analyzer_subroutine_references_tests analyzer_function_body_tests analyzer_function_start_search_tests analyzer_non_returning_functions_tests analyzer_constant_propagation_tests analyzer_reference_tests analyzer_data_reference_tests analyzer_scalar_operand_references_tests analyzer_stack_tests"
-    set "TEST_FILTER=^analyzer_(disassemble_entry_points|subroutine_references|function_body|function_start_search|non_returning_functions|constant_propagation|reference|data_reference|scalar_operand_references|stack)_tests$"
+    set "BUILD_TARGET=analyzer_disassemble_entry_points_tests analyzer_subroutine_references_tests analyzer_shared_function_body_tests analyzer_function_start_search_tests analyzer_non_returning_functions_tests analyzer_constant_propagation_tests analyzer_reference_tests analyzer_data_reference_tests analyzer_scalar_operand_references_tests analyzer_stack_tests"
+    set "TEST_FILTER=^analyzer_(disassemble_entry_points|subroutine_references|shared_function_body|function_start_search|non_returning_functions|constant_propagation|reference|data_reference|scalar_operand_references|stack)_tests$"
     goto mode_selected
 )
 goto usage
@@ -124,7 +124,7 @@ if "%RUN_TESTS%"=="0" (
     if /I "%MODE%"=="constant_propagation" set "BUILD_TARGET=analyzer_constant_propagation"
     if /I "%MODE%"=="data_reference" set "BUILD_TARGET=analyzer_data_reference"
     if /I "%MODE%"=="disassemble_entry_points" set "BUILD_TARGET=analyzer_disassemble_entry_points"
-    if /I "%MODE%"=="function_body" set "BUILD_TARGET=analyzer_shared"
+    if /I "%MODE%"=="shared_function_body" set "BUILD_TARGET=analyzer_shared"
     if /I "%MODE%"=="function_start_search" set "BUILD_TARGET=analyzer_function_start_search"
     if /I "%MODE%"=="non_returning_functions" set "BUILD_TARGET=analyzer_non_returning_functions"
     if /I "%MODE%"=="reference" set "BUILD_TARGET=analyzer_reference"
@@ -191,7 +191,7 @@ endlocal
 exit /b 0
 
 :usage
-echo Usage: build.bat [app^|hello^|sleigh^|pe^|function_id^|decompiler^|analyzer^|all] [--no-test] [--clean]
+echo Usage: build.bat [app^|hello^|sleigh^|pe^|function_id^|decompiler^|analyzer^|shared_function_body^|all] [--no-test] [--clean]
 echo.
 echo Default mode: all. The build directory is preserved for fast incremental builds.
 echo Use a module mode to build and test only that module.

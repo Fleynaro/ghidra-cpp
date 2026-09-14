@@ -15,6 +15,8 @@
 | `data_only_marker` | `C++ decorated` | `0x0000000140002000` | `false` | `false` |
 | `entry_point_alpha` | `C` | `0x0000000140001000` | `false` | `false` |
 | `entry_point_beta` | `C` | `0x0000000140001014` | `false` | `false` |
+| `entry_point_delta` | `C` | `0x000000014000106C` | `false` | `true` |
+| `entry_point_gamma` | `C` | `0x0000000140001028` | `false` | `false` |
 
 ## After target analysis
 
@@ -23,11 +25,13 @@
 | `data_only_marker` | `C++ decorated` | `0x0000000140002000` | `false` | `false` |
 | `entry_point_alpha` | `C` | `0x0000000140001000` | `true` | `false` |
 | `entry_point_beta` | `C` | `0x0000000140001014` | `true` | `false` |
+| `entry_point_delta` | `C` | `0x000000014000106C` | `true` | `true` |
+| `entry_point_gamma` | `C` | `0x0000000140001028` | `true` | `false` |
 
 ## Fixture Assertions
 
-- **Selected PE symbols before target analysis:** `3`
-- **Selected PE symbols after target analysis:** `3`
+- **Selected PE symbols before target analysis:** `5`
+- **Selected PE symbols after target analysis:** `5`
 - The `data_only_marker` C++-linkage symbol remains non-instructional and functionless in both snapshots.
 
 ## Delta
@@ -44,3 +48,5 @@
 
 - `entry_point_alpha` `C` `0x0000000140001000` instruction `false` function `false` -> `entry_point_alpha` `C` `0x0000000140001000` instruction `true` function `false`
 - `entry_point_beta` `C` `0x0000000140001014` instruction `false` function `false` -> `entry_point_beta` `C` `0x0000000140001014` instruction `true` function `false`
+- `entry_point_delta` `C` `0x000000014000106C` instruction `false` function `true` -> `entry_point_delta` `C` `0x000000014000106C` instruction `true` function `true`
+- `entry_point_gamma` `C` `0x0000000140001028` instruction `false` function `false` -> `entry_point_gamma` `C` `0x0000000140001028` instruction `true` function `false`

@@ -46,10 +46,22 @@ extern "C" __declspec(dllexport) __declspec(noinline) void discovered_caller_thr
     discovered_sink += 3;
 }
 
+// Case: a fourth caller reaches the same target but has an ordinary
+// fall-through path and no breakpoint evidence of its own.
+// Purpose: verify the threshold counts distinct evidence callers, while the
+// eventual no-return decision still repairs every call site to that target.
+// This catches: counting all callers as evidence or repairing only callers
+// that directly supplied the threshold evidence.
+extern "C" __declspec(dllexport) __declspec(noinline) void discovered_returning_caller() {
+    discovered_target();
+    discovered_sink += 4;
+}
+
 // Keeps all callers and the target reachable without adding another evidence
 // site that would make the threshold less explicit.
 extern "C" __declspec(noinline) void fixture_entry() {
     discovered_caller_one();
     discovered_caller_two();
     discovered_caller_three();
+    discovered_returning_caller();
 }

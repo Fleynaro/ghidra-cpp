@@ -8,7 +8,7 @@ Exercise symbol-driven disassembly at newly added executable entry points while 
 `Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/disassembler/EntryPointAnalyzer.java`, using `CreateFunctionCmd.java`.
 
 ## Test Scenario
-Two exported code symbols and one C++-linkage exported data marker are imported without pre-disassembly; the script resolves both undecorated and decorated names and compares instruction and function presence before and after analysis.
+Four exported code symbols, including loop/branch/switch and call-flow entries, and one C++-linkage exported data marker are imported without pre-disassembly; the script resolves undecorated and decorated names and compares instruction and function presence before and after analysis.
 
 ## Why This C++ Code Was Chosen
 PE export symbols are the analyzer's genuine input and no-inline functions retain deterministic code without script-created symbols or instructions.
@@ -33,7 +33,7 @@ PE import behavior can seed an initial entry function and affect before/after st
 
 ## Navigation
 
-- [`test_disassemble_entry_points.cpp`](test_disassemble_entry_points.cpp) defines two exported code entry points and one exported data marker.
+- [`test_disassemble_entry_points.cpp`](test_disassemble_entry_points.cpp) defines four exported code entry points with distinct flow shapes and one exported data marker.
 - [`build.bat`](build.bat) builds the deterministic CRT-free MSVC x64 PE.
 - [`run_ghidra.py`](run_ghidra.py) deliberately avoids pre-disassembly, resolves the decorated C++ data symbol, enables Disassemble Entry Points, and compares selected symbol state.
 - `test_disassemble_entry_points.exe` and `test_disassemble_entry_points.md` are generated artifacts when the required tools exist.
@@ -41,7 +41,7 @@ PE import behavior can seed an initial entry function and affect before/after st
 
 ## Fixture Design
 
-PE exports provide genuine code and data symbols. The two noinline functions are retained and called by the entry function; the C++-linkage data marker is a negative case. Unlike the other fixtures, the script does not disassemble the executable section before analysis because instruction presence is the behavior under test.
+PE exports provide genuine code and data symbols. The four noinline functions are retained and called by the entry function; the loop/switch and nested call cases make flow traversal non-trivial, while the C++-linkage data marker is a negative case. Unlike the other fixtures, the script does not disassemble the executable section before analysis because instruction presence is the behavior under test.
 
 ## Ghidra Java Contract
 
@@ -65,4 +65,4 @@ The expected generated files are `test_disassemble_entry_points.exe` and `test_d
 
 ## Validation
 
-Validation completed with MSVC 2022 x64 compilation/linking, project save/reopen through `project.openProgram(...)`, before/after target-only analysis, decorated-symbol lookup, and report inspection. The generated report contains the two exported code symbols and the C++-linkage data marker; the data marker is not treated as an entry point.
+Validation completed with MSVC 2022 x64 compilation/linking, project save/reopen through `project.openProgram(...)`, before/after target-only analysis, decorated-symbol lookup, and report inspection. The generated report contains four exported code symbols and the C++-linkage data marker; the data marker is not treated as an entry point.

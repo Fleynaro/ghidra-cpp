@@ -31,7 +31,6 @@ set(ANALYZER_NAMES
     disassemble_entry_points
     embedded_media
     external_entry_references
-    function_body
     function_id
     function_start_search
     non_returning_functions

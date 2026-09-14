@@ -32,16 +32,16 @@ namespace {
             {0x1400011B0, {{0x1400011B0, 0x1400011D4}}},
             {0x1400011DC, {{0x1400011DC, 0x1400011FE}}},
             {0x140001208, {{0x140001208, 0x14000120C}}},
-            {0x14000122C, {{0x140001214, 0x140001225}, {0x14000122C, 0x140001264}}},
-            {0x14000126C, {{0x14000126C, 0x14000126C}}},
-            {0x140001294, {{0x140001294, 0x140001294}}}};
+            {0x14000122C, {{0x140001214, 0x140001225}, {0x14000122C, 0x140001293}}},
+            {0x14000129C, {{0x14000129C, 0x14000129C}}},
+            {0x1400012C4, {{0x1400012C4, 0x1400012C4}}}};
 }
 
 /// Returns the eleven provider/importer function entries present before the
 /// Subroutine References task, copied from the Ghidra before-analysis table.
 [[nodiscard]] std::set<Address> expected_initial_entries() {
     return {0x140001098, 0x1400010E0, 0x14000111C, 0x140001150, 0x140001168, 0x140001180,
-            0x1400011B0, 0x1400011DC, 0x14000122C, 0x14000126C, 0x140001294};
+            0x1400011B0, 0x1400011DC, 0x14000122C, 0x14000129C, 0x1400012C4};
 }
 
 /// Returns the eight entries added by FunctionAnalyzer in the Ghidra Delta.
@@ -57,17 +57,19 @@ struct ExpectedCall {
 };
 
 /// Returns every direct call reference observed before Ghidra analysis.
-[[nodiscard]] std::array<ExpectedCall, 20> expected_calls() {
+[[nodiscard]] std::array<ExpectedCall, 23> expected_calls() {
     return {{{0x14000109C, 0x140001000, 0x1400010A1}, {0x1400010AF, 0x140001014, 0x1400010B4},
              {0x1400010CC, 0x14000103C, 0x1400010D1}, {0x1400010E4, 0x140001000, 0x1400010E9},
              {0x1400010F8, 0x140001028, 0x1400010FD}, {0x140001120, 0x140001000, 0x140001125},
              {0x140001154, 0x140001144, 0x140001159}, {0x14000116C, 0x140001150, 0x140001171},
              {0x14000118E, 0x140001180, 0x140001193}, {0x1400011BA, 0x1400011DC, 0x1400011BF},
              {0x1400011E6, 0x1400011B0, 0x1400011EB}, {0x140001234, 0x140001028, 0x140001239},
-             {0x140001298, 0x140001098, 0x14000129D}, {0x14000129D, 0x1400010E0, 0x1400012A2},
-             {0x1400012A2, 0x14000111C, 0x1400012A7}, {0x1400012A7, 0x140001168, 0x1400012AC},
-             {0x1400012B1, 0x140001180, 0x1400012B6}, {0x1400012BB, 0x1400011DC, 0x1400012C0},
-             {0x1400012C0, 0x140001208, 0x1400012C5}, {0x1400012CA, 0x14000122C, 0x1400012CF}}};
+             {0x140001248, 0x14000103C, 0x14000124D}, {0x140001267, 0x140001000, 0x14000126C},
+             {0x140001277, 0x140001014, 0x14000127C}, {0x1400012C8, 0x140001098, 0x1400012CD},
+             {0x1400012CD, 0x1400010E0, 0x1400012D2}, {0x1400012D2, 0x14000111C, 0x1400012D7},
+             {0x1400012D7, 0x140001168, 0x1400012DC}, {0x1400012E1, 0x140001180, 0x1400012E6},
+             {0x1400012EB, 0x1400011DC, 0x1400012F0}, {0x1400012F0, 0x140001208, 0x1400012F5},
+             {0x1400012FA, 0x14000122C, 0x1400012FF}}};
 }
 
 /// Converts a function map into a stable body snapshot for idempotency checks.

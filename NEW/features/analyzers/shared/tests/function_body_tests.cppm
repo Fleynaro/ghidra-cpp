@@ -12,7 +12,7 @@ namespace {
 
 /// Verifies data references do not become control-flow edges during function creation.
 TEST(AnalyzerPipelineTest, FunctionBodiesIgnoreDataReferences) {
-    auto context = load_fixture("disassemble_entry_points");
+    auto context = load_shared_fixture("function_body");
     context.options().seed_provider_functions = false;
     const auto executable =
         std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
@@ -49,7 +49,7 @@ TEST(AnalyzerPipelineTest, FunctionBodiesIgnoreDataReferences) {
 
 /// Verifies conditional branches split the block at both the target and fall-through leaders.
 TEST(AnalyzerPipelineTest, BuildsConditionalBranchCfg) {
-    auto context = load_fixture("disassemble_entry_points");
+    auto context = load_shared_fixture("function_body");
     context.options().seed_provider_functions = false;
     const auto executable =
         std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
@@ -88,7 +88,7 @@ TEST(AnalyzerPipelineTest, BuildsConditionalBranchCfg) {
 
 /// Verifies explicitly discovered overlapping entries retain a shared code address.
 TEST(AnalyzerPipelineTest, PreservesSharedFunctionBodies) {
-    auto context = load_fixture("disassemble_entry_points");
+    auto context = load_shared_fixture("function_body");
     context.options().seed_provider_functions = false;
     context.options().allow_shared_function_body = true;
     const auto executable =
@@ -116,7 +116,7 @@ TEST(AnalyzerPipelineTest, PreservesSharedFunctionBodies) {
 /// entry out of an existing body instead of silently retaining overlapping
 /// ownership when shared bodies are not requested.
 TEST(AnalyzerPipelineTest, CarvesOverlappingFunctionBodyByDefault) {
-    auto context = load_fixture("disassemble_entry_points");
+    auto context = load_shared_fixture("function_body");
     context.options().seed_provider_functions = false;
     const auto executable =
         std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
@@ -147,7 +147,7 @@ TEST(AnalyzerPipelineTest, CarvesOverlappingFunctionBodyByDefault) {
 /// through the newly created function entry. Recomputing the old body after
 /// insertion would incorrectly reclaim the shared address.
 TEST(AnalyzerPipelineTest, PreservesCarvingAgainstInteriorSharedReachability) {
-    auto context = load_fixture("disassemble_entry_points");
+    auto context = load_shared_fixture("function_body");
     context.options().seed_provider_functions = false;
     const auto executable =
         std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
@@ -197,7 +197,7 @@ TEST(AnalyzerPipelineTest, PreservesCarvingAgainstInteriorSharedReachability) {
 /// thunk. Ghidra's CreateThunkFunctionCmd rejects STORE side effects even when
 /// the final control flow has a resolved destination.
 TEST(AnalyzerPipelineTest, RejectsThunkWithMemorySideEffect) {
-    auto context = load_fixture("disassemble_entry_points");
+    auto context = load_shared_fixture("function_body");
     context.options().seed_provider_functions = false;
     const auto executable =
         std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
@@ -230,7 +230,7 @@ TEST(AnalyzerPipelineTest, RejectsThunkWithMemorySideEffect) {
 /// Verifies CreateFunctionCmd rejects an entry that would split an existing
 /// instruction, preserving one coherent code-unit ownership boundary.
 TEST(AnalyzerPipelineTest, RejectsOffcutFunctionEntry) {
-    auto context = load_fixture("disassemble_entry_points");
+    auto context = load_shared_fixture("function_body");
     const auto executable =
         std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
                      [](const pe::MemoryRegion& region) { return region.executable; });
@@ -242,6 +242,61 @@ TEST(AnalyzerPipelineTest, RejectsOffcutFunctionEntry) {
     ASSERT_TRUE(context.define_instruction(std::move(instruction)));
     ASSERT_TRUE(context.create_function(executable->start));
     EXPECT_FALSE(context.create_function(executable->start + 1));
+}
+
+/// Verifies call destinations are excluded, recursive conditional flow is
+/// visited once, and a CALL_RETURN override removes the post-call path.
+TEST(AnalyzerPipelineTest, HandlesCallsLoopsAndNoReturnBodyRepair) {
+    auto context = load_shared_fixture("function_body");
+    context.options().seed_provider_functions = false;
+    const auto executable =
+        std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
+                     [](const pe::MemoryRegion& region) { return region.executable; });
+    ASSERT_NE(executable, context.image().memory_regions().end());
+
+    const Address entry = executable->start + 0x100U;
+    const Address post_call = entry + 1U;
+    const Address loop_branch = entry + 2U;
+    const Address loop_body = entry + 3U;
+    const Address terminal = entry + 4U;
+    const Address callee = entry + 0x20U;
+    const auto instruction = [](Address address, sleigh_runtime::FlowKind kind, std::optional<Address> target,
+                                bool fallthrough, bool is_terminal) {
+        sleigh_runtime::Instruction result;
+        result.address = address;
+        result.length = 1;
+        result.flow = {kind, target ? std::optional{sleigh_runtime::Varnode{"ram", *target, 8}} : std::nullopt,
+                       fallthrough, is_terminal};
+        return result;
+    };
+
+    ASSERT_TRUE(context.define_instruction(instruction(entry, sleigh_runtime::FlowKind::call, callee, true, false)));
+    ASSERT_TRUE(
+        context.define_instruction(instruction(post_call, sleigh_runtime::FlowKind::none, std::nullopt, true, false)));
+    ASSERT_TRUE(context.define_instruction(
+        instruction(loop_branch, sleigh_runtime::FlowKind::conditional_branch, terminal, true, false)));
+    ASSERT_TRUE(context.define_instruction(
+        instruction(loop_body, sleigh_runtime::FlowKind::conditional_branch, loop_branch, true, false)));
+    ASSERT_TRUE(context.define_instruction(
+        instruction(terminal, sleigh_runtime::FlowKind::return_op, std::nullopt, false, true)));
+    ASSERT_TRUE(context.define_instruction(
+        instruction(callee, sleigh_runtime::FlowKind::return_op, std::nullopt, false, true)));
+    ASSERT_TRUE(context.create_function(entry));
+    const auto& normal = context.functions().at(entry);
+    EXPECT_TRUE(normal.body.contains(post_call));
+    EXPECT_TRUE(normal.body.contains(loop_body));
+    EXPECT_FALSE(normal.body.contains(callee));
+    EXPECT_EQ(normal.instruction_starts.size(), 5U);
+    EXPECT_TRUE(context.functions().at(entry).blocks.size() >= 2U);
+
+    ASSERT_TRUE(context.set_flow_override(entry, FlowOverride::call_return, callee));
+    ASSERT_TRUE(context.rebuild_function_body(entry));
+    const auto& repaired = context.functions().at(entry);
+    EXPECT_EQ(repaired.instruction_starts, (std::set<Address>{entry}));
+    EXPECT_FALSE(repaired.body.contains(post_call));
+    EXPECT_FALSE(repaired.body.contains(loop_branch));
+    EXPECT_FALSE(repaired.body.contains(loop_body));
+    EXPECT_FALSE(repaired.body.contains(callee));
 }
 
 } // namespace

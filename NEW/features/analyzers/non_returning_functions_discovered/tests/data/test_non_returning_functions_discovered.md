@@ -23,6 +23,7 @@
 | `0x0000000140001014` | `discovered_caller_one` | `false` |
 | `0x0000000140001038` | `discovered_caller_two` | `false` |
 | `0x000000014000105C` | `discovered_caller_three` | `false` |
+| `0x0000000140001080` | `discovered_returning_caller` | `false` |
 
 ## Call Evidence And Flow Overrides
 
@@ -31,8 +32,10 @@
 | `0x0000000140001018` | `0x0000000140001000` | `CALL_RETURN` |
 | `0x000000014000103C` | `0x0000000140001000` | `CALL_RETURN` |
 | `0x0000000140001060` | `0x0000000140001000` | `CALL_RETURN` |
-| `0x0000000140001084` | `0x0000000140001014` | `NONE` |
-| `0x0000000140001089` | `0x0000000140001038` | `NONE` |
+| `0x0000000140001084` | `0x0000000140001000` | `CALL_RETURN` |
+| `0x00000001400010A8` | `0x0000000140001014` | `NONE` |
+| `0x00000001400010AD` | `0x0000000140001038` | `NONE` |
+| `0x00000001400010B2` | `0x000000014000105C` | `NONE` |
 
 ## Non-Returning Function Bookmarks
 
@@ -49,8 +52,10 @@
 | `Call 0x0000000140001018` | `target 0x0000000140001000 \| flow override: NONE` |
 | `Call 0x000000014000103C` | `target 0x0000000140001000 \| flow override: NONE` |
 | `Call 0x0000000140001060` | `target 0x0000000140001000 \| flow override: NONE` |
-| `Call 0x0000000140001084` | `target 0x0000000140001014 \| flow override: NONE` |
-| `Call 0x0000000140001089` | `target 0x0000000140001038 \| flow override: NONE` |
+| `Call 0x0000000140001084` | `target 0x0000000140001000 \| flow override: NONE` |
+| `Call 0x00000001400010A8` | `target 0x0000000140001014 \| flow override: NONE` |
+| `Call 0x00000001400010AD` | `target 0x0000000140001038 \| flow override: NONE` |
+| `Call 0x00000001400010B2` | `target 0x000000014000105C \| flow override: NONE` |
 
 ### Functions
 
@@ -60,6 +65,7 @@
 | `0x0000000140001014` | `discovered_caller_one \| no-return: false` |
 | `0x0000000140001038` | `discovered_caller_two \| no-return: false` |
 | `0x000000014000105C` | `discovered_caller_three \| no-return: false` |
+| `0x0000000140001080` | `discovered_returning_caller \| no-return: false` |
 
 ### Bookmarks
 
@@ -86,8 +92,10 @@
 | `Call 0x0000000140001018` | `target 0x0000000140001000 \| flow override: CALL_RETURN` |
 | `Call 0x000000014000103C` | `target 0x0000000140001000 \| flow override: CALL_RETURN` |
 | `Call 0x0000000140001060` | `target 0x0000000140001000 \| flow override: CALL_RETURN` |
-| `Call 0x0000000140001084` | `target 0x0000000140001014 \| flow override: NONE` |
-| `Call 0x0000000140001089` | `target 0x0000000140001038 \| flow override: NONE` |
+| `Call 0x0000000140001084` | `target 0x0000000140001000 \| flow override: CALL_RETURN` |
+| `Call 0x00000001400010A8` | `target 0x0000000140001014 \| flow override: NONE` |
+| `Call 0x00000001400010AD` | `target 0x0000000140001038 \| flow override: NONE` |
+| `Call 0x00000001400010B2` | `target 0x000000014000105C \| flow override: NONE` |
 
 ### Functions
 
@@ -97,6 +105,7 @@
 | `0x0000000140001014` | `discovered_caller_one \| no-return: false` |
 | `0x0000000140001038` | `discovered_caller_two \| no-return: false` |
 | `0x000000014000105C` | `discovered_caller_three \| no-return: false` |
+| `0x0000000140001080` | `discovered_returning_caller \| no-return: false` |
 
 ### Bookmarks
 
@@ -123,6 +132,7 @@
 | `Changed` | `Call 0x0000000140001018` | `target 0x0000000140001000 \| flow override: NONE` | `target 0x0000000140001000 \| flow override: CALL_RETURN` |
 | `Changed` | `Call 0x000000014000103C` | `target 0x0000000140001000 \| flow override: NONE` | `target 0x0000000140001000 \| flow override: CALL_RETURN` |
 | `Changed` | `Call 0x0000000140001060` | `target 0x0000000140001000 \| flow override: NONE` | `target 0x0000000140001000 \| flow override: CALL_RETURN` |
+| `Changed` | `Call 0x0000000140001084` | `target 0x0000000140001000 \| flow override: NONE` | `target 0x0000000140001000 \| flow override: CALL_RETURN` |
 
 ### Functions
 

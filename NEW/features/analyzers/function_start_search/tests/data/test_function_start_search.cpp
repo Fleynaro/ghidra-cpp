@@ -30,6 +30,17 @@ extern "C" __declspec(dllexport) __declspec(allocate(".text$funcstart_fixture"))
 const unsigned char function_start_positive_pattern[] = {0xCC, 0xCC, 0xCC, 0x48, 0x83, 0xEC, 0x28, 0xB8, 0x2A,
                                                          0x00, 0x00, 0x00, 0x48, 0x83, 0xC4, 0x28, 0xC3};
 
+// Case: a second raw match with a different stack allocation and terminal path.
+// Purpose: prove that the analyzer materializes every valid match instead of
+// stopping after the first pattern or collapsing distinct starts.
+// Expected Ghidra behavior: the marked address three bytes into this array is
+// created as a second function and receives its own analysis bookmark.
+// This catches: single-candidate state, duplicate-address mistakes, and
+// incorrect handling of a short but valid prologue/body.
+extern "C" __declspec(dllexport) __declspec(allocate(".text$funcstart_fixture"))
+const unsigned char function_start_positive_pattern_two[] = {0xCC, 0xCC, 0xCC, 0x48, 0x83, 0xEC,
+                                                             0x20, 0x48, 0x83, 0xC4, 0x20, 0xC3};
+
 // Stack locals make the compiler emit the x86-64 Windows stack-allocation pattern.
 extern "C" __declspec(dllexport) __declspec(noinline) unsigned int function_start_candidate_a() {
     volatile unsigned int locals[8] = {1, 2, 3, 4, 5, 6, 7, 8};

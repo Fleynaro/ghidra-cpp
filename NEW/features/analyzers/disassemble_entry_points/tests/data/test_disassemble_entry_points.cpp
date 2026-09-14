@@ -43,6 +43,50 @@ extern "C" __declspec(dllexport) __declspec(noinline) void entry_point_beta() {
     fixture_sink = 0xB2;
 }
 
+// Case: a code entry with a loop, nested branches, and a switch.
+// Purpose: force entry-point disassembly to follow several real x64 flow edges
+// instead of succeeding on a single straight-line store.
+// Expected Ghidra behavior: the entry instruction is disassembled, but no
+// function is created by Disassemble Entry Points itself.
+// This catches: implementations that only handle the first exported code
+// symbol or stop when conditional flow is present.
+extern "C" __declspec(dllexport) __declspec(noinline) void entry_point_gamma(unsigned int selector) {
+    unsigned int value = selector;
+    for (unsigned int index = 0; index != 3U; ++index) {
+        switch ((value + index) & 3U) {
+            case 0U:
+                value ^= 0x11U;
+                break;
+            case 1U:
+                value += 0x23U;
+                break;
+            case 2U:
+                value -= 0x07U;
+                break;
+            default:
+                value = value * 3U + 1U;
+                break;
+        }
+    }
+    fixture_sink ^= value;
+}
+
+// Case: a code entry containing a direct call and a post-call conditional.
+// Purpose: verify that disassembly records the entry and its fall-through
+// without accidentally creating a function or scanning unrelated code.
+// Expected Ghidra behavior: the exported entry is instructional and the data
+// export below remains undefined.
+// This catches: implementations that conflate entry disassembly with function
+// discovery or treat call targets as additional entry seeds.
+extern "C" __declspec(dllexport) __declspec(noinline) void entry_point_delta(unsigned int selector) {
+    if ((selector & 1U) != 0U) {
+        entry_point_alpha();
+    } else {
+        entry_point_beta();
+    }
+    fixture_sink += selector;
+}
+
 // Keep C++ linkage while giving the PE export a real external symbol that the
 // harness can resolve by its decorated or demangled name.
 extern __declspec(dllexport) const unsigned int data_only_marker = 0xDADA1234U;
@@ -51,5 +95,7 @@ extern __declspec(dllexport) const unsigned int data_only_marker = 0xDADA1234U;
 extern "C" __declspec(noinline) void fixture_entry() {
     entry_point_alpha();
     entry_point_beta();
+    entry_point_gamma(fixture_sink);
+    entry_point_delta(fixture_sink);
     fixture_sink ^= data_only_marker;
 }

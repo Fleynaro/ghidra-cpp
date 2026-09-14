@@ -8,10 +8,10 @@ Exercise stack reference, frame, and local-variable discovery for existing funct
 `Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/function/StackVariableAnalyzer.java` and `NewFunctionStackAnalysisCmd.java`.
 
 ## Test Scenario
-Volatile locals, an address-taken local, and a nested call are disassembled and analyzed; the script extracts stack references, variables, and frame information.
+Volatile byte, dword, and qword locals, an address-taken local, and a nested call are disassembled and analyzed; the script extracts width-sensitive stack references, variables, and frame information.
 
 ## Why This C++ Code Was Chosen
-Frame-pointer-friendly MSVC code creates real stack storage and call boundaries without relying on debug metadata or a CRT.
+Frame-pointer-friendly MSVC code creates real stack storage, mixed operand widths, and call boundaries without relying on debug metadata or a CRT.
 
 ## Required Compiler Options
 MSVC x64 `/Oy-` and the deterministic options in `build.bat`.

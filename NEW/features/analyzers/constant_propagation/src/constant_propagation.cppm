@@ -374,8 +374,17 @@ void ConstantPropagationAnalyzer::analyze(AnalysisContext& context, std::span<co
                     if (!operation.output)
                         continue;
                     const auto value = evaluate_operation(operation, state.values, state.memory, context);
-                    if (!value)
+                    if (!value) {
+                        // An unknown/unsupported write invalidates the prior
+                        // fact. Retaining it would let a stale constant flow
+                        // through a divide-by-zero, unresolved load, or other
+                        // non-evaluable operation, unlike SymbolicPropogator.
+                        if (operation.output->space == "ram")
+                            state.memory.erase(location_key(*operation.output));
+                        else
+                            state.values.erase(location_key(*operation.output));
                         continue;
+                    }
                     const auto normalized = truncate_value(*value, operation.output->size);
                     state.values[location_key(*operation.output)] = normalized;
                     static_cast<void>(context.add_constant_fact(

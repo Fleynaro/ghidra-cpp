@@ -20,7 +20,13 @@ namespace {
 
 /// Accepts provider memory/address kinds and textual x86 memory qualifiers.
 [[nodiscard]] bool is_memory_operand(const sleigh_runtime::Operand& operand) {
-    if (operand.kind == sleigh_runtime::OperandKind::memory || operand.kind == sleigh_runtime::OperandKind::address)
+    // Sleigh distinguishes an address-producing operand (for example LEA or a
+    // plain immediate) from an operand that actually reads/writes memory. The
+    // original OperandReferenceAnalyzer does not create a data reference for
+    // the former without a LOAD/STORE p-code operation.
+    if (operand.kind == sleigh_runtime::OperandKind::address)
+        return false;
+    if (operand.kind == sleigh_runtime::OperandKind::memory)
         return true;
     std::string text = operand.text;
     std::transform(text.begin(), text.end(), text.begin(),
@@ -88,6 +94,23 @@ namespace {
                        [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
         return value;
     }();
+    // A displacement such as `[rsp + 0x8]` is not an absolute address. The
+    // original OperandReferenceAnalyzer consumes typed operand objects and
+    // never interprets that displacement as an image-relative RVA.
+    static constexpr std::array<std::string_view, 33> registers{
+        "rax", "rbx", "rcx", "rdx", "rsi", "rdi", "rbp", "rsp", "rip", "eax", "ebx",
+        "ecx", "edx", "esi", "edi", "ebp", "esp", "ax",  "bx",  "cx",  "dx",  "si",
+        "di",  "bp",  "sp",  "r8",  "r9",  "r10", "r11", "r12", "r13", "r14", "r15"};
+    const auto open = lower.find('[');
+    const auto close = lower.find(']', open == std::string::npos ? 0 : open + 1);
+    if (open != std::string::npos && close != std::string::npos) {
+        const auto expression = std::string_view(lower).substr(open, close - open + 1);
+        if (std::any_of(registers.begin(), registers.end(), [&](const auto register_name) {
+                return expression.find(register_name) != std::string_view::npos;
+            })) {
+            return std::nullopt;
+        }
+    }
     const auto start = lower.find("0x");
     if (start == std::string_view::npos)
         return std::nullopt;

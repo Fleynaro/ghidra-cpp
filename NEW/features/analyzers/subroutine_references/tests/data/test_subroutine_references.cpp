@@ -149,17 +149,31 @@ __declspec(align(32)) extern "C" __declspec(noinline) void padded_terminal() {
     fixture_sink ^= 0x90U;
 }
 
-// This function mixes a call, conditional jumps, and a final target call. It
-// gives BasicBlockModel and SimpleBlockModel distinct leaders and successors
-// without relying on compiler-generated jump-table data.
+// Case: a call followed by a four-way switch, fallthrough cases, and a final
+// target call. Purpose: make one caller exercise multiple CFG leaders while
+// adding repeated and branch-specific call references.
+// Expected Ghidra behavior: every resolved call target is deduplicated at the
+// function level, while all caller blocks and call references remain visible.
+// This catches: ports that only inspect the first call in a complex block or
+// lose switch/fallthrough paths while creating the caller body.
 extern "C" __declspec(noinline) void mixed_flow(unsigned int selector) {
     target_beta();
-    if ((selector & 1U) != 0U) {
-        fixture_sink += 1U;
-    } else if ((selector & 2U) != 0U) {
-        fixture_sink += 2U;
-    } else {
-        fixture_sink += 3U;
+    switch (selector & 3U) {
+        case 0U:
+            target_alpha();
+            fixture_sink += 1U;
+            break;
+        case 1U:
+            fixture_sink += 2U;
+            // Intentional fallthrough: both selector values share this call.
+        case 2U:
+            target_shared();
+            fixture_sink += 3U;
+            break;
+        default:
+            target_conditional();
+            fixture_sink += 4U;
+            break;
     }
     padded_terminal();
 }

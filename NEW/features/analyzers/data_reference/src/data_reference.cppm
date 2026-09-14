@@ -76,8 +76,15 @@ void DataReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const An
         } else if (const auto translated = context.image().rva_to_va(static_cast<pe::Rva>(target)); translated) {
             target_address = *translated;
         }
-        if (target_address && context.image().find_memory_region(*target_address)) {
-            static_cast<void>(context.add_data(DataObject{source, size, "relocated pointer"}));
+        // Relocation cells alone are not enough to prove that arbitrary bytes
+        // are defined pointer data. The original analyzer consumes data-origin
+        // references from already-defined pointer objects; in the autonomous
+        // PE model, a relocation chain is the equivalent evidence for a
+        // pointer-to-pointer cell. Explicit DataObject entries are handled by
+        // the second loop below and may legitimately point to strings/code.
+        if (target_address && context.image().find_memory_region(*target_address) &&
+            relocated_data_cells.contains(*target_address)) {
+            static_cast<void>(context.add_data(DataObject{*target_address, size, "relocated pointer"}));
             static_cast<void>(context.add_reference(Reference{source, *target_address, ReferenceKind::data,
                                                               std::nullopt, std::nullopt, FlowOverride::none, true}));
         }

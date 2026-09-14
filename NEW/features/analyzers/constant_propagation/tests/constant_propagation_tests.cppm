@@ -14,7 +14,7 @@ namespace {
 
 /// Verifies p-code COPY and integer addition produce a stable constant fact.
 TEST(AnalyzerPipelineTest, PropagatesPcodeArithmetic) {
-    auto context = load_fixture("disassemble_entry_points");
+    auto context = load_fixture("constant_propagation");
     const auto executable =
         std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
                      [](const pe::MemoryRegion& region) { return region.executable; });
@@ -70,6 +70,56 @@ TEST(AnalyzerPipelineTest, PropagatesPcodeArithmetic) {
         }));
     EXPECT_TRUE(std::any_of(context.constant_facts().begin(), context.constant_facts().end(),
                             [](const ConstantFact& fact) { return fact.location.offset == 16 && fact.value == 0; }));
+}
+
+/// Verifies an unknown write clears a prior register fact instead of allowing
+/// a stale value to produce a false downstream constant.
+TEST(AnalyzerPipelineTest, UnknownWriteInvalidatesPreviousConstant) {
+    auto context = load_fixture("constant_propagation");
+    context.options().seed_provider_functions = false;
+    const auto executable =
+        std::find_if(context.image().memory_regions().begin(), context.image().memory_regions().end(),
+                     [](const pe::MemoryRegion& region) { return region.executable; });
+    ASSERT_NE(executable, context.image().memory_regions().end());
+    const Address entry = executable->start + 0x200U;
+    const auto make_instruction = [](Address address, sleigh_runtime::PcodeOp operation) {
+        sleigh_runtime::Instruction instruction;
+        instruction.address = address;
+        instruction.length = 1;
+        instruction.flow = {sleigh_runtime::FlowKind::none, std::nullopt, true, false};
+        instruction.pcode.push_back(std::move(operation));
+        return instruction;
+    };
+    ASSERT_TRUE(context.define_instruction(
+        make_instruction(entry, sleigh_runtime::PcodeOp{sleigh_runtime::PcodeOpcode::copy,
+                                                        sleigh_runtime::Varnode{"register", 0, 8},
+                                                        {sleigh_runtime::Varnode{"const", 7, 8}},
+                                                        std::nullopt})));
+    ASSERT_TRUE(context.define_instruction(make_instruction(
+        entry + 1U,
+        sleigh_runtime::PcodeOp{sleigh_runtime::PcodeOpcode::int_div,
+                                sleigh_runtime::Varnode{"register", 0, 8},
+                                {sleigh_runtime::Varnode{"register", 0, 8}, sleigh_runtime::Varnode{"const", 0, 8}},
+                                std::nullopt})));
+    ASSERT_TRUE(context.define_instruction(make_instruction(
+        entry + 2U,
+        sleigh_runtime::PcodeOp{sleigh_runtime::PcodeOpcode::int_add,
+                                sleigh_runtime::Varnode{"register", 8, 8},
+                                {sleigh_runtime::Varnode{"register", 0, 8}, sleigh_runtime::Varnode{"const", 1, 8}},
+                                std::nullopt})));
+    ASSERT_TRUE(context.create_function(entry));
+    context.options() = {};
+    AutoAnalysisManager manager(context);
+    manager.register_analyzer(std::make_unique<SubroutineReferencesAnalyzer>());
+    manager.register_analyzer(std::make_unique<ConstantPropagationAnalyzer>());
+    const auto result = manager.analyze(std::array<Address, 1>{entry});
+    ASSERT_TRUE(result.completed);
+    EXPECT_TRUE(
+        std::any_of(context.constant_facts().begin(), context.constant_facts().end(), [&](const ConstantFact& fact) {
+            return fact.instruction == entry && fact.location.offset == 0 && fact.value == 7;
+        }));
+    EXPECT_FALSE(std::any_of(context.constant_facts().begin(), context.constant_facts().end(),
+                             [](const ConstantFact& fact) { return fact.location.offset == 8 && fact.value == 8; }));
 }
 
 } // namespace
