@@ -5,9 +5,8 @@ feature.
 
 ## Contents
 
-- [`pe_loader.cppm`](pe_loader.cppm) declares and exports the public PE model and loader API.
-- [`pe_loader.cpp`](pe_loader.cpp) implements checked PE parsing, directory decoding, and image mapping.
+- [`pe_loader.cppm`](pe_loader.cppm) declares, exports, and implements the complete public PE model and loader API.
 
-Both source files import the C++ standard library with `import std;`. The parent
-[`CMakeLists.txt`](../CMakeLists.txt) registers the module interface, implementation, and the MSVC standard
-library module. GoogleTest coverage remains in [`../tests`](../tests/README.md).
+The module imports the C++ standard library with `import std;`. The parent
+[`CMakeLists.txt`](../CMakeLists.txt) registers the module and the MSVC standard library module. GoogleTest
+coverage remains in [`../tests`](../tests/README.md).

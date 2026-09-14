@@ -14,8 +14,6 @@ endif()
 target_sources(pe_loader
     PUBLIC
         FILE_SET cxx_modules TYPE CXX_MODULES FILES src/pe_loader.cppm
-    PRIVATE
-        src/pe_loader.cpp
 )
 
 if(MSVC)
