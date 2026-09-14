@@ -317,24 +317,24 @@ struct BytePattern {
 }
 
 /// Resolves the processor pattern directory when callers did not override it.
-/// Ghidra selects this data from the language/compiler configuration; the native
-/// PE path uses the installed repository location without requiring a machine-
-/// specific path in source or tests.
+/// The corpus is shipped with this feature, so production analysis never needs
+/// an installed Ghidra tree or an environment variable at runtime. The source
+/// location is used instead of a repository-root name so the module remains
+/// relocatable.
 [[nodiscard]] std::filesystem::path resolve_pattern_root(const AnalysisContext& context) {
     if (!context.options().pattern_root.empty()) {
         return context.options().pattern_root;
     }
-    std::vector<std::filesystem::path> candidates;
-    if (const auto* install = std::getenv("GHIDRA_INSTALL_DIR"); install != nullptr && *install != '\0') {
-        candidates.emplace_back(install);
+    const auto bundled = std::filesystem::path(__FILE__).parent_path().parent_path() / "data" / "patterns";
+    if (std::filesystem::is_directory(bundled)) {
+        return bundled;
     }
-    candidates.emplace_back(std::filesystem::current_path());
-    candidates.emplace_back(std::filesystem::current_path().parent_path());
+    std::vector<std::filesystem::path> candidates;
+    candidates.emplace_back(std::filesystem::current_path() / "features" / "analyzers" / "function_start_search" /
+                            "data" / "patterns");
     for (const auto& base : candidates) {
-        const auto root = base / "Ghidra" / "Processors" / "x86" / "data" / "patterns";
-        if (std::filesystem::is_directory(root)) {
-            return root;
-        }
+        if (std::filesystem::is_directory(base))
+            return base;
     }
     return {};
 }
