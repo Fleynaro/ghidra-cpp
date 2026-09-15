@@ -107,13 +107,17 @@ struct CandidateProof {
 
 /// Reports whether an address is already owned by code or data.
 [[nodiscard]] bool is_defined(const AnalysisContext& context, Address address) {
-    for (const auto& [start, record] : context.instructions()) {
-        if (address >= start && address < start + record.instruction.length) {
+    const auto instruction = context.instructions().upper_bound(address);
+    if (instruction != context.instructions().begin()) {
+        const auto& [start, record] = *std::prev(instruction);
+        if (address < start + record.instruction.length) {
             return true;
         }
     }
-    for (const auto& [start, data] : context.data()) {
-        if (address >= start && address < start + data.size) {
+    const auto data = context.data().upper_bound(address);
+    if (data != context.data().begin()) {
+        const auto& [start, record] = *std::prev(data);
+        if (address < start + record.size) {
             return true;
         }
     }

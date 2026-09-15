@@ -18,6 +18,23 @@ public:
 
     /// Hashes eligible functions, queries configured databases, and applies native labels/bookmarks.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
+
+private:
+    /// Identifies one immutable database file for cache invalidation.
+    struct DatabaseFileState {
+        std::filesystem::path path;
+        std::uintmax_t size{};
+        std::filesystem::file_time_type modified{};
+
+        /// Compares path and filesystem metadata without opening the database.
+        friend bool operator==(const DatabaseFileState&, const DatabaseFileState&) = default;
+    };
+
+    /// Reuses immutable parsed databases until configured paths or file metadata change.
+    [[nodiscard]] bool ensure_databases(const std::vector<std::filesystem::path>&, CancellationToken&);
+
+    std::vector<DatabaseFileState> database_files_;
+    std::vector<fid::Database> databases_;
 };
 } // namespace ghidra::analyzer
 
@@ -120,17 +137,7 @@ void FunctionIdAnalyzer::analyze(AnalysisContext& context, std::span<const Analy
     if (paths.empty()) {
         return;
     }
-    std::vector<fid::Database> databases;
-    for (const auto& path : paths) {
-        if (cancellation.is_cancelled()) {
-            return;
-        }
-        auto database = fid::Database::open(path);
-        if (database) {
-            databases.push_back(std::move(*database));
-        }
-    }
-    if (databases.empty()) {
+    if (!ensure_databases(paths, cancellation)) {
         return;
     }
     const auto relocation_list = relocations(context);
@@ -164,7 +171,7 @@ void FunctionIdAnalyzer::analyze(AnalysisContext& context, std::span<const Analy
         std::vector<std::string> names;
         fid::IdentificationResult best;
         bool has_match = false;
-        for (const auto& database : databases) {
+        for (const auto& database : databases_) {
             const auto identified = database.identify(query, program);
             if (!identified || identified->names.empty() || identified->matches.empty()) {
                 continue;
@@ -184,6 +191,44 @@ void FunctionIdAnalyzer::analyze(AnalysisContext& context, std::span<const Analy
         apply_match(context, function, best);
         (void)entry;
     }
+}
+
+/// Reuses parsed immutable Function ID databases while preserving path and file-change behavior.
+bool FunctionIdAnalyzer::ensure_databases(const std::vector<std::filesystem::path>& paths,
+                                          CancellationToken& cancellation) {
+    std::vector<DatabaseFileState> files;
+    files.reserve(paths.size());
+    for (const auto& path : paths) {
+        std::error_code size_error;
+        std::error_code time_error;
+        const auto size = std::filesystem::file_size(path, size_error);
+        const auto modified = std::filesystem::last_write_time(path, time_error);
+        files.push_back(
+            DatabaseFileState{path, size_error ? 0U : size, time_error ? std::filesystem::file_time_type{} : modified});
+    }
+    if (files == database_files_ && !databases_.empty())
+        return true;
+
+    std::vector<std::future<std::expected<fid::Database, fid::Error>>> pending;
+    pending.reserve(paths.size());
+    for (const auto& path : paths) {
+        if (cancellation.is_cancelled())
+            return false;
+        pending.push_back(std::async(std::launch::async, [path] { return fid::Database::open(path); }));
+    }
+
+    std::vector<fid::Database> loaded;
+    loaded.reserve(paths.size());
+    for (auto& future : pending) {
+        auto database = future.get();
+        if (database)
+            loaded.push_back(std::move(*database));
+    }
+    if (cancellation.is_cancelled())
+        return false;
+    database_files_ = std::move(files);
+    databases_ = std::move(loaded);
+    return !databases_.empty();
 }
 
 } // namespace ghidra::analyzer

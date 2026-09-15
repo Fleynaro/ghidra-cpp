@@ -17,7 +17,28 @@
 
 ## Critical Findings
 
-No findings.
+### CRITICAL-001: Full integration analysis repeatedly reparsed immutable Function ID databases
+
+- [x] Performance problem confirmed by high-resolution profiling.
+- [x] Root cause identified in the analyzer rather than guessed from wall-clock time.
+- Severity: critical performance regression for the intended end-to-end test workflow.
+- Environment: Windows `win32`, Visual Studio Developer Command Prompt `18.11.0-insiders`, MSVC `14.34.31933` (`x64`), CMake/Ninja preserved build under `NEW/build`, optimized native test executable, no debugger or Ghidra oracle in the measured C++ runtime.
+- Baseline command: `cmd /c ..\..\build.bat analyzer_global_integration`; the uninstrumented CTest run measured `148.3 s` before the fix. A direct test run with temporary per-analyzer timers measured `188.8 s`; the added stderr instrumentation accounts for measurement overhead and is not used for the baseline headline.
+- Source: `function_id/src/function_id.cppm:118-186` before the fix.
+- Affected component: `FunctionIdAnalyzer` and its interaction with event-driven `AutoAnalysisManager` scheduling.
+- Measured evidence: the analyzer opened all four `.fidb` files on six invocations. Individual database-open phases measured `18.3-21.1 s`; the repeated Function ID task totals were approximately `18.9-21.9 s` each. Function hashing/scanning took only `0.013-0.017 s` for 17 eligible functions.
+- Other measured phases: fixture/PE loading took `0.49-0.87 s`; analyzer scheduling and final assertions were below the dominant timing resolution. The separate PyGhidra oracle is not part of the CTest executable and was not included in the C++ runtime profile.
+- Cost estimate: database parsing consumed approximately `120 s` of the `148.3 s` baseline CTest runtime, about `81%`; the first analysis also reran Function ID after function/data events, and `re_analyze_all()` reparsed the same files again.
+- Call path: `AutoAnalysisManager::analyze()` dispatched `Function ID` for `function_added`/`function_changed` events; `FunctionIdAnalyzer::analyze()` called `collect_database_paths()`, then `fid::Database::open()` for every configured database before hashing the unchanged program.
+- Why unnecessary: `fid::Database` owns immutable parsed tables and is safe to reuse for the lifetime of one analyzer instance while the configured path set and file metadata are unchanged. Reopening the same four files did not change any query result.
+- Fix applied: `FunctionIdAnalyzer` now caches the immutable parsed database vector when the sorted configured path set and file metadata are unchanged, and opens independent initial databases concurrently while preserving path-order collection and the existing failed-open/no-match semantics. No hashing, identification, matching, mutation, analyzer registration, event scope, or assertion was removed.
+- Additional measured optimization: `AggressiveInstructionFinder::is_defined()` changed its instruction/data ownership lookup from a full linear scan per candidate byte to `std::map::upper_bound` plus predecessor containment. The candidate traversal, decoding, proof, and safety limits remain unchanged. Instrumented aggressive totals moved from approximately `6.2 s` to `5.7 s` in comparable runs; this is secondary to the Function ID cache.
+- Post-fix profile: direct instrumented runtime measured `43.4 s` after database caching and parallel opening, with Function ID taking `15.6 s` once and `0.013-0.019 s` on cached invocations; repeat analysis measured `5.6 s`. Clean direct reruns after removing profiling timers measured `47.9 s`, `67.2 s`, and `93.1 s` (median `67.2 s`); the final full analyzer CTest run measured the integration test at `53.14 s`. The wide spread is machine-load variance, not a test-result difference; all runs passed.
+- Expected behavior: exactly the same database queries and final model state with less repeated I/O/parsing.
+- Actual behavior after fix: the same integration assertions pass, Function ID focused tests pass, and the full analyzer suite remains green.
+- Improvement: `148.3 s` baseline CTest runtime to `53.14 s` final analyzer-suite integration runtime, approximately `64.2%` faster in comparable CTest samples. The clean direct comparison is `113.0 s` baseline sample to a `67.2 s` post-fix median, approximately `40.5%` faster; direct runs varied from `47.9-93.1 s`.
+- Validation status: [x] integration test passed; [x] Function ID focused test passed; [x] full analyzer suite passed after the optimization; [x] no profiling output remains in production/test code.
+- Remaining bottlenecks: one-time Function ID database parsing (`~15.6 s` in the parallel profile), decompiler calling-convention and switch phases (`~17 s` combined in the first pass), and aggressive scans (`~5.7 s` across repeated events).
 
 ## High Findings
 
@@ -138,12 +159,13 @@ No findings.
 
 ## Validation Results
 
-- [x] `NEW\build.bat analyzer`: 31/31 tests passed.
-- [x] `NEW\build.bat analyzer_global_integration`: integration test passed.
+- [x] `NEW\build.bat analyzer`: 31/31 tests passed after the optimization; the integration test runtime was `53.14 s` in that run.
+- [x] `NEW\build.bat function_id`: focused Function ID test passed.
+- [x] `NEW\build.bat analyzer_global_integration`: integration test passed after each optimization stage.
 - [x] `TEST\run_ghidra_python.bat NEW\features\analyzers\tests\run_ghidra.py`: report generated successfully.
 - [x] Oracle size check: 239,763 UTF-8 bytes and 1,599 lines; truncation marker present.
 - [x] `git diff HEAD --check`: no whitespace errors.
-- [ ] `NEW\tidy.bat analyzer --check`: existing analyzer diagnostics remain; no tidy fixes were applied.
+- [ ] `NEW\tidy.bat analyzer --check`: existing diagnostics remain; the final run reported clang-tidy failures for 3/34 files, including the pre-existing x86 `naked`/inline-assembly fixture and the shared module/IFC command-line incompatibility. No tidy fixes were applied.
 - [ ] `NEW\build.bat all`: three unrelated decompiler test executables failed to link with existing `LNK1227` weak-extern conflicts between `sleigh_runtime_adapter.cppm.obj` and `decompiler_impl.cppm.obj`; analyzer tests still passed.
 
 ## Unresolved Questions And Residual Risks
