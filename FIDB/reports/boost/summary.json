@@ -1,0 +1,71 @@
+{
+  "boost_version": "1.86.0",
+  "libraries": {
+    "filesystem": {
+      "display_name": "Boost.Filesystem",
+      "expected_match_count": 12,
+      "fidb": "FIDB\\libraries\\boost\\filesystem\\1.86.0\\boost-filesystem-1.86.0-msvc-x86_64-release.fidb",
+      "function_count": 357,
+      "negative_matches": 0,
+      "status": "PASS"
+    },
+    "iostreams": {
+      "display_name": "Boost.Iostreams",
+      "expected_match_count": 14,
+      "fidb": "FIDB\\libraries\\boost\\iostreams\\1.86.0\\boost-iostreams-1.86.0-msvc-x86_64-release.fidb",
+      "function_count": 313,
+      "negative_matches": 0,
+      "status": "PASS"
+    },
+    "locale": {
+      "display_name": "Boost.Locale",
+      "expected_match_count": 3,
+      "fidb": "FIDB\\libraries\\boost\\locale\\1.86.0\\boost-locale-1.86.0-msvc-x86_64-release.fidb",
+      "function_count": 1032,
+      "negative_matches": 0,
+      "status": "PASS"
+    },
+    "program_options": {
+      "display_name": "Boost.Program_options",
+      "expected_match_count": 12,
+      "fidb": "FIDB\\libraries\\boost\\program_options\\1.86.0\\boost-program_options-1.86.0-msvc-x86_64-release.fidb",
+      "function_count": 586,
+      "negative_matches": 0,
+      "status": "PASS"
+    },
+    "regex": {
+      "display_name": "Boost.Regex",
+      "expected_match_count": 23,
+      "fidb": "FIDB\\libraries\\boost\\regex\\1.86.0\\boost-regex-1.86.0-msvc-x86_64-release.fidb",
+      "function_count": 435,
+      "negative_matches": 0,
+      "status": "PASS"
+    },
+    "serialization": {
+      "display_name": "Boost.Serialization",
+      "expected_match_count": 21,
+      "fidb": "FIDB\\libraries\\boost\\serialization\\1.86.0\\boost-serialization-1.86.0-msvc-x86_64-release.fidb",
+      "function_count": 338,
+      "negative_matches": 0,
+      "status": "PASS"
+    },
+    "system": {
+      "display_name": "Boost.System",
+      "expected_match_count": 0,
+      "fidb": "FIDB\\libraries\\boost\\system\\1.86.0\\boost-system-1.86.0-msvc-x86_64-release.fidb",
+      "function_count": 125,
+      "negative_matches": 0,
+      "status": "PASS"
+    },
+    "thread": {
+      "display_name": "Boost.Thread",
+      "expected_match_count": 3,
+      "fidb": "FIDB\\libraries\\boost\\thread\\1.86.0\\boost-thread-1.86.0-msvc-x86_64-release.fidb",
+      "function_count": 301,
+      "negative_matches": 0,
+      "status": "PASS"
+    }
+  },
+  "stage": "boost_all",
+  "status": "PASS"
+}

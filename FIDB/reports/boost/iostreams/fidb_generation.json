@@ -1,0 +1,1233 @@
+{
+  "allow_empty": false,
+  "architecture": "x86-64",
+  "compiler": "MSVC",
+  "compiler_spec_filter": "windows",
+  "compiler_version": "19.34.31937 for x64",
+  "configuration": "Release",
+  "empty_reason": "",
+  "expected_functions": [
+    "file_descriptor",
+    "mapped_file_impl",
+    "mapped_file_source"
+  ],
+  "filter_api": "LanguageID compatibility overload",
+  "function_record_count": 171,
+  "function_records": [
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C870",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gfailure@ios_base@std@@UEAAPEAXI@Z",
+      "specific_hash": "0x5D6E7D11C27F8238"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006A800",
+      "full_hash": "0x7FD74D56EBE0B967",
+      "name": "??$_Getvals@_W@?$time_get@DV?$istreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+      "specific_hash": "0x3FBB7FB8DA13BB48"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006DCD0",
+      "full_hash": "0x1446F3C11E93D721",
+      "name": "?open@file_descriptor_source@iostreams@boost@@QEAAXPEAXW4file_descriptor_flags@23@@Z",
+      "specific_hash": "0x4402D4FE94590770"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006D660",
+      "full_hash": "0xA3E67E3048F6BE98",
+      "name": "?open@file_descriptor_impl@detail@iostreams@boost@@QEAAXHW4flags@1234@@Z",
+      "specific_hash": "0x4D60C7F87F54C31A"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CD60",
+      "full_hash": "0xA5AE14FB2CEC0678",
+      "name": "?copy_boost_exception@exception_detail@boost@@YAXPEAVexception@2@PEBV32@@Z",
+      "specific_hash": "0x9A97440CD961857E"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C580",
+      "full_hash": "0x50C8EB4013041F74",
+      "name": "??1shared_count@detail@boost@@QEAA@XZ",
+      "specific_hash": "0xC3586D55F83B0D29"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B690",
+      "full_hash": "0x0E180BB978909895",
+      "name": "??0file_descriptor@iostreams@boost@@QEAA@H_N@Z",
+      "specific_hash": "0xA8451AC8A4FBD4AC"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C6D0",
+      "full_hash": "0x2590034C5B0350D1",
+      "name": "??_G_Iostream_error_category2@std@@UEAAPEAXI@Z",
+      "specific_hash": "0x3ADA5DF8EAF1AF91"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C490",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1exception@std@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006D300",
+      "full_hash": "0x32C499BEF14C171F",
+      "name": "?open@file_descriptor@iostreams@boost@@QEAAXPEAX_N@Z",
+      "specific_hash": "0xB4620027E610EC55"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C940",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gsystem_error@std@@UEAAPEAXI@Z",
+      "specific_hash": "0x5D6E7D11C27F8238"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C260",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0runtime_error@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006A600",
+      "full_hash": "0x6AE73B7D875C16A1",
+      "name": "??$?0Ufile_descriptor_impl@detail@iostreams@boost@@@?$shared_ptr@Ufile_descriptor_impl@detail@iostreams@boost@@@boost@@QEAA@PEAUfile_descriptor_impl@detail@iostreams@1@@Z",
+      "specific_hash": "0x90F00CB68703694C"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C050",
+      "full_hash": "0x0E180BB978909895",
+      "name": "??0file_descriptor_source@iostreams@boost@@QEAA@H_N@Z",
+      "specific_hash": "0xA8451AC8A4FBD4AC"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C650",
+      "full_hash": "0xAF12996DDFA18C30",
+      "name": "??_G?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xD86FD96983EBE3E3"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CA00",
+      "full_hash": "0x8FEE42DB1909DA52",
+      "name": "?_Throw_bad_array_new_length@std@@YAXXZ",
+      "specific_hash": "0x05BA479C99E9031C"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006D370",
+      "full_hash": "0x0D774B56CD14C180",
+      "name": "?open@file_descriptor@iostreams@boost@@QEAAXPEBDH@Z",
+      "specific_hash": "0x6F7B9FB7CB9E5EE0"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006AD20",
+      "full_hash": "0xBC97CDE7CC977C98",
+      "name": "??$checked_delete@Ufile_descriptor_impl@detail@iostreams@boost@@@boost@@YAXPEAUfile_descriptor_impl@detail@iostreams@0@@Z",
+      "specific_hash": "0x78FFD6C4C77C4A34"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006DF40",
+      "full_hash": "0xB5F9D33B6B780811",
+      "name": "?read@file_descriptor_impl@detail@iostreams@boost@@QEAA_JPEAD_J@Z",
+      "specific_hash": "0xD5310034D3869AFC"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C2A0",
+      "full_hash": "0xDA8FBA133E104D93",
+      "name": "??0system_error@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x0EC2036009915A5E"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B3A0",
+      "full_hash": "0xDA8FBA133E104D93",
+      "name": "??0failure@ios_base@std@@QEAA@AEBV012@@Z",
+      "specific_hash": "0x0EC2036009915A5E"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006BA00",
+      "full_hash": "0x7194C85EE271BABB",
+      "name": "??0file_descriptor_impl@detail@iostreams@boost@@QEAA@XZ",
+      "specific_hash": "0x7CF3A7E803F26BD6"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006BD60",
+      "full_hash": "0x655178C9A905EF09",
+      "name": "??0file_descriptor_sink@iostreams@boost@@QEAA@PEAX_N@Z",
+      "specific_hash": "0x79FC97D737C2D228"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006E4F0",
+      "full_hash": "0x116816ED0CDA8BE4",
+      "name": "?write@file_descriptor@iostreams@boost@@QEAA_JPEBD_J@Z",
+      "specific_hash": "0x8B280DB111769FCF"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006BA40",
+      "full_hash": "0x5BBBBD7FCA907EC5",
+      "name": "??0file_descriptor_sink@iostreams@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0x5E673C794689E4FD"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B360",
+      "full_hash": "0x8394F617ED90D651",
+      "name": "??0exception@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x27E5355338B09110"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B700",
+      "full_hash": "0x3250776C8B941EF6",
+      "name": "??0file_descriptor@iostreams@boost@@QEAA@PEAXW4file_descriptor_flags@12@@Z",
+      "specific_hash": "0xAFB7CE7E6702908C"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B300",
+      "full_hash": "0x3EE5299F68B33AF4",
+      "name": "??0exception@boost@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x1047CAECCA2AAFD7"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006BA20",
+      "full_hash": "0xF8C67F1BE645EA6D",
+      "name": "??0file_descriptor_sink@iostreams@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0xE326D9FB026C90E1"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C4B0",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1failure@ios_base@std@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006E100",
+      "full_hash": "0x36D78B7FE2E52B0E",
+      "name": "?sp_enable_shared_from_this@detail@boost@@YAXZZ",
+      "specific_hash": "0x4231A7D1CE19EF00"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006AA30",
+      "full_hash": "0xD6181E1D082292AE",
+      "name": "??$_Reallocate_grow_by@V<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@Z",
+      "specific_hash": "0x2EBFDD6768E4A52F"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CD00",
+      "full_hash": "0x187B5B7780F99422",
+      "name": "?close_impl@file_descriptor_impl@detail@iostreams@boost@@QEAAX_N0@Z",
+      "specific_hash": "0x43C0BDA92B677F3A"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006D980",
+      "full_hash": "0x947230DE69DAE2AF",
+      "name": "?open@file_descriptor_sink@iostreams@boost@@QEAAXPEBDH@Z",
+      "specific_hash": "0x8EF501464C580D04"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CEC0",
+      "full_hash": "0x94A8A0D8242AED72",
+      "name": "?equivalent@error_category@std@@UEBA_NHAEBVerror_condition@2@@Z",
+      "specific_hash": "0xBD83EA49B84D31DE"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006ABC0",
+      "full_hash": "0x6474A71408F14F36",
+      "name": "??$_Reallocate_grow_by@V<lambda_9013ee9e23efe4882b67eff5b0ecf103>@@$$V@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_9013ee9e23efe4882b67eff5b0ecf103>@@@Z",
+      "specific_hash": "0x41B7E4752D748672"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B7C0",
+      "full_hash": "0x655178C9A905EF09",
+      "name": "??0file_descriptor@iostreams@boost@@QEAA@PEAX_N@Z",
+      "specific_hash": "0x79FC97D737C2D228"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C520",
+      "full_hash": "0x8E4846E33318DB19",
+      "name": "??1file_descriptor_impl@detail@iostreams@boost@@QEAA@XZ",
+      "specific_hash": "0x4BBF29631E7A7C27"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C700",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_G_System_error@std@@UEAAPEAXI@Z",
+      "specific_hash": "0x5D6E7D11C27F8238"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B240",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C180",
+      "full_hash": "0x655178C9A905EF09",
+      "name": "??0file_descriptor_source@iostreams@boost@@QEAA@PEAX_N@Z",
+      "specific_hash": "0x79FC97D737C2D228"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B1F0",
+      "full_hash": "0x98A2223DCD945450",
+      "name": "??0_System_error@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x92B4B717CA63F361"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006E4D0",
+      "full_hash": "0xF28FA0EB7AE1A1CA",
+      "name": "?what@exception@std@@UEBAPEBDXZ",
+      "specific_hash": "0x15643C00B67E7F07"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006BE60",
+      "full_hash": "0x5BBBBD7FCA907EC5",
+      "name": "??0file_descriptor_source@iostreams@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0x0890A2EB6A2D2597"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006E120",
+      "full_hash": "0x77A2D2B192AFD8B1",
+      "name": "?system_failure@detail@iostreams@boost@@YA?AVfailure@ios_base@std@@PEBD@Z",
+      "specific_hash": "0xC085DD93A6F645C5"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C990",
+      "full_hash": "0xE4072E7F5F1BE002",
+      "name": "?_Maklocwcs@std@@YAPEA_WPEB_W@Z",
+      "specific_hash": "0x7AF1F07FF2BD73A2"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006ADA0",
+      "full_hash": "0xF8CE645C6CF2EB27",
+      "name": "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x6D5B9785AA4D1F01"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B4E0",
+      "full_hash": "0xF8C67F1BE645EA6D",
+      "name": "??0file_descriptor@iostreams@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0xE326D9FB026C90E1"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B620",
+      "full_hash": "0x101273148D7A1AC5",
+      "name": "??0file_descriptor@iostreams@boost@@QEAA@HW4file_descriptor_flags@12@@Z",
+      "specific_hash": "0x19B09B037557E228"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B2F0",
+      "full_hash": "0xA3556930B7BDBC69",
+      "name": "??0clone_base@exception_detail@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0x34D7633BB0971F45"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006DF90",
+      "full_hash": "0xCC57799FB18138A2",
+      "name": "?rethrow@?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEBAXXZ",
+      "specific_hash": "0xB4B35FE04D9942BD"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C560",
+      "full_hash": "0x599F82B7BF659B2A",
+      "name": "??1path@detail@iostreams@boost@@QEAA@XZ",
+      "specific_hash": "0x75177A9E55114CCF"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006D4C0",
+      "full_hash": "0x4C0D6CF310371773",
+      "name": "?open@file_descriptor_impl@detail@iostreams@boost@@QEAAXAEBVpath@234@H@Z",
+      "specific_hash": "0xBE74DF3233348F93"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C390",
+      "full_hash": "0x4827AA7B4E2E991A",
+      "name": "??1?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEAA@XZ",
+      "specific_hash": "0x4A994A4EBF7AF6FB"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006D0A0",
+      "full_hash": "0x88CAA2F4BC0C4030",
+      "name": "?message@_Iostream_error_category2@std@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@H@Z",
+      "specific_hash": "0xCACF9B6193DD5E02"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006AF50",
+      "full_hash": "0xA42C67D0B44B7911",
+      "name": "??0?$wrapexcept@Vfailure@ios_base@std@@@boost@@QEAA@AEBVfailure@ios_base@std@@@Z",
+      "specific_hash": "0xE68781238F581027"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006D290",
+      "full_hash": "0x1446F3C11E93D721",
+      "name": "?open@file_descriptor@iostreams@boost@@QEAAXPEAXW4file_descriptor_flags@23@@Z",
+      "specific_hash": "0x4402D4FE94590770"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C620",
+      "full_hash": "0x108D55EA8A0D124C",
+      "name": "??_G?$sp_counted_impl_p@Ufile_descriptor_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x9721B4EB13E4E1A2"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006E060",
+      "full_hash": "0xC14D89CF26F82508",
+      "name": "?seek@file_descriptor_impl@detail@iostreams@boost@@QEAA?AV?$fpos@U_Mbstatet@@@std@@_JH@Z",
+      "specific_hash": "0x09882523371E8336"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006AD70",
+      "full_hash": "0xCC57799FB18138A2",
+      "name": "??$throw_exception@Vfailure@ios_base@std@@@boost@@YAXAEBVfailure@ios_base@std@@@Z",
+      "specific_hash": "0xB4B35FE04D9942BD"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C420",
+      "full_hash": "0xA6C2FFC026B4746C",
+      "name": "??1deleter@?$wrapexcept@Vfailure@ios_base@std@@@boost@@QEAA@XZ",
+      "specific_hash": "0x781A282DF24EFE89"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CA20",
+      "full_hash": "0xDB2685ECD014AEFD",
+      "name": "?_Tidy_deallocate@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXXZ",
+      "specific_hash": "0xF9272CA2EB63170B"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006AE70",
+      "full_hash": "0x0E05060CF1CB100E",
+      "name": "??0?$wrapexcept@Vfailure@ios_base@std@@@boost@@QEAA@AEBU01@@Z",
+      "specific_hash": "0x69248646BE02867C"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C0C0",
+      "full_hash": "0x3250776C8B941EF6",
+      "name": "??0file_descriptor_source@iostreams@boost@@QEAA@PEAXW4file_descriptor_flags@12@@Z",
+      "specific_hash": "0xAFB7CE7E6702908C"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CE20",
+      "full_hash": "0x5B236DC9338E41AF",
+      "name": "?default_error_condition@error_category@std@@UEBA?AVerror_condition@2@H@Z",
+      "specific_hash": "0x8922F35F672C67D9"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C3F0",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1bad_array_new_length@std@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CE50",
+      "full_hash": "0x6BE4E51E33994D34",
+      "name": "?dispose@?$sp_counted_impl_p@Ufile_descriptor_impl@detail@iostreams@boost@@@detail@boost@@UEAAXXZ",
+      "specific_hash": "0xA387CB47F39628DB"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C340",
+      "full_hash": "0xB4732CF8266D2D07",
+      "name": "??1?$shared_ptr@Ufile_descriptor_impl@detail@iostreams@boost@@@boost@@QEAA@XZ",
+      "specific_hash": "0xB01B8024990C9693"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B9C0",
+      "full_hash": "0x3FFD617861173C1D",
+      "name": "??0file_descriptor@iostreams@boost@@QEAA@XZ",
+      "specific_hash": "0x2AAAFB0ECF1959AE"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CB10",
+      "full_hash": "0xE2E3C78B887BD16A",
+      "name": "?allocate@?$allocator@D@std@@QEAAPEAD_K@Z",
+      "specific_hash": "0x6A9596D6B0011C9B"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CF40",
+      "full_hash": "0xB223699D041A1E28",
+      "name": "?init@file_descriptor@iostreams@boost@@AEAAXXZ",
+      "specific_hash": "0xC47E873F4338CC45"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006DFC0",
+      "full_hash": "0x5BBCA51CE4AC3D22",
+      "name": "?seek@file_descriptor@iostreams@boost@@QEAA?AV?$fpos@U_Mbstatet@@@std@@_JH@Z",
+      "specific_hash": "0xC9B5178436D953C2"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006BDD0",
+      "full_hash": "0x2F4CA6110DDBE15F",
+      "name": "??0file_descriptor_sink@iostreams@boost@@QEAA@PEBDH@Z",
+      "specific_hash": "0x9F551D593C6CE014"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006D750",
+      "full_hash": "0x22AE0BC253B43772",
+      "name": "?open@file_descriptor_sink@iostreams@boost@@AEAAXAEBVpath@detail@23@H@Z",
+      "specific_hash": "0x75B47FC324A5D086"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CA80",
+      "full_hash": "0xCEDE3E4772FDA156",
+      "name": "?_Tidy_deallocate@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAXXZ",
+      "specific_hash": "0x12B1D430123B39E5"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C910",
+      "full_hash": "0x108D55EA8A0D124C",
+      "name": "??_Gsp_counted_base@detail@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x09923AFD56C8941C"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006D180",
+      "full_hash": "0xC753C355972593A2",
+      "name": "?open@file_descriptor@iostreams@boost@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0x616962873C5420A6"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CAF0",
+      "full_hash": "0x5610857A30E5C1DC",
+      "name": "?_Xlen_string@std@@YAXXZ",
+      "specific_hash": "0xB4552899B2665788"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CC00",
+      "full_hash": "0x68D1EDFAD9717480",
+      "name": "?clone@?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "specific_hash": "0x485CB57C4ECA0CCC"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006A6F0",
+      "full_hash": "0x9FA7EFBE8CB25EF9",
+      "name": "??$_Allocate_manually_vector_aligned@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z",
+      "specific_hash": "0x55E227005570AF09"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006DCC0",
+      "full_hash": "0x98D1C2847373620F",
+      "name": "?open@file_descriptor_source@iostreams@boost@@QEAAXH_N@Z",
+      "specific_hash": "0xD228F9C3DAF771C2"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006DEF0",
+      "full_hash": "0x2A442956610D30A1",
+      "name": "?read@file_descriptor@iostreams@boost@@QEAA_JPEAD_J@Z",
+      "specific_hash": "0x3497B3A1DDA9CF8C"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B2C0",
+      "full_hash": "0x3F776102123EF13B",
+      "name": "??0bad_array_new_length@std@@QEAA@XZ",
+      "specific_hash": "0xE89F366BE03F8AE1"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B500",
+      "full_hash": "0x09DB9A55DFB2275A",
+      "name": "??0file_descriptor@iostreams@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0x7D4D1531F6DA0239"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006BE40",
+      "full_hash": "0xF8C67F1BE645EA6D",
+      "name": "??0file_descriptor_source@iostreams@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0xE326D9FB026C90E1"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006A8D0",
+      "full_hash": "0x7FD74D56EBE0B967",
+      "name": "??$_Getvals@_W@?$time_get@_WV?$istreambuf_iterator@_WU?$char_traits@_W@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+      "specific_hash": "0x3FBB7FB8DA13BB48"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C5E0",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1system_error@std@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006D060",
+      "full_hash": "0xD86D771F2B87CE8B",
+      "name": "?is_open@file_descriptor@iostreams@boost@@QEBA_NXZ",
+      "specific_hash": "0xDBFF30612554CF65"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006D7A0",
+      "full_hash": "0x126FE51D56BE6A75",
+      "name": "?open@file_descriptor_sink@iostreams@boost@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0x4419F8755C0231F4"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006D6E0",
+      "full_hash": "0x3A47F37D456F33D3",
+      "name": "?open@file_descriptor_impl@detail@iostreams@boost@@QEAAXPEAXW4flags@1234@@Z",
+      "specific_hash": "0x9F960EDA283F2962"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006DB20",
+      "full_hash": "0x22AE0BC253B43772",
+      "name": "?open@file_descriptor_source@iostreams@boost@@AEAAXAEBVpath@detail@23@H@Z",
+      "specific_hash": "0x44AF447F7EF43130"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C310",
+      "full_hash": "0x68234105B1E58585",
+      "name": "??1?$refcount_ptr@Uerror_info_container@exception_detail@boost@@@exception_detail@boost@@QEAA@XZ",
+      "specific_hash": "0x1C9B914DF1D42AC1"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006BBC0",
+      "full_hash": "0x101273148D7A1AC5",
+      "name": "??0file_descriptor_sink@iostreams@boost@@QEAA@HW4file_descriptor_flags@12@@Z",
+      "specific_hash": "0x19B09B037557E228"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006D8F0",
+      "full_hash": "0x98D1C2847373620F",
+      "name": "?open@file_descriptor_sink@iostreams@boost@@QEAAXH_N@Z",
+      "specific_hash": "0xD228F9C3DAF771C2"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006E530",
+      "full_hash": "0x8AE0B26E1BA51D3C",
+      "name": "?write@file_descriptor_impl@detail@iostreams@boost@@QEAA_JPEBD_J@Z",
+      "specific_hash": "0x3F82FBB42F9E31D9"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CCB0",
+      "full_hash": "0xD7FC562810642A72",
+      "name": "?close@file_descriptor_impl@detail@iostreams@boost@@QEAAXXZ",
+      "specific_hash": "0xF23F772F7B3D4E48"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006D280",
+      "full_hash": "0x98D1C2847373620F",
+      "name": "?open@file_descriptor@iostreams@boost@@QEAAXH_N@Z",
+      "specific_hash": "0xD228F9C3DAF771C2"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C750",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gbad_alloc@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C820",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gexception@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B280",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006D900",
+      "full_hash": "0x1446F3C11E93D721",
+      "name": "?open@file_descriptor_sink@iostreams@boost@@QEAAXPEAXW4file_descriptor_flags@23@@Z",
+      "specific_hash": "0x4402D4FE94590770"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C8C0",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gruntime_error@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C7F0",
+      "full_hash": "0x108D55EA8A0D124C",
+      "name": "??_Gclone_base@exception_detail@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x80EAEE8E330F4C9B"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CB70",
+      "full_hash": "0x48A7BB07EBECBD72",
+      "name": "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+      "specific_hash": "0x7B4467EA497E04E1"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006A9B0",
+      "full_hash": "0x00671F8B2B5D5C48",
+      "name": "??$_Maklocstr@D@std@@YAPEADPEBDPEADAEBU_Cvtvec@@@Z",
+      "specific_hash": "0xAFB2D484DD2BD228"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006BFE0",
+      "full_hash": "0x101273148D7A1AC5",
+      "name": "??0file_descriptor_source@iostreams@boost@@QEAA@HW4file_descriptor_flags@12@@Z",
+      "specific_hash": "0x19B09B037557E228"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CEA0",
+      "full_hash": "0x86AD5A9ED0517A0D",
+      "name": "?equivalent@error_category@std@@UEBA_NAEBVerror_code@2@H@Z",
+      "specific_hash": "0x7CB0E50975828D2B"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006BCA0",
+      "full_hash": "0x3250776C8B941EF6",
+      "name": "??0file_descriptor_sink@iostreams@boost@@QEAA@PEAXW4file_descriptor_flags@12@@Z",
+      "specific_hash": "0xAFB7CE7E6702908C"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B830",
+      "full_hash": "0xF7E846CA48B54F44",
+      "name": "??0file_descriptor@iostreams@boost@@QEAA@PEBDH@Z",
+      "specific_hash": "0xE73344607F612638"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006A690",
+      "full_hash": "0xAC8085E119013D94",
+      "name": "??$?0Ufile_descriptor_impl@detail@iostreams@boost@@@shared_count@detail@boost@@QEAA@PEAUfile_descriptor_impl@1iostreams@2@@Z",
+      "specific_hash": "0x21B13DD18ECAA8A9"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C7A0",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gbad_array_new_length@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006B400",
+      "full_hash": "0x9068C40C60B81FC1",
+      "name": "??0failure@ios_base@std@@QEAA@PEBDAEBVerror_code@2@@Z",
+      "specific_hash": "0x8C28E99BE96BCDEA"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006DB70",
+      "full_hash": "0x126FE51D56BE6A75",
+      "name": "?open@file_descriptor_source@iostreams@boost@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0x54B94434ECC9EBB0"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C1F0",
+      "full_hash": "0x2F4CA6110DDBE15F",
+      "name": "??0file_descriptor_source@iostreams@boost@@QEAA@PEBDH@Z",
+      "specific_hash": "0x9F551D593C6CE014"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C450",
+      "full_hash": "0x50755EF479BBEA56",
+      "name": "??1exception@boost@@MEAA@XZ",
+      "specific_hash": "0xAC308368D2F3C806"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CC60",
+      "full_hash": "0xB913AEF9FE1BF254",
+      "name": "?close@file_descriptor@iostreams@boost@@QEAAXXZ",
+      "specific_hash": "0x133AD93D6B710CEA"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006CE30",
+      "full_hash": "0x616D6AAFF3A3C983",
+      "name": "?destroy@sp_counted_base@detail@boost@@UEAAXXZ",
+      "specific_hash": "0x6C679742A5A4BAB5"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006BC30",
+      "full_hash": "0x0E180BB978909895",
+      "name": "??0file_descriptor_sink@iostreams@boost@@QEAA@H_N@Z",
+      "specific_hash": "0xA8451AC8A4FBD4AC"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006DD50",
+      "full_hash": "0x947230DE69DAE2AF",
+      "name": "?open@file_descriptor_source@iostreams@boost@@QEAAXPEBDH@Z",
+      "specific_hash": "0x12370B87A6F5A33C"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006C4D0",
+      "full_hash": "0xB4732CF8266D2D07",
+      "name": "??1file_descriptor@iostreams@boost@@QEAA@XZ",
+      "specific_hash": "0xB01B8024990C9693"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006AFE0",
+      "full_hash": "0xB4569BD252B84F6E",
+      "name": "??0_System_error@std@@IEAA@Verror_code@1@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@1@@Z",
+      "specific_hash": "0xBD36514626001E52"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006E4B0",
+      "full_hash": "0x8903428DC21E3D14",
+      "name": "?throw_system_failure@detail@iostreams@boost@@YAXPEBD@Z",
+      "specific_hash": "0x7263B835259B569A"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006A740",
+      "full_hash": "0x699B6386F2EFF6EF",
+      "name": "??$_Construct@$00PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXQEBD_K@Z",
+      "specific_hash": "0x5AABC68BA83568D5"
+    },
+    {
+      "domain_path": "/0000_file_descriptor.obj",
+      "entry_point": "0x000000000006D080",
+      "full_hash": "0xE113330986C90523",
+      "name": "?make_error_code@std@@YA?AVerror_code@1@W4io_errc@1@@Z",
+      "specific_hash": "0x6A02E3F4F0CAE2BE"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000080000",
+      "full_hash": "0x6AE73B7D875C16A1",
+      "name": "??$?0Vmapped_file_impl@detail@iostreams@boost@@@?$shared_ptr@Vmapped_file_impl@detail@iostreams@boost@@@boost@@QEAA@PEAVmapped_file_impl@detail@iostreams@1@@Z",
+      "specific_hash": "0x90F00CB68703694C"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000080F90",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0bad_numeric_cast@numeric@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x00000000000812D0",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0negative_overflow@numeric@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000080F50",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0bad_cast@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x00000000000811C0",
+      "full_hash": "0xF8C67F1BE645EA6D",
+      "name": "??0mapped_file@iostreams@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0xE326D9FB026C90E1"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000082D00",
+      "full_hash": "0x97EEDBF8398A38D3",
+      "name": "?open_impl@mapped_file_source@iostreams@boost@@AEAAXAEBU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@23@@Z",
+      "specific_hash": "0x2A146D07B0706604"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081C20",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gpositive_overflow@numeric@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000082140",
+      "full_hash": "0x1FC74921071740BD",
+      "name": "?clear@mapped_file_impl@detail@iostreams@boost@@AEAAX_N@Z",
+      "specific_hash": "0x5A395266CEBB344C"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081890",
+      "full_hash": "0x108D55EA8A0D124C",
+      "name": "??_G?$sp_counted_impl_p@Vmapped_file_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x9721B4EB13E4E1A2"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000082AF0",
+      "full_hash": "0xC2E5FA8C70C3979C",
+      "name": "?open_file@mapped_file_impl@detail@iostreams@boost@@AEAAXU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+      "specific_hash": "0x055B4D8EA91D8476"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x00000000000827F0",
+      "full_hash": "0x8FDAB17C32FF02E0",
+      "name": "?normalize@mapped_file_params_base@detail@iostreams@boost@@AEAAXXZ",
+      "specific_hash": "0xFDF0637F89AC1F52"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x00000000000824C0",
+      "full_hash": "0x96D57A8C0FF77B18",
+      "name": "?dispose@?$sp_counted_impl_p@Vmapped_file_impl@detail@iostreams@boost@@@detail@boost@@UEAAXXZ",
+      "specific_hash": "0x0F9C7458DF440C40"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000083520",
+      "full_hash": "0x5C883CFF644465FD",
+      "name": "?unmap_file@mapped_file_impl@detail@iostreams@boost@@AEAA_NXZ",
+      "specific_hash": "0x4A2EABF867A3652F"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081EC0",
+      "full_hash": "0x045F372220027744",
+      "name": "?alignment@mapped_file_impl@detail@iostreams@boost@@SAHXZ",
+      "specific_hash": "0xCFA85270FE715CAD"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081250",
+      "full_hash": "0xF8C67F1BE645EA6D",
+      "name": "??0mapped_file_sink@iostreams@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0xE326D9FB026C90E1"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081340",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0positive_overflow@numeric@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081860",
+      "full_hash": "0xB84FC74B11B56702",
+      "name": "??Bmapped_file_source@iostreams@boost@@QEBAPEQsafe_bool_helper@012@HXZ",
+      "specific_hash": "0x7AB478C5EEDE5D36"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000080090",
+      "full_hash": "0xAC8085E119013D94",
+      "name": "??$?0Vmapped_file_impl@detail@iostreams@boost@@@shared_count@detail@boost@@QEAA@PEAVmapped_file_impl@1iostreams@2@@Z",
+      "specific_hash": "0x21B13DD18ECAA8A9"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x00000000000826B0",
+      "full_hash": "0x4C649D56CFC4455A",
+      "name": "?is_open@mapped_file_source@iostreams@boost@@QEBA_NXZ",
+      "specific_hash": "0x5129D3A1BECDE0BC"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000080860",
+      "full_hash": "0xAC685328628A0B31",
+      "name": "??$checked_delete@Vmapped_file_impl@detail@iostreams@boost@@@boost@@YAXPEAVmapped_file_impl@detail@iostreams@0@@Z",
+      "specific_hash": "0x699789FDC95D4A50"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x00000000000824F0",
+      "full_hash": "0x016AFAE5EF20AD6E",
+      "name": "?end@mapped_file_source@iostreams@boost@@QEBAPEBDXZ",
+      "specific_hash": "0xEEBEC3C9AA773EF1"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081AB0",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gbad_numeric_cast@numeric@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x00000000000816E0",
+      "full_hash": "0x9F9FB0272CA02790",
+      "name": "??4path@detail@iostreams@boost@@QEAAAEAV0123@AEBV0123@@Z",
+      "specific_hash": "0x5EAACCC400CF9699"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x00000000000808C0",
+      "full_hash": "0x49B79789C2B37266",
+      "name": "??0?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@iostreams@boost@@QEAA@AEBU012@@Z",
+      "specific_hash": "0xDD2FC1E5FB7DC18F"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x00000000000815E0",
+      "full_hash": "0x3509E753F8CB570B",
+      "name": "??1mapped_file_impl@detail@iostreams@boost@@QEAA@XZ",
+      "specific_hash": "0xCD5C16365BE2D445"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x00000000000825A0",
+      "full_hash": "0x8FACC2DD69428BE2",
+      "name": "?init@mapped_file_source@iostreams@boost@@AEAAXXZ",
+      "specific_hash": "0x765B28D87B1A571D"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081290",
+      "full_hash": "0xA7AFD2BFA472215C",
+      "name": "??0mapped_file_source@iostreams@boost@@QEAA@XZ",
+      "specific_hash": "0xF7C0CAC7267689DB"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081620",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1negative_overflow@numeric@boost@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000082D40",
+      "full_hash": "0x3E07EA579121159B",
+      "name": "?resize@mapped_file_impl@detail@iostreams@boost@@QEAAX_J@Z",
+      "specific_hash": "0xD5D784F51A5A508D"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081270",
+      "full_hash": "0xF8C67F1BE645EA6D",
+      "name": "??0mapped_file_source@iostreams@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0xE326D9FB026C90E1"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081EE0",
+      "full_hash": "0x045F372220027744",
+      "name": "?alignment@mapped_file_source@iostreams@boost@@SAHXZ",
+      "specific_hash": "0xCFA85270FE715CAD"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000082060",
+      "full_hash": "0x1689B13A9011211C",
+      "name": "?assign@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+      "specific_hash": "0xBE18B91DAF24A6DF"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000082320",
+      "full_hash": "0xE236BA85C77A5786",
+      "name": "?close@mapped_file_impl@detail@iostreams@boost@@QEAAXXZ",
+      "specific_hash": "0xC12DF48A4CD57EC7"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081BD0",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gnegative_overflow@numeric@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000082900",
+      "full_hash": "0xE854C720CD54EF26",
+      "name": "?open@mapped_file_impl@detail@iostreams@boost@@QEAAXU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+      "specific_hash": "0xED3AD92E5F29EA92"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x00000000000833C0",
+      "full_hash": "0x42765D90DA1C4DF2",
+      "name": "?try_map_file@mapped_file_impl@detail@iostreams@boost@@AEAAXU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+      "specific_hash": "0x181E218944E234D1"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081A60",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gbad_cast@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081F60",
+      "full_hash": "0x1DCD80FDEBE2A090",
+      "name": "?allocate@?$allocator@_W@std@@QEAAPEA_W_K@Z",
+      "specific_hash": "0x4BD9802345F30F01"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081420",
+      "full_hash": "0x66C047679789B03E",
+      "name": "??1?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@iostreams@boost@@QEAA@XZ",
+      "specific_hash": "0x0C6F10F342512B83"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081500",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1bad_cast@std@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000080A00",
+      "full_hash": "0xBE1C5F9CCC84387A",
+      "name": "??0?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x517156E10A109DA8"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081310",
+      "full_hash": "0x3F776102123EF13B",
+      "name": "??0negative_overflow@numeric@boost@@QEAA@XZ",
+      "specific_hash": "0xE89F366BE03F8AE1"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x00000000000826E0",
+      "full_hash": "0xEDECABB78A28D8AC",
+      "name": "?map_file@mapped_file_impl@detail@iostreams@boost@@AEAAXAEAU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+      "specific_hash": "0x5B141F82982A50B8"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000081640",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1positive_overflow@numeric@boost@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x00000000000820E0",
+      "full_hash": "0x75A26E499670D40B",
+      "name": "?cleanup_and_throw@mapped_file_impl@detail@iostreams@boost@@AEAAXPEBD@Z",
+      "specific_hash": "0x880EF1C5ED822F6E"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x00000000000811E0",
+      "full_hash": "0x64CA5D7E275248E4",
+      "name": "??0mapped_file_impl@detail@iostreams@boost@@QEAA@XZ",
+      "specific_hash": "0x54A06363F6ADB1E1"
+    },
+    {
+      "domain_path": "/0001_mapped_file.obj",
+      "entry_point": "0x0000000000080430",
+      "full_hash": "0x0C26C0C0ED37F74D",
+      "name": "??$_Reallocate_for@V<lambda_66f57f934f28d61049862f64df852ff0>@@PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_66f57f934f28d61049862f64df852ff0>@@PEBD@Z",
+      "specific_hash": "0xFABD7E953887D48A"
+    }
+  ],
+  "functions_added": 234,
+  "functions_attempted": 340,
+  "functions_excluded": 106,
+  "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
+  "ghidra_version": "12.1.3",
+  "language_id": "x86:LE:64:default",
+  "language_minor_version": 8,
+  "language_version": 4,
+  "library_family": "Boost.Iostreams",
+  "library_path": "FIDB/libraries/boost/iostreams/1.86.0/boost-iostreams-1.86.0-msvc-x86_64-release.fidb",
+  "library_variant": "msvc-x86_64-release",
+  "library_version": "1.86.0",
+  "linkage": "static",
+  "reopened_function_record_count": 171,
+  "source_language_declared": "C++",
+  "source_language_filter": "",
+  "source_language_metadata_note": "Installed Ghidra 12.1.3 legacy FunctionID schema has no source-language column; empty metadata means all source languages.",
+  "stage": "generate"
+}

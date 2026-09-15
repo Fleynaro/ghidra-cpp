@@ -1,7 +1,11 @@
 {
+  "architecture": "",
+  "compiler": "",
   "compiler_spec": "windows",
+  "compiler_version": "",
+  "configuration": "",
   "consumer": "FIDB/build/consumer/zlib_detection.exe",
-  "direct_zlib_matches": [
+  "direct_library_matches": [
     {
       "fid_name": "compress",
       "library": "zlib",
@@ -299,7 +303,7 @@
       "version": "1.3.1"
     }
   ],
-  "expected_match_count": 4,
+  "expected_match_count": 6,
   "expected_matches": {
     "adler32_z": [
       {
@@ -317,6 +321,20 @@
         "fid_bookmark": "Library Function - Single Match,  compress",
         "name": "compress",
         "offset": 5368714576
+      },
+      {
+        "comment": "Library Function - Single Match\n uncompress\n\nLibrary: zlib 1.3.1 msvc-x86_64-release",
+        "entry_point": "0x0000000140001670",
+        "fid_bookmark": "Library Function - Single Match,  uncompress",
+        "name": "uncompress",
+        "offset": 5368714864
+      },
+      {
+        "comment": "Library Function - Single Match\n compress_block\n\nLibrary: zlib 1.3.1 msvc-x86_64-release",
+        "entry_point": "0x0000000140006F80",
+        "fid_bookmark": "Library Function - Single Match,  compress_block",
+        "name": "compress_block",
+        "offset": 5368737664
       }
     ],
     "crc32_z": [
@@ -360,7 +378,10 @@
   "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
   "ghidra_version": "12.1.3",
   "language_id": "x86:LE:64:default",
-  "non_zlib_control": {
+  "library": "zlib",
+  "library_family": "zlib",
+  "linkage": "",
+  "negative_control": {
     "false_zlib_matches": [],
     "map_offset": 5368713696,
     "observed_rows": [
@@ -376,6 +397,7 @@
   },
   "pyghidra_version": "3.1.0",
   "query_api": "Language compatibility overload",
+  "source_language_declared": "C",
   "stage": "verify",
   "status": "PASS"
 }

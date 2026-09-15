@@ -14,13 +14,16 @@
 - [x] Inspected [`scripts/create_fidb.py`](scripts/create_fidb.py) for use of `FidFileManager`, `FidService.createNewLibraryFromPrograms`, and packed database reopen validation.
 - [x] Inspected [`scripts/verify_fidb.py`](scripts/verify_fidb.py) for original `FidService` query, `FidAnalyzer` invocation, markup inspection, and negative-control enforcement.
 - [x] Inspected [`tests/zlib_detection/test.cpp`](tests/zlib_detection/test.cpp) to confirm real zlib calls and a separate non-zlib function.
+- [x] Inspected [`boost_config.json`](boost_config.json), [`scripts/build_boost.py`](scripts/build_boost.py), and [`scripts/build_boost_consumer.py`](scripts/build_boost_consumer.py) for pinned Boost source, b2 flags, static-library extraction, dependencies, and no-PDB consumers.
+- [x] Inspected all eight Boost consumers under [`tests/boost_filesystem/`](tests/boost_filesystem/) through [`tests/boost_iostreams/`](tests/boost_iostreams/) for real API calls and negative controls.
 
 ## Test Inspection
 
 - [x] Checked [`tests/zlib_detection/run_test.py`](tests/zlib_detection/run_test.py) stage ordering and fatal error propagation.
 - [x] Checked [`reports/fidb_generation.json`](reports/fidb_generation.json) for 123 records and a successful reopen count of 123.
-- [x] Checked [`reports/fidb_verification.json`](reports/fidb_verification.json) for four direct zlib matches and zero zlib claims on the negative control.
+- [x] Checked [`reports/fidb_verification.json`](reports/fidb_verification.json) for six expected zlib matches and zero zlib claims on the negative control.
 - [x] Checked [`reports/fidb_verification.md`](reports/fidb_verification.md) for a concise human-readable PASS summary.
+- [x] Checked [`reports/boost/summary.md`](reports/boost/summary.md) and all eight component report sets for FIDB readability, expected matches, and negative-control results.
 
 ## Findings
 
@@ -46,6 +49,7 @@ No findings.
 - Library generation disables FID/LID contamination through the original Ghidra prescript and enables scalar operand references.
 - The consumer is built without a PDB, and positive results include direct `FidMatch` records plus Function ID comments/bookmarks.
 - The installed legacy Ghidra 12.1.3 schema limitation is recorded: source language `C` is declared, but the old FID schema has no source-language metadata column.
+- Boost.System's valid empty FIDB is explicitly explained as an upstream header-only/dummy-export limitation; no fake record was inserted.
 
 ## Validation
 
@@ -55,6 +59,8 @@ No findings.
 - [x] `git diff --check` passed.
 - [x] Generated artifact exists at `libraries/zlib/1.3.1/zlib-1.3.1-msvc-x86_64-release.fidb`.
 - [x] No source files under `NEW/features/function_id` were modified.
+- [x] `python FIDB\tests\run_boost.py --force` passed for all eight requested Boost components.
+- [x] Eight Boost `.fidb` artifacts exist under `libraries/boost/`; all non-System databases contain records and System's empty database reopened successfully.
 
 ## Unresolved Questions and Residual Risks
 
@@ -64,4 +70,4 @@ No findings.
 ## Follow-Up Decision
 
 - [x] No critical, high, or medium findings require remediation.
-- [x] The pipeline is complete for the selected Ghidra 12.1.3 runtime and zlib 1.3.1 configuration.
+- [x] The pipeline is complete for the selected Ghidra 12.1.3 runtime, zlib 1.3.1, and Boost 1.86.0 configurations.

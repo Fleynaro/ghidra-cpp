@@ -1,0 +1,3676 @@
+{
+  "allow_empty": false,
+  "architecture": "x86-64",
+  "compiler": "MSVC",
+  "compiler_spec_filter": "windows",
+  "compiler_version": "19.34.31937 for x64",
+  "configuration": "Release",
+  "empty_reason": "",
+  "expected_functions": [
+    "perl_matcher",
+    "parse",
+    "match_all_states"
+  ],
+  "filter_api": "LanguageID compatibility overload",
+  "function_record_count": 520,
+  "function_records": [
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001377B0",
+      "full_hash": "0xCC57799FB18138A2",
+      "name": "?rethrow@?$wrapexcept@Vregex_error@boost@@@boost@@UEBAXXZ",
+      "specific_hash": "0xB4B35FE04D9942BD"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012A4E0",
+      "full_hash": "0xB3A5A2D83C90EEAB",
+      "name": "?deallocate@?$allocator@D@std@@QEAAXQEAD_K@Z",
+      "specific_hash": "0x0403D3B095DD051B"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124400",
+      "full_hash": "0x3787D358A1399720",
+      "name": "??0regex_error@boost@@QEAA@AEBV01@@Z",
+      "specific_hash": "0xF61C3B2C8A53FCF1"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001212F0",
+      "full_hash": "0x26F438988F092EE0",
+      "name": "??$_Emplace_reallocate@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@?$vector@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@AEAAPEAU?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@QEAU234@$$QEAU234@@Z",
+      "specific_hash": "0x0AE4C7C816EDCE48"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001332D0",
+      "full_hash": "0x6C54B8147BEFE797",
+      "name": "?parse_perl_extension@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x833B59166C6614AA"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125C40",
+      "full_hash": "0x50CD9BD4E2F2F2B9",
+      "name": "?_Tidy@?$vector@U?$sub_match@PEBD@boost@@V?$allocator@U?$sub_match@PEBD@boost@@@std@@@std@@AEAAXXZ",
+      "specific_hash": "0xCAC7EE712F79AC9F"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124700",
+      "full_hash": "0x3A2BEC74F1558B2C",
+      "name": "??1?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "specific_hash": "0xDBAD0E63534B4C8E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124990",
+      "full_hash": "0x3A962485CD57289A",
+      "name": "??1?$vector@EV?$allocator@E@std@@@std@@QEAA@XZ",
+      "specific_hash": "0x671122C9EF188663"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012D080",
+      "full_hash": "0x9C702D86D5952BD5",
+      "name": "?match_accept@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x17DD6ACF8E521A4F"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000136AE0",
+      "full_hash": "0xEF69D0A79ECFAD2D",
+      "name": "?parse_set@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x5111040644273DEF"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000120940",
+      "full_hash": "0x699B6386F2EFF6EF",
+      "name": "??$_Construct@$00PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXQEBD_K@Z",
+      "specific_hash": "0x5AABC68BA83568D5"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000132E00",
+      "full_hash": "0xBAA3066FEEE4A405",
+      "name": "?parse_match_any@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x87F0B96F6EDBDBA0"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012A610",
+      "full_hash": "0x49F229733D9929C3",
+      "name": "?deallocate@?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@QEAAXQEAU?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@_K@Z",
+      "specific_hash": "0xD58453D2BB5EC873"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012AEA0",
+      "full_hash": "0x1B5336EB63E9C1A5",
+      "name": "?fail@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAAXW4error_type@regex_constants@3@_JV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@1@Z",
+      "specific_hash": "0x36A101733CDFF3EE"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001394F0",
+      "full_hash": "0x14BFDAF940A9162E",
+      "name": "?unwind_char_repeat@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x29575D74D1F898DD"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001378D0",
+      "full_hash": "0x9C0762D9CC46445B",
+      "name": "?set_first@?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@QEAAXPEBD@Z",
+      "specific_hash": "0x3B92CD4209629A15"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001216A0",
+      "full_hash": "0x7FD74D56EBE0B967",
+      "name": "??$_Getvals@_W@?$time_get@DV?$istreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+      "specific_hash": "0x3FBB7FB8DA13BB48"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000120670",
+      "full_hash": "0x8C6A7A33EF23758B",
+      "name": "??$?NDU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA_NAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@0@Z",
+      "specific_hash": "0x33CEA4DCBAE66D54"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001238F0",
+      "full_hash": "0x68A89798C4BCB1E1",
+      "name": "??0?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA@PEAU?$regex_data@DU?$c_regex_traits@D@boost@@@12@@Z",
+      "specific_hash": "0x4D5CA84854F0667C"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001258A0",
+      "full_hash": "0x9957129889CAF406",
+      "name": "?_Insert_node@?$_Tree_val@U?$_Tree_simple_types@U?$digraph@D@re_detail_500@boost@@@std@@@std@@QEAAPEAU?$_Tree_node@U?$digraph@D@re_detail_500@boost@@PEAX@2@U?$_Tree_id@PEAU?$_Tree_node@U?$digraph@D@re_detail_500@boost@@PEAX@std@@@2@QEAU32@@Z",
+      "specific_hash": "0x586BA7A75B85A476"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124E50",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1invalid_argument@std@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001237A0",
+      "full_hash": "0x1016C3D3D93CF334",
+      "name": "??$throw_exception@Vinvalid_argument@std@@@boost@@YAXAEBVinvalid_argument@std@@@Z",
+      "specific_hash": "0xB4F55B517E42594E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124580",
+      "full_hash": "0x756AF5D5465B2C10",
+      "name": "??1?$_Tree@V?$_Tset_traits@U?$digraph@D@re_detail_500@boost@@U?$less@U?$digraph@D@re_detail_500@boost@@@std@@V?$allocator@U?$digraph@D@re_detail_500@boost@@@5@$0A@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0xDE8D202363A0BEDA"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012B990",
+      "full_hash": "0xC7AFED7A7F77439C",
+      "name": "?find_restart_buf@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x2A336B23CCB8A66A"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000121F00",
+      "full_hash": "0x8AE5383CDDA6AF16",
+      "name": "??$_Uninitialized_copy@PEAU?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@PEAU123@V?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@YAPEAU?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@PEAU123@00AEAV?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@0@@Z",
+      "specific_hash": "0xBABC412C45FE9769"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012D260",
+      "full_hash": "0x4AF58F4AD28D15D3",
+      "name": "?match_alt@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x14746DC10CD73912"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001226F0",
+      "full_hash": "0x83AFE8BB33692ACE",
+      "name": "??$global_toi@DU?$default_wrapper@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@@re_detail_500@boost@@YA_JAEAPEBDPEBDHAEBU?$default_wrapper@U?$c_regex_traits@D@boost@@@01@@Z",
+      "specific_hash": "0x6D2FB8C0F2E3C182"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012D6B0",
+      "full_hash": "0x0B414991FF6B0889",
+      "name": "?match_buffer_start@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xEA4A6E09EF362E1A"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000135710",
+      "full_hash": "0x4D40C4C4F0BB460E",
+      "name": "?parse_repeat@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_N_K0@Z",
+      "specific_hash": "0x0117A76F3F2CC897"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124240",
+      "full_hash": "0x3EE5299F68B33AF4",
+      "name": "??0exception@boost@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x1047CAECCA2AAFD7"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012D6E0",
+      "full_hash": "0x2244F0B29D5D1879",
+      "name": "?match_char_repeat@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xFF70F5BB3ACD4323"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124AB0",
+      "full_hash": "0x79D6CD71C5B32A31",
+      "name": "??1?$vector@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0xA9A7E6795EE4EC00"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001218E0",
+      "full_hash": "0x0C26C0C0ED37F74D",
+      "name": "??$_Reallocate_for@V<lambda_66f57f934f28d61049862f64df852ff0>@@PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_66f57f934f28d61049862f64df852ff0>@@PEBD@Z",
+      "specific_hash": "0xFABD7E953887D48A"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001374D0",
+      "full_hash": "0x066A64540D3A05D4",
+      "name": "?push_repeater_count@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXHPEAPEAV?$repeater_count@PEBD@23@@Z",
+      "specific_hash": "0xDD3582BBD8B82B57"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001229A0",
+      "full_hash": "0xE013B268584AD581",
+      "name": "??$raise_error@U?$regex_traits_wrapper@U?$c_regex_traits@D@boost@@@boost@@@re_detail_500@boost@@YAXAEBU?$regex_traits_wrapper@U?$c_regex_traits@D@boost@@@1@W4error_type@regex_constants@1@@Z",
+      "specific_hash": "0xBFF34DFA8D5ABB40"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124550",
+      "full_hash": "0xBDCDD3D0CA01FFC5",
+      "name": "??1?$_Temporary_owner@V?$basic_regex_implementation@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@@std@@QEAA@XZ",
+      "specific_hash": "0x4D3DE5E68FF90F4B"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001241C0",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000128CD0",
+      "full_hash": "0xBDDF1243390BD55F",
+      "name": "?compare@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEBAHAEBV12@@Z",
+      "specific_hash": "0x60E8E1953B9B6D4D"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012C200",
+      "full_hash": "0x7C5EF4BCF0BDC2D4",
+      "name": "?get_next_set_literal@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA?AU?$digraph@D@23@AEAV?$basic_char_set@DU?$c_regex_traits@D@boost@@@23@@Z",
+      "specific_hash": "0x06B2702403F09E67"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012D4B0",
+      "full_hash": "0x138D31001B20B0A8",
+      "name": "?match_backref@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xCD5A0BA179CE1081"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012B5A0",
+      "full_hash": "0xBECF07B552005489",
+      "name": "?find_imp@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x0ABA7553D68BCEB1"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012B8E0",
+      "full_hash": "0x8D2DEE58CEE80D4B",
+      "name": "?find_restart_any@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x3F1590DA7C9B634E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012E6B0",
+      "full_hash": "0x09B05B9008DECCAE",
+      "name": "?match_rep@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x1172F9362747F840"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012E390",
+      "full_hash": "0xC82D1BFB3B07E838",
+      "name": "?match_prefix@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x93105DFA1DA7FA06"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000137280",
+      "full_hash": "0x69CA675D0658A7B9",
+      "name": "?push_alt@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXPEBUre_syntax_base@23@@Z",
+      "specific_hash": "0x9CF7771A969DC1C2"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125540",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Ginvalid_argument@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012CF20",
+      "full_hash": "0xB0A09D5CEE895EEF",
+      "name": "?lookup_default_collate_name@re_detail_500@boost@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBV34@@Z",
+      "specific_hash": "0xCCF7D3FBDCE81312"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001250F0",
+      "full_hash": "0xED524FDBE386861C",
+      "name": "??4?$shared_ptr@Vnamed_subexpressions@re_detail_500@boost@@@std@@QEAAAEAV01@AEBV01@@Z",
+      "specific_hash": "0xC22AB6CF201472E3"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001383C0",
+      "full_hash": "0x8FC5E03894604C16",
+      "name": "?unescape_character@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAADXZ",
+      "specific_hash": "0x46075E8CF8710CE8"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000139BF0",
+      "full_hash": "0x2F33C3AAD1D2B5C7",
+      "name": "?unwind_recursion@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x41EB3A4CC32B05A4"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001206B0",
+      "full_hash": "0x9FA7EFBE8CB25EF9",
+      "name": "??$_Allocate_manually_vector_aligned@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z",
+      "specific_hash": "0x55E227005570AF09"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000131DB0",
+      "full_hash": "0x823E2B69C87B677A",
+      "name": "?parse_inner_set@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NAEAV?$basic_char_set@DU?$c_regex_traits@D@boost@@@23@@Z",
+      "specific_hash": "0x13B1AEE72DBBF392"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001390D0",
+      "full_hash": "0xD860B98220A539AB",
+      "name": "?unwind_alts@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_N_J@Z",
+      "specific_hash": "0x8C04BB42180E1730"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012A010",
+      "full_hash": "0x7D966AF093F3275D",
+      "name": "?create_startmaps@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXPEAUre_syntax_base@23@@Z",
+      "specific_hash": "0xBFBF9A4E3271BA00"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000013ABA0",
+      "full_hash": "0x41C15BCD2856F4A2",
+      "name": "regfreeA",
+      "specific_hash": "0xE6127744B0D4726D"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012EBA0",
+      "full_hash": "0x4FAB8A41AE46B340",
+      "name": "?match_startmark@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x51A36BF751525018"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012FFA0",
+      "full_hash": "0xB39F83EFEB004778",
+      "name": "?parse_basic@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0xC892001167125922"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125590",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Glogic_error@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000134E70",
+      "full_hash": "0xB3BA120974E7A3DD",
+      "name": "?parse_perl_verb@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x341AD9BDBC722B6D"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001249F0",
+      "full_hash": "0xEEBA41E6B9DFE334",
+      "name": "??1?$vector@U?$digraph@D@re_detail_500@boost@@V?$allocator@U?$digraph@D@re_detail_500@boost@@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0xDFF95218FC3D03F9"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001243B0",
+      "full_hash": "0x712A567CE1EBD164",
+      "name": "??0logic_error@std@@QEAA@PEBD@Z",
+      "specific_hash": "0x36AFBF3628724617"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000121770",
+      "full_hash": "0x7FD74D56EBE0B967",
+      "name": "??$_Getvals@_W@?$time_get@_WV?$istreambuf_iterator@_WU?$char_traits@_W@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+      "specific_hash": "0x3FBB7FB8DA13BB48"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125700",
+      "full_hash": "0x40E4B52D8B749711",
+      "name": "?_Change_array@?$vector@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@AEAAXQEAU?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@_K1@Z",
+      "specific_hash": "0xD397CA20EAB3DD78"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012A750",
+      "full_hash": "0xCB089519EEDD6C6C",
+      "name": "?do_assign@?$basic_regex@DU?$c_regex_traits@D@boost@@@boost@@AEAAAEAV12@PEBD0I@Z",
+      "specific_hash": "0x462683C9897B9F59"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000120A30",
+      "full_hash": "0xF27DEDA43ACD6528",
+      "name": "??$_Copy_memmove@PEAEPEAE@std@@YAPEAEPEAE00@Z",
+      "specific_hash": "0xE0D37EBF08A17034"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012A570",
+      "full_hash": "0xC9E12062B8569662",
+      "name": "?deallocate@?$allocator@U?$pair@_K_K@std@@@std@@QEAAXQEAU?$pair@_K_K@2@_K@Z",
+      "specific_hash": "0xBCEF8D0AE3D0B04F"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012AA10",
+      "full_hash": "0x97FD40BB41671B9A",
+      "name": "?equal_range@named_subexpressions@re_detail_500@boost@@QEBA?AU?$pair@V?$_Vector_const_iterator@V?$_Vector_val@U?$_Simple_types@Uname@named_subexpressions@re_detail_500@boost@@@std@@@std@@@std@@V12@@std@@H@Z",
+      "specific_hash": "0x0CD8C76F23F87C8F"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000139880",
+      "full_hash": "0x4020347E6AF6E96C",
+      "name": "?unwind_greedy_single_repeat@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x4292850C707D0C26"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125240",
+      "full_hash": "0x2590034C5B0350D1",
+      "name": "??_G?$_Ref_count@U?$regex_traits_wrapper@U?$c_regex_traits@D@boost@@@boost@@@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xEEF4E051EA5AE687"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124230",
+      "full_hash": "0xA3556930B7BDBC69",
+      "name": "??0clone_base@exception_detail@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0x34D7633BB0971F45"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000139760",
+      "full_hash": "0x83C321BEB7524EA7",
+      "name": "?unwind_fast_dot_repeat@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x1A4D16521BB27DB4"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012D680",
+      "full_hash": "0x0B414991FF6B0889",
+      "name": "?match_buffer_end@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x69700D65B51B47C3"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000132E50",
+      "full_hash": "0x93E531841499A48E",
+      "name": "?parse_open_paren@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x7FBE6179705B69BA"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001218C0",
+      "full_hash": "0x5D1B74FAB12FE37E",
+      "name": "??$_Memcmp_ranges@PEBDPEBD@std@@YAHPEBD00@Z",
+      "specific_hash": "0xB40A679AA8BA081A"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000128690",
+      "full_hash": "0x64CD2F5BE7E73525",
+      "name": "?assign@?$basic_regex_implementation@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAAXPEBD0I@Z",
+      "specific_hash": "0x8BF237BD473A9EB9"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012C500",
+      "full_hash": "0xE6059F6E760F567F",
+      "name": "?get_repeat_type@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA?AW4syntax_element_type@23@PEAUre_syntax_base@23@@Z",
+      "specific_hash": "0x39F6B9F5454356B1"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012EE20",
+      "full_hash": "0xB344270DAE5D2001",
+      "name": "?match_then@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xE5F35836AAD224D7"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012E240",
+      "full_hash": "0xFE207CD9BA837707",
+      "name": "?match_match@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xE6CC21D5B4D00862"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000120600",
+      "full_hash": "0x3A26FCC59FC38552",
+      "name": "??$?8DU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA_NQEBDAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@@Z",
+      "specific_hash": "0x6280E0B1525CF16E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000123F90",
+      "full_hash": "0x7E6B1F99484023F8",
+      "name": "??0?$wrapexcept@Vlogic_error@std@@@boost@@QEAA@AEBVlogic_error@std@@@Z",
+      "specific_hash": "0x197EA8A337A7C1C1"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124E70",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1logic_error@std@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001221C0",
+      "full_hash": "0x5DF19528971047B0",
+      "name": "??$distance@V?$_Tree_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$digraph@D@re_detail_500@boost@@@std@@@std@@@std@@@std@@YA_JV?$_Tree_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$digraph@D@re_detail_500@boost@@@std@@@std@@@0@0@Z",
+      "specific_hash": "0x4DF598A18B1B0A16"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124DA0",
+      "full_hash": "0xA6C2FFC026B4746C",
+      "name": "??1deleter@?$wrapexcept@Vlogic_error@std@@@boost@@QEAA@XZ",
+      "specific_hash": "0x781A282DF24EFE89"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001237D0",
+      "full_hash": "0x1016C3D3D93CF334",
+      "name": "??$throw_exception@Vlogic_error@std@@@boost@@YAXAEBVlogic_error@std@@@Z",
+      "specific_hash": "0xB4F55B517E42594E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000130210",
+      "full_hash": "0x619D207433095B66",
+      "name": "?parse_basic_escape@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x29D6D642D976093E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000121840",
+      "full_hash": "0x00671F8B2B5D5C48",
+      "name": "??$_Maklocstr@D@std@@YAPEADPEBDPEADAEBU_Cvtvec@@@Z",
+      "specific_hash": "0xAFB2D484DD2BD228"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012AB20",
+      "full_hash": "0x08A9698EE4462C68",
+      "name": "?error_string@?$default_wrapper@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@W4error_type@regex_constants@3@@Z",
+      "specific_hash": "0x97521D3BAA272D94"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000139AD0",
+      "full_hash": "0xF0A1AA5D4032D1F1",
+      "name": "?unwind_non_greedy_repeat@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x638E7AA7AFF2ADAD"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000132DA0",
+      "full_hash": "0x3C0CF4ABF157C9C0",
+      "name": "?parse_literal@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x0B6469133C263780"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000013A1B0",
+      "full_hash": "0x772232A707E1F5B7",
+      "name": "?unwind_then@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0xB3C1D2A453E09246"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124F50",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1regex_error@boost@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000139E90",
+      "full_hash": "0x2A0B6C10682351C8",
+      "name": "?unwind_recursion_stopper@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x22CEEF86705C5581"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000013A220",
+      "full_hash": "0x0772BB7A18965B45",
+      "name": "?unwind_until@?$repeater_count@PEBD@re_detail_500@boost@@AEAAPEAV123@HPEAV123@H@Z",
+      "specific_hash": "0x2CEB9901FFD4A894"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000121140",
+      "full_hash": "0x37CCA686789A15F6",
+      "name": "??$_Emplace_reallocate@U?$pair@_NPEAUre_syntax_base@re_detail_500@boost@@@std@@@?$vector@U?$pair@_NPEAUre_syntax_base@re_detail_500@boost@@@std@@V?$allocator@U?$pair@_NPEAUre_syntax_base@re_detail_500@boost@@@std@@@2@@std@@AEAAPEAU?$pair@_NPEAUre_syntax_base@re_detail_500@boost@@@1@QEAU21@$$QEAU21@@Z",
+      "specific_hash": "0xE1C77367D2714A61"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000122230",
+      "full_hash": "0xD7F524C2BE66EE2B",
+      "name": "??$fill@PEAU?$sub_match@PEBD@boost@@U12@@std@@YAXQEAU?$sub_match@PEBD@boost@@0AEBU12@@Z",
+      "specific_hash": "0x8D7C942C6079DCB5"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001252A0",
+      "full_hash": "0xAF12996DDFA18C30",
+      "name": "??_G?$wrapexcept@Vinvalid_argument@std@@@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x993C9B7862AEB502"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000123560",
+      "full_hash": "0xAFB58BB3A33E6E9B",
+      "name": "??$regex_search@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@DU?$c_regex_traits@D@boost@@@boost@@YA_NPEBD0AEAV?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@0@AEBV?$basic_regex@DU?$c_regex_traits@D@boost@@@0@W4_match_flags@regex_constants@0@0@Z",
+      "specific_hash": "0x13CF877454746FB7"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000136F00",
+      "full_hash": "0xDEB9D451517200C7",
+      "name": "?parse_set_literal@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAAXAEAV?$basic_char_set@DU?$c_regex_traits@D@boost@@@23@@Z",
+      "specific_hash": "0x97B17C00A7426D04"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000139480",
+      "full_hash": "0x70E377F961FAD68C",
+      "name": "?unwind_assertion@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x4C4E09193816CFD3"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012E040",
+      "full_hash": "0x3D8ABA236FD0BDD7",
+      "name": "?match_long_set@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xF8DC82C60A4605B8"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124010",
+      "full_hash": "0xAFA22C236B370E74",
+      "name": "??0?$wrapexcept@Vregex_error@boost@@@boost@@QEAA@AEBU01@@Z",
+      "specific_hash": "0x37EED51F153D2875"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001246A0",
+      "full_hash": "0x78A26282B0884AED",
+      "name": "??1?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@QEAA@XZ",
+      "specific_hash": "0x32787C07ABC735BA"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125060",
+      "full_hash": "0xE6576E77C1A1D539",
+      "name": "??4?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@QEAAAEAV01@AEBV01@@Z",
+      "specific_hash": "0x4C31DC4A205E1F72"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000121630",
+      "full_hash": "0x79525203C247F14D",
+      "name": "??$_Erase_tree@V?$allocator@U?$_Tree_node@U?$digraph@D@re_detail_500@boost@@PEAX@std@@@std@@@?$_Tree_val@U?$_Tree_simple_types@U?$digraph@D@re_detail_500@boost@@@std@@@std@@QEAAXAEAV?$allocator@U?$_Tree_node@U?$digraph@D@re_detail_500@boost@@PEAX@std@@@1@PEAU?$_Tree_node@U?$digraph@D@re_detail_500@boost@@PEAX@1@@Z",
+      "specific_hash": "0x21887D82A425DB39"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000123C30",
+      "full_hash": "0x4B7980849095EB36",
+      "name": "??0?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x4BE09B4D134DE482"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001373D0",
+      "full_hash": "0xABB7AE989980EC6B",
+      "name": "?push_recursion@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXHPEBUre_syntax_base@23@PEAV?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@3@1@Z",
+      "specific_hash": "0x829622E03D1CEF4C"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012C5F0",
+      "full_hash": "0xAD878DE0AD67C8A0",
+      "name": "?insert@?$vector@U?$sub_match@PEBD@boost@@V?$allocator@U?$sub_match@PEBD@boost@@@std@@@std@@QEAA?AV?$_Vector_iterator@V?$_Vector_val@U?$_Simple_types@U?$sub_match@PEBD@boost@@@std@@@std@@@2@V?$_Vector_const_iterator@V?$_Vector_val@U?$_Simple_types@U?$sub_match@PEBD@boost@@@std@@@std@@@2@_KAEBU?$sub_match@PEBD@boost@@@Z",
+      "specific_hash": "0x48DFCD7A8985A459"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000130FE0",
+      "full_hash": "0xA197DF194FE6817F",
+      "name": "?parse_extended_escape@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x2E48B5633110EBBA"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012AB80",
+      "full_hash": "0xB710EFB2798E56FC",
+      "name": "?estimate_max_state_count@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXPEAUrandom_access_iterator_tag@std@@@Z",
+      "specific_hash": "0x368D1B7689929B00"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012E890",
+      "full_hash": "0xB0EF1B6F96720F17",
+      "name": "?match_restart_continue@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x62734981BE1991DC"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125830",
+      "full_hash": "0x1945C292EE93A722",
+      "name": "?_Delete_this@?$_Ref_count@V?$basic_regex_implementation@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@@std@@EEAAXXZ",
+      "specific_hash": "0x4BB1D500756B8C13"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012D2E0",
+      "full_hash": "0x8570D371FD955FB6",
+      "name": "?match_assert_backref@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x0C6F9E67646112DB"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000120AF0",
+      "full_hash": "0xF27DEDA43ACD6528",
+      "name": "??$_Copy_memmove@PEA_JPEA_J@std@@YAPEA_JPEA_J00@Z",
+      "specific_hash": "0xE0D37EBF08A17034"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000122870",
+      "full_hash": "0x4D9C41F12D23A3DB",
+      "name": "??$insert@$0A@$0A@@?$_Tree@V?$_Tset_traits@U?$digraph@D@re_detail_500@boost@@U?$less@U?$digraph@D@re_detail_500@boost@@@std@@V?$allocator@U?$digraph@D@re_detail_500@boost@@@5@$0A@@std@@@std@@QEAA?AU?$pair@V?$_Tree_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$digraph@D@re_detail_500@boost@@@std@@@std@@@std@@_N@1@AEBU?$digraph@D@re_detail_500@boost@@@Z",
+      "specific_hash": "0xA678A49FF844E6A6"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012D870",
+      "full_hash": "0x1B03FA6902DD2A3B",
+      "name": "?match_combining@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x252EEC50B0CA1B49"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000122260",
+      "full_hash": "0x42DE5A121DE54818",
+      "name": "??$find_sort_syntax@U?$c_regex_traits@D@boost@@D@re_detail_500@boost@@YAIPEBU?$c_regex_traits@D@1@PEAD@Z",
+      "specific_hash": "0xE3C42EE4CA68CC91"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124200",
+      "full_hash": "0x3F776102123EF13B",
+      "name": "??0bad_array_new_length@std@@QEAA@XZ",
+      "specific_hash": "0xE89F366BE03F8AE1"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000121FB0",
+      "full_hash": "0x37BF8E2F818B6BFF",
+      "name": "??$_Uninitialized_copy@PEAU?$sub_match@PEBD@boost@@PEAU12@V?$allocator@U?$sub_match@PEBD@boost@@@std@@@std@@YAPEAU?$sub_match@PEBD@boost@@PEAU12@00AEAV?$allocator@U?$sub_match@PEBD@boost@@@0@@Z",
+      "specific_hash": "0xE0E9F13C90611049"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000139940",
+      "full_hash": "0xEBDFC32682FCC15E",
+      "name": "?unwind_long_set_repeat@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x672DB484ECEC9A1E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000137780",
+      "full_hash": "0x1016C3D3D93CF334",
+      "name": "?rethrow@?$wrapexcept@Vlogic_error@std@@@boost@@UEBAXXZ",
+      "specific_hash": "0xB4F55B517E42594E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001245E0",
+      "full_hash": "0xA799D903EF2734CE",
+      "name": "??1?$_Uninitialized_backout_al@V?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0xE8C587132D55F1C9"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012A5C0",
+      "full_hash": "0xC9E12062B8569662",
+      "name": "?deallocate@?$allocator@U?$pair@_NPEAUre_syntax_base@re_detail_500@boost@@@std@@@std@@QEAAXQEAU?$pair@_NPEAUre_syntax_base@re_detail_500@boost@@@2@_K@Z",
+      "specific_hash": "0xBCEF8D0AE3D0B04F"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001375F0",
+      "full_hash": "0x6F2EC6288FD22BA2",
+      "name": "?push_single_repeat@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAX_KPEBUre_repeat@23@PEBDH@Z",
+      "specific_hash": "0x5D05F00E53A1FBFD"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000137680",
+      "full_hash": "0xFD78B536EFE16184",
+      "name": "?raise_logic_error@?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@CAXXZ",
+      "specific_hash": "0xCDEDB21640EAF270"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012E0A0",
+      "full_hash": "0xD472B54C22462052",
+      "name": "?match_long_set_repeat@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x17F68AB4B02A0951"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000123EC0",
+      "full_hash": "0x7E80452A00B66FF7",
+      "name": "??0?$wrapexcept@Vlogic_error@std@@@boost@@QEAA@AEBU01@@Z",
+      "specific_hash": "0xED5C133E0A2A5E99"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001247A0",
+      "full_hash": "0x68234105B1E58585",
+      "name": "??1?$refcount_ptr@Uerror_info_container@exception_detail@boost@@@exception_detail@boost@@QEAA@XZ",
+      "specific_hash": "0x1C9B914DF1D42AC1"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000137CA0",
+      "full_hash": "0x36F025F21716CB1B",
+      "name": "?transform@?$c_regex_traits@D@boost@@SA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBD0@Z",
+      "specific_hash": "0xBFBCA9C8CDA22E8B"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001376B0",
+      "full_hash": "0x5E68902589D1211D",
+      "name": "?resize@raw_storage@re_detail_500@boost@@QEAAX_K@Z",
+      "specific_hash": "0x6FA3910E9EEFF2BF"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000139B10",
+      "full_hash": "0x4E58106B127B319F",
+      "name": "?unwind_paren@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x6249BCB76225317B"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125860",
+      "full_hash": "0x96D57A8C0FF77B18",
+      "name": "?_Destroy@?$_Ref_count@V?$basic_regex_implementation@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@@std@@EEAAXXZ",
+      "specific_hash": "0x8D336C670262C938"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001240E0",
+      "full_hash": "0x2C2D229B052707F1",
+      "name": "??0?$wrapexcept@Vregex_error@boost@@@boost@@QEAA@AEBVregex_error@1@@Z",
+      "specific_hash": "0xD3E5B1F9C235D2F4"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000139640",
+      "full_hash": "0x20D4A0A823558E89",
+      "name": "?unwind_commit@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x6A3E65EEDDA992DA"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012FE80",
+      "full_hash": "0x669FB65BEC125241",
+      "name": "?parse_backref@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x7B5FE3C406145F0F"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000126A90",
+      "full_hash": "0xB438C9CA754227E4",
+      "name": "?append_set@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAAPEAUre_syntax_base@23@AEBV?$basic_char_set@DU?$c_regex_traits@D@boost@@@23@PEAU?$integral_constant@_N$00@std@@@Z",
+      "specific_hash": "0xF057E8FB0C219D3B"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000126770",
+      "full_hash": "0xC4B6168632FE8073",
+      "name": "?allocate@?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@QEAAPEAU?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@_K@Z",
+      "specific_hash": "0x378918B806922C3D"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012EB30",
+      "full_hash": "0x7A883C03A2B91033",
+      "name": "?match_start_line@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x1ED3CAB6E4ECBBC2"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012FB90",
+      "full_hash": "0x837B03192C1C508E",
+      "name": "?parse_alt@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0xA2763B192D208172"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000122800",
+      "full_hash": "0x898FE21B6AECF01F",
+      "name": "??$hash_value_from_capture_name@PEBD@re_detail_500@boost@@YAHPEBD0@Z",
+      "specific_hash": "0x119B9081D79344A3"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012D8D0",
+      "full_hash": "0xD54DE0A1AFB7A7ED",
+      "name": "?match_commit@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x479EEEBFE2480A31"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124E20",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1exception@std@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125630",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gruntime_error@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012BEB0",
+      "full_hash": "0xDCDD59B26BFFC741",
+      "name": "?fixup_recursions@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXPEAUre_syntax_base@23@@Z",
+      "specific_hash": "0xB21FA4A75F579395"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001242A0",
+      "full_hash": "0x8394F617ED90D651",
+      "name": "??0exception@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x27E5355338B09110"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001257C0",
+      "full_hash": "0x01F15586F2519771",
+      "name": "?_Decref@_Ref_count_base@std@@QEAAXXZ",
+      "specific_hash": "0x3C15C58F20EAAD0B"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000129090",
+      "full_hash": "0xC165E350114AC4F5",
+      "name": "?create_startmap@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXPEAUre_syntax_base@23@PEAEPEAIE@Z",
+      "specific_hash": "0x5801C8D1019F8891"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000013A2B0",
+      "full_hash": "0xF28FA0EB7AE1A1CA",
+      "name": "?what@exception@std@@UEBAPEBDXZ",
+      "specific_hash": "0x15643C00B67E7F07"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000123E40",
+      "full_hash": "0x7E6B1F99484023F8",
+      "name": "??0?$wrapexcept@Vinvalid_argument@std@@@boost@@QEAA@AEBVinvalid_argument@std@@@Z",
+      "specific_hash": "0x197EA8A337A7C1C1"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124D80",
+      "full_hash": "0xA6C2FFC026B4746C",
+      "name": "??1deleter@?$wrapexcept@Vinvalid_argument@std@@@boost@@QEAA@XZ",
+      "specific_hash": "0x781A282DF24EFE89"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012C190",
+      "full_hash": "0xD06A8CAB1131F989",
+      "name": "?get_id@named_subexpressions@re_detail_500@boost@@QEBAHH@Z",
+      "specific_hash": "0x12103FDE622F0B42"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000128D40",
+      "full_hash": "0xAB752592A2FADA3D",
+      "name": "?construct_init@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXAEBV?$basic_regex@DU?$c_regex_traits@D@boost@@@3@W4_match_flags@regex_constants@3@@Z",
+      "specific_hash": "0x93569F464318A502"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000139EE0",
+      "full_hash": "0xB52C42DD8FB17C7B",
+      "name": "?unwind_short_set_repeat@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0xC40B8C8D08D12159"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012B240",
+      "full_hash": "0x72A8C8FE9C2371CA",
+      "name": "?finalize@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAAXPEBD0@Z",
+      "specific_hash": "0x21934B413A3A2EF2"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000121480",
+      "full_hash": "0x3E8FE51D9CDC17A5",
+      "name": "??$_Emplace_reallocate@Uname@named_subexpressions@re_detail_500@boost@@@?$vector@Uname@named_subexpressions@re_detail_500@boost@@V?$allocator@Uname@named_subexpressions@re_detail_500@boost@@@std@@@std@@AEAAPEAUname@named_subexpressions@re_detail_500@boost@@QEAU2345@$$QEAU2345@@Z",
+      "specific_hash": "0x6C6323C3C90409E7"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124BB0",
+      "full_hash": "0xEBF89A4B5CF91547",
+      "name": "??1?$vector@_JV?$allocator@_J@std@@@std@@QEAA@XZ",
+      "specific_hash": "0xEF91C5673FDC3AA9"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001277D0",
+      "full_hash": "0xB1FA9A188B809A57",
+      "name": "?append_set@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAAPEAUre_syntax_base@23@AEBV?$basic_char_set@DU?$c_regex_traits@D@boost@@@23@PEAU?$integral_constant@_N$0A@@std@@@Z",
+      "specific_hash": "0xE530E327AE432686"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000122600",
+      "full_hash": "0xCE35C5CBD73C4DC3",
+      "name": "??$get_default_class_id@D@re_detail_500@boost@@YAHPEBD0@Z",
+      "specific_hash": "0xA1F200B1B83EDCAB"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001371D0",
+      "full_hash": "0x647F2AB8E77CC4EF",
+      "name": "?probe_leading_repeat@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXPEAUre_syntax_base@23@@Z",
+      "specific_hash": "0xFAB90B71BC5F03B3"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001253A0",
+      "full_hash": "0xAF12996DDFA18C30",
+      "name": "??_G?$wrapexcept@Vregex_error@boost@@@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xD86FD96983EBE3E3"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000121BB0",
+      "full_hash": "0xE7AC679C634782D6",
+      "name": "??$_Reallocate_grow_by@V<lambda_b986da8d428e4af07c64af60eec09b61>@@_K_KD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_b986da8d428e4af07c64af60eec09b61>@@_K2D@Z",
+      "specific_hash": "0x74FE1988FC4C3915"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001242E0",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0invalid_argument@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125B70",
+      "full_hash": "0x6FEBA9A10121BACC",
+      "name": "?_Reallocate_exactly@?$vector@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@AEAAX_K@Z",
+      "specific_hash": "0xC745563D76656367"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012DDE0",
+      "full_hash": "0xD5DCC4888A0C32C1",
+      "name": "?match_end_line@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x3FC3C734E359352D"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012BDB0",
+      "full_hash": "0x86C391669B066E9B",
+      "name": "?fixup_pointers@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXPEAUre_syntax_base@23@@Z",
+      "specific_hash": "0x4C5D7258F5080458"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124740",
+      "full_hash": "0x2F6C6E42C0E27374",
+      "name": "??1?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "specific_hash": "0x761FA2836ACBDF4C"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012CB30",
+      "full_hash": "0x0186F0791C65F928",
+      "name": "?isctype@?$c_regex_traits@D@boost@@SA_NDI@Z",
+      "specific_hash": "0xB12875E61F852FD2"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124EA0",
+      "full_hash": "0xCE6222FBB94058BE",
+      "name": "??1recursion_saver@re_detail_500@boost@@QEAA@XZ",
+      "specific_hash": "0x187E81127A8F8A31"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125320",
+      "full_hash": "0xAF12996DDFA18C30",
+      "name": "??_G?$wrapexcept@Vlogic_error@std@@@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x993C9B7862AEB502"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125E60",
+      "full_hash": "0x5610857A30E5C1DC",
+      "name": "?_Xrange@?$vector@U?$pair@_K_K@std@@V?$allocator@U?$pair@_K_K@std@@@2@@std@@CAXXZ",
+      "specific_hash": "0xB4552899B2665788"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000120A60",
+      "full_hash": "0xF27DEDA43ACD6528",
+      "name": "??$_Copy_memmove@PEAU?$pair@_K_K@std@@PEAU12@@std@@YAPEAU?$pair@_K_K@0@PEAU10@00@Z",
+      "specific_hash": "0xE0D37EBF08A17034"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000133150",
+      "full_hash": "0xCEC326038FBDD6FD",
+      "name": "?parse_options@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAAIXZ",
+      "specific_hash": "0xBC18C6DBC246DFD3"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124DC0",
+      "full_hash": "0xA6C2FFC026B4746C",
+      "name": "??1deleter@?$wrapexcept@Vregex_error@boost@@@boost@@QEAA@XZ",
+      "specific_hash": "0x781A282DF24EFE89"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000137980",
+      "full_hash": "0x00D5BB3BA26E8CE3",
+      "name": "?set_size@?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@QEAAX_KPEBD1@Z",
+      "specific_hash": "0x073D2A2134EA9F5E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012D0B0",
+      "full_hash": "0x622730EC13F699C5",
+      "name": "?match_all_states@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x8C778BEF5ACEBAAB"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000123BF0",
+      "full_hash": "0x89CA5350D0A443AB",
+      "name": "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@QEBD@Z",
+      "specific_hash": "0xD96899B9097A5C8F"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000013CB00",
+      "full_hash": "0x740B7602230D3301",
+      "name": "??__Fblock_cache@?1??instance@mem_block_cache@re_detail_500@boost@@SAAEAU123@XZ@YAXXZ",
+      "specific_hash": "0xFCC72AAD07EF72A7"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000120A00",
+      "full_hash": "0xF27DEDA43ACD6528",
+      "name": "??$_Copy_memmove@PEADPEAD@std@@YAPEADPEAD00@Z",
+      "specific_hash": "0xE0D37EBF08A17034"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001377E0",
+      "full_hash": "0x1818360E05435966",
+      "name": "?set_all_masks@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXPEAEE@Z",
+      "specific_hash": "0xDF012AF6D2349708"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000139030",
+      "full_hash": "0x0E520832D8164AD3",
+      "name": "?unwind@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x7756BED992E378C0"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012E910",
+      "full_hash": "0x6FCF4D95076E2B6B",
+      "name": "?match_set_repeat@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xD505950500876DE2"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012A520",
+      "full_hash": "0xA627D80047D5B358",
+      "name": "?deallocate@?$allocator@U?$digraph@D@re_detail_500@boost@@@std@@QEAAXQEAU?$digraph@D@re_detail_500@boost@@_K@Z",
+      "specific_hash": "0x37FECF78FE6BCCE4"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012DC10",
+      "full_hash": "0x2C4ACD16957E95F7",
+      "name": "?match_dot_repeat_slow@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xD0CFC9F166068671"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124B40",
+      "full_hash": "0xEBF89A4B5CF91547",
+      "name": "??1?$vector@Uname@named_subexpressions@re_detail_500@boost@@V?$allocator@Uname@named_subexpressions@re_detail_500@boost@@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0xEF91C5673FDC3AA9"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001220B0",
+      "full_hash": "0x37BF8E2F818B6BFF",
+      "name": "??$_Uninitialized_move@PEAU?$sub_match@PEBD@boost@@V?$allocator@U?$sub_match@PEBD@boost@@@std@@@std@@YAPEAU?$sub_match@PEBD@boost@@QEAU12@0PEAU12@AEAV?$allocator@U?$sub_match@PEBD@boost@@@0@@Z",
+      "specific_hash": "0xE0E9F13C90611049"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000128C10",
+      "full_hash": "0x68D1EDFAD9717480",
+      "name": "?clone@?$wrapexcept@Vlogic_error@std@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "specific_hash": "0x043AA54D8DF15408"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001245F0",
+      "full_hash": "0xF2D4A9092A095B52",
+      "name": "??1?$basic_char_set@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "specific_hash": "0x7A008728C36400A5"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012F3A0",
+      "full_hash": "0x4CAE4D7677B59E34",
+      "name": "?parse@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAAXPEBD0I@Z",
+      "specific_hash": "0xEDD3AD61993A1C81"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125420",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gbad_alloc@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001308E0",
+      "full_hash": "0xF06205FF055D6FF1",
+      "name": "?parse_extended@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x5BB63CA981AEA72E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000013A040",
+      "full_hash": "0xC7AB376211240C2A",
+      "name": "?unwind_slow_dot_repeat@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x6A0C17DF33E8B60E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012DFB0",
+      "full_hash": "0x670382D33FE8E17F",
+      "name": "?match_literal@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x2FE95943F226530E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000123780",
+      "full_hash": "0x5B0E4C5DC6EFFB5A",
+      "name": "??$regex_search@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@DU?$c_regex_traits@D@boost@@@boost@@YA_NPEBD0AEAV?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@0@AEBV?$basic_regex@DU?$c_regex_traits@D@boost@@@0@W4_match_flags@regex_constants@0@@Z",
+      "specific_hash": "0x3AD0B8DCE02E01B0"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000120BD0",
+      "full_hash": "0xC200F06177BA2D2F",
+      "name": "??$_Emplace_reallocate@AEBU?$digraph@D@re_detail_500@boost@@@?$vector@U?$digraph@D@re_detail_500@boost@@V?$allocator@U?$digraph@D@re_detail_500@boost@@@std@@@std@@AEAAPEAU?$digraph@D@re_detail_500@boost@@QEAU234@AEBU234@@Z",
+      "specific_hash": "0xFC2B607A4745281A"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124C80",
+      "full_hash": "0x4827AA7B4E2E991A",
+      "name": "??1?$wrapexcept@Vlogic_error@std@@@boost@@UEAA@XZ",
+      "specific_hash": "0x537DB655F467DF47"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000013AC50",
+      "full_hash": "0xA0869973A31F3B58",
+      "name": "snprintf",
+      "specific_hash": "0xB3EEEB8B917B587C"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124320",
+      "full_hash": "0x712A567CE1EBD164",
+      "name": "??0invalid_argument@std@@QEAA@PEBD@Z",
+      "specific_hash": "0x36AFBF3628724617"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012EE70",
+      "full_hash": "0x505EB8AD3C420A7E",
+      "name": "?match_toggle_case@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xCD2E8CCEE19825D6"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000126860",
+      "full_hash": "0x48A7BB07EBECBD72",
+      "name": "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+      "specific_hash": "0x7B4467EA497E04E1"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000121D70",
+      "full_hash": "0x13444B980B8C70B9",
+      "name": "??$_Reallocate_grow_by@V<lambda_e1befb086ad3257e3f042a63030725f7>@@_KD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_e1befb086ad3257e3f042a63030725f7>@@_KD@Z",
+      "specific_hash": "0x888C1DC2FC9363D5"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012BAA0",
+      "full_hash": "0xD913997BE90C0BD6",
+      "name": "?find_restart_word@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xD290CB2A4F4A9346"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000128FD0",
+      "full_hash": "0xA5AE14FB2CEC0678",
+      "name": "?copy_boost_exception@exception_detail@boost@@YAXPEAVexception@2@PEBV32@@Z",
+      "specific_hash": "0x9A97440CD961857E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000139EB0",
+      "full_hash": "0xD79188B6E47BA863",
+      "name": "?unwind_repeater_counter@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0xD2C60D9591DBA883"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000121A20",
+      "full_hash": "0xD6181E1D082292AE",
+      "name": "??$_Reallocate_grow_by@V<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@Z",
+      "specific_hash": "0x2EBFDD6768E4A52F"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012CDC0",
+      "full_hash": "0x9C50924EA97EF4B6",
+      "name": "?lookup_collatename@?$c_regex_traits@D@boost@@SA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBD0@Z",
+      "specific_hash": "0xEA46F5D2452C3F60"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001396F0",
+      "full_hash": "0x83F3E5A4F60C323F",
+      "name": "?unwind_extra_block@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x1781065EE4A1EB8F"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001289B0",
+      "full_hash": "0x590056F138299729",
+      "name": "?calculate_backstep@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAHPEAUre_syntax_base@23@@Z",
+      "specific_hash": "0xCB292E285DBCE479"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012F800",
+      "full_hash": "0x732710293FB85C2D",
+      "name": "?parse_QE@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0xC36D79A69B852205"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125270",
+      "full_hash": "0x2590034C5B0350D1",
+      "name": "??_G?$_Ref_count@V?$basic_regex_implementation@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xEEF4E051EA5AE687"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000137750",
+      "full_hash": "0x1016C3D3D93CF334",
+      "name": "?rethrow@?$wrapexcept@Vinvalid_argument@std@@@boost@@UEBAXXZ",
+      "specific_hash": "0xB4F55B517E42594E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000137150",
+      "full_hash": "0xCB8FB2D13874EBA0",
+      "name": "?pop_back@?$vector@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@QEAAXXZ",
+      "specific_hash": "0x0A8A555597D9F245"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000137B80",
+      "full_hash": "0x1D331F11169DC37D",
+      "name": "?toi@?$default_wrapper@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEBA_JAEAPEBDPEBDH@Z",
+      "specific_hash": "0xE58E9D17E947175D"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000128BB0",
+      "full_hash": "0x68D1EDFAD9717480",
+      "name": "?clone@?$wrapexcept@Vinvalid_argument@std@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "specific_hash": "0x043AA54D8DF15408"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000137360",
+      "full_hash": "0xCC1EB208B7A021E5",
+      "name": "?push_matched_paren@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXHAEBU?$sub_match@PEBD@3@@Z",
+      "specific_hash": "0x97ED6FD37BA8E732"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000123B20",
+      "full_hash": "0xF8CE645C6CF2EB27",
+      "name": "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x6D5B9785AA4D1F01"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012FA10",
+      "full_hash": "0xA7A7FFD7771F060D",
+      "name": "?parse_all@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0xE6BF75A60F4253C9"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012EFF0",
+      "full_hash": "0x798C2783EFECEA11",
+      "name": "?match_within_word@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x58B315648A796B30"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001206F0",
+      "full_hash": "0x879EDDE32461FC58",
+      "name": "??$_Assign_counted_range@PEAU?$sub_match@PEBD@boost@@@?$vector@U?$sub_match@PEBD@boost@@V?$allocator@U?$sub_match@PEBD@boost@@@std@@@std@@AEAAXPEAU?$sub_match@PEBD@boost@@_K@Z",
+      "specific_hash": "0x1845079CA2B89C42"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125680",
+      "full_hash": "0x996FB3F27A700FA9",
+      "name": "?_Buy_raw@?$vector@EV?$allocator@E@std@@@std@@AEAAX_K@Z",
+      "specific_hash": "0x402CD65CD5358450"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000120690",
+      "full_hash": "0x338C3548FD398B29",
+      "name": "??$?ODU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA_NAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@0@Z",
+      "specific_hash": "0xE6D217D3C24C2460"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124620",
+      "full_hash": "0x56428AADFCAF586C",
+      "name": "??1?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "specific_hash": "0x8EEC207900F3CA3C"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000013A7F0",
+      "full_hash": "0xA8ECC8F903E8B829",
+      "name": "regexecA",
+      "specific_hash": "0x123805A4A084BD7D"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000123850",
+      "full_hash": "0xCBD555F290192A01",
+      "name": "??0?$basic_char_set@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "specific_hash": "0xB7FCA1C33384A63B"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125B00",
+      "full_hash": "0xE4072E7F5F1BE002",
+      "name": "?_Maklocwcs@std@@YAPEA_WPEB_W@Z",
+      "specific_hash": "0x7AF1F07FF2BD73A2"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012DAB0",
+      "full_hash": "0x374C7FDDDF00AE00",
+      "name": "?match_dot_repeat_fast@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xB7E99D7A74438032"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125E80",
+      "full_hash": "0xFA145F89B8418C87",
+      "name": "?add_emacs_code@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_N_N@Z",
+      "specific_hash": "0x88C85E23B361D63A"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000122000",
+      "full_hash": "0x8AE5383CDDA6AF16",
+      "name": "??$_Uninitialized_move@PEAU?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@YAPEAU?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@QEAU123@0PEAU123@AEAV?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@0@@Z",
+      "specific_hash": "0xBABC412C45FE9769"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124180",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124DE0",
+      "full_hash": "0x50755EF479BBEA56",
+      "name": "??1exception@boost@@MEAA@XZ",
+      "specific_hash": "0xAC308368D2F3C806"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012F0D0",
+      "full_hash": "0xA9374E3D5F13FE36",
+      "name": "?match_word_end@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x1A5CB8F69DC09987"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012CA70",
+      "full_hash": "0xB4AEF8430AA868DC",
+      "name": "?instance@mem_block_cache@re_detail_500@boost@@SAAEAU123@XZ",
+      "specific_hash": "0x5D96E565DCFA55E5"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125470",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gbad_array_new_length@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001285C0",
+      "full_hash": "0x9E37658B5CEA119D",
+      "name": "?append_state@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAAPEAUre_syntax_base@23@W4syntax_element_type@23@_K@Z",
+      "specific_hash": "0x50CE976E044FA372"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012E460",
+      "full_hash": "0xF54B70252E290AED",
+      "name": "?match_recursion@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x79706374AE2F618D"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000137470",
+      "full_hash": "0xB7C89635A9FDD3A2",
+      "name": "?push_recursion_pop@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXXZ",
+      "specific_hash": "0x89180116CFF1AC7E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124D50",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1bad_array_new_length@std@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000120650",
+      "full_hash": "0x7A6F4ABFAD7BD2B3",
+      "name": "??$?MDU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA_NAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@0@Z",
+      "specific_hash": "0xB4B6C0EB27DFA74E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000126980",
+      "full_hash": "0xD58CCF4CD62A7FBC",
+      "name": "?append_literal@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAAPEAUre_literal@23@D@Z",
+      "specific_hash": "0x65C4AA704EFED328"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000120AC0",
+      "full_hash": "0xF27DEDA43ACD6528",
+      "name": "??$_Copy_memmove@PEAUname@named_subexpressions@re_detail_500@boost@@PEAU1234@@std@@YAPEAUname@named_subexpressions@re_detail_500@boost@@PEAU1234@00@Z",
+      "specific_hash": "0xE0D37EBF08A17034"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124370",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0logic_error@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000013A4B0",
+      "full_hash": "0x8E0CA35D92E67A07",
+      "name": "regerrorA",
+      "specific_hash": "0xF31CADD4950F6FF8"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012CC70",
+      "full_hash": "0xF36A46B400D57075",
+      "name": "?lookup_classname@?$c_regex_traits@D@boost@@SAIPEBD0@Z",
+      "specific_hash": "0xDDA009A7DBE6792E"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001394D0",
+      "full_hash": "0x7C59DDE73AF8B45C",
+      "name": "?unwind_case@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0xA118566C93145E09"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001244E0",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0runtime_error@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124460",
+      "full_hash": "0xA83EC4D8EA9F9A51",
+      "name": "??0regex_error@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@W4error_type@regex_constants@1@_J@Z",
+      "specific_hash": "0xFAD06F3E82F60CF6"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012CAE0",
+      "full_hash": "0x4F8D110FA8CB22ED",
+      "name": "?is_bad_repeat@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NPEAUre_syntax_base@23@@Z",
+      "specific_hash": "0xF7F4F9658278F369"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124520",
+      "full_hash": "0xEB3B3D1382C81EF5",
+      "name": "??1?$_Alloc_construct_ptr@V?$allocator@U?$_Tree_node@U?$digraph@D@re_detail_500@boost@@PEAX@std@@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0xDB9630BABDFFE267"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012D640",
+      "full_hash": "0x1678F8AB1D16EC14",
+      "name": "?match_backstep@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x19C62B48BECC4552"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012F1C0",
+      "full_hash": "0x44F3E04FE71AF2A4",
+      "name": "?maybe_assign@?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@QEAAXAEBV12@@Z",
+      "specific_hash": "0xB96DE7D87F2159C4"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012F150",
+      "full_hash": "0x66F043A3935B2DE0",
+      "name": "?match_word_start@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xD0F271A0207035C3"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125E40",
+      "full_hash": "0x5610857A30E5C1DC",
+      "name": "?_Xran@?$_String_val@U?$_Simple_types@D@std@@@std@@SAXXZ",
+      "specific_hash": "0xB4552899B2665788"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012B9B0",
+      "full_hash": "0x8A8796A6C10AD16E",
+      "name": "?find_restart_line@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x8AC1884310E28395"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001248A0",
+      "full_hash": "0x3E42309E3E81B215",
+      "name": "??1?$repeater_count@PEBD@re_detail_500@boost@@QEAA@XZ",
+      "specific_hash": "0x3CA1D55550C875E6"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124C20",
+      "full_hash": "0x4827AA7B4E2E991A",
+      "name": "??1?$wrapexcept@Vinvalid_argument@std@@@boost@@UEAA@XZ",
+      "specific_hash": "0x537DB655F467DF47"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001255E0",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gregex_error@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x5D6E7D11C27F8238"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000122A00",
+      "full_hash": "0x251A0DB6B93AC316",
+      "name": "??$re_is_set_member@PEADDU?$c_regex_traits@D@boost@@I@re_detail_500@boost@@YAPEADPEAD0PEBU?$re_set_long@I@01@AEBU?$regex_data@DU?$c_regex_traits@D@boost@@@01@_N@Z",
+      "specific_hash": "0x9F0D03CF21211475"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000135F10",
+      "full_hash": "0x4F3EC1B9255EC084",
+      "name": "?parse_repeat_range@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_N_N@Z",
+      "specific_hash": "0x5B6EA8A322AC06BA"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012EEE0",
+      "full_hash": "0x209780D823544F4F",
+      "name": "?match_verb@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NPEBD@Z",
+      "specific_hash": "0xCEE8C09E33348A2D"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012EF90",
+      "full_hash": "0xBFC3D52F5904F3B0",
+      "name": "?match_wild@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x3C214AC76757EE2F"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124910",
+      "full_hash": "0x242CAC90C599DC0F",
+      "name": "??1?$unique_ptr@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@U?$default_delete@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0x8F2145A2EE46E217"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001254F0",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gexception@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012E8B0",
+      "full_hash": "0x7F54FE464881DA30",
+      "name": "?match_set@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x0406C2AF1B919FE9"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000137A80",
+      "full_hash": "0x03CB669949A1F538",
+      "name": "?skip_until_paren@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NH_N@Z",
+      "specific_hash": "0xFD8297191259BF73"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000120A90",
+      "full_hash": "0xF27DEDA43ACD6528",
+      "name": "??$_Copy_memmove@PEAU?$pair@_NPEAUre_syntax_base@re_detail_500@boost@@@std@@PEAU12@@std@@YAPEAU?$pair@_NPEAUre_syntax_base@re_detail_500@boost@@@0@PEAU10@00@Z",
+      "specific_hash": "0xE0D37EBF08A17034"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000120DE0",
+      "full_hash": "0x3E8FE51D9CDC17A5",
+      "name": "??$_Emplace_reallocate@AEB_J@?$vector@_JV?$allocator@_J@std@@@std@@AEAAPEA_JQEA_JAEB_J@Z",
+      "specific_hash": "0x6C6323C3C90409E7"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125180",
+      "full_hash": "0x7EC88FF5248A3C89",
+      "name": "??A?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@QEBAAEBU?$sub_match@PEBD@1@H@Z",
+      "specific_hash": "0xA19963089A9D24F7"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000013A2E0",
+      "full_hash": "0x84E2A7DFA36040EA",
+      "name": "regcompA",
+      "specific_hash": "0x8071E128EEEA96D3"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124F70",
+      "full_hash": "0xA56FE4A7D097D631",
+      "name": "??1save_state_init@re_detail_500@boost@@QEAA@XZ",
+      "specific_hash": "0xB2D3308B1D66108F"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001267E0",
+      "full_hash": "0xDE3E226A27A3C840",
+      "name": "?allocate@?$allocator@U?$sub_match@PEBD@boost@@@std@@QEAAPEAU?$sub_match@PEBD@boost@@_K@Z",
+      "specific_hash": "0xDEEEE4638F960F30"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125CC0",
+      "full_hash": "0xDB2685ECD014AEFD",
+      "name": "?_Tidy_deallocate@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXXZ",
+      "specific_hash": "0xF9272CA2EB63170B"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012C970",
+      "full_hash": "0x10548E3FBBFEAD43",
+      "name": "?insert_state@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAAPEAUre_syntax_base@23@_JW4syntax_element_type@23@_K@Z",
+      "specific_hash": "0x4516028FD5D1E6EC"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001247D0",
+      "full_hash": "0xBEE739D49EADFAA8",
+      "name": "??1?$regex_data@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "specific_hash": "0x76645ED6A05BAEC0"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124CE0",
+      "full_hash": "0x4827AA7B4E2E991A",
+      "name": "??1?$wrapexcept@Vregex_error@boost@@@boost@@UEAA@XZ",
+      "specific_hash": "0x4A994A4EBF7AF6FB"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012D950",
+      "full_hash": "0x374C7FDDDF00AE00",
+      "name": "?match_dot_repeat_dispatch@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xB7E99D7A74438032"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000120B20",
+      "full_hash": "0xF27DEDA43ACD6528",
+      "name": "??$_Copy_memmove@PEBDPEAD@std@@YAPEADPEBD0PEAD@Z",
+      "specific_hash": "0xE0D37EBF08A17034"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000139E10",
+      "full_hash": "0xE72746D40BCDD994",
+      "name": "?unwind_recursion_pop@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x89AA33144FAB504F"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012ACF0",
+      "full_hash": "0x1B7EAEBE1E9F8A32",
+      "name": "?fail@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAAXW4error_type@regex_constants@3@_J@Z",
+      "specific_hash": "0x608A87432BC7E50A"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000126710",
+      "full_hash": "0xE2E3C78B887BD16A",
+      "name": "?allocate@?$allocator@D@std@@QEAAPEAD_K@Z",
+      "specific_hash": "0x6A9596D6B0011C9B"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012DE40",
+      "full_hash": "0x5E5E4C51772629E7",
+      "name": "?match_endmark@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xCEFEF57C7016B405"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012DFA0",
+      "full_hash": "0xE8FADF2B8964FD54",
+      "name": "?match_jump@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x7B9C7D99927C7098"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000123D70",
+      "full_hash": "0x7E80452A00B66FF7",
+      "name": "??0?$wrapexcept@Vinvalid_argument@std@@@boost@@QEAA@AEBU01@@Z",
+      "specific_hash": "0xED5C133E0A2A5E99"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000128890",
+      "full_hash": "0x5C99DD8B415F313A",
+      "name": "?assign@?$vector@EV?$allocator@E@std@@@std@@QEAAX_KAEBE@Z",
+      "specific_hash": "0xF36D7CE7D6D0B3F3"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124A50",
+      "full_hash": "0xFD21E295089DBC55",
+      "name": "??1?$vector@U?$pair@_NPEAUre_syntax_base@re_detail_500@boost@@@std@@V?$allocator@U?$pair@_NPEAUre_syntax_base@re_detail_500@boost@@@std@@@2@@std@@QEAA@XZ",
+      "specific_hash": "0x84504BC96F08EF57"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000120B50",
+      "full_hash": "0x9AF0750DFCEF69FF",
+      "name": "??$_Destroy_range@V?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@YAXPEAU?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@QEAU123@AEAV?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@0@@Z",
+      "specific_hash": "0x71705AB1849C8A2A"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000124FD0",
+      "full_hash": "0xD67AB88F96A3DC5D",
+      "name": "??4?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV01@$$QEAV01@@Z",
+      "specific_hash": "0xC6E841B8084B1934"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000137890",
+      "full_hash": "0x30F6AB2477E1DD03",
+      "name": "?set_bad_repeat@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXPEAUre_syntax_base@23@@Z",
+      "specific_hash": "0x248941C0351B32C3"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000122150",
+      "full_hash": "0xCE42E422997BF48D",
+      "name": "??$count_chars@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@D@re_detail_500@boost@@YAIAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@D@Z",
+      "specific_hash": "0x1CED0CED8991167D"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000123800",
+      "full_hash": "0xCC57799FB18138A2",
+      "name": "??$throw_exception@Vregex_error@boost@@@boost@@YAXAEBVregex_error@0@@Z",
+      "specific_hash": "0xB4B35FE04D9942BD"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012EAB0",
+      "full_hash": "0x17AD1ACE476B3697",
+      "name": "?match_soft_buffer_end@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x7E2C826DEA286213"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125810",
+      "full_hash": "0x1945C292EE93A722",
+      "name": "?_Delete_this@?$_Ref_count@U?$regex_traits_wrapper@U?$c_regex_traits@D@boost@@@boost@@@std@@EEAAXXZ",
+      "specific_hash": "0x4BB1D500756B8C13"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000137F50",
+      "full_hash": "0x1A8F559F5AD45BC8",
+      "name": "?transform_primary@?$c_regex_traits@D@boost@@SA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBD0@Z",
+      "specific_hash": "0xAA81A4A331BEADE0"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000122FB0",
+      "full_hash": "0x251A0DB6B93AC316",
+      "name": "??$re_is_set_member@PEBDDU?$c_regex_traits@D@boost@@I@re_detail_500@boost@@YAPEBDPEBD0PEBU?$re_set_long@I@01@AEBU?$regex_data@DU?$c_regex_traits@D@boost@@@01@_N@Z",
+      "specific_hash": "0x9F0D03CF21211475"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000120F90",
+      "full_hash": "0x37CCA686789A15F6",
+      "name": "??$_Emplace_reallocate@U?$pair@_K_K@std@@@?$vector@U?$pair@_K_K@std@@V?$allocator@U?$pair@_K_K@std@@@2@@std@@AEAAPEAU?$pair@_K_K@1@QEAU21@$$QEAU21@@Z",
+      "specific_hash": "0xE1C77367D2714A61"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001248C0",
+      "full_hash": "0x695034D1C4B33572",
+      "name": "??1?$shared_ptr@V?$basic_regex_implementation@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@@std@@QEAA@XZ",
+      "specific_hash": "0x188F1143FDAB4C57"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001268F0",
+      "full_hash": "0xB461873B82111DCE",
+      "name": "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@_KD@Z",
+      "specific_hash": "0x074D70571A14C3A3"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012A700",
+      "full_hash": "0xC436972A2B939B86",
+      "name": "?deallocate@?$allocator@_J@std@@QEAAXQEA_J_K@Z",
+      "specific_hash": "0xEE6B66BD6A9C8F71"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000139090",
+      "full_hash": "0x0B6A48D7FBA81EDE",
+      "name": "?unwind_alt@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x4169143C533E3E8A"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012A6B0",
+      "full_hash": "0xC436972A2B939B86",
+      "name": "?deallocate@?$allocator@Uname@named_subexpressions@re_detail_500@boost@@@std@@QEAAXQEAUname@named_subexpressions@re_detail_500@boost@@_K@Z",
+      "specific_hash": "0xEE6B66BD6A9C8F71"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012AC40",
+      "full_hash": "0xE655DDF9C85ADCFD",
+      "name": "?extend_stack@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXXZ",
+      "specific_hash": "0xAB66CD2CBBA7E255"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001372E0",
+      "full_hash": "0x023DF90234C6F786",
+      "name": "?push_back@?$vector@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@QEAAX$$QEAU?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@Z",
+      "specific_hash": "0x00E3CC7191BB884A"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001254C0",
+      "full_hash": "0x108D55EA8A0D124C",
+      "name": "??_Gclone_base@exception_detail@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x80EAEE8E330F4C9B"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012C560",
+      "full_hash": "0x559BCB2C53F9A442",
+      "name": "?get_restart_type@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAIPEAUre_syntax_base@23@@Z",
+      "specific_hash": "0x0FE4CB5369573913"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012F020",
+      "full_hash": "0x10E7DFFE8BAEADC6",
+      "name": "?match_word_boundary@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x75E4FBD6A599FA9B"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000125C00",
+      "full_hash": "0x8FEE42DB1909DA52",
+      "name": "?_Throw_bad_array_new_length@std@@YAXXZ",
+      "specific_hash": "0x05BA479C99E9031C"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000122100",
+      "full_hash": "0x010A1D75036CA0C7",
+      "name": "??$bubble_down_one@V?$_Vector_iterator@V?$_Vector_val@U?$_Simple_types@Uname@named_subexpressions@re_detail_500@boost@@@std@@@std@@@std@@@re_detail_500@boost@@YAXV?$_Vector_iterator@V?$_Vector_val@U?$_Simple_types@Uname@named_subexpressions@re_detail_500@boost@@@std@@@std@@@std@@0@Z",
+      "specific_hash": "0x1794F3FFA7E17169"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x0000000000128C70",
+      "full_hash": "0x68D1EDFAD9717480",
+      "name": "?clone@?$wrapexcept@Vregex_error@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "specific_hash": "0x485CB57C4ECA0CCC"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x000000000012A660",
+      "full_hash": "0x2EA2AA2E24B31BAD",
+      "name": "?deallocate@?$allocator@U?$sub_match@PEBD@boost@@@std@@QEAAXQEAU?$sub_match@PEBD@boost@@_K@Z",
+      "specific_hash": "0xC476372D18548983"
+    },
+    {
+      "domain_path": "/0000_posix_api.obj",
+      "entry_point": "0x00000000001239D0",
+      "full_hash": "0x819D706E19B2F7CB",
+      "name": "??0?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA@PEAU?$regex_data@DU?$c_regex_traits@D@boost@@@12@@Z",
+      "specific_hash": "0x72C8605FB4B4F138"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000127330",
+      "full_hash": "0xEF366868A21B7092",
+      "name": "??$is_separator@_W@re_detail_500@boost@@YA_N_W@Z",
+      "specific_hash": "0xACC0126EDD5731D7"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000131F90",
+      "full_hash": "0xF3B1D4636FF9FAF9",
+      "name": "?match_commit@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x8951961567FCE664"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013EBF0",
+      "full_hash": "0xD79188B6E47BA863",
+      "name": "?unwind_repeater_counter@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0xD2C60D9591DBA883"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000127080",
+      "full_hash": "0xBC3F1A0375F7C5DD",
+      "name": "??$global_toi@_WU?$default_wrapper@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@@re_detail_500@boost@@YA_JAEAPEB_WPEB_WHAEBU?$default_wrapper@U?$c_regex_traits@_W@boost@@@01@@Z",
+      "specific_hash": "0x05002A601D057947"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013E320",
+      "full_hash": "0x20D4A0A823558E89",
+      "name": "?unwind_commit@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x6A3E65EEDDA992DA"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000129050",
+      "full_hash": "0xBDCDD3D0CA01FFC5",
+      "name": "??1?$_Temporary_owner@V?$basic_regex_implementation@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@@std@@QEAA@XZ",
+      "specific_hash": "0x4D3DE5E68FF90F4B"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001338A0",
+      "full_hash": "0x2F6F106CBED6BFBE",
+      "name": "?maybe_assign@?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@QEAAXAEBV12@@Z",
+      "specific_hash": "0x35061C485F3C24BD"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000125380",
+      "full_hash": "0x9AF0750DFCEF69FF",
+      "name": "??$_Destroy_range@V?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@YAXPEAU?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@QEAU123@AEAV?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@0@@Z",
+      "specific_hash": "0x71705AB1849C8A2A"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000124C00",
+      "full_hash": "0x3FFA056D7FC09C94",
+      "name": "??$?0PEB_W$0A@@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@PEB_W0AEBV?$allocator@D@1@@Z",
+      "specific_hash": "0xBFEDF9DEEA566C5B"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013DD80",
+      "full_hash": "0xA36A773A4484D3C6",
+      "name": "?unwind_alts@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_N_J@Z",
+      "specific_hash": "0x3F3AB54277B6824A"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000125400",
+      "full_hash": "0xD1810CE10646010C",
+      "name": "??$_Emplace_reallocate@AEBU?$digraph@_W@re_detail_500@boost@@@?$vector@U?$digraph@_W@re_detail_500@boost@@V?$allocator@U?$digraph@_W@re_detail_500@boost@@@std@@@std@@AEAAPEAU?$digraph@_W@re_detail_500@boost@@QEAU234@AEBU234@@Z",
+      "specific_hash": "0x1CB13247BBE5511B"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001290F0",
+      "full_hash": "0xF2D4A9092A095B52",
+      "name": "??1?$basic_char_set@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "specific_hash": "0x7A008728C36400A5"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001337B0",
+      "full_hash": "0x32CECEC585DBA068",
+      "name": "?match_word_end@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x679AE8420BE6CEC7"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001306C0",
+      "full_hash": "0x0C8B66606B387A07",
+      "name": "?insert@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAA?AV?$_String_iterator@V?$_String_val@U?$_Simple_types@_W@std@@@std@@@2@V?$_String_const_iterator@V?$_String_val@U?$_Simple_types@_W@std@@@std@@@2@_W@Z",
+      "specific_hash": "0x9A9BFDA1D0255909"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012B360",
+      "full_hash": "0xC4B6168632FE8073",
+      "name": "?allocate@?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@QEAAPEAU?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@_K@Z",
+      "specific_hash": "0x378918B806922C3D"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001326B0",
+      "full_hash": "0x94AE20D7F788F3A7",
+      "name": "?match_long_set_repeat@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x49C432C8C8641E31"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013E440",
+      "full_hash": "0x5F6DCC71D3FF910F",
+      "name": "?unwind_fast_dot_repeat@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0xB43E2B6F1AC62696"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012E610",
+      "full_hash": "0x2EA2AA2E24B31BAD",
+      "name": "?deallocate@?$allocator@U?$sub_match@PEB_W@boost@@@std@@QEAAXQEAU?$sub_match@PEB_W@boost@@_K@Z",
+      "specific_hash": "0xC476372D18548983"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000126950",
+      "full_hash": "0x8AE5383CDDA6AF16",
+      "name": "??$_Uninitialized_move@PEAU?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@YAPEAU?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@QEAU123@0PEAU123@AEAV?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@0@@Z",
+      "specific_hash": "0xBABC412C45FE9769"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001345A0",
+      "full_hash": "0xA86B26FF91D32BEE",
+      "name": "?parse_backref@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x2F157F1C7102B6C0"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000133830",
+      "full_hash": "0xA4055188EE293D0E",
+      "name": "?match_word_start@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x95BDC934A41A34A0"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013B650",
+      "full_hash": "0x6061234651C37DF9",
+      "name": "?parse_set@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x3BEB87128A61578A"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000126F90",
+      "full_hash": "0xAE7B5A2D475E628F",
+      "name": "??$get_default_class_id@_W@re_detail_500@boost@@YAHPEB_W0@Z",
+      "specific_hash": "0xDE73CDFC9EFB182D"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000132020",
+      "full_hash": "0x0317FBB31CF03111",
+      "name": "?match_dot_repeat_fast@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x230EF89AAE4D70E7"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013FAC0",
+      "full_hash": "0x31BD12ECE0DE4673",
+      "name": "swprintf",
+      "specific_hash": "0x02E74319BF91B766"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000137CC0",
+      "full_hash": "0xDCE64BA383A76FFA",
+      "name": "?parse_perl_extension@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x3BD179B81E1884DC"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001302B0",
+      "full_hash": "0x0EF2C172583582B3",
+      "name": "?get_next_set_literal@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA?AU?$digraph@_W@23@AEAV?$basic_char_set@_WU?$c_regex_traits@_W@boost@@@23@@Z",
+      "specific_hash": "0x2E58C1378C15C189"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012F570",
+      "full_hash": "0xA11C9674A770F252",
+      "name": "?find_imp@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x792498F609A60786"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013C480",
+      "full_hash": "0x9C0762D9CC46445B",
+      "name": "?set_first@?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@QEAAXPEB_W@Z",
+      "specific_hash": "0x3B92CD4209629A15"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001311E0",
+      "full_hash": "0x98CC8563E2CCDD7C",
+      "name": "?lookup_collatename@?$c_regex_traits@_W@boost@@SA?AV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@PEB_W0@Z",
+      "specific_hash": "0x8F15221AC47606EB"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000131700",
+      "full_hash": "0x622730EC13F699C5",
+      "name": "?match_all_states@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x8C778BEF5ACEBAAB"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013BD80",
+      "full_hash": "0x647F2AB8E77CC4EF",
+      "name": "?probe_leading_repeat@?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXPEAUre_syntax_base@23@@Z",
+      "specific_hash": "0xFAB90B71BC5F03B3"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000131B20",
+      "full_hash": "0xDE806F1FFF9D1BB9",
+      "name": "?match_backref@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x633AC37615A79098"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000128250",
+      "full_hash": "0xCBD555F290192A01",
+      "name": "??0?$basic_char_set@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "specific_hash": "0xB7FCA1C33384A63B"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000127360",
+      "full_hash": "0xE013B268584AD581",
+      "name": "??$raise_error@U?$regex_traits_wrapper@U?$c_regex_traits@_W@boost@@@boost@@@re_detail_500@boost@@YAXAEBU?$regex_traits_wrapper@U?$c_regex_traits@_W@boost@@@1@W4error_type@regex_constants@1@@Z",
+      "specific_hash": "0xBFF34DFA8D5ABB40"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000132190",
+      "full_hash": "0xFD054DB291C43B19",
+      "name": "?match_dot_repeat_slow@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x2318EDAAB4BF9EDB"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000132A90",
+      "full_hash": "0xF54B70252E290AED",
+      "name": "?match_recursion@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x79706374AE2F618D"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013EFB0",
+      "full_hash": "0x0772BB7A18965B45",
+      "name": "?unwind_until@?$repeater_count@PEB_W@re_detail_500@boost@@AEAAPEAV123@HPEAV123@H@Z",
+      "specific_hash": "0x2CEB9901FFD4A894"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000131CB0",
+      "full_hash": "0x38CCF39DEEA6D557",
+      "name": "?match_backstep@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x0CCD2A6A1D963732"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000131D50",
+      "full_hash": "0x7C35BE415FC1DE17",
+      "name": "?match_char_repeat@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x89201354C9C70169"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013E670",
+      "full_hash": "0xA39211695B0C36EC",
+      "name": "?unwind_long_set_repeat@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0xE115B52D295022B0"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001283D0",
+      "full_hash": "0x819D706E19B2F7CB",
+      "name": "??0?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA@PEAU?$regex_data@_WU?$c_regex_traits@_W@boost@@@12@@Z",
+      "specific_hash": "0x72C8605FB4B4F138"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000139A90",
+      "full_hash": "0x33AA371F2A172B15",
+      "name": "?parse_perl_verb@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0xBB8CEF55C8C2FABE"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000130D60",
+      "full_hash": "0x4F8D110FA8CB22ED",
+      "name": "?is_bad_repeat@?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NPEAUre_syntax_base@23@@Z",
+      "specific_hash": "0xF7F4F9658278F369"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000126A00",
+      "full_hash": "0x37BF8E2F818B6BFF",
+      "name": "??$_Uninitialized_move@PEAU?$sub_match@PEB_W@boost@@V?$allocator@U?$sub_match@PEB_W@boost@@@std@@@std@@YAPEAU?$sub_match@PEB_W@boost@@QEAU12@0PEAU12@AEAV?$allocator@U?$sub_match@PEB_W@boost@@@0@@Z",
+      "specific_hash": "0xE0E9F13C90611049"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000130DB0",
+      "full_hash": "0xEA105EDBA85E42F4",
+      "name": "?is_combining_implementation@re_detail_500@boost@@YA_NG@Z",
+      "specific_hash": "0x70AFEAC3B4C2F996"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000126850",
+      "full_hash": "0x8AE5383CDDA6AF16",
+      "name": "??$_Uninitialized_copy@PEAU?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@PEAU123@V?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@YAPEAU?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@PEAU123@00AEAV?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@0@@Z",
+      "specific_hash": "0xBABC412C45FE9769"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000125350",
+      "full_hash": "0xF27DEDA43ACD6528",
+      "name": "??$_Copy_memmove@PEB_WPEA_W@std@@YAPEA_WPEB_W0PEA_W@Z",
+      "specific_hash": "0xE0D37EBF08A17034"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013A9C0",
+      "full_hash": "0x2B0D6C85F717DAD4",
+      "name": "?parse_repeat_range@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_N_N@Z",
+      "specific_hash": "0x24DDB11F2C2D4C46"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001305D0",
+      "full_hash": "0xE6059F6E760F567F",
+      "name": "?get_repeat_type@?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA?AW4syntax_element_type@23@PEAUre_syntax_base@23@@Z",
+      "specific_hash": "0x39F6B9F5454356B1"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013EBD0",
+      "full_hash": "0x2A0B6C10682351C8",
+      "name": "?unwind_recursion_stopper@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x22CEEF86705C5581"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001342B0",
+      "full_hash": "0xFEC7A48030AA9B85",
+      "name": "?parse_alt@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x7FA2EA3B37D3C7E4"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012E000",
+      "full_hash": "0x7D966AF093F3275D",
+      "name": "?create_startmaps@?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXPEAUre_syntax_base@23@@Z",
+      "specific_hash": "0xBFBF9A4E3271BA00"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012EB20",
+      "full_hash": "0x08A9698EE4462C68",
+      "name": "?error_string@?$default_wrapper@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@W4error_type@regex_constants@3@@Z",
+      "specific_hash": "0x97521D3BAA272D94"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000125170",
+      "full_hash": "0xDD321A7C7D4308EF",
+      "name": "??$_Construct@$00PEB_W@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAXQEB_W_K@Z",
+      "specific_hash": "0x4413EC1343169DF3"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000126AA0",
+      "full_hash": "0xE0A136BB0D715DB8",
+      "name": "??$count_chars@V?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@_W@re_detail_500@boost@@YAIAEBV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@_W@Z",
+      "specific_hash": "0xC937CA380A1BE09E"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000131F00",
+      "full_hash": "0x64248CA2EEAEAF4A",
+      "name": "?match_combining@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xA15CCF6174E1AB1B"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013BF10",
+      "full_hash": "0xCC1EB208B7A021E5",
+      "name": "?push_matched_paren@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXHAEBU?$sub_match@PEB_W@3@@Z",
+      "specific_hash": "0x97ED6FD37BA8E732"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001331B0",
+      "full_hash": "0x921DBE30B4686FFD",
+      "name": "?match_start_line@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xBF16876918DE19F0"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000131950",
+      "full_hash": "0x8570D371FD955FB6",
+      "name": "?match_assert_backref@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x0C6F9E67646112DB"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013C730",
+      "full_hash": "0xD603640B48A03FCD",
+      "name": "?toi@?$default_wrapper@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEBA_JAEAPEB_WPEB_WH@Z",
+      "specific_hash": "0x001CADE56F99080B"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001295D0",
+      "full_hash": "0x79D6CD71C5B32A31",
+      "name": "??1?$vector@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0xA9A7E6795EE4EC00"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000132EE0",
+      "full_hash": "0xB0EF1B6F96720F17",
+      "name": "?match_restart_continue@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x62734981BE1991DC"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013F240",
+      "full_hash": "0xE904A53A26F4B6FD",
+      "name": "regerrorW",
+      "specific_hash": "0x8D6FBAC573743EA6"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000130BF0",
+      "full_hash": "0x10548E3FBBFEAD43",
+      "name": "?insert_state@?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAAPEAUre_syntax_base@23@_JW4syntax_element_type@23@_K@Z",
+      "specific_hash": "0x4516028FD5D1E6EC"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012EB80",
+      "full_hash": "0x57994B339B97149D",
+      "name": "?estimate_max_state_count@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXPEAUrandom_access_iterator_tag@std@@@Z",
+      "specific_hash": "0xDBEC01187AF2A3C9"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000132F00",
+      "full_hash": "0xB96DCECD15BC9A65",
+      "name": "?match_set@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x2E3F2F2D58986980"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012FE60",
+      "full_hash": "0x86C391669B066E9B",
+      "name": "?fixup_pointers@?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXPEAUre_syntax_base@23@@Z",
+      "specific_hash": "0x4C5D7258F5080458"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013E930",
+      "full_hash": "0x2F33C3AAD1D2B5C7",
+      "name": "?unwind_recursion@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x41EB3A4CC32B05A4"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012A850",
+      "full_hash": "0xCEDE3E4772FDA156",
+      "name": "?_Tidy_deallocate@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAXXZ",
+      "specific_hash": "0x12B1D430123B39E5"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000132450",
+      "full_hash": "0x5E5E4C51772629E7",
+      "name": "?match_endmark@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xCEFEF57C7016B405"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000124DB0",
+      "full_hash": "0xB86BFE27BFABF740",
+      "name": "??$?O_WU?$char_traits@_W@std@@V?$allocator@_W@1@@std@@YA_NAEBV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@0@0@Z",
+      "specific_hash": "0x9FDA8990D8D9E23D"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013E3D0",
+      "full_hash": "0x83F3E5A4F60C323F",
+      "name": "?unwind_extra_block@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x1781065EE4A1EB8F"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001307B0",
+      "full_hash": "0xD2B96B1DA583084D",
+      "name": "?insert@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAAAEAV12@_K0_W@Z",
+      "specific_hash": "0x449505B920534883"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013FB20",
+      "full_hash": "0xA8A25FB4A7FBF6C4",
+      "name": "wmemcmp",
+      "specific_hash": "0xF7FC9C2352D68D3D"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013E1B0",
+      "full_hash": "0x13678ACE1D5C1DA8",
+      "name": "?unwind_char_repeat@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0xF61283570562A927"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000129210",
+      "full_hash": "0x3A2BEC74F1558B2C",
+      "name": "??1?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "specific_hash": "0xDBAD0E63534B4C8E"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012B550",
+      "full_hash": "0xCF93CDABF177AD5C",
+      "name": "?append_literal@?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAAPEAUre_literal@23@_W@Z",
+      "specific_hash": "0xDC26DDB3238D28FC"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000128730",
+      "full_hash": "0x4B7980849095EB36",
+      "name": "??0?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x4BE09B4D134DE482"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001323C0",
+      "full_hash": "0xC848B11FFE8839B5",
+      "name": "?match_end_line@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xABBF25890B6CC56C"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000129420",
+      "full_hash": "0x242CAC90C599DC0F",
+      "name": "??1?$unique_ptr@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@U?$default_delete@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0x8F2145A2EE46E217"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013C440",
+      "full_hash": "0x30F6AB2477E1DD03",
+      "name": "?set_bad_repeat@?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXPEAUre_syntax_base@23@@Z",
+      "specific_hash": "0x248941C0351B32C3"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013E850",
+      "full_hash": "0x4E58106B127B319F",
+      "name": "?unwind_paren@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x6249BCB76225317B"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012EC50",
+      "full_hash": "0xE655DDF9C85ADCFD",
+      "name": "?extend_stack@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXXZ",
+      "specific_hash": "0xAB66CD2CBBA7E255"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013CAA0",
+      "full_hash": "0x906673ECAF3C317D",
+      "name": "?transform_primary@?$c_regex_traits@_W@boost@@SA?AV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@PEB_W0@Z",
+      "specific_hash": "0xD256CD262695A04B"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000126BB0",
+      "full_hash": "0xC6B8DEA5E2FDCDD8",
+      "name": "??$find_sort_syntax@U?$c_regex_traits@_W@boost@@_W@re_detail_500@boost@@YAIPEBU?$c_regex_traits@_W@1@PEA_W@Z",
+      "specific_hash": "0x987E2BF54AD416FA"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000124D40",
+      "full_hash": "0x76D8272AEDF62B44",
+      "name": "??$?M_WU?$char_traits@_W@std@@V?$allocator@_W@1@@std@@YA_NAEBV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@0@0@Z",
+      "specific_hash": "0x8B210FA02CE85855"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000126110",
+      "full_hash": "0x5D1B74FAB12FE37E",
+      "name": "??$_Memcmp_ranges@PEB_WPEB_W@std@@YAHPEB_W00@Z",
+      "specific_hash": "0xB40A679AA8BA081A"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000129500",
+      "full_hash": "0xEBF89A4B5CF91547",
+      "name": "??1?$vector@U?$digraph@_W@re_detail_500@boost@@V?$allocator@U?$digraph@_W@re_detail_500@boost@@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0x91B9533788605ADB"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013EB50",
+      "full_hash": "0xE72746D40BCDD994",
+      "name": "?unwind_recursion_pop@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x89AA33144FAB504F"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012B3D0",
+      "full_hash": "0xDE3E226A27A3C840",
+      "name": "?allocate@?$allocator@U?$sub_match@PEB_W@boost@@@std@@QEAAPEAU?$sub_match@PEB_W@boost@@_K@Z",
+      "specific_hash": "0xDEEEE4638F960F30"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013E190",
+      "full_hash": "0x7C59DDE73AF8B45C",
+      "name": "?unwind_case@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0xA118566C93145E09"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000135220",
+      "full_hash": "0x9829E04359889711",
+      "name": "?parse_extended@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x9FEC2A7FA0127E19"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013C630",
+      "full_hash": "0x03CB669949A1F538",
+      "name": "?skip_until_paren@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NH_N@Z",
+      "specific_hash": "0xFD8297191259BF73"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013CFA0",
+      "full_hash": "0x7A12396F7734D68D",
+      "name": "?unescape_character@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_WXZ",
+      "specific_hash": "0xDFF64C7757F0CAA0"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000133700",
+      "full_hash": "0xCBF8BEE2F4E21860",
+      "name": "?match_word_boundary@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xF45B7B6D90219B8D"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012A770",
+      "full_hash": "0x50CD9BD4E2F2F2B9",
+      "name": "?_Tidy@?$vector@U?$sub_match@PEB_W@boost@@V?$allocator@U?$sub_match@PEB_W@boost@@@std@@@std@@AEAAXXZ",
+      "specific_hash": "0xCAC7EE712F79AC9F"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001329C0",
+      "full_hash": "0xC82D1BFB3B07E838",
+      "name": "?match_prefix@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x93105DFA1DA7FA06"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000127200",
+      "full_hash": "0x8EDE1FD07E99EA09",
+      "name": "??$insert@$0A@$0A@@?$_Tree@V?$_Tset_traits@U?$digraph@_W@re_detail_500@boost@@U?$less@U?$digraph@_W@re_detail_500@boost@@@std@@V?$allocator@U?$digraph@_W@re_detail_500@boost@@@5@$0A@@std@@@std@@QEAA?AU?$pair@V?$_Tree_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$digraph@_W@re_detail_500@boost@@@std@@@std@@@std@@_N@1@AEBU?$digraph@_W@re_detail_500@boost@@@Z",
+      "specific_hash": "0xE06515764AA458E0"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013C080",
+      "full_hash": "0x066A64540D3A05D4",
+      "name": "?push_repeater_count@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXHPEAPEAV?$repeater_count@PEB_W@23@@Z",
+      "specific_hash": "0xDD3582BBD8B82B57"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012C6D0",
+      "full_hash": "0x64CD2F5BE7E73525",
+      "name": "?assign@?$basic_regex_implementation@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAAXPEB_W0I@Z",
+      "specific_hash": "0x8BF237BD473A9EB9"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013C230",
+      "full_hash": "0xFD78B536EFE16184",
+      "name": "?raise_logic_error@?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@CAXXZ",
+      "specific_hash": "0xCDEDB21640EAF270"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001318B0",
+      "full_hash": "0xB8A423BC288F29DE",
+      "name": "?match_alt@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x33348ADA1A6517F7"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012ED00",
+      "full_hash": "0x1B7EAEBE1E9F8A32",
+      "name": "?fail@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAAXW4error_type@regex_constants@3@_J@Z",
+      "specific_hash": "0x608A87432BC7E50A"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001282F0",
+      "full_hash": "0x68A89798C4BCB1E1",
+      "name": "??0?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA@PEAU?$regex_data@_WU?$c_regex_traits@_W@boost@@@12@@Z",
+      "specific_hash": "0x4D5CA84854F0667C"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012A230",
+      "full_hash": "0x40E4B52D8B749711",
+      "name": "?_Change_array@?$vector@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@AEAAXQEAU?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@_K1@Z",
+      "specific_hash": "0xD397CA20EAB3DD78"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013EF40",
+      "full_hash": "0x772232A707E1F5B7",
+      "name": "?unwind_then@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0xB3C1D2A453E09246"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012E4D0",
+      "full_hash": "0xC436972A2B939B86",
+      "name": "?deallocate@?$allocator@U?$digraph@_W@re_detail_500@boost@@@std@@QEAAXQEAU?$digraph@_W@re_detail_500@boost@@_K@Z",
+      "specific_hash": "0x82C48A5EA1D2A17A"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000129DA0",
+      "full_hash": "0x2590034C5B0350D1",
+      "name": "??_G?$_Ref_count@V?$basic_regex_implementation@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xEEF4E051EA5AE687"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000137740",
+      "full_hash": "0x6126A6E548F9DAB2",
+      "name": "?parse_literal@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x0642C18C8F599A81"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000129AF0",
+      "full_hash": "0x566CB86FB57A33FC",
+      "name": "??4?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAAAEAV01@$$QEAV01@@Z",
+      "specific_hash": "0x13C33FBC172989F1"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000127F60",
+      "full_hash": "0xAFB58BB3A33E6E9B",
+      "name": "??$regex_search@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@_WU?$c_regex_traits@_W@boost@@@boost@@YA_NPEB_W0AEAV?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@0@AEBV?$basic_regex@_WU?$c_regex_traits@_W@boost@@@0@W4_match_flags@regex_constants@0@0@Z",
+      "specific_hash": "0x13CF877454746FB7"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013BE30",
+      "full_hash": "0x69CA675D0658A7B9",
+      "name": "?push_alt@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXPEBUre_syntax_base@23@@Z",
+      "specific_hash": "0x9CF7771A969DC1C2"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000128630",
+      "full_hash": "0x2BC37296FF960AC5",
+      "name": "??0?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAA@_K_W@Z",
+      "specific_hash": "0x4484882076892EBA"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012E750",
+      "full_hash": "0xCB089519EEDD6C6C",
+      "name": "?do_assign@?$basic_regex@_WU?$c_regex_traits@_W@boost@@@boost@@AEAAAEAV12@PEB_W0I@Z",
+      "specific_hash": "0x462683C9897B9F59"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012F990",
+      "full_hash": "0xC7AFED7A7F77439C",
+      "name": "?find_restart_buf@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x2A336B23CCB8A66A"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000132870",
+      "full_hash": "0xFE207CD9BA837707",
+      "name": "?match_match@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xE6CC21D5B4D00862"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001336D0",
+      "full_hash": "0x798C2783EFECEA11",
+      "name": "?match_within_word@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x58B315648A796B30"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012B450",
+      "full_hash": "0x1DCD80FDEBE2A090",
+      "name": "?allocate@?$allocator@_W@std@@QEAAPEA_W_K@Z",
+      "specific_hash": "0x4BD9802345F30F01"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000129D70",
+      "full_hash": "0x2590034C5B0350D1",
+      "name": "??_G?$_Ref_count@U?$regex_traits_wrapper@U?$c_regex_traits@_W@boost@@@boost@@@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xEEF4E051EA5AE687"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013BE90",
+      "full_hash": "0x023DF90234C6F786",
+      "name": "?push_back@?$vector@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@QEAAX$$QEAU?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@Z",
+      "specific_hash": "0x00E3CC7191BB884A"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013DCE0",
+      "full_hash": "0x0E520832D8164AD3",
+      "name": "?unwind@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x7756BED992E378C0"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012E5C0",
+      "full_hash": "0x49F229733D9929C3",
+      "name": "?deallocate@?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@QEAAXQEAU?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@_K@Z",
+      "specific_hash": "0xD58453D2BB5EC873"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012C600",
+      "full_hash": "0x9E37658B5CEA119D",
+      "name": "?append_state@?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAAPEAUre_syntax_base@23@W4syntax_element_type@23@_K@Z",
+      "specific_hash": "0x50CE976E044FA372"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012FAD0",
+      "full_hash": "0x4E29270755F25905",
+      "name": "?find_restart_word@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x7F39EDF5A4C7ABBF"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013FA10",
+      "full_hash": "0x41C15BCD2856F4A2",
+      "name": "regfreeW",
+      "specific_hash": "0xE6127744B0D4726D"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001346D0",
+      "full_hash": "0xD764DA48543CF381",
+      "name": "?parse_basic@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x233D051ACFB9B38C"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013EC20",
+      "full_hash": "0x407072187B9C95C7",
+      "name": "?unwind_short_set_repeat@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0xDD5CD86C7349CA31"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000126B80",
+      "full_hash": "0xD7F524C2BE66EE2B",
+      "name": "??$fill@PEAU?$sub_match@PEB_W@boost@@U12@@std@@YAXQEAU?$sub_match@PEB_W@boost@@0AEBU12@@Z",
+      "specific_hash": "0x8D7C942C6079DCB5"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000133590",
+      "full_hash": "0x9A03D594B794D547",
+      "name": "?match_verb@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_NPEBD@Z",
+      "specific_hash": "0x042A643A8543C929"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001293B0",
+      "full_hash": "0x3E42309E3E81B215",
+      "name": "??1?$repeater_count@PEB_W@re_detail_500@boost@@QEAA@XZ",
+      "specific_hash": "0x3CA1D55550C875E6"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012FF60",
+      "full_hash": "0xDCDD59B26BFFC741",
+      "name": "?fixup_recursions@?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXPEAUre_syntax_base@23@@Z",
+      "specific_hash": "0xB21FA4A75F579395"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013F640",
+      "full_hash": "0x4FFC63DD19C2317D",
+      "name": "regexecW",
+      "specific_hash": "0xA20C322FFEA34AB1"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012C9F0",
+      "full_hash": "0x590056F138299729",
+      "name": "?calculate_backstep@?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAHPEAUre_syntax_base@23@@Z",
+      "specific_hash": "0xCB292E285DBCE479"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000129B90",
+      "full_hash": "0xE6576E77C1A1D539",
+      "name": "??4?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@QEAAAEAV01@AEBV01@@Z",
+      "specific_hash": "0x4C31DC4A205E1F72"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013BF80",
+      "full_hash": "0xABB7AE989980EC6B",
+      "name": "?push_recursion@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXHPEBUre_syntax_base@23@PEAV?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@3@1@Z",
+      "specific_hash": "0x829622E03D1CEF4C"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013C390",
+      "full_hash": "0x1818360E05435966",
+      "name": "?set_all_masks@?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXPEAEE@Z",
+      "specific_hash": "0xDF012AF6D2349708"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000130630",
+      "full_hash": "0x559BCB2C53F9A442",
+      "name": "?get_restart_type@?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAIPEAUre_syntax_base@23@@Z",
+      "specific_hash": "0x0FE4CB5369573913"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000126B10",
+      "full_hash": "0x5DF19528971047B0",
+      "name": "??$distance@V?$_Tree_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$digraph@_W@re_detail_500@boost@@@std@@@std@@@std@@@std@@YA_JV?$_Tree_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$digraph@_W@re_detail_500@boost@@@std@@@std@@@0@0@Z",
+      "specific_hash": "0x4DF598A18B1B0A16"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000129250",
+      "full_hash": "0x2F6C6E42C0E27374",
+      "name": "??1?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "specific_hash": "0x761FA2836ACBDF4C"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000125E80",
+      "full_hash": "0x79525203C247F14D",
+      "name": "??$_Erase_tree@V?$allocator@U?$_Tree_node@U?$digraph@_W@re_detail_500@boost@@PEAX@std@@@std@@@?$_Tree_val@U?$_Tree_simple_types@U?$digraph@_W@re_detail_500@boost@@@std@@@std@@QEAAXAEAV?$allocator@U?$_Tree_node@U?$digraph@_W@re_detail_500@boost@@PEAX@std@@@1@PEAU?$_Tree_node@U?$digraph@_W@re_detail_500@boost@@PEAX@1@@Z",
+      "specific_hash": "0x21887D82A425DB39"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000126700",
+      "full_hash": "0xC8545C651743A06D",
+      "name": "??$_Reallocate_grow_by@V<lambda_a3050a43f3157934f354774ab3dd2e02>@@_K_W@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAAEAV01@_KV<lambda_a3050a43f3157934f354774ab3dd2e02>@@_K_W@Z",
+      "specific_hash": "0xE4958E83F81E3218"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012EEB0",
+      "full_hash": "0x4606E08DD217965A",
+      "name": "?fail@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAAXW4error_type@regex_constants@3@_JV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@1@Z",
+      "specific_hash": "0x0F629A9217AE5A19"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013E590",
+      "full_hash": "0x94788F1330812504",
+      "name": "?unwind_greedy_single_repeat@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x67A4E37E9E7FD9DA"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012F200",
+      "full_hash": "0xF72647874F9C4E0B",
+      "name": "?finalize@?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAAXPEB_W0@Z",
+      "specific_hash": "0x2925D9858A14B834"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012A3D0",
+      "full_hash": "0x9957129889CAF406",
+      "name": "?_Insert_node@?$_Tree_val@U?$_Tree_simple_types@U?$digraph@_W@re_detail_500@boost@@@std@@@std@@QEAAPEAU?$_Tree_node@U?$digraph@_W@re_detail_500@boost@@PEAX@2@U?$_Tree_id@PEAU?$_Tree_node@U?$digraph@_W@re_detail_500@boost@@PEAX@std@@@2@QEAU32@@Z",
+      "specific_hash": "0x586BA7A75B85A476"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013EDA0",
+      "full_hash": "0xC73EFD89A0BAE190",
+      "name": "?unwind_slow_dot_repeat@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0xAE5B8A4FF32802DB"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000126900",
+      "full_hash": "0x37BF8E2F818B6BFF",
+      "name": "??$_Uninitialized_copy@PEAU?$sub_match@PEB_W@boost@@PEAU12@V?$allocator@U?$sub_match@PEB_W@boost@@@std@@@std@@YAPEAU?$sub_match@PEB_W@boost@@PEAU12@00AEAV?$allocator@U?$sub_match@PEB_W@boost@@@0@@Z",
+      "specific_hash": "0xE0E9F13C90611049"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000129020",
+      "full_hash": "0xEB3B3D1382C81EF5",
+      "name": "??1?$_Alloc_construct_ptr@V?$allocator@U?$_Tree_node@U?$digraph@_W@re_detail_500@boost@@PEAX@std@@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0xDB9630BABDFFE267"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001290E0",
+      "full_hash": "0xA799D903EF2734CE",
+      "name": "??1?$_Uninitialized_backout_al@V?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0xE8C587132D55F1C9"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000129080",
+      "full_hash": "0x756AF5D5465B2C10",
+      "name": "??1?$_Tree@V?$_Tset_traits@U?$digraph@_W@re_detail_500@boost@@U?$less@U?$digraph@_W@re_detail_500@boost@@@std@@V?$allocator@U?$digraph@_W@re_detail_500@boost@@@5@$0A@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0xDE8D202363A0BEDA"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000134130",
+      "full_hash": "0x344ED319F78186F4",
+      "name": "?parse_all@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0xE56B14BAC00DD2EE"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012A390",
+      "full_hash": "0x96D57A8C0FF77B18",
+      "name": "?_Destroy@?$_Ref_count@V?$basic_regex_implementation@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@@std@@EEAAXXZ",
+      "specific_hash": "0x8D336C670262C938"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000125B40",
+      "full_hash": "0x26F438988F092EE0",
+      "name": "??$_Emplace_reallocate@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@?$vector@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@AEAAPEAU?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@QEAU234@$$QEAU234@@Z",
+      "specific_hash": "0x0AE4C7C816EDCE48"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001273C0",
+      "full_hash": "0xCDE981E3C80C1511",
+      "name": "??$re_is_set_member@PEA_W_WU?$c_regex_traits@_W@boost@@I@re_detail_500@boost@@YAPEA_WPEA_W0PEBU?$re_set_long@I@01@AEBU?$regex_data@_WU?$c_regex_traits@_W@boost@@@01@_N@Z",
+      "specific_hash": "0xBF5ACB4D0F2420BC"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001377A0",
+      "full_hash": "0xB8732D04D789CB61",
+      "name": "?parse_match_any@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x94155E736BD2E9B1"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000137B10",
+      "full_hash": "0x8042CD1940ADDF27",
+      "name": "?parse_options@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAAIXZ",
+      "specific_hash": "0x1AAED3291CA41824"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013E140",
+      "full_hash": "0x70E377F961FAD68C",
+      "name": "?unwind_assertion@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x4C4E09193816CFD3"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013C860",
+      "full_hash": "0x2E804F51DE310880",
+      "name": "?transform@?$c_regex_traits@_W@boost@@SA?AV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@PEB_W0@Z",
+      "specific_hash": "0x1BBB38B1532CB8C2"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012A360",
+      "full_hash": "0x1945C292EE93A722",
+      "name": "?_Delete_this@?$_Ref_count@V?$basic_regex_implementation@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@@std@@EEAAXXZ",
+      "specific_hash": "0x4BB1D500756B8C13"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013C530",
+      "full_hash": "0x00D5BB3BA26E8CE3",
+      "name": "?set_size@?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@QEAAX_KPEB_W1@Z",
+      "specific_hash": "0x073D2A2134EA9F5E"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012A9E0",
+      "full_hash": "0x5610857A30E5C1DC",
+      "name": "?_Xran@?$_String_val@U?$_Simple_types@_W@std@@@std@@SAXXZ",
+      "specific_hash": "0xB4552899B2665788"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012F9B0",
+      "full_hash": "0x6ED0ED7299C96446",
+      "name": "?find_restart_line@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xAA10D18AE9B9839F"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000132F50",
+      "full_hash": "0x9C38443BC20E819D",
+      "name": "?match_set_repeat@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x76C977785AF5AF60"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012A340",
+      "full_hash": "0x1945C292EE93A722",
+      "name": "?_Delete_this@?$_Ref_count@U?$regex_traits_wrapper@U?$c_regex_traits@_W@boost@@@boost@@@std@@EEAAXXZ",
+      "specific_hash": "0x4BB1D500756B8C13"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000128180",
+      "full_hash": "0x5B0E4C5DC6EFFB5A",
+      "name": "??$regex_search@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@_WU?$c_regex_traits@_W@boost@@@boost@@YA_NPEB_W0AEAV?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@0@AEBV?$basic_regex@_WU?$c_regex_traits@_W@boost@@@0@W4_match_flags@regex_constants@0@@Z",
+      "specific_hash": "0x3AD0B8DCE02E01B0"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013E810",
+      "full_hash": "0xF0A1AA5D4032D1F1",
+      "name": "?unwind_non_greedy_repeat@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x638E7AA7AFF2ADAD"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000127190",
+      "full_hash": "0xCC5FAFB778900B0E",
+      "name": "??$hash_value_from_capture_name@PEB_W@re_detail_500@boost@@YAHPEB_W0@Z",
+      "specific_hash": "0xEBFDE5F9CB4C10EF"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012B640",
+      "full_hash": "0x1523C786F8B94868",
+      "name": "?append_set@?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAAPEAUre_syntax_base@23@AEBV?$basic_char_set@_WU?$c_regex_traits@_W@boost@@@23@PEAU?$integral_constant@_N$0A@@std@@@Z",
+      "specific_hash": "0xF1A56F36FAE2473A"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001325B0",
+      "full_hash": "0xE8FADF2B8964FD54",
+      "name": "?match_jump@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x7B9C7D99927C7098"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001325C0",
+      "full_hash": "0xBE4E34153975C592",
+      "name": "?match_literal@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x99292CADB18F0823"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000124E60",
+      "full_hash": "0x879EDDE32461FC58",
+      "name": "??$_Assign_counted_range@PEAU?$sub_match@PEB_W@boost@@@?$vector@U?$sub_match@PEB_W@boost@@V?$allocator@U?$sub_match@PEB_W@boost@@@std@@@std@@AEAAXPEAU?$sub_match@PEB_W@boost@@_K@Z",
+      "specific_hash": "0x1845079CA2B89C42"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001349D0",
+      "full_hash": "0x5EA832424CF063B5",
+      "name": "?parse_basic_escape@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x5B200D57D1AA474F"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013C1A0",
+      "full_hash": "0x6F2EC6288FD22BA2",
+      "name": "?push_single_repeat@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAX_KPEBUre_repeat@23@PEB_WH@Z",
+      "specific_hash": "0x5D05F00E53A1FBFD"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000132CE0",
+      "full_hash": "0x97F5F1D989EBA753",
+      "name": "?match_rep@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x9D68C97F4E008A46"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000135900",
+      "full_hash": "0x052B2DD645C499EC",
+      "name": "?parse_extended_escape@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x389EA16F7DC78D0A"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000133250",
+      "full_hash": "0x4FAB8A41AE46B340",
+      "name": "?match_startmark@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x51A36BF751525018"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000136700",
+      "full_hash": "0xECA936D0F2DCB13E",
+      "name": "?parse_inner_set@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_NAEAV?$basic_char_set@_WU?$c_regex_traits@_W@boost@@@23@@Z",
+      "specific_hash": "0x191AF99252BF04D2"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000127990",
+      "full_hash": "0xCDE981E3C80C1511",
+      "name": "??$re_is_set_member@PEB_W_WU?$c_regex_traits@_W@boost@@I@re_detail_500@boost@@YAPEB_WPEB_W0PEBU?$re_set_long@I@01@AEBU?$regex_data@_WU?$c_regex_traits@_W@boost@@@01@_N@Z",
+      "specific_hash": "0xBF5ACB4D0F2420BC"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013C020",
+      "full_hash": "0xB7C89635A9FDD3A2",
+      "name": "?push_recursion_pop@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXXZ",
+      "specific_hash": "0x89180116CFF1AC7E"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000133F10",
+      "full_hash": "0x6F6F496D867D91DA",
+      "name": "?parse_QE@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0xABAEB3D0698EAABD"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012AA20",
+      "full_hash": "0xE6D52A1F16CE28A9",
+      "name": "?add_emacs_code@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_N_N@Z",
+      "specific_hash": "0xA161603A8462F8F4"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000132650",
+      "full_hash": "0x3D8ABA236FD0BDD7",
+      "name": "?match_long_set@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xF8DC82C60A4605B8"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001316D0",
+      "full_hash": "0x9C702D86D5952BD5",
+      "name": "?match_accept@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x17DD6ACF8E521A4F"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001292E0",
+      "full_hash": "0xBEE739D49EADFAA8",
+      "name": "??1?$regex_data@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "specific_hash": "0x76645ED6A05BAEC0"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013BD00",
+      "full_hash": "0xCB8FB2D13874EBA0",
+      "name": "?pop_back@?$vector@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@QEAAXXZ",
+      "specific_hash": "0x0A8A555597D9F245"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001293D0",
+      "full_hash": "0x695034D1C4B33572",
+      "name": "??1?$shared_ptr@V?$basic_regex_implementation@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@@std@@QEAA@XZ",
+      "specific_hash": "0x188F1143FDAB4C57"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000131080",
+      "full_hash": "0xECCFDD77036FF525",
+      "name": "?lookup_classname@?$c_regex_traits@_W@boost@@SAIPEB_W0@Z",
+      "specific_hash": "0x9BB893F08EC5D94A"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001334D0",
+      "full_hash": "0xB344270DAE5D2001",
+      "name": "?match_then@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xE5F35836AAD224D7"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000133520",
+      "full_hash": "0x505EB8AD3C420A7E",
+      "name": "?match_toggle_case@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xCD2E8CCEE19825D6"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013F070",
+      "full_hash": "0x2384AA020FE3D892",
+      "name": "regcompW",
+      "specific_hash": "0xFD3D60645FAD234D"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012F8C0",
+      "full_hash": "0x142F88173789CD2F",
+      "name": "?find_restart_any@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x5D15A8A424C59F7E"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000126270",
+      "full_hash": "0xD413C8A4F1D186EE",
+      "name": "??$_Reallocate_grow_by@V<lambda_319d5e083f45f90dcdce5dce53cbb275>@@D@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_319d5e083f45f90dcdce5dce53cbb275>@@D@Z",
+      "specific_hash": "0x2C1052593F851D39"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001377F0",
+      "full_hash": "0xD5D421219E5DA6F7",
+      "name": "?parse_open_paren@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "specific_hash": "0x5B88E9B07CED19AB"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013DD40",
+      "full_hash": "0x0B6A48D7FBA81EDE",
+      "name": "?unwind_alt@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "specific_hash": "0x4169143C533E3E8A"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000129120",
+      "full_hash": "0x56428AADFCAF586C",
+      "name": "??1?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "specific_hash": "0x8EEC207900F3CA3C"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001263F0",
+      "full_hash": "0xA08F95342FDD7A76",
+      "name": "??$_Reallocate_grow_by@V<lambda_51c4cb9729979bd953fe6d1bff5c73b0>@@_K_K_W@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAAEAV01@_KV<lambda_51c4cb9729979bd953fe6d1bff5c73b0>@@_K2_W@Z",
+      "specific_hash": "0x49030D0FEE274890"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000133AA0",
+      "full_hash": "0xC3CF0B106C362D9C",
+      "name": "?parse@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAAXPEB_W0I@Z",
+      "specific_hash": "0x2AEC4018D8C4A92D"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000129CB0",
+      "full_hash": "0x7EC88FF5248A3C89",
+      "name": "??A?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@QEBAAEBU?$sub_match@PEB_W@1@H@Z",
+      "specific_hash": "0xA19963089A9D24F7"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000130F10",
+      "full_hash": "0x97D8EDFFAAE0D5F4",
+      "name": "?isctype@?$c_regex_traits@_W@boost@@SA_N_WI@Z",
+      "specific_hash": "0xF03CDACB0CE0B950"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x00000000001291B0",
+      "full_hash": "0x78A26282B0884AED",
+      "name": "??1?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@QEAA@XZ",
+      "specific_hash": "0x32787C07ABC735BA"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000131D20",
+      "full_hash": "0x0B414991FF6B0889",
+      "name": "?match_buffer_start@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xEA4A6E09EF362E1A"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000133650",
+      "full_hash": "0x31025E031621AF99",
+      "name": "?match_wild@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x77396E79542D8FBB"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013A120",
+      "full_hash": "0x5D0E66DF3381BFAB",
+      "name": "?parse_repeat@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA_N_K0@Z",
+      "specific_hash": "0x02B112EEE462D6E3"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000013BA80",
+      "full_hash": "0xA003E0D77F255972",
+      "name": "?parse_set_literal@?$basic_regex_parser@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAAXAEAV?$basic_char_set@_WU?$c_regex_traits@_W@boost@@@23@@Z",
+      "specific_hash": "0x1F2FD2F9A26BFAFD"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012CD10",
+      "full_hash": "0x432F14B295D35321",
+      "name": "?construct_init@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXAEBV?$basic_regex@_WU?$c_regex_traits@_W@boost@@@3@W4_match_flags@regex_constants@3@@Z",
+      "specific_hash": "0xB23F04719B438570"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000131CF0",
+      "full_hash": "0x0B414991FF6B0889",
+      "name": "?match_buffer_end@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0x69700D65B51B47C3"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000125320",
+      "full_hash": "0xF27DEDA43ACD6528",
+      "name": "??$_Copy_memmove@PEA_WPEA_W@std@@YAPEA_WPEA_W00@Z",
+      "specific_hash": "0xE0D37EBF08A17034"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000130870",
+      "full_hash": "0xAD878DE0AD67C8A0",
+      "name": "?insert@?$vector@U?$sub_match@PEB_W@boost@@V?$allocator@U?$sub_match@PEB_W@boost@@@std@@@std@@QEAA?AV?$_Vector_iterator@V?$_Vector_val@U?$_Simple_types@U?$sub_match@PEB_W@boost@@@std@@@std@@@2@V?$_Vector_const_iterator@V?$_Vector_val@U?$_Simple_types@U?$sub_match@PEB_W@boost@@@std@@@std@@@2@_KAEBU?$sub_match@PEB_W@boost@@@Z",
+      "specific_hash": "0x48DFCD7A8985A459"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012A6A0",
+      "full_hash": "0x6FEBA9A10121BACC",
+      "name": "?_Reallocate_exactly@?$vector@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@AEAAX_K@Z",
+      "specific_hash": "0xC745563D76656367"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012D070",
+      "full_hash": "0x2BB327C4BA25DC82",
+      "name": "?create_startmap@?$basic_regex_creator@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXPEAUre_syntax_base@23@PEAEPEAIE@Z",
+      "specific_hash": "0x794ACF118C08DC23"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x000000000012E700",
+      "full_hash": "0xA627D80047D5B358",
+      "name": "?deallocate@?$allocator@_W@std@@QEAAXQEA_W_K@Z",
+      "specific_hash": "0x37FECF78FE6BCCE4"
+    },
+    {
+      "domain_path": "/0004_wide_posix_api.obj",
+      "entry_point": "0x0000000000133100",
+      "full_hash": "0xD79CE80BFA7EDDD7",
+      "name": "?match_soft_buffer_end@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "specific_hash": "0xEA7BFA75E5C995A6"
+    }
+  ],
+  "functions_added": 620,
+  "functions_attempted": 796,
+  "functions_excluded": 176,
+  "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
+  "ghidra_version": "12.1.3",
+  "language_id": "x86:LE:64:default",
+  "language_minor_version": 8,
+  "language_version": 4,
+  "library_family": "Boost.Regex",
+  "library_path": "FIDB/libraries/boost/regex/1.86.0/boost-regex-1.86.0-msvc-x86_64-release.fidb",
+  "library_variant": "msvc-x86_64-release",
+  "library_version": "1.86.0",
+  "linkage": "static",
+  "reopened_function_record_count": 520,
+  "source_language_declared": "C++",
+  "source_language_filter": "",
+  "source_language_metadata_note": "Installed Ghidra 12.1.3 legacy FunctionID schema has no source-language column; empty metadata means all source languages.",
+  "stage": "generate"
+}

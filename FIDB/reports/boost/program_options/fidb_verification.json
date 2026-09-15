@@ -1,0 +1,3482 @@
+{
+  "architecture": "x86-64",
+  "compiler": "MSVC",
+  "compiler_spec": "windows",
+  "compiler_version": "19.34.31937 for x64",
+  "configuration": "Release",
+  "consumer": "FIDB/build/boost_consumers/program_options/program_options_detection.exe",
+  "direct_library_matches": [
+    {
+      "fid_name": "??$_Construct@$00PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXQEBD_K@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140001060",
+      "program_function": "_Construct<1,char_const*___ptr64>",
+      "score": 148.74000549316406,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Destroy_range@V?$allocator@V?$shared_ptr@Voption_description@program_options@boost@@@boost@@@std@@@std@@YAXPEAV?$shared_ptr@Voption_description@program_options@boost@@@boost@@QEAV12@AEAV?$allocator@V?$shared_ptr@Voption_description@program_options@boost@@@boost@@@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140001430",
+      "program_function": "_Destroy_range<>",
+      "score": 66.72000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Destroy_range@V?$allocator@V?$shared_ptr@Voptions_description@program_options@boost@@@boost@@@std@@@std@@YAXPEAV?$shared_ptr@Voptions_description@program_options@boost@@@boost@@QEAV12@AEAV?$allocator@V?$shared_ptr@Voptions_description@program_options@boost@@@boost@@@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140001430",
+      "program_function": "_Destroy_range<>",
+      "score": 66.72000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Maklocstr@D@std@@YAPEADPEBDPEADAEBU_Cvtvec@@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400019E0",
+      "program_function": "_Maklocstr<char>",
+      "score": 34.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Traits_compare@U?$char_traits@D@std@@@std@@YAHQEBD_K01@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140001D30",
+      "program_function": "_Traits_compare<std::char_traits<char>_>",
+      "score": 30.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@QEBD@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140002C00",
+      "program_function": "basic_string<char,std::char_traits<char>,std::allocator<char>_>",
+      "score": 62.02000045776367,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$map@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@U?$less@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@V?$allocator@U?$pair@$$CBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@@std@@@2@@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140002D70",
+      "program_function": "map<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>,std::basic_string<char,struct_std::char_traits<char>,class_std::allocator<char>_>,std::less<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>,std::allocator<std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_const_,std::basic_string<char,struct_std::char_traits<char>,class_std::allocator<char>_>_>_>_>",
+      "score": 79.11000061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0exception@boost@@QEAA@AEBV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140003E00",
+      "program_function": "exception",
+      "score": 35.04999923706055,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0invalid_command_line_syntax@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140003EA0",
+      "program_function": "FUN_140003ea0",
+      "score": 20.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0invalid_config_file_syntax@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140003EA0",
+      "program_function": "FUN_140003ea0",
+      "score": 20.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0invalid_bool_value@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140003EA0",
+      "program_function": "FUN_140003ea0",
+      "score": 20.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0invalid_syntax@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140003F70",
+      "program_function": "FUN_140003f70",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0validation_error@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140003F70",
+      "program_function": "FUN_140003f70",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@QEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400042F0",
+      "program_function": "~function_n<>",
+      "score": 23.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$function_n@U?$pair@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@@std@@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@@boost@@QEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400042F0",
+      "program_function": "~function_n<>",
+      "score": 23.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$function_n@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@@boost@@QEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400042F0",
+      "program_function": "~function_n<>",
+      "score": 23.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$refcount_ptr@Uerror_info_container@exception_detail@boost@@@exception_detail@boost@@QEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400044E0",
+      "program_function": "~refcount_ptr<boost::exception_detail::error_info_container>",
+      "score": 15.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$shared_ptr@$$CBVvalue_semantic@program_options@boost@@@boost@@QEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140004510",
+      "program_function": "FID_conflict:~action<boost::spirit::classic::chset<wchar_t>,boost::archive::xml::append_char<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>",
+      "score": 30.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$shared_ptr@Voptions_description@program_options@boost@@@boost@@QEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140004510",
+      "program_function": "FID_conflict:~action<boost::spirit::classic::chset<wchar_t>,boost::archive::xml::append_char<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>",
+      "score": 30.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$shared_ptr@Voption_description@program_options@boost@@@boost@@QEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140004510",
+      "program_function": "FID_conflict:~action<boost::spirit::classic::chset<wchar_t>,boost::archive::xml::append_char<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>",
+      "score": 30.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$shared_ptr@V?$basic_istream@DU?$char_traits@D@std@@@std@@@boost@@QEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140004510",
+      "program_function": "FID_conflict:~action<boost::spirit::classic::chset<wchar_t>,boost::archive::xml::append_char<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>",
+      "score": 30.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$shared_ptr@V?$basic_istream@_WU?$char_traits@_W@std@@@std@@@boost@@QEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140004510",
+      "program_function": "FID_conflict:~action<boost::spirit::classic::chset<wchar_t>,boost::archive::xml::append_char<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>",
+      "score": 30.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vbad_function_call@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140004710",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vtoo_many_positional_options_error@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140004710",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vinvalid_command_line_style@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140004710",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Verror@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140004710",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vreading_file@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140004710",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vlogic_error@std@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140004710",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Uescaped_list_error@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140004710",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vbad_lexical_cast@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140004770",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vinvalid_command_line_syntax@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400047D0",
+      "program_function": "~wrapexcept<>",
+      "score": 23.360000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vinvalid_config_file_syntax@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400047D0",
+      "program_function": "~wrapexcept<>",
+      "score": 23.360000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vinvalid_bool_value@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400047D0",
+      "program_function": "~wrapexcept<>",
+      "score": 23.360000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vvalidation_error@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400047D0",
+      "program_function": "~wrapexcept<>",
+      "score": 23.360000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1locale@std@@QEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140004A30",
+      "program_function": "~locale",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1shared_count@detail@boost@@QEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140004C80",
+      "program_function": "~shared_count",
+      "score": 29.3700008392334,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1variable_value@program_options@boost@@QEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140004CD0",
+      "program_function": "~variable_value",
+      "score": 44.060001373291016,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Guntyped_value@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005260",
+      "program_function": "FUN_140005260",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gsp_counted_base@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005260",
+      "program_function": "FUN_140005260",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gabstract_variables_map@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005260",
+      "program_function": "FUN_140005260",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$holder@_N@any@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005260",
+      "program_function": "FUN_140005260",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gcommon_config_file_iterator@detail@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005380",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vinvalid_command_line_style@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400053C0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vbad_function_call@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400053C0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vtoo_many_positional_options_error@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400053C0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Verror@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400053C0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vreading_file@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400053C0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vlogic_error@std@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400053C0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Uescaped_list_error@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400053C0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vbad_lexical_cast@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005440",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vinvalid_command_line_syntax@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400054C0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 34.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vinvalid_config_file_syntax@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400054C0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 34.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vinvalid_bool_value@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400054C0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 34.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vvalidation_error@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400054C0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 34.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Guntyped_value@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005540",
+      "program_function": "FUN_140005540",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gsp_counted_base@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005540",
+      "program_function": "FUN_140005540",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gabstract_variables_map@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005540",
+      "program_function": "FUN_140005540",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$holder@_N@any@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005540",
+      "program_function": "FUN_140005540",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gclone_base@exception_detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005610",
+      "program_function": "FUN_140005610",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$value_semantic_codecvt_helper@D@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005610",
+      "program_function": "FUN_140005610",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gvalue_semantic@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005610",
+      "program_function": "FUN_140005610",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gplaceholder@any@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005610",
+      "program_function": "FUN_140005610",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gplaceholder@detail@anys@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005610",
+      "program_function": "FUN_140005610",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gtyped_value_base@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005610",
+      "program_function": "FUN_140005610",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gunknown_option@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005640",
+      "program_function": "FUN_140005640",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gerror_with_option_name@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005640",
+      "program_function": "FUN_140005640",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gerror_with_no_option_name@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005640",
+      "program_function": "FUN_140005640",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Grequired_option@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005640",
+      "program_function": "FUN_140005640",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gmultiple_occurrences@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005640",
+      "program_function": "FUN_140005640",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gmultiple_values@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005640",
+      "program_function": "FUN_140005640",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Ginvalid_command_line_syntax@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005680",
+      "program_function": "FUN_140005680",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Ginvalid_syntax@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005680",
+      "program_function": "FUN_140005680",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Ginvalid_config_file_syntax@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005680",
+      "program_function": "FUN_140005680",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gvalidation_error@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005680",
+      "program_function": "FUN_140005680",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Ginvalid_option_value@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005680",
+      "program_function": "FUN_140005680",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Ginvalid_bool_value@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005680",
+      "program_function": "FUN_140005680",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gclone_base@exception_detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400056C0",
+      "program_function": "FUN_1400056c0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$value_semantic_codecvt_helper@D@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400056C0",
+      "program_function": "FUN_1400056c0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gvalue_semantic@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400056C0",
+      "program_function": "FUN_1400056c0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gplaceholder@any@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400056C0",
+      "program_function": "FUN_1400056c0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gplaceholder@detail@anys@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400056C0",
+      "program_function": "FUN_1400056c0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gtyped_value_base@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400056C0",
+      "program_function": "FUN_1400056c0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gclone_base@exception_detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400056F0",
+      "program_function": "FUN_1400056f0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$value_semantic_codecvt_helper@D@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400056F0",
+      "program_function": "FUN_1400056f0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gvalue_semantic@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400056F0",
+      "program_function": "FUN_1400056f0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gplaceholder@any@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400056F0",
+      "program_function": "FUN_1400056f0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gplaceholder@detail@anys@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400056F0",
+      "program_function": "FUN_1400056f0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gtyped_value_base@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400056F0",
+      "program_function": "FUN_1400056f0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gclone_base@exception_detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005720",
+      "program_function": "FUN_140005720",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$value_semantic_codecvt_helper@D@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005720",
+      "program_function": "FUN_140005720",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gvalue_semantic@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005720",
+      "program_function": "FUN_140005720",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gplaceholder@any@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005720",
+      "program_function": "FUN_140005720",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gplaceholder@detail@anys@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005720",
+      "program_function": "FUN_140005720",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gtyped_value_base@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005720",
+      "program_function": "FUN_140005720",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Insert_node@?$_Tree_val@U?$_Tree_simple_types@U?$pair@$$CBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@U?$pair@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@@2@@std@@@std@@@std@@QEAAPEAU?$_Tree_node@U?$pair@$$CBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@U?$pair@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@@2@@std@@PEAX@2@U?$_Tree_id@PEAU?$_Tree_node@U?$pair@$$CBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@U?$pair@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@@2@@std@@PEAX@std@@@2@QEAU32@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005760",
+      "program_function": "_Insert_node",
+      "score": 343.05999755859375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Throw_bad_cast@std@@YAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400059E0",
+      "program_function": "_Throw_bad_cast",
+      "score": 65.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005C30",
+      "program_function": "append",
+      "score": 124.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?apply_default@?$typed_value@_ND@program_options@boost@@UEBA_NAEAVany@3@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140005CC0",
+      "program_function": "apply_default",
+      "score": 25.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?copy_boost_exception@exception_detail@boost@@YAXPEAVexception@2@PEBV32@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140006670",
+      "program_function": "copy_boost_exception",
+      "score": 111.08999633789062,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?xparse@?$typed_value@_ND@program_options@boost@@UEBAXAEAVany@3@AEBV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@std@@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140008380",
+      "program_function": "xparse",
+      "score": 34.36000061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?xparse@?$typed_value@_ND@program_options@boost@@UEBAXAEAVany@3@AEBV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@std@@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400083E0",
+      "program_function": "xparse",
+      "score": 34.36000061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$?HDU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@$$QEAV10@D@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400085F0",
+      "program_function": "operator+<char,std::char_traits<char>,std::allocator<char>_>",
+      "score": 55.7400016784668,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Find_hint@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@?$_Tree@V?$_Tset_traits@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@U?$less@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@$0A@@std@@@std@@IEBA?AU?$_Tree_find_hint_result@PEAU?$_Tree_node@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEAX@std@@@1@QEAU?$_Tree_node@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEAX@1@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140008690",
+      "program_function": "_Find_hint<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>",
+      "score": 240.92999267578125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vmultiple_occurrences@program_options@boost@@@boost@@YAXAEBVmultiple_occurrences@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140008C30",
+      "program_function": "throw_exception<boost::program_options::multiple_occurrences>",
+      "score": 82.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vunknown_option@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140008C60",
+      "program_function": "wrapexcept<>",
+      "score": 90.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vrequired_option@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140008C60",
+      "program_function": "wrapexcept<>",
+      "score": 90.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vmultiple_occurrences@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140008C60",
+      "program_function": "wrapexcept<>",
+      "score": 90.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vmultiple_values@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140008C60",
+      "program_function": "wrapexcept<>",
+      "score": 90.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vunknown_option@program_options@boost@@@boost@@QEAA@AEBVunknown_option@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140008D30",
+      "program_function": "wrapexcept<>",
+      "score": 39.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vrequired_option@program_options@boost@@@boost@@QEAA@AEBVrequired_option@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140008D30",
+      "program_function": "wrapexcept<>",
+      "score": 39.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vmultiple_occurrences@program_options@boost@@@boost@@QEAA@AEBVmultiple_occurrences@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140008D30",
+      "program_function": "wrapexcept<>",
+      "score": 39.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vmultiple_values@program_options@boost@@@boost@@QEAA@AEBVmultiple_values@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140008D30",
+      "program_function": "wrapexcept<>",
+      "score": 39.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0logic_error@std@@QEAA@PEBD@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009800",
+      "program_function": "logic_error",
+      "score": 224.69000244140625,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vunknown_option@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009AB0",
+      "program_function": "~wrapexcept<>",
+      "score": 23.360000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vrequired_option@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009AB0",
+      "program_function": "~wrapexcept<>",
+      "score": 23.360000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vmultiple_occurrences@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009AB0",
+      "program_function": "~wrapexcept<>",
+      "score": 23.360000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vmultiple_values@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009AB0",
+      "program_function": "~wrapexcept<>",
+      "score": 23.360000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??A?$map@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@U?$less@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@V?$allocator@U?$pair@$$CBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@@std@@@2@@std@@QEAAAEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@1@$$QEAV21@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009B10",
+      "program_function": "operator[]",
+      "score": 285.8399963378906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??E?$_Tree_unchecked_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@std@@@std@@U_Iterator_base0@2@@std@@QEAAAEAV01@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009C70",
+      "program_function": "operator++",
+      "score": 198.0500030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vunknown_option@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009CF0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 34.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vrequired_option@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009CF0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 34.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vmultiple_occurrences@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009CF0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 34.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vmultiple_values@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009CF0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 34.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Xran@?$_String_val@U?$_Simple_types@D@std@@@std@@SAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009DE0",
+      "program_function": "_Xran",
+      "score": 73.66999816894531,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?check_first_occurrence@validators@program_options@boost@@YAXAEBVany@3@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009E70",
+      "program_function": "check_first_occurrence",
+      "score": 21.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vunknown_option@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009EC0",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vrequired_option@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009EC0",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vmultiple_occurrences@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009EC0",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vmultiple_values@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140009EC0",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_canonical_option_prefix@error_with_option_name@program_options@boost@@IEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000A620",
+      "program_function": "get_canonical_option_prefix",
+      "score": 67.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_template@validation_error@program_options@boost@@IEAA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@W4kind_t@123@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000A700",
+      "program_function": "get_template",
+      "score": 87.3699951171875,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?parse@?$value_semantic_codecvt_helper@D@program_options@boost@@EEBAXAEAVany@3@AEBV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@std@@_N@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000A790",
+      "program_function": "parse",
+      "score": 196.52999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?replace_token@error_with_option_name@program_options@boost@@IEBAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000AB60",
+      "program_function": "replace_token",
+      "score": 88.41000366210938,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vunknown_option@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000AC70",
+      "program_function": "rethrow",
+      "score": 56.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vrequired_option@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000AC70",
+      "program_function": "rethrow",
+      "score": 56.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vmultiple_values@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000AC70",
+      "program_function": "rethrow",
+      "score": 56.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vmultiple_occurrences@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000AC70",
+      "program_function": "rethrow",
+      "score": 56.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?set_substitute_default@error_with_option_name@program_options@boost@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@00@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000ACB0",
+      "program_function": "set_substitute_default",
+      "score": 302.8599853515625,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?validate@program_options@boost@@YAXAEAVany@2@AEBV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@std@@PEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@5@H@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000BE10",
+      "program_function": "validate",
+      "score": 51.380001068115234,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?validate@program_options@boost@@YAXAEAVany@2@AEBV?$vector@V?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@V?$allocator@V?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@@2@@std@@PEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@5@H@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000BE10",
+      "program_function": "validate",
+      "score": 51.380001068115234,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?what@error_with_option_name@program_options@boost@@UEBAPEBDXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000BED0",
+      "program_function": "what",
+      "score": 16.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$?0$$CBVvalue_semantic@program_options@boost@@@?$shared_ptr@$$CBVvalue_semantic@program_options@boost@@@boost@@QEAA@PEBVvalue_semantic@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000BF00",
+      "program_function": "shared_ptr<boost::program_options::value_semantic_const_><boost::program_options::value_semantic_const_>",
+      "score": 114.05999755859375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$?0$$CBVvalue_semantic@program_options@boost@@@shared_count@detail@boost@@QEAA@PEBVvalue_semantic@program_options@2@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000BF90",
+      "program_function": "shared_count<>",
+      "score": 67.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$?0Voption_description@program_options@boost@@@shared_count@detail@boost@@QEAA@PEAVoption_description@program_options@2@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000BFF0",
+      "program_function": "shared_count<boost::program_options::option_description>",
+      "score": 100.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Emplace_reallocate@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@std@@AEAAPEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@1@QEAV21@AEBV21@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000C050",
+      "program_function": "_Emplace_reallocate<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_const&___ptr64>",
+      "score": 374.1199951171875,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Uninitialized_move@PEAV?$shared_ptr@Voptions_description@program_options@boost@@@boost@@V?$allocator@V?$shared_ptr@Voptions_description@program_options@boost@@@boost@@@std@@@std@@YAPEAV?$shared_ptr@Voptions_description@program_options@boost@@@boost@@QEAV12@0PEAV12@AEAV?$allocator@V?$shared_ptr@Voptions_description@program_options@boost@@@boost@@@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000C670",
+      "program_function": "_Uninitialized_move<>",
+      "score": 61.36000061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Uninitialized_move@PEAV?$shared_ptr@Voption_description@program_options@boost@@@boost@@V?$allocator@V?$shared_ptr@Voption_description@program_options@boost@@@boost@@@std@@@std@@YAPEAV?$shared_ptr@Voption_description@program_options@boost@@@boost@@QEAV12@0PEAV12@AEAV?$allocator@V?$shared_ptr@Voption_description@program_options@boost@@@boost@@@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000C670",
+      "program_function": "_Uninitialized_move<>",
+      "score": 61.36000061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$getline@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@YAAEAV?$basic_istream@DU?$char_traits@D@std@@@0@$$QEAV10@AEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@D@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000C710",
+      "program_function": "getline<char,std::char_traits<char>,std::allocator<char>_>",
+      "score": 141.17999267578125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vambiguous_option@program_options@boost@@@boost@@YAXAEBVambiguous_option@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000C8C0",
+      "program_function": "throw_exception<boost::program_options::ambiguous_option>",
+      "score": 40.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vunknown_option@program_options@boost@@@boost@@YAXAEBVunknown_option@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000C8F0",
+      "program_function": "throw_exception<>",
+      "score": 33.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vrequired_option@program_options@boost@@@boost@@YAXAEBVrequired_option@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000C8F0",
+      "program_function": "throw_exception<>",
+      "score": 33.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vmultiple_values@program_options@boost@@@boost@@YAXAEBVmultiple_values@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000C8F0",
+      "program_function": "throw_exception<>",
+      "score": 33.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vmultiple_occurrences@program_options@boost@@@boost@@YAXAEBVmultiple_occurrences@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000C8F0",
+      "program_function": "throw_exception<>",
+      "score": 33.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$tolower_@D@?A0x37dd1cbf@program_options@boost@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBV34@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000C920",
+      "program_function": "tolower_<char>",
+      "score": 72.0999984741211,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vambiguous_option@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000C9F0",
+      "program_function": "wrapexcept<boost::program_options::ambiguous_option>",
+      "score": 93.41000366210938,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vambiguous_option@program_options@boost@@@boost@@QEAA@AEBVambiguous_option@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000CAD0",
+      "program_function": "wrapexcept<boost::program_options::ambiguous_option>",
+      "score": 49.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vunknown_option@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000CB80",
+      "program_function": "wrapexcept<>",
+      "score": 90.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vrequired_option@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000CB80",
+      "program_function": "wrapexcept<>",
+      "score": 90.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vmultiple_occurrences@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000CB80",
+      "program_function": "wrapexcept<>",
+      "score": 90.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vmultiple_values@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000CB80",
+      "program_function": "wrapexcept<>",
+      "score": 90.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vunknown_option@program_options@boost@@@boost@@QEAA@AEBVunknown_option@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000CC50",
+      "program_function": "wrapexcept<>",
+      "score": 39.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vrequired_option@program_options@boost@@@boost@@QEAA@AEBVrequired_option@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000CC50",
+      "program_function": "wrapexcept<>",
+      "score": 39.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vmultiple_occurrences@program_options@boost@@@boost@@QEAA@AEBVmultiple_occurrences@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000CC50",
+      "program_function": "wrapexcept<>",
+      "score": 39.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vmultiple_values@program_options@boost@@@boost@@QEAA@AEBVmultiple_values@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000CC50",
+      "program_function": "wrapexcept<>",
+      "score": 39.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0ambiguous_option@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000CCD0",
+      "program_function": "ambiguous_option",
+      "score": 19.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0option_description@program_options@boost@@QEAA@PEBDPEBVvalue_semantic@12@0@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000CFF0",
+      "program_function": "option_description",
+      "score": 207.74000549316406,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0options_description@program_options@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@II@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D090",
+      "program_function": "options_description",
+      "score": 36.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vambiguous_option@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D2F0",
+      "program_function": "~wrapexcept<boost::program_options::ambiguous_option>",
+      "score": 28.3700008392334,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??Roptions_description_easy_init@program_options@boost@@QEAAAEAV012@PEBDPEBVvalue_semantic@12@0@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D3E0",
+      "program_function": "operator()",
+      "score": 207.79000854492188,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_D?$basic_istringstream@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D510",
+      "program_function": "`vbase_destructor'",
+      "score": 25.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$basic_istringstream@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D590",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 41.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$basic_stringbuf@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D630",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@Voption_description@program_options@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D670",
+      "program_function": "FUN_14000d670",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@$$CBVvalue_semantic@program_options@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D670",
+      "program_function": "FUN_14000d670",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@Voptions_description@program_options@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D670",
+      "program_function": "FUN_14000d670",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vambiguous_option@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D6A0",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 39.04999923706055,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gambiguous_option@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D730",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 20.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Goption_description@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D770",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 52.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Guntyped_value@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D810",
+      "program_function": "FUN_14000d810",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gsp_counted_base@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D810",
+      "program_function": "FUN_14000d810",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gabstract_variables_map@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D810",
+      "program_function": "FUN_14000d810",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$holder@_N@any@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D810",
+      "program_function": "FUN_14000d810",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?add@options_description@program_options@boost@@QEAAXV?$shared_ptr@Voption_description@program_options@boost@@@3@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000D840",
+      "program_function": "add",
+      "score": 140.42999267578125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clear@?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@std@@QEAAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000DBD0",
+      "program_function": "clear",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vambiguous_option@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000DC20",
+      "program_function": "clone",
+      "score": 125.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vunknown_option@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000DC80",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vrequired_option@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000DC80",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vmultiple_occurrences@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000DC80",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vmultiple_values@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000DC80",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?find@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEBA_KAEBV12@_K@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000DD20",
+      "program_function": "find",
+      "score": 84.73999786376953,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?key@option_description@program_options@boost@@QEBAAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBV45@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000E250",
+      "program_function": "key",
+      "score": 43.720001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?overflow@?$basic_stringbuf@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@MEAAHH@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000EBF0",
+      "program_function": "overflow",
+      "score": 162.5,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?pbackfail@?$basic_stringbuf@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@MEAAHH@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000ED90",
+      "program_function": "pbackfail",
+      "score": 37.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vambiguous_option@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000EDF0",
+      "program_function": "rethrow",
+      "score": 58.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vunknown_option@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000EE30",
+      "program_function": "rethrow",
+      "score": 56.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vrequired_option@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000EE30",
+      "program_function": "rethrow",
+      "score": 56.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vmultiple_values@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000EE30",
+      "program_function": "rethrow",
+      "score": 56.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vmultiple_occurrences@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000EE30",
+      "program_function": "rethrow",
+      "score": 56.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?seekoff@?$basic_stringbuf@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@MEAA?AV?$fpos@U_Mbstatet@@@2@_JHH@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000EE70",
+      "program_function": "seekoff",
+      "score": 135.8000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?seekpos@?$basic_stringbuf@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@MEAA?AV?$fpos@U_Mbstatet@@@2@V32@H@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000EFE0",
+      "program_function": "seekpos",
+      "score": 97.11000061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?semantic@option_description@program_options@boost@@QEBA?AV?$shared_ptr@$$CBVvalue_semantic@program_options@boost@@@3@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000F0E0",
+      "program_function": "semantic",
+      "score": 15.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?sp_enable_shared_from_this@detail@boost@@YAXZZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000F520",
+      "program_function": "sp_enable_shared_from_this",
+      "score": 120.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?underflow@?$basic_stringbuf@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@MEAAHXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000F540",
+      "program_function": "underflow",
+      "score": 39.70000076293945,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$?0V?$bind_t@Uunspecified@_bi@boost@@V?$mf@P8cmdline@detail@program_options@boost@@EAA?AV?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@6@@ZV56@V1234@AEAV76@@_mfi@3@V?$list@V?$value@PEAVcmdline@detail@program_options@boost@@@_bi@boost@@U?$arg@$00@3@@23@@_bi@boost@@@?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@QEAA@V?$bind_t@Uunspecified@_bi@boost@@V?$mf@P8cmdline@detail@program_options@boost@@EAA?AV?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@6@@ZV56@V1234@AEAV76@@_mfi@3@V?$list@V?$value@PEAVcmdline@detail@program_options@boost@@@_bi@boost@@U?$arg@$00@3@@23@@_bi@1@H@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000F5B0",
+      "program_function": "function_n<std::vector<boost::program_options::basic_option<char>,std::allocator<boost::program_options::basic_option<char>_>_>,std::vector<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>,std::allocator<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>&___ptr64><boost::_bi::bind_t<boost::_bi::unspecified,boost::_mfi::mf<class_std::vector<boost::program_options::basic_option<char>,std::allocator<boost::program_options::basic_option<char>_>_>_(__cdecl_boost::program_options::detail::cmdline::*)(std::vector<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>,std::allocator<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>&___ptr64)___ptr64,std::vector<class_boost::program_options::basic_option<char>,class_std::allocator<class_boost::program_options::basic_option<char>_>_>,boost::program_options::detail::cmdline,std::vector<class_std::basic_string<char,struct_std::char_traits<char>,class_std::allocator<char>_>,class_std::allocator<class_std::basic_string<char,struct_std::char_traits<char>,class_std::allocator<char>_>_>_>&___ptr64>,boost::_bi::list<boost::_bi::value<boost::program_options::detail::cmdline*___ptr64>,boost::arg<1>_>_>_>",
+      "score": 41.04999923706055,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Assign_counted_range@PEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@std@@AEAAXPEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@1@_K@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000F620",
+      "program_function": "_Assign_counted_range<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>*___ptr64>",
+      "score": 228.22000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Destroy_range@V?$allocator@V?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@@std@@@std@@YAXPEAV?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@QEAV12@AEAV?$allocator@V?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x000000014000F890",
+      "program_function": "_Destroy_range<std::allocator<boost::function_n<std::vector<boost::program_options::basic_option<char>,std::allocator<boost::program_options::basic_option<char>_>_>,std::vector<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>,std::allocator<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>&___ptr64>_>_>",
+      "score": 172.3699951171875,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Uninitialized_copy@PEAV?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@PEAV12@V?$allocator@V?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@@std@@@std@@YAPEAV?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@PEAV12@00AEAV?$allocator@V?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010080",
+      "program_function": "_Uninitialized_copy<boost::function_n<std::vector<boost::program_options::basic_option<char>,std::allocator<boost::program_options::basic_option<char>_>_>,std::vector<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>,std::allocator<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>&___ptr64>*___ptr64,boost::function_n<class_std::vector<class_boost::program_options::basic_option<char>,class_std::allocator<class_boost::program_options::basic_option<char>_>_>,class_std::vector<class_std::basic_string<char,struct_std::char_traits<char>,class_std::allocator<char>_>,class_std::allocator<class_std::basic_string<char,struct_std::char_traits<char>,class_std::allocator<char>_>_>_>&___ptr64>*___ptr64,std::allocator<boost::function_n<std::vector<boost::program_options::basic_option<char>,std::allocator<boost::program_options::basic_option<char>_>_>,std::vector<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>,std::allocator<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>&___ptr64>_>_>",
+      "score": 93.74000549316406,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Uninitialized_move@PEAV?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@YAPEAV?$basic_option@D@program_options@boost@@QEAV123@0PEAV123@AEAV?$allocator@V?$basic_option@D@program_options@boost@@@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010140",
+      "program_function": "_Uninitialized_move<>",
+      "score": 89.16999816894531,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Uninitialized_move@PEAV?$basic_option@_W@program_options@boost@@V?$allocator@V?$basic_option@_W@program_options@boost@@@std@@@std@@YAPEAV?$basic_option@_W@program_options@boost@@QEAV123@0PEAV123@AEAV?$allocator@V?$basic_option@_W@program_options@boost@@@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010140",
+      "program_function": "_Uninitialized_move<>",
+      "score": 89.16999816894531,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Uninitialized_move@PEAV?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@V?$allocator@V?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@@std@@@std@@YAPEAV?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@QEAV12@0PEAV12@AEAV?$allocator@V?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010240",
+      "program_function": "_Uninitialized_move<boost::function_n<std::vector<boost::program_options::basic_option<char>,std::allocator<boost::program_options::basic_option<char>_>_>,std::vector<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>,std::allocator<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>&___ptr64>*___ptr64,std::allocator<boost::function_n<std::vector<boost::program_options::basic_option<char>,std::allocator<boost::program_options::basic_option<char>_>_>,std::vector<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>,std::allocator<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>&___ptr64>_>_>",
+      "score": 119.72000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vinvalid_command_line_style@program_options@boost@@@boost@@YAXAEBVinvalid_command_line_style@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400102D0",
+      "program_function": "throw_exception<>",
+      "score": 34.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vtoo_many_positional_options_error@program_options@boost@@@boost@@YAXAEBVtoo_many_positional_options_error@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400102D0",
+      "program_function": "throw_exception<>",
+      "score": 34.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vbad_function_call@boost@@@boost@@YAXAEBVbad_function_call@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400102D0",
+      "program_function": "throw_exception<>",
+      "score": 34.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Verror@program_options@boost@@@boost@@YAXAEBVerror@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400102D0",
+      "program_function": "throw_exception<>",
+      "score": 34.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vreading_file@program_options@boost@@@boost@@YAXAEBVreading_file@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400102D0",
+      "program_function": "throw_exception<>",
+      "score": 34.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vlogic_error@std@@@boost@@YAXAEBVlogic_error@std@@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400102D0",
+      "program_function": "throw_exception<>",
+      "score": 34.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vinvalid_command_line_syntax@program_options@boost@@@boost@@YAXAEBVinvalid_command_line_syntax@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010300",
+      "program_function": "throw_exception<boost::program_options::invalid_command_line_syntax>",
+      "score": 40.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vinvalid_config_file_syntax@program_options@boost@@@boost@@YAXAEBVinvalid_config_file_syntax@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010300",
+      "program_function": "throw_exception<boost::program_options::invalid_command_line_syntax>",
+      "score": 40.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vinvalid_bool_value@program_options@boost@@@boost@@YAXAEBVinvalid_bool_value@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010300",
+      "program_function": "throw_exception<boost::program_options::invalid_command_line_syntax>",
+      "score": 40.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vvalidation_error@program_options@boost@@@boost@@YAXAEBVvalidation_error@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010300",
+      "program_function": "throw_exception<boost::program_options::invalid_command_line_syntax>",
+      "score": 40.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vinvalid_command_line_style@program_options@boost@@@boost@@YAXAEBVinvalid_command_line_style@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010330",
+      "program_function": "throw_exception<>",
+      "score": 34.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vtoo_many_positional_options_error@program_options@boost@@@boost@@YAXAEBVtoo_many_positional_options_error@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010330",
+      "program_function": "throw_exception<>",
+      "score": 34.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vbad_function_call@boost@@@boost@@YAXAEBVbad_function_call@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010330",
+      "program_function": "throw_exception<>",
+      "score": 34.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Verror@program_options@boost@@@boost@@YAXAEBVerror@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010330",
+      "program_function": "throw_exception<>",
+      "score": 34.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vreading_file@program_options@boost@@@boost@@YAXAEBVreading_file@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010330",
+      "program_function": "throw_exception<>",
+      "score": 34.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vlogic_error@std@@@boost@@YAXAEBVlogic_error@std@@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010330",
+      "program_function": "throw_exception<>",
+      "score": 34.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vtoo_many_positional_options_error@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010360",
+      "program_function": "wrapexcept<>",
+      "score": 89.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vinvalid_command_line_style@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010360",
+      "program_function": "wrapexcept<>",
+      "score": 89.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vbad_function_call@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010360",
+      "program_function": "wrapexcept<>",
+      "score": 89.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Verror@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010360",
+      "program_function": "wrapexcept<>",
+      "score": 89.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vreading_file@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010360",
+      "program_function": "wrapexcept<>",
+      "score": 89.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Uescaped_list_error@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010360",
+      "program_function": "wrapexcept<>",
+      "score": 89.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vbad_function_call@boost@@@boost@@QEAA@AEBVbad_function_call@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010430",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vinvalid_command_line_style@program_options@boost@@@boost@@QEAA@AEBVinvalid_command_line_style@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010430",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vtoo_many_positional_options_error@program_options@boost@@@boost@@QEAA@AEBVtoo_many_positional_options_error@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010430",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Verror@program_options@boost@@@boost@@QEAA@AEBVerror@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010430",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vreading_file@program_options@boost@@@boost@@QEAA@AEBVreading_file@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010430",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vlogic_error@std@@@boost@@QEAA@AEBVlogic_error@std@@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010430",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vinvalid_command_line_syntax@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400104B0",
+      "program_function": "wrapexcept<>",
+      "score": 95.41000366210938,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vinvalid_config_file_syntax@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400104B0",
+      "program_function": "wrapexcept<>",
+      "score": 95.41000366210938,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vinvalid_bool_value@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400104B0",
+      "program_function": "wrapexcept<>",
+      "score": 95.41000366210938,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vinvalid_command_line_syntax@program_options@boost@@@boost@@QEAA@AEBVinvalid_command_line_syntax@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010590",
+      "program_function": "wrapexcept<>",
+      "score": 49.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vinvalid_config_file_syntax@program_options@boost@@@boost@@QEAA@AEBVinvalid_config_file_syntax@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010590",
+      "program_function": "wrapexcept<>",
+      "score": 49.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vinvalid_bool_value@program_options@boost@@@boost@@QEAA@AEBVinvalid_bool_value@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010590",
+      "program_function": "wrapexcept<>",
+      "score": 49.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vvalidation_error@program_options@boost@@@boost@@QEAA@AEBVvalidation_error@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010590",
+      "program_function": "wrapexcept<>",
+      "score": 49.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vtoo_many_positional_options_error@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010640",
+      "program_function": "wrapexcept<>",
+      "score": 89.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vinvalid_command_line_style@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010640",
+      "program_function": "wrapexcept<>",
+      "score": 89.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vbad_function_call@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010640",
+      "program_function": "wrapexcept<>",
+      "score": 89.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Verror@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010640",
+      "program_function": "wrapexcept<>",
+      "score": 89.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vreading_file@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010640",
+      "program_function": "wrapexcept<>",
+      "score": 89.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Uescaped_list_error@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010640",
+      "program_function": "wrapexcept<>",
+      "score": 89.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vbad_function_call@boost@@@boost@@QEAA@AEBVbad_function_call@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010710",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vinvalid_command_line_style@program_options@boost@@@boost@@QEAA@AEBVinvalid_command_line_style@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010710",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vtoo_many_positional_options_error@program_options@boost@@@boost@@QEAA@AEBVtoo_many_positional_options_error@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010710",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Verror@program_options@boost@@@boost@@QEAA@AEBVerror@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010710",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vreading_file@program_options@boost@@@boost@@QEAA@AEBVreading_file@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010710",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vlogic_error@std@@@boost@@QEAA@AEBVlogic_error@std@@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010710",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0cmdline@detail@program_options@boost@@QEAA@AEBV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@std@@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010790",
+      "program_function": "cmdline",
+      "score": 195.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010800",
+      "program_function": "FUN_140010800",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0invalid_command_line_style@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010800",
+      "program_function": "FUN_140010800",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_function_call@boost@@QEAA@AEBV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010800",
+      "program_function": "FUN_140010800",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0runtime_error@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010800",
+      "program_function": "FUN_140010800",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0logic_error@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010800",
+      "program_function": "FUN_140010800",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010800",
+      "program_function": "FUN_140010800",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0error@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010800",
+      "program_function": "FUN_140010800",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0too_many_positional_options_error@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010800",
+      "program_function": "FUN_140010800",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0reading_file@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010800",
+      "program_function": "FUN_140010800",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_cast@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010800",
+      "program_function": "FUN_140010800",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0escaped_list_error@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010800",
+      "program_function": "FUN_140010800",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0invalid_command_line_style@program_options@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010840",
+      "program_function": "FUN_140010840",
+      "score": 27.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0error@program_options@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010840",
+      "program_function": "FUN_140010840",
+      "score": 27.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0escaped_list_error@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010840",
+      "program_function": "FUN_140010840",
+      "score": 27.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0invalid_command_line_syntax@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400108A0",
+      "program_function": "FUN_1400108a0",
+      "score": 20.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0invalid_config_file_syntax@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400108A0",
+      "program_function": "FUN_1400108a0",
+      "score": 20.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0invalid_bool_value@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400108A0",
+      "program_function": "FUN_1400108a0",
+      "score": 20.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0invalid_syntax@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010A60",
+      "program_function": "FUN_140010a60",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0validation_error@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010A60",
+      "program_function": "FUN_140010a60",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010AA0",
+      "program_function": "FUN_140010aa0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0invalid_command_line_style@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010AA0",
+      "program_function": "FUN_140010aa0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_function_call@boost@@QEAA@AEBV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010AA0",
+      "program_function": "FUN_140010aa0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0runtime_error@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010AA0",
+      "program_function": "FUN_140010aa0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0logic_error@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010AA0",
+      "program_function": "FUN_140010aa0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010AA0",
+      "program_function": "FUN_140010aa0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0error@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010AA0",
+      "program_function": "FUN_140010aa0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0too_many_positional_options_error@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010AA0",
+      "program_function": "FUN_140010aa0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0reading_file@program_options@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010AA0",
+      "program_function": "FUN_140010aa0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_cast@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010AA0",
+      "program_function": "FUN_140010aa0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0escaped_list_error@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010AA0",
+      "program_function": "FUN_140010aa0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$_Uninitialized_backout_al@V?$allocator@V?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@@std@@@std@@QEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010C30",
+      "program_function": "~_Uninitialized_backout_al<std::allocator<boost::function_n<std::vector<boost::program_options::basic_option<char>,std::allocator<boost::program_options::basic_option<char>_>_>,std::vector<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>,std::allocator<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>&___ptr64>_>_>",
+      "score": 34.34000015258789,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vbad_function_call@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010CD0",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vtoo_many_positional_options_error@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010CD0",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vinvalid_command_line_style@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010CD0",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Verror@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010CD0",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vreading_file@program_options@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010CD0",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vlogic_error@std@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010CD0",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Uescaped_list_error@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010CD0",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??4?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@QEAAAEAV01@AEBV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010D50",
+      "program_function": "FID_conflict:operator=",
+      "score": 77.72000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??4?$function_n@U?$pair@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@@std@@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@@boost@@QEAAAEAV01@AEBV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010D50",
+      "program_function": "FID_conflict:operator=",
+      "score": 77.72000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vinvalid_command_line_style@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E10",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vbad_function_call@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E10",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vtoo_many_positional_options_error@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E10",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Verror@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E10",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vreading_file@program_options@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E10",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vlogic_error@std@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E10",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Uescaped_list_error@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E10",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gtoo_many_positional_options_error@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E90",
+      "program_function": "FUN_140010e90",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gerror@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E90",
+      "program_function": "FUN_140010e90",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_alloc@std@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E90",
+      "program_function": "FUN_140010e90",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_array_new_length@std@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E90",
+      "program_function": "FUN_140010e90",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gruntime_error@std@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E90",
+      "program_function": "FUN_140010e90",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Ginvalid_command_line_style@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E90",
+      "program_function": "FUN_140010e90",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_function_call@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E90",
+      "program_function": "FUN_140010e90",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gexception@std@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E90",
+      "program_function": "FUN_140010e90",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Glogic_error@std@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E90",
+      "program_function": "FUN_140010e90",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_cast@std@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E90",
+      "program_function": "FUN_140010e90",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Greading_file@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E90",
+      "program_function": "FUN_140010e90",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gescaped_list_error@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010E90",
+      "program_function": "FUN_140010e90",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Change_array@?$vector@V?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@V?$allocator@V?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@@std@@@std@@AEAAXQEAV?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@_K1@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140010EE0",
+      "program_function": "FUN_140010ee0",
+      "score": 94.41999816894531,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vinvalid_command_line_style@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140011100",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vtoo_many_positional_options_error@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140011100",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vbad_function_call@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140011100",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Verror@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140011100",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vreading_file@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140011100",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Uescaped_list_error@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140011100",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vinvalid_command_line_syntax@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140011160",
+      "program_function": "clone",
+      "score": 127.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vinvalid_config_file_syntax@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140011160",
+      "program_function": "clone",
+      "score": 127.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vinvalid_bool_value@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140011160",
+      "program_function": "clone",
+      "score": 127.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vinvalid_command_line_style@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400111C0",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vtoo_many_positional_options_error@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400111C0",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vbad_function_call@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400111C0",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Verror@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400111C0",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vreading_file@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400111C0",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Uescaped_list_error@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400111C0",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?deallocate@?$allocator@V?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@@std@@QEAAXQEAV?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@_K@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140011220",
+      "program_function": "FUN_140011220",
+      "score": 22.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_canonical_option_prefix@cmdline@detail@program_options@boost@@QEAAHXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140011BC0",
+      "program_function": "get_canonical_option_prefix",
+      "score": 28.3700008392334,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?has_empty_target@function@detail@boost@@YA_NZZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140012250",
+      "program_function": "has_empty_target",
+      "score": 33.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?insert@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@_KQEBD@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140012270",
+      "program_function": "insert",
+      "score": 92.43000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?invoke@?$function_obj_invoker@V?$bind_t@Uunspecified@_bi@boost@@V?$mf@P8cmdline@detail@program_options@boost@@EAA?AV?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@6@@ZV56@V1234@AEAV76@@_mfi@3@V?$list@V?$value@PEAVcmdline@detail@program_options@boost@@@_bi@boost@@U?$arg@$00@3@@23@@_bi@boost@@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@5@@function@detail@boost@@SA?AV?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEATfunction_buffer@234@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@6@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140012390",
+      "program_function": "invoke",
+      "score": 31.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?manage@?$functor_manager@V?$bind_t@Uunspecified@_bi@boost@@V?$mf@P8cmdline@detail@program_options@boost@@EAA?AV?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@6@@ZV56@V1234@AEAV76@@_mfi@3@V?$list@V?$value@PEAVcmdline@detail@program_options@boost@@@_bi@boost@@U?$arg@$00@3@@23@@_bi@boost@@@function@detail@boost@@SAXAEBTfunction_buffer@234@AEAT5234@W4functor_manager_operation_type@234@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400123F0",
+      "program_function": "manage",
+      "score": 55.72999954223633,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?move_assign@?$function_n@V?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@boost@@AEAAXAEAV12@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140012490",
+      "program_function": "move_assign",
+      "score": 91.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?parse_terminator@cmdline@detail@program_options@boost@@QEAA?AV?$vector@V?$basic_option@D@program_options@boost@@V?$allocator@V?$basic_option@D@program_options@boost@@@std@@@std@@AEAV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@6@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014760",
+      "program_function": "parse_terminator",
+      "score": 435.0899963378906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vinvalid_command_line_style@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014BB0",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vbad_function_call@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014BB0",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vtoo_many_positional_options_error@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014BB0",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Verror@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014BB0",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vreading_file@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014BB0",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vlogic_error@std@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014BB0",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Uescaped_list_error@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014BB0",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vinvalid_command_line_syntax@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014BE0",
+      "program_function": "rethrow",
+      "score": 60.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vinvalid_config_file_syntax@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014BE0",
+      "program_function": "rethrow",
+      "score": 60.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vinvalid_bool_value@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014BE0",
+      "program_function": "rethrow",
+      "score": 60.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vinvalid_command_line_style@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014C20",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vbad_function_call@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014C20",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vtoo_many_positional_options_error@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014C20",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Verror@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014C20",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vreading_file@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014C20",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vlogic_error@std@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014C20",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Uescaped_list_error@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140014C20",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?set_additional_parser@cmdline@detail@program_options@boost@@QEAAXV?$function_n@U?$pair@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@@std@@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@@4@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016000",
+      "program_function": "set_additional_parser",
+      "score": 74.3699951171875,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Reallocate_grow_by@V<lambda_1dfe18491bcca09701d8ccb01d0b0af4>@@PEB_W_K@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAAEAV01@_KV<lambda_1dfe18491bcca09701d8ccb01d0b0af4>@@PEB_W_K@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016140",
+      "program_function": "_Reallocate_grow_by<<lambda_1dfe18491bcca09701d8ccb01d0b0af4>,wchar_t_const*___ptr64,unsigned___int64>",
+      "score": 140.76998901367188,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vlogic_error@std@@@boost@@YAXAEBVlogic_error@std@@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016290",
+      "program_function": "throw_exception<std::logic_error>",
+      "score": 187.010009765625,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$use_facet@V?$codecvt@_WDU_Mbstatet@@@std@@@std@@YAAEBV?$codecvt@_WDU_Mbstatet@@@0@AEBVlocale@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400162C0",
+      "program_function": "use_facet<std::codecvt<wchar_t,char,_Mbstatet>_>",
+      "score": 97.08000183105469,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vlogic_error@std@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400163A0",
+      "program_function": "wrapexcept<>",
+      "score": 166.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vbad_function_call@boost@@@boost@@QEAA@AEBVbad_function_call@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016470",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vinvalid_command_line_style@program_options@boost@@@boost@@QEAA@AEBVinvalid_command_line_style@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016470",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vtoo_many_positional_options_error@program_options@boost@@@boost@@QEAA@AEBVtoo_many_positional_options_error@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016470",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Verror@program_options@boost@@@boost@@QEAA@AEBVerror@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016470",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vreading_file@program_options@boost@@@boost@@QEAA@AEBVreading_file@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016470",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vlogic_error@std@@@boost@@QEAA@AEBVlogic_error@std@@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016470",
+      "program_function": "wrapexcept<>",
+      "score": 40.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?append@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAAAEAV12@QEB_W_K@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400164F0",
+      "program_function": "append",
+      "score": 207.72000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vlogic_error@std@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016570",
+      "program_function": "clone",
+      "score": 169.1199951171875,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?from_8_bit@boost@@YA?AV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@3@AEBV?$codecvt@_WDU_Mbstatet@@@3@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400166D0",
+      "program_function": "from_8_bit",
+      "score": 171.47000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?from_utf8@boost@@YA?AV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@3@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016860",
+      "program_function": "from_utf8",
+      "score": 210.33999633789062,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vinvalid_command_line_style@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016880",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vbad_function_call@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016880",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vtoo_many_positional_options_error@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016880",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Verror@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016880",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vreading_file@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016880",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vlogic_error@std@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016880",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Uescaped_list_error@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016880",
+      "program_function": "rethrow",
+      "score": 53.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?to_8_bit@boost@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@3@AEBV?$codecvt@_WDU_Mbstatet@@@3@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400168B0",
+      "program_function": "to_8_bit",
+      "score": 188.47000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?to_local_8_bit@boost@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@3@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016A50",
+      "program_function": "to_local_8_bit",
+      "score": 283.70001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Find@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@?$_Tree@V?$_Tmap_traits@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@Vvariable_value@program_options@boost@@U?$less@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@V?$allocator@U?$pair@$$CBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@Vvariable_value@program_options@boost@@@std@@@2@$0A@@std@@@std@@AEBAPEAU?$_Tree_node@U?$pair@$$CBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@Vvariable_value@program_options@boost@@@std@@PEAX@1@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016AC0",
+      "program_function": "_Find<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>",
+      "score": 47.060001373291016,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vunknown_option@program_options@boost@@@boost@@YAXAEBVunknown_option@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016B50",
+      "program_function": "throw_exception<>",
+      "score": 33.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vrequired_option@program_options@boost@@@boost@@YAXAEBVrequired_option@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016B50",
+      "program_function": "throw_exception<>",
+      "score": 33.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vmultiple_values@program_options@boost@@@boost@@YAXAEBVmultiple_values@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016B50",
+      "program_function": "throw_exception<>",
+      "score": 33.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vmultiple_occurrences@program_options@boost@@@boost@@YAXAEBVmultiple_occurrences@program_options@0@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016B50",
+      "program_function": "throw_exception<>",
+      "score": 33.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vunknown_option@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016B80",
+      "program_function": "wrapexcept<>",
+      "score": 90.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vrequired_option@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016B80",
+      "program_function": "wrapexcept<>",
+      "score": 90.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vmultiple_occurrences@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016B80",
+      "program_function": "wrapexcept<>",
+      "score": 90.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vmultiple_values@program_options@boost@@@boost@@QEAA@AEBU01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016B80",
+      "program_function": "wrapexcept<>",
+      "score": 90.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vunknown_option@program_options@boost@@@boost@@QEAA@AEBVunknown_option@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016C50",
+      "program_function": "wrapexcept<>",
+      "score": 39.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vrequired_option@program_options@boost@@@boost@@QEAA@AEBVrequired_option@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016C50",
+      "program_function": "wrapexcept<>",
+      "score": 39.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vmultiple_occurrences@program_options@boost@@@boost@@QEAA@AEBVmultiple_occurrences@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016C50",
+      "program_function": "wrapexcept<>",
+      "score": 39.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$wrapexcept@Vmultiple_values@program_options@boost@@@boost@@QEAA@AEBVmultiple_values@program_options@1@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016C50",
+      "program_function": "wrapexcept<>",
+      "score": 39.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0variables_map@program_options@boost@@QEAA@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016EA0",
+      "program_function": "variables_map",
+      "score": 69.44000244140625,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??4?$shared_ptr@$$CBVvalue_semantic@program_options@boost@@@boost@@QEAAAEAV01@$$QEAV01@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140016F90",
+      "program_function": "operator=",
+      "score": 74.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??4variable_value@program_options@boost@@QEAAAEAV012@$$QEAV012@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140017010",
+      "program_function": "operator=",
+      "score": 68.69999694824219,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??Aabstract_variables_map@program_options@boost@@QEBAAEBVvariable_value@12@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400171A0",
+      "program_function": "operator[]",
+      "score": 116.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gvariables_map@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140017220",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 53.41999816894531,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vunknown_option@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140017350",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vrequired_option@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140017350",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vmultiple_occurrences@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140017350",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$wrapexcept@Vmultiple_values@program_options@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140017350",
+      "program_function": "clone",
+      "score": 123.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get@variables_map@program_options@boost@@EEBAAEBVvariable_value@23@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400173B0",
+      "program_function": "get",
+      "score": 51.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vunknown_option@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140017620",
+      "program_function": "rethrow",
+      "score": 56.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vrequired_option@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140017620",
+      "program_function": "rethrow",
+      "score": 56.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vmultiple_values@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140017620",
+      "program_function": "rethrow",
+      "score": 56.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$wrapexcept@Vmultiple_occurrences@program_options@boost@@@boost@@UEBAXXZ",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140017620",
+      "program_function": "rethrow",
+      "score": 56.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?name_for_position@positional_options_description@program_options@boost@@QEBAAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@I@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400189A0",
+      "program_function": "name_for_position",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gutf8_codecvt_facet@detail@program_options@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140018A20",
+      "program_function": "FUN_140018a20",
+      "score": 20.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?do_in@utf8_codecvt_facet@detail@program_options@boost@@MEBAHAEAU_Mbstatet@@PEBD1AEAPEBDPEA_W3AEAPEA_W@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140018A70",
+      "program_function": "do_in",
+      "score": 125.44999694824219,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?do_length@utf8_codecvt_facet@detail@program_options@boost@@MEBAHAEAU_Mbstatet@@PEBD1_K@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140018BE0",
+      "program_function": "do_length",
+      "score": 53.04999923706055,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?do_out@utf8_codecvt_facet@detail@program_options@boost@@MEBAHAEAU_Mbstatet@@PEB_W1AEAPEB_WPEAD3AEAPEAD@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x0000000140018C80",
+      "program_function": "do_out",
+      "score": 116.0999984741211,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@Voption_description@program_options@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400194F0",
+      "program_function": "FUN_1400194f0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@$$CBVvalue_semantic@program_options@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400194F0",
+      "program_function": "FUN_1400194f0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@Voptions_description@program_options@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Program_options",
+      "program_entry_point": "0x00000001400194F0",
+      "program_function": "FUN_1400194f0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    }
+  ],
+  "expected_match_count": 12,
+  "expected_matches": {
+    "options_description": [
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n void __cdecl std::_Destroy_range<class std::allocator<class boost::shared_ptr<class boost::program_options::option_description> > >(class boost::shared_ptr<class boost::program_options::option_description> * __ptr64,class boost::shared_ptr<class boost::program_options::option_description> * __ptr64 const,class std::allocator<class boost::shared_ptr<class boost::program_options::option_description> > & __ptr64)\n void __cdecl std::_Destroy_range<class std::allocator<class boost::shared_ptr<class boost::program_options::options_description> > >(class boost::shared_ptr<class boost::program_options::options_description> * __ptr64,class boost::shared_ptr<class boost::program_options::options_description> * __ptr64 const,class std::allocator<class boost::shared_ptr<class boost::program_options::options_description> > & __ptr64)\n\nLibrary: Boost.Program_options 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140001430",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ??$_Destroy_range@V?$allocator@V?$shared_ptr@Voption_description@program_options@boost@@@boost@@@std@@@std@@YAXPEAV?$shared_ptr@Voption_description@program_options@boost@@@boost@@QEAV12@AEAV?$allocator@V?$shared_ptr@Voption_description@program_options@boost@@@boost@@@0@@Z",
+        "name": "_Destroy_range<>",
+        "offset": 5368714288
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Different Base Names\n public: __cdecl boost::spirit::classic::action<class boost::spirit::classic::chset<wchar_t>,struct boost::archive::xml::append_char<class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > > >::~action<class boost::spirit::classic::chset<wchar_t>,struct boost::archive::xml::append_char<class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > > >(void) __ptr64\n public: __cdecl boost::spirit::classic::chset<char>::~chset<char>(void) __ptr64\n public: __cdecl boost::spirit::classic::chset<wchar_t>::~chset<wchar_t>(void) __ptr64\n public: __cdecl boost::spirit::classic::kleene_star<class boost::spirit::classic::chset<char> >::~kleene_star<class boost::spirit::classic::chset<char> >(void) __ptr64\n  16 names - too many to list\n\nLibraries: Boost.Iostreams 1.86.0 msvc-x86_64-release, Boost.Program_options 1.86.0 msvc-x86_64-release, Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140004510",
+        "fid_bookmark": "Library Function - Multiple Matches, Different  ??1?$action@V?$chset@_W@classic@spirit@boost@@U?$append_char@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@xml@archive@4@@classic@spirit@boost@@QEAA@XZ",
+        "name": "FID_conflict:~action<boost::spirit::classic::chset<wchar_t>,boost::archive::xml::append_char<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>",
+        "offset": 5368726800
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n class boost::shared_ptr<class boost::program_options::option_description> * __ptr64 __cdecl std::_Uninitialized_move<class boost::shared_ptr<class boost::program_options::option_description> * __ptr64,class std::allocator<class boost::shared_ptr<class boost::program_options::option_description> > >(class boost::shared_ptr<class boost::program_options::option_description> * __ptr64 const,class boost::shared_ptr<class boost::program_options::option_description> * __ptr64 const,class boost::shared_ptr<class boost::program_options::option_description> * __ptr64,class std::allocator<class boost::shared_ptr<class boost::program_options::option_description> > & __ptr64)\n class boost::shared_ptr<class boost::program_options::options_description> * __ptr64 __cdecl std::_Uninitialized_move<class boost::shared_ptr<class boost::program_options::options_description> * __ptr64,class std::allocator<class boost::shared_ptr<class boost::program_options::options_description> > >(class boost::shared_ptr<class boost::program_options::options_description> * __ptr64 const,class boost::shared_ptr<class boost::program_options::options_description> * __ptr64 const,class boost::shared_ptr<class boost::program_options::options_description> * __ptr64,class std::allocator<class boost::shared_ptr<class boost::program_options::options_description> > & __ptr64)\n\nLibrary: Boost.Program_options 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014000C670",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ??$_Uninitialized_move@PEAV?$shared_ptr@Voption_description@program_options@boost@@@boost@@V?$allocator@V?$shared_ptr@Voption_description@program_options@boost@@@boost@@@std@@@std@@YAPEAV?$shared_ptr@Voption_description@program_options@boost@@@boost@@QEAV12@0PEAV12@AEAV?$allocator@V?$shared_ptr@Voption_description@program_options@boost@@@boost@@@0@@Z",
+        "name": "_Uninitialized_move<>",
+        "offset": 5368759920
+      },
+      {
+        "comment": "Library Function - Single Match\n public: __cdecl boost::program_options::options_description::options_description(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const & __ptr64,unsigned int,unsigned int) __ptr64\n\nLibrary: Boost.Program_options 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014000D090",
+        "fid_bookmark": "Library Function - Single Match,  ??0options_description@program_options@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@II@Z",
+        "name": "options_description",
+        "offset": 5368762512
+      },
+      {
+        "comment": "Library Function - Single Match\n public: class boost::program_options::options_description_easy_init & __ptr64 __cdecl boost::program_options::options_description_easy_init::operator()(char const * __ptr64,class boost::program_options::value_semantic const * __ptr64,char const * __ptr64) __ptr64\n\nLibrary: Boost.Program_options 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014000D3E0",
+        "fid_bookmark": "Library Function - Single Match,  ??Roptions_description_easy_init@program_options@boost@@QEAAAEAV012@PEBDPEBVvalue_semantic@12@0@Z",
+        "name": "operator()",
+        "offset": 5368763360
+      },
+      {
+        "comment": "Library Function - Single Match\n public: void __cdecl boost::program_options::options_description::add(class boost::shared_ptr<class boost::program_options::option_description>) __ptr64\n\nLibrary: Boost.Program_options 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014000D840",
+        "fid_bookmark": "Library Function - Single Match,  ?add@options_description@program_options@boost@@QEAAXV?$shared_ptr@Voption_description@program_options@boost@@@3@@Z",
+        "name": "add",
+        "offset": 5368764480
+      },
+      {
+        "comment": "Library Function - Single Match\n public: class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const & __ptr64 __cdecl boost::program_options::positional_options_description::name_for_position(unsigned int)const __ptr64\n\nLibrary: Boost.Program_options 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x00000001400189A0",
+        "fid_bookmark": "Library Function - Single Match,  ?name_for_position@positional_options_description@program_options@boost@@QEBAAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@I@Z",
+        "name": "name_for_position",
+        "offset": 5368809888
+      }
+    ],
+    "store": [
+      {
+        "comment": "Library Function - Single Match\n void __cdecl boost::program_options::store(class boost::program_options::basic_parsed_options<char> const & __ptr64,class boost::program_options::variables_map & __ptr64,bool)\n\nLibrary: Boost.Program_options 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140017660",
+        "fid_bookmark": "Library Function - Single Match,  ?store@program_options@boost@@YAXAEBV?$basic_parsed_options@D@12@AEAVvariables_map@12@_N@Z",
+        "name": "store",
+        "offset": 5368804960
+      }
+    ],
+    "variables_map": [
+      {
+        "comment": "Library Function - Single Match\n public: __cdecl boost::program_options::variables_map::variables_map(void) __ptr64\n\nLibrary: Boost.Program_options 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140016EA0",
+        "fid_bookmark": "Library Function - Single Match,  ??0variables_map@program_options@boost@@QEAA@XZ",
+        "name": "variables_map",
+        "offset": 5368802976
+      },
+      {
+        "comment": "Library Function - Single Match\n public: class boost::program_options::variable_value const & __ptr64 __cdecl boost::program_options::abstract_variables_map::operator[](class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const & __ptr64)const __ptr64\n\nLibrary: Boost.Program_options 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x00000001400171A0",
+        "fid_bookmark": "Library Function - Single Match,  ??Aabstract_variables_map@program_options@boost@@QEBAAEBVvariable_value@12@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+        "name": "operator[]",
+        "offset": 5368803744
+      },
+      {
+        "comment": "Library Function - Single Match\n public: virtual void * __ptr64 __cdecl boost::program_options::variables_map::`scalar deleting destructor'(unsigned int) __ptr64\n\nLibrary: Boost.Program_options 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140017220",
+        "fid_bookmark": "Library Function - Single Match,  ??_Gvariables_map@program_options@boost@@UEAAPEAXI@Z",
+        "name": "`scalar_deleting_destructor'",
+        "offset": 5368803872
+      },
+      {
+        "comment": "Library Function - Single Match\n private: virtual class boost::program_options::variable_value const & __ptr64 __cdecl boost::program_options::variables_map::get(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const & __ptr64)const __ptr64\n\nLibrary: Boost.Program_options 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x00000001400173B0",
+        "fid_bookmark": "Library Function - Single Match,  ?get@variables_map@program_options@boost@@EEBAAEBVvariable_value@23@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+        "name": "get",
+        "offset": 5368804272
+      }
+    ]
+  },
+  "fidb": {
+    "compiler_spec_filter": "windows",
+    "expected_function_records": [
+      "options_description",
+      "store",
+      "variables_map"
+    ],
+    "fidb_path": "FIDB/libraries/boost/program_options/1.86.0/boost-program_options-1.86.0-msvc-x86_64-release.fidb",
+    "function_record_count": 731,
+    "language_id": "x86:LE:64:default",
+    "library_count": 1,
+    "library_family": "Boost.Program_options",
+    "library_variant": "msvc-x86_64-release",
+    "library_version": "1.86.0",
+    "readable": true,
+    "source_language_filter": ""
+  },
+  "function_count": 586,
+  "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
+  "ghidra_version": "12.1.3",
+  "language_id": "x86:LE:64:default",
+  "library": "Boost.Program_options",
+  "library_family": "Boost.Program_options",
+  "linkage": "static",
+  "negative_control": {
+    "false_zlib_matches": [],
+    "map_offset": 5368741088,
+    "observed_rows": [
+      {
+        "comment": "",
+        "entry_point": "0x0000000140007CE0",
+        "fid_bookmark": "",
+        "name": "FUN_140007ce0",
+        "offset": 5368741088
+      }
+    ],
+    "symbol": "non_boost_control"
+  },
+  "pyghidra_version": "3.1.0",
+  "query_api": "Language compatibility overload",
+  "source_language_declared": "C++",
+  "stage": "verify",
+  "status": "PASS"
+}

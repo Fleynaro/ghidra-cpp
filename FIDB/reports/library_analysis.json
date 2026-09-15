@@ -1,4 +1,8 @@
 {
+  "architecture": "x86-64",
+  "compiler": "MSVC",
+  "compiler_version": "19.34.31937 for x64",
+  "configuration": "Release",
   "expected_functions": [
     "adler32_z",
     "compress",
@@ -8,6 +12,8 @@
   "ghidra_compiler_spec": "windows",
   "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
   "ghidra_language_id": "x86:LE:64:default",
+  "library": "zlib",
+  "linkage": "static",
   "object_programs": [
     {
       "compiler_spec": "windows",

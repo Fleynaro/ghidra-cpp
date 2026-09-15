@@ -8,6 +8,8 @@
 - PyGhidra: `3.1.0`
 - Language: `x86:LE:64:default`
 - Compiler specification: `windows`
+- Compiler: `` ``
+- Build: `` `` ``
 - FIDB: `FIDB/libraries/zlib/1.3.1/zlib-1.3.1-msvc-x86_64-release.fidb`
 - FIDB records: `123`
 
@@ -16,7 +18,7 @@
 | zlib function | Direct FidService match | Resulting Ghidra name | Score |
 | --- | --- | --- | ---: |
 | `adler32_z` | `1` | `adler32_z` | `251.25` |
-| `compress` | `1` | `compress` | `897.76` |
+| `compress` | `3` | `compress, compress_block, uncompress` | `897.76` |
 | `crc32_z` | `1` | `crc32_z` | `282.00` |
 | `uncompress` | `1` | `uncompress` | `155.79` |
 

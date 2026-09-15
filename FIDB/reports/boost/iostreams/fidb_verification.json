@@ -1,0 +1,648 @@
+{
+  "architecture": "x86-64",
+  "compiler": "MSVC",
+  "compiler_spec": "windows",
+  "compiler_version": "19.34.31937 for x64",
+  "configuration": "Release",
+  "consumer": "FIDB/build/boost_consumers/iostreams/iostreams_detection.exe",
+  "direct_library_matches": [
+    {
+      "fid_name": "??$_Construct@$00PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXQEBD_K@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140001240",
+      "program_function": "_Construct<1,char_const*___ptr64>",
+      "score": 102.74000549316406,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Vfailure@ios_base@std@@@boost@@YAXAEBVfailure@ios_base@std@@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140001A70",
+      "program_function": "throw_exception<std::ios_base::failure>",
+      "score": 98.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0exception@boost@@QEAA@AEBV01@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x00000001400025F0",
+      "program_function": "exception",
+      "score": 35.04999923706055,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$shared_ptr@Ufile_descriptor_impl@detail@iostreams@boost@@@boost@@QEAA@XZ",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140002890",
+      "program_function": "FID_conflict:~action<boost::spirit::classic::chset<wchar_t>,boost::archive::xml::append_char<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>",
+      "score": 30.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1file_descriptor@iostreams@boost@@QEAA@XZ",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140002890",
+      "program_function": "FID_conflict:~action<boost::spirit::classic::chset<wchar_t>,boost::archive::xml::append_char<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>",
+      "score": 30.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$refcount_ptr@Uerror_info_container@exception_detail@boost@@@exception_detail@boost@@QEAA@XZ",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140002A30",
+      "program_function": "~refcount_ptr<boost::exception_detail::error_info_container>",
+      "score": 15.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEAA@XZ",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140002B40",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1shared_count@detail@boost@@QEAA@XZ",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140002D30",
+      "program_function": "~shared_count",
+      "score": 29.3700008392334,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@Ufile_descriptor_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140002EE0",
+      "program_function": "FUN_140002ee0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@Vmapped_file_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140002EE0",
+      "program_function": "FUN_140002ee0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140003050",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gclone_base@exception_detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x00000001400031A0",
+      "program_function": "FUN_1400031a0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gsp_counted_base@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x00000001400031D0",
+      "program_function": "FUN_1400031d0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Xlen_string@std@@YAXXZ",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140003410",
+      "program_function": "_Xlen_string",
+      "score": 140.6699981689453,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140003500",
+      "program_function": "append",
+      "score": 48.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?copy_boost_exception@exception_detail@boost@@YAXPEAVexception@2@PEBV32@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140003C10",
+      "program_function": "copy_boost_exception",
+      "score": 67.08999633789062,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?equivalent@error_category@std@@UEBA_NHAEBVerror_condition@2@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140003D80",
+      "program_function": "equivalent",
+      "score": 28.700000762939453,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?make_error_code@std@@YA?AVerror_code@1@W4io_errc@1@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140004610",
+      "program_function": "make_error_code",
+      "score": 92.66999816894531,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?message@_Iostream_error_category2@std@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@H@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140004630",
+      "program_function": "message",
+      "score": 100.74000549316406,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?sp_enable_shared_from_this@detail@boost@@YAXZZ",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140005820",
+      "program_function": "sp_enable_shared_from_this",
+      "score": 71.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$?0Vmapped_file_impl@detail@iostreams@boost@@@shared_count@detail@boost@@QEAA@PEAVmapped_file_impl@1iostreams@2@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x00000001400064A0",
+      "program_function": "shared_count<boost::iostreams::detail::mapped_file_impl>",
+      "score": 91.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$checked_delete@Vmapped_file_impl@detail@iostreams@boost@@@boost@@YAXPEAVmapped_file_impl@detail@iostreams@0@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x00000001400067A0",
+      "program_function": "checked_delete<boost::iostreams::detail::mapped_file_impl>",
+      "score": 21.010000228881836,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0runtime_error@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x00000001400067D0",
+      "program_function": "FUN_1400067d0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x00000001400067D0",
+      "program_function": "FUN_1400067d0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x00000001400067D0",
+      "program_function": "FUN_1400067d0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_numeric_cast@numeric@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x00000001400067D0",
+      "program_function": "FUN_1400067d0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0negative_overflow@numeric@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x00000001400067D0",
+      "program_function": "FUN_1400067d0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_cast@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x00000001400067D0",
+      "program_function": "FUN_1400067d0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0positive_overflow@numeric@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x00000001400067D0",
+      "program_function": "FUN_1400067d0",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0mapped_file_impl@detail@iostreams@boost@@QEAA@XZ",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006810",
+      "program_function": "mapped_file_impl",
+      "score": 101.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0runtime_error@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006880",
+      "program_function": "FUN_140006880",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006880",
+      "program_function": "FUN_140006880",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006880",
+      "program_function": "FUN_140006880",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_numeric_cast@numeric@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006880",
+      "program_function": "FUN_140006880",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0negative_overflow@numeric@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006880",
+      "program_function": "FUN_140006880",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_cast@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006880",
+      "program_function": "FUN_140006880",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0positive_overflow@numeric@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006880",
+      "program_function": "FUN_140006880",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0negative_overflow@numeric@boost@@QEAA@XZ",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x00000001400068C0",
+      "program_function": "negative_overflow",
+      "score": 89.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1mapped_file_impl@detail@iostreams@boost@@QEAA@XZ",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x00000001400068F0",
+      "program_function": "~mapped_file_impl",
+      "score": 65.3499984741211,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??4path@detail@iostreams@boost@@QEAAAEAV0123@AEBV0123@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006950",
+      "program_function": "operator=",
+      "score": 239.8000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_alloc@std@@UEAAPEAXI@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006AC0",
+      "program_function": "FUN_140006ac0",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gexception@std@@UEAAPEAXI@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006AC0",
+      "program_function": "FUN_140006ac0",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gruntime_error@std@@UEAAPEAXI@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006AC0",
+      "program_function": "FUN_140006ac0",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_array_new_length@std@@UEAAPEAXI@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006AC0",
+      "program_function": "FUN_140006ac0",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gpositive_overflow@numeric@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006AC0",
+      "program_function": "FUN_140006ac0",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_numeric_cast@numeric@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006AC0",
+      "program_function": "FUN_140006ac0",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gnegative_overflow@numeric@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006AC0",
+      "program_function": "FUN_140006ac0",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_cast@std@@UEAAPEAXI@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006AC0",
+      "program_function": "FUN_140006ac0",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?assign@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006B10",
+      "program_function": "assign",
+      "score": 132.70999145507812,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?cleanup_and_throw@mapped_file_impl@detail@iostreams@boost@@AEAAXPEBD@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006B80",
+      "program_function": "cleanup_and_throw",
+      "score": 216.69000244140625,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?close@mapped_file_impl@detail@iostreams@boost@@QEAAXXZ",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006D60",
+      "program_function": "close",
+      "score": 50.369998931884766,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?dispose@?$sp_counted_impl_p@Vmapped_file_impl@detail@iostreams@boost@@@detail@boost@@UEAAXXZ",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006E00",
+      "program_function": "dispose",
+      "score": 25.350000381469727,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?init@mapped_file_source@iostreams@boost@@AEAAXXZ",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006E30",
+      "program_function": "init",
+      "score": 137.79000854492188,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?map_file@mapped_file_impl@detail@iostreams@boost@@AEAAXAEAU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006F40",
+      "program_function": "map_file",
+      "score": 181.35000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?open@mapped_file_impl@detail@iostreams@boost@@QEAAXU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140006F80",
+      "program_function": "open",
+      "score": 354.1499938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?open_file@mapped_file_impl@detail@iostreams@boost@@AEAAXU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140007170",
+      "program_function": "open_file",
+      "score": 253.86000061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?open_impl@mapped_file_source@iostreams@boost@@AEAAXAEBU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@23@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140007380",
+      "program_function": "open_impl",
+      "score": 98.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?throw_system_failure@detail@iostreams@boost@@YAXPEBD@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140007750",
+      "program_function": "throw_system_failure",
+      "score": 57.34000015258789,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?try_map_file@mapped_file_impl@detail@iostreams@boost@@AEAAXU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140007770",
+      "program_function": "try_map_file",
+      "score": 137.77999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@Ufile_descriptor_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140007AF0",
+      "program_function": "FUN_140007af0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@Vmapped_file_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Iostreams",
+      "program_entry_point": "0x0000000140007AF0",
+      "program_function": "FUN_140007af0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    }
+  ],
+  "expected_match_count": 14,
+  "expected_matches": {
+    "file_descriptor": [
+      {
+        "comment": "Library Function - Multiple Matches With Different Base Names\n public: __cdecl boost::spirit::classic::action<class boost::spirit::classic::chset<wchar_t>,struct boost::archive::xml::append_char<class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > > >::~action<class boost::spirit::classic::chset<wchar_t>,struct boost::archive::xml::append_char<class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > > >(void) __ptr64\n public: __cdecl boost::spirit::classic::chset<char>::~chset<char>(void) __ptr64\n public: __cdecl boost::spirit::classic::chset<wchar_t>::~chset<wchar_t>(void) __ptr64\n public: __cdecl boost::spirit::classic::kleene_star<class boost::spirit::classic::chset<char> >::~kleene_star<class boost::spirit::classic::chset<char> >(void) __ptr64\n  16 names - too many to list\n\nLibraries: Boost.Iostreams 1.86.0 msvc-x86_64-release, Boost.Program_options 1.86.0 msvc-x86_64-release, Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140002890",
+        "fid_bookmark": "Library Function - Multiple Matches, Different  ??1?$action@V?$chset@_W@classic@spirit@boost@@U?$append_char@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@xml@archive@4@@classic@spirit@boost@@QEAA@XZ",
+        "name": "FID_conflict:~action<boost::spirit::classic::chset<wchar_t>,boost::archive::xml::append_char<std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>_>",
+        "offset": 5368719504
+      }
+    ],
+    "mapped_file_impl": [
+      {
+        "comment": "Library Function - Single Match\n public: __cdecl boost::detail::shared_count::shared_count<class boost::iostreams::detail::mapped_file_impl>(class boost::iostreams::detail::mapped_file_impl * __ptr64) __ptr64\n\nLibrary: Boost.Iostreams 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x00000001400064A0",
+        "fid_bookmark": "Library Function - Single Match,  ??$?0Vmapped_file_impl@detail@iostreams@boost@@@shared_count@detail@boost@@QEAA@PEAVmapped_file_impl@1iostreams@2@@Z",
+        "name": "shared_count<boost::iostreams::detail::mapped_file_impl>",
+        "offset": 5368734880
+      },
+      {
+        "comment": "Library Function - Single Match\n void __cdecl boost::checked_delete<class boost::iostreams::detail::mapped_file_impl>(class boost::iostreams::detail::mapped_file_impl * __ptr64)\n\nLibrary: Boost.Iostreams 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x00000001400067A0",
+        "fid_bookmark": "Library Function - Single Match,  ??$checked_delete@Vmapped_file_impl@detail@iostreams@boost@@@boost@@YAXPEAVmapped_file_impl@detail@iostreams@0@@Z",
+        "name": "checked_delete<boost::iostreams::detail::mapped_file_impl>",
+        "offset": 5368735648
+      },
+      {
+        "comment": "Library Function - Single Match\n public: __cdecl boost::iostreams::detail::mapped_file_impl::mapped_file_impl(void) __ptr64\n\nLibrary: Boost.Iostreams 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140006810",
+        "fid_bookmark": "Library Function - Single Match,  ??0mapped_file_impl@detail@iostreams@boost@@QEAA@XZ",
+        "name": "mapped_file_impl",
+        "offset": 5368735760
+      },
+      {
+        "comment": "Library Function - Single Match\n public: __cdecl boost::iostreams::detail::mapped_file_impl::~mapped_file_impl(void) __ptr64\n\nLibrary: Boost.Iostreams 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x00000001400068F0",
+        "fid_bookmark": "Library Function - Single Match,  ??1mapped_file_impl@detail@iostreams@boost@@QEAA@XZ",
+        "name": "~mapped_file_impl",
+        "offset": 5368735984
+      },
+      {
+        "comment": "Library Function - Single Match\n private: void __cdecl boost::iostreams::detail::mapped_file_impl::cleanup_and_throw(char const * __ptr64) __ptr64\n\nLibrary: Boost.Iostreams 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140006B80",
+        "fid_bookmark": "Library Function - Single Match,  ?cleanup_and_throw@mapped_file_impl@detail@iostreams@boost@@AEAAXPEBD@Z",
+        "name": "cleanup_and_throw",
+        "offset": 5368736640
+      },
+      {
+        "comment": "Library Function - Single Match\n public: void __cdecl boost::iostreams::detail::mapped_file_impl::close(void) __ptr64\n\nLibrary: Boost.Iostreams 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140006D60",
+        "fid_bookmark": "Library Function - Single Match,  ?close@mapped_file_impl@detail@iostreams@boost@@QEAAXXZ",
+        "name": "close",
+        "offset": 5368737120
+      },
+      {
+        "comment": "Library Function - Single Match\n public: virtual void __cdecl boost::detail::sp_counted_impl_p<class boost::iostreams::detail::mapped_file_impl>::dispose(void) __ptr64\n\nLibrary: Boost.Iostreams 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140006E00",
+        "fid_bookmark": "Library Function - Single Match,  ?dispose@?$sp_counted_impl_p@Vmapped_file_impl@detail@iostreams@boost@@@detail@boost@@UEAAXXZ",
+        "name": "dispose",
+        "offset": 5368737280
+      },
+      {
+        "comment": "Library Function - Single Match\n private: void __cdecl boost::iostreams::detail::mapped_file_impl::map_file(struct boost::iostreams::basic_mapped_file_params<class boost::iostreams::detail::path> & __ptr64) __ptr64\n\nLibrary: Boost.Iostreams 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140006F40",
+        "fid_bookmark": "Library Function - Single Match,  ?map_file@mapped_file_impl@detail@iostreams@boost@@AEAAXAEAU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+        "name": "map_file",
+        "offset": 5368737600
+      },
+      {
+        "comment": "Library Function - Single Match\n public: void __cdecl boost::iostreams::detail::mapped_file_impl::open(struct boost::iostreams::basic_mapped_file_params<class boost::iostreams::detail::path>) __ptr64\n\nLibrary: Boost.Iostreams 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140006F80",
+        "fid_bookmark": "Library Function - Single Match,  ?open@mapped_file_impl@detail@iostreams@boost@@QEAAXU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+        "name": "open",
+        "offset": 5368737664
+      },
+      {
+        "comment": "Library Function - Single Match\n private: void __cdecl boost::iostreams::detail::mapped_file_impl::open_file(struct boost::iostreams::basic_mapped_file_params<class boost::iostreams::detail::path>) __ptr64\n\nLibrary: Boost.Iostreams 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140007170",
+        "fid_bookmark": "Library Function - Single Match,  ?open_file@mapped_file_impl@detail@iostreams@boost@@AEAAXU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+        "name": "open_file",
+        "offset": 5368738160
+      },
+      {
+        "comment": "Library Function - Single Match\n private: void __cdecl boost::iostreams::detail::mapped_file_impl::try_map_file(struct boost::iostreams::basic_mapped_file_params<class boost::iostreams::detail::path>) __ptr64\n\nLibrary: Boost.Iostreams 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140007770",
+        "fid_bookmark": "Library Function - Single Match,  ?try_map_file@mapped_file_impl@detail@iostreams@boost@@AEAAXU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+        "name": "try_map_file",
+        "offset": 5368739696
+      }
+    ],
+    "mapped_file_source": [
+      {
+        "comment": "Library Function - Single Match\n private: void __cdecl boost::iostreams::mapped_file_source::init(void) __ptr64\n\nLibrary: Boost.Iostreams 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140006E30",
+        "fid_bookmark": "Library Function - Single Match,  ?init@mapped_file_source@iostreams@boost@@AEAAXXZ",
+        "name": "init",
+        "offset": 5368737328
+      },
+      {
+        "comment": "Library Function - Single Match\n private: void __cdecl boost::iostreams::mapped_file_source::open_impl(struct boost::iostreams::basic_mapped_file_params<class boost::iostreams::detail::path> const & __ptr64) __ptr64\n\nLibrary: Boost.Iostreams 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140007380",
+        "fid_bookmark": "Library Function - Single Match,  ?open_impl@mapped_file_source@iostreams@boost@@AEAAXAEBU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@23@@Z",
+        "name": "open_impl",
+        "offset": 5368738688
+      }
+    ]
+  },
+  "fidb": {
+    "compiler_spec_filter": "windows",
+    "expected_function_records": [
+      "file_descriptor",
+      "mapped_file_impl",
+      "mapped_file_source"
+    ],
+    "fidb_path": "FIDB/libraries/boost/iostreams/1.86.0/boost-iostreams-1.86.0-msvc-x86_64-release.fidb",
+    "function_record_count": 171,
+    "language_id": "x86:LE:64:default",
+    "library_count": 1,
+    "library_family": "Boost.Iostreams",
+    "library_variant": "msvc-x86_64-release",
+    "library_version": "1.86.0",
+    "readable": true,
+    "source_language_filter": ""
+  },
+  "function_count": 313,
+  "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
+  "ghidra_version": "12.1.3",
+  "language_id": "x86:LE:64:default",
+  "library": "Boost.Iostreams",
+  "library_family": "Boost.Iostreams",
+  "linkage": "static",
+  "negative_control": {
+    "false_zlib_matches": [],
+    "map_offset": 5368727344,
+    "observed_rows": [
+      {
+        "comment": "",
+        "entry_point": "0x0000000140004730",
+        "fid_bookmark": "",
+        "name": "FUN_140004730",
+        "offset": 5368727344
+      }
+    ],
+    "symbol": "non_boost_control"
+  },
+  "pyghidra_version": "3.1.0",
+  "query_api": "Language compatibility overload",
+  "source_language_declared": "C++",
+  "stage": "verify",
+  "status": "PASS"
+}

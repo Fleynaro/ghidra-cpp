@@ -1,0 +1,1023 @@
+{
+  "architecture": "x86-64",
+  "compiler": "MSVC",
+  "compiler_spec": "windows",
+  "compiler_version": "19.34.31937 for x64",
+  "configuration": "Release",
+  "consumer": "FIDB/build/boost_consumers/regex/regex_detection.exe",
+  "direct_library_matches": [
+    {
+      "fid_name": "??$_Construct@$00PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXQEBD_K@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400013F0",
+      "program_function": "_Construct<1,char_const*___ptr64>",
+      "score": 170.74000549316406,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Destroy_range@V?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@YAXPEAU?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@QEAU123@AEAV?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@0@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400014B0",
+      "program_function": "_Destroy_range<>",
+      "score": 88.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Destroy_range@V?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@YAXPEAU?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@QEAU123@AEAV?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@0@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400014B0",
+      "program_function": "_Destroy_range<>",
+      "score": 88.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Uninitialized_copy@PEAU?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@PEAU123@V?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@YAPEAU?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@PEAU123@00AEAV?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@0@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400024E0",
+      "program_function": "_Uninitialized_copy<>",
+      "score": 203.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Uninitialized_copy@PEAU?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@PEAU123@V?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@YAPEAU?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@PEAU123@00AEAV?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@0@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400024E0",
+      "program_function": "_Uninitialized_copy<>",
+      "score": 203.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Uninitialized_copy@PEAU?$sub_match@PEBD@boost@@PEAU12@V?$allocator@U?$sub_match@PEBD@boost@@@std@@@std@@YAPEAU?$sub_match@PEBD@boost@@PEAU12@00AEAV?$allocator@U?$sub_match@PEBD@boost@@@0@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140002590",
+      "program_function": "FUN_140002590",
+      "score": 23.350000381469727,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Uninitialized_move@PEAU?$sub_match@PEBD@boost@@V?$allocator@U?$sub_match@PEBD@boost@@@std@@@std@@YAPEAU?$sub_match@PEBD@boost@@QEAU12@0PEAU12@AEAV?$allocator@U?$sub_match@PEBD@boost@@@0@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140002590",
+      "program_function": "FUN_140002590",
+      "score": 23.350000381469727,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Uninitialized_move@PEAU?$sub_match@PEB_W@boost@@V?$allocator@U?$sub_match@PEB_W@boost@@@std@@@std@@YAPEAU?$sub_match@PEB_W@boost@@QEAU12@0PEAU12@AEAV?$allocator@U?$sub_match@PEB_W@boost@@@0@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140002590",
+      "program_function": "FUN_140002590",
+      "score": 23.350000381469727,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Uninitialized_copy@PEAU?$sub_match@PEB_W@boost@@PEAU12@V?$allocator@U?$sub_match@PEB_W@boost@@@std@@@std@@YAPEAU?$sub_match@PEB_W@boost@@PEAU12@00AEAV?$allocator@U?$sub_match@PEB_W@boost@@@0@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140002590",
+      "program_function": "FUN_140002590",
+      "score": 23.350000381469727,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$distance@V?$_Tree_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$digraph@D@re_detail_500@boost@@@std@@@std@@@std@@@std@@YA_JV?$_Tree_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$digraph@D@re_detail_500@boost@@@std@@@std@@@0@0@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400025E0",
+      "program_function": "distance<>",
+      "score": 40.380001068115234,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$distance@V?$_Tree_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$digraph@_W@re_detail_500@boost@@@std@@@std@@@std@@@std@@YA_JV?$_Tree_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$digraph@_W@re_detail_500@boost@@@std@@@std@@@0@0@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400025E0",
+      "program_function": "distance<>",
+      "score": 40.380001068115234,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$fill@PEAU?$sub_match@PEBD@boost@@U12@@std@@YAXQEAU?$sub_match@PEBD@boost@@0AEBU12@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140002750",
+      "program_function": "fill<>",
+      "score": 17.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$fill@PEAU?$sub_match@PEB_W@boost@@U12@@std@@YAXQEAU?$sub_match@PEB_W@boost@@0AEBU12@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140002750",
+      "program_function": "fill<>",
+      "score": 17.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$hash_value_from_capture_name@PEBD@re_detail_500@boost@@YAHPEBD0@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140002C40",
+      "program_function": "hash_value_from_capture_name<char_const*___ptr64>",
+      "score": 32.36000061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$basic_char_set@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140004B80",
+      "program_function": "basic_char_set<>",
+      "score": 55.7599983215332,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$basic_char_set@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140004B80",
+      "program_function": "basic_char_set<>",
+      "score": 55.7599983215332,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@QEBD@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140004EF0",
+      "program_function": "basic_string<char,std::char_traits<char>,std::allocator<char>_>",
+      "score": 62.02000045776367,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@QEAA@AEBV01@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140005010",
+      "program_function": "match_results<>",
+      "score": 215.8300018310547,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@QEAA@AEBV01@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140005010",
+      "program_function": "match_results<>",
+      "score": 215.8300018310547,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0exception@boost@@QEAA@AEBV01@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400064C0",
+      "program_function": "exception",
+      "score": 35.04999923706055,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$_Temporary_owner@V?$basic_regex_implementation@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@@std@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400069A0",
+      "program_function": "~_Temporary_owner<>",
+      "score": 15.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$_Temporary_owner@V?$basic_regex_implementation@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@@std@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400069A0",
+      "program_function": "~_Temporary_owner<>",
+      "score": 15.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$_Uninitialized_backout_al@V?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140006A30",
+      "program_function": "~_Uninitialized_backout_al<>",
+      "score": 37.34000015258789,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$_Uninitialized_backout_al@V?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140006A30",
+      "program_function": "~_Uninitialized_backout_al<>",
+      "score": 37.34000015258789,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$shared_ptr@V?$basic_regex_implementation@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@@std@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140006B40",
+      "program_function": "~shared_ptr<>",
+      "score": 29.3700008392334,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$shared_ptr@V?$basic_regex_implementation@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@@std@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140006B40",
+      "program_function": "~shared_ptr<>",
+      "score": 29.3700008392334,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140006E00",
+      "program_function": "~match_results<>",
+      "score": 33.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140006E00",
+      "program_function": "~match_results<>",
+      "score": 33.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140006ED0",
+      "program_function": "~perl_matcher<>",
+      "score": 46.02000045776367,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140006ED0",
+      "program_function": "~perl_matcher<>",
+      "score": 46.02000045776367,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140006F10",
+      "program_function": "~recursion_info<>",
+      "score": 34.380001068115234,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140006F10",
+      "program_function": "~recursion_info<>",
+      "score": 34.380001068115234,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$refcount_ptr@Uerror_info_container@exception_detail@boost@@@exception_detail@boost@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140006F70",
+      "program_function": "~refcount_ptr<boost::exception_detail::error_info_container>",
+      "score": 15.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$unique_ptr@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@U?$default_delete@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@std@@@std@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140007130",
+      "program_function": "~unique_ptr<>",
+      "score": 51.380001068115234,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$unique_ptr@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@U?$default_delete@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@std@@@std@@QEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140007130",
+      "program_function": "~unique_ptr<>",
+      "score": 51.380001068115234,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vlogic_error@std@@@boost@@UEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140007360",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vinvalid_argument@std@@@boost@@UEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140007360",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vregex_error@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400073C0",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??4?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@QEAAAEAV01@AEBV01@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140007670",
+      "program_function": "FID_conflict:operator=",
+      "score": 115.74000549316406,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??4?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@QEAAAEAV01@AEBV01@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140007670",
+      "program_function": "FID_conflict:operator=",
+      "score": 115.74000549316406,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??4?$shared_ptr@Vnamed_subexpressions@re_detail_500@boost@@@std@@QEAAAEAV01@AEBV01@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140007700",
+      "program_function": "operator=",
+      "score": 88.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??A?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@QEBAAEBU?$sub_match@PEBD@1@H@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400079A0",
+      "program_function": "FID_conflict:operator[]",
+      "score": 39.380001068115234,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??A?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@QEBAAEBU?$sub_match@PEB_W@1@H@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400079A0",
+      "program_function": "FID_conflict:operator[]",
+      "score": 39.380001068115234,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vinvalid_argument@std@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140007EC0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vlogic_error@std@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140007EC0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vregex_error@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140007F40",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gclone_base@exception_detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140008010",
+      "program_function": "FUN_140008010",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Destroy@?$_Ref_count@V?$basic_regex_implementation@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@@std@@EEAAXXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140008260",
+      "program_function": "Destroy",
+      "score": 16.350000381469727,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Destroy@?$_Ref_count@V?$basic_regex_implementation@_WU?$c_regex_traits@_W@boost@@@re_detail_500@boost@@@std@@EEAAXXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140008260",
+      "program_function": "Destroy",
+      "score": 16.350000381469727,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Insert_node@?$_Tree_val@U?$_Tree_simple_types@U?$digraph@D@re_detail_500@boost@@@std@@@std@@QEAAPEAU?$_Tree_node@U?$digraph@D@re_detail_500@boost@@PEAX@2@U?$_Tree_id@PEAU?$_Tree_node@U?$digraph@D@re_detail_500@boost@@PEAX@std@@@2@QEAU32@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400088D0",
+      "program_function": "Insert_node",
+      "score": 251.05999755859375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Insert_node@?$_Tree_val@U?$_Tree_simple_types@U?$digraph@_W@re_detail_500@boost@@@std@@@std@@QEAAPEAU?$_Tree_node@U?$digraph@_W@re_detail_500@boost@@PEAX@2@U?$_Tree_id@PEAU?$_Tree_node@U?$digraph@_W@re_detail_500@boost@@PEAX@std@@@2@QEAU32@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400088D0",
+      "program_function": "Insert_node",
+      "score": 251.05999755859375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Reallocate_exactly@?$vector@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@AEAAX_K@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140008B90",
+      "program_function": "FID_conflict:_Reallocate_exactly",
+      "score": 83.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Reallocate_exactly@?$vector@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@AEAAX_K@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140008B90",
+      "program_function": "FID_conflict:_Reallocate_exactly",
+      "score": 83.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400097B0",
+      "program_function": "append",
+      "score": 48.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@_KD@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140009840",
+      "program_function": "append",
+      "score": 49.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?append_state@?$basic_regex_creator@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAAPEAUre_syntax_base@23@W4syntax_element_type@23@_K@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014000AF40",
+      "program_function": "append_state",
+      "score": 326.41998291015625,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?copy_boost_exception@exception_detail@boost@@YAXPEAVexception@2@PEBV32@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014000B970",
+      "program_function": "copy_boost_exception",
+      "score": 67.08999633789062,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?extend_stack@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014000E050",
+      "program_function": "extend_stack",
+      "score": 451.7200012207031,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_id@named_subexpressions@re_detail_500@boost@@QEBAHH@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140010480",
+      "program_function": "get_id",
+      "score": 35.70000076293945,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?instance@mem_block_cache@re_detail_500@boost@@SAAEAU123@XZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140010F20",
+      "program_function": "instance",
+      "score": 78.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?lookup_default_collate_name@re_detail_500@boost@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBV34@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400117C0",
+      "program_function": "lookup_default_collate_name",
+      "score": 140.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?match_all_states@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140011950",
+      "program_function": "match_all_states",
+      "score": 122.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?match_all_states@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140011950",
+      "program_function": "match_all_states",
+      "score": 122.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?match_alt@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140011B00",
+      "program_function": "match_alt",
+      "score": 75.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?match_commit@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400121C0",
+      "program_function": "match_commit",
+      "score": 82.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?match_rep@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140013130",
+      "program_function": "match_rep",
+      "score": 216.8800048828125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?match_then@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140013950",
+      "program_function": "match_then",
+      "score": 62.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?match_then@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140013950",
+      "program_function": "match_then",
+      "score": 62.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?match_toggle_case@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400139A0",
+      "program_function": "match_toggle_case",
+      "score": 72.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?match_toggle_case@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400139A0",
+      "program_function": "match_toggle_case",
+      "score": 72.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?match_within_word@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140013B30",
+      "program_function": "match_within_word",
+      "score": 17.350000381469727,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?match_within_word@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140013B30",
+      "program_function": "match_within_word",
+      "score": 17.350000381469727,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?parse@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAAXPEBD0I@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140014020",
+      "program_function": "parse",
+      "score": 637.0899658203125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?parse_all@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140014670",
+      "program_function": "parse_all",
+      "score": 350.17999267578125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?parse_match_any@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x00000001400178C0",
+      "program_function": "parse_match_any",
+      "score": 77.37000274658203,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?pop_back@?$vector@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@QEAAXXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001B9A0",
+      "program_function": "FID_conflict:pop_back",
+      "score": 67.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?pop_back@?$vector@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@QEAAXXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001B9A0",
+      "program_function": "FID_conflict:pop_back",
+      "score": 67.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?push_alt@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXPEBUre_syntax_base@23@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001BA20",
+      "program_function": "push_alt",
+      "score": 224.3800048828125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?push_back@?$vector@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@QEAAX$$QEAU?$recursion_info@V?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@boost@@@re_detail_500@boost@@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001BA80",
+      "program_function": "FID_conflict:push_back",
+      "score": 124.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?push_back@?$vector@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@V?$allocator@U?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@std@@@std@@QEAAX$$QEAU?$recursion_info@V?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@boost@@@re_detail_500@boost@@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001BA80",
+      "program_function": "FID_conflict:push_back",
+      "score": 124.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?push_matched_paren@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXHAEBU?$sub_match@PEBD@3@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001BB00",
+      "program_function": "push_matched_paren",
+      "score": 72.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?push_matched_paren@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXHAEBU?$sub_match@PEB_W@3@@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001BB00",
+      "program_function": "push_matched_paren",
+      "score": 72.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?push_recursion@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXHPEBUre_syntax_base@23@PEAV?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@3@1@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001BB70",
+      "program_function": "push_recursion",
+      "score": 159.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?push_recursion@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAAXHPEBUre_syntax_base@23@PEAV?$match_results@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@@3@1@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001BB70",
+      "program_function": "push_recursion",
+      "score": 159.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?skip_until_paren@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NH_N@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001C450",
+      "program_function": "skip_until_paren",
+      "score": 212.4499969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?skip_until_paren@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_NH_N@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001C450",
+      "program_function": "skip_until_paren",
+      "score": 212.4499969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?unwind@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001D660",
+      "program_function": "unwind",
+      "score": 85.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?unwind@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001D660",
+      "program_function": "unwind",
+      "score": 85.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?unwind_alts@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_N_J@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001D700",
+      "program_function": "unwind_alts",
+      "score": 427.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?unwind_commit@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001DD20",
+      "program_function": "unwind_commit",
+      "score": 104.41000366210938,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?unwind_commit@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001DD20",
+      "program_function": "unwind_commit",
+      "score": 104.41000366210938,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?unwind_extra_block@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001DDD0",
+      "program_function": "unwind_extra_block",
+      "score": 50.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?unwind_extra_block@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001DDD0",
+      "program_function": "unwind_extra_block",
+      "score": 50.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?unwind_recursion_pop@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001E5F0",
+      "program_function": "unwind_recursion_pop",
+      "score": 104.05999755859375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?unwind_recursion_pop@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001E5F0",
+      "program_function": "unwind_recursion_pop",
+      "score": 104.05999755859375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?unwind_then@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001EAF0",
+      "program_function": "unwind_then",
+      "score": 51.37000274658203,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?unwind_then@?$perl_matcher@PEB_WV?$allocator@U?$sub_match@PEB_W@boost@@@std@@U?$c_regex_traits@_W@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001EAF0",
+      "program_function": "unwind_then",
+      "score": 51.37000274658203,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?unwind_until@?$repeater_count@PEBD@re_detail_500@boost@@AEAAPEAV123@HPEAV123@H@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001EB60",
+      "program_function": "unwind_until",
+      "score": 132.3800048828125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?unwind_until@?$repeater_count@PEB_W@re_detail_500@boost@@AEAAPEAV123@HPEAV123@H@Z",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x000000014001EB60",
+      "program_function": "unwind_until",
+      "score": 132.3800048828125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??__Fblock_cache@?1??instance@mem_block_cache@re_detail_500@boost@@SAAEAU123@XZ@YAXXZ",
+      "library": "Boost.Regex",
+      "program_entry_point": "0x0000000140020A30",
+      "program_function": "`dynamic_atexit_destructor_for_'block_cache''",
+      "score": 21.360000610351562,
+      "version": "1.86.0"
+    }
+  ],
+  "expected_match_count": 23,
+  "expected_matches": {
+    "match_all_states": [
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: bool __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::match_all_states(void) __ptr64\n private: bool __cdecl boost::re_detail_500::perl_matcher<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> >,struct boost::c_regex_traits<wchar_t> >::match_all_states(void) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140011950",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?match_all_states@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+        "name": "match_all_states",
+        "offset": 5368781136
+      }
+    ],
+    "parse": [
+      {
+        "comment": "Library Function - Single Match\n public: void __cdecl boost::re_detail_500::basic_regex_parser<char,struct boost::c_regex_traits<char> >::parse(char const * __ptr64,char const * __ptr64,unsigned int) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140014020",
+        "fid_bookmark": "Library Function - Single Match,  ?parse@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAAXPEBD0I@Z",
+        "name": "parse",
+        "offset": 5368791072
+      },
+      {
+        "comment": "Library Function - Single Match\n public: bool __cdecl boost::re_detail_500::basic_regex_parser<char,struct boost::c_regex_traits<char> >::parse_all(void) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140014670",
+        "fid_bookmark": "Library Function - Single Match,  ?parse_all@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+        "name": "parse_all",
+        "offset": 5368792688
+      },
+      {
+        "comment": "Library Function - Single Match\n public: bool __cdecl boost::re_detail_500::basic_regex_parser<char,struct boost::c_regex_traits<char> >::parse_match_any(void) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x00000001400178C0",
+        "fid_bookmark": "Library Function - Single Match,  ?parse_match_any@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_NXZ",
+        "name": "parse_match_any",
+        "offset": 5368805568
+      },
+      {
+        "comment": "Library Function - Single Match\n public: bool __cdecl boost::re_detail_500::basic_regex_parser<char,struct boost::c_regex_traits<char> >::unwind_alts(__int64) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014001D700",
+        "fid_bookmark": "Library Function - Single Match,  ?unwind_alts@?$basic_regex_parser@DU?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA_N_J@Z",
+        "name": "unwind_alts",
+        "offset": 5368829696
+      }
+    ],
+    "perl_matcher": [
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n public: __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::~perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >(void) __ptr64\n public: __cdecl boost::re_detail_500::perl_matcher<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> >,struct boost::c_regex_traits<wchar_t> >::~perl_matcher<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> >,struct boost::c_regex_traits<wchar_t> >(void) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140006ED0",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ??1?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@QEAA@XZ",
+        "name": "~perl_matcher<>",
+        "offset": 5368737488
+      },
+      {
+        "comment": "Library Function - Single Match\n private: void __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::extend_stack(void) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014000E050",
+        "fid_bookmark": "Library Function - Single Match,  ?extend_stack@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXXZ",
+        "name": "extend_stack",
+        "offset": 5368766544
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: bool __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::match_all_states(void) __ptr64\n private: bool __cdecl boost::re_detail_500::perl_matcher<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> >,struct boost::c_regex_traits<wchar_t> >::match_all_states(void) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140011950",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?match_all_states@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+        "name": "match_all_states",
+        "offset": 5368781136
+      },
+      {
+        "comment": "Library Function - Single Match\n private: bool __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::match_alt(void) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140011B00",
+        "fid_bookmark": "Library Function - Single Match,  ?match_alt@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+        "name": "match_alt",
+        "offset": 5368781568
+      },
+      {
+        "comment": "Library Function - Single Match\n private: bool __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::match_commit(void) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x00000001400121C0",
+        "fid_bookmark": "Library Function - Single Match,  ?match_commit@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+        "name": "match_commit",
+        "offset": 5368783296
+      },
+      {
+        "comment": "Library Function - Single Match\n private: bool __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::match_rep(void) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140013130",
+        "fid_bookmark": "Library Function - Single Match,  ?match_rep@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+        "name": "match_rep",
+        "offset": 5368787248
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: bool __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::match_then(void) __ptr64\n private: bool __cdecl boost::re_detail_500::perl_matcher<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> >,struct boost::c_regex_traits<wchar_t> >::match_then(void) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140013950",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?match_then@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+        "name": "match_then",
+        "offset": 5368789328
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: bool __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::match_toggle_case(void) __ptr64\n private: bool __cdecl boost::re_detail_500::perl_matcher<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> >,struct boost::c_regex_traits<wchar_t> >::match_toggle_case(void) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x00000001400139A0",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?match_toggle_case@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+        "name": "match_toggle_case",
+        "offset": 5368789408
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: bool __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::match_within_word(void) __ptr64\n private: bool __cdecl boost::re_detail_500::perl_matcher<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> >,struct boost::c_regex_traits<wchar_t> >::match_within_word(void) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140013B30",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?match_within_word@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NXZ",
+        "name": "match_within_word",
+        "offset": 5368789808
+      },
+      {
+        "comment": "Library Function - Single Match\n private: void __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::push_alt(struct boost::re_detail_500::re_syntax_base const * __ptr64) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014001BA20",
+        "fid_bookmark": "Library Function - Single Match,  ?push_alt@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXPEBUre_syntax_base@23@@Z",
+        "name": "push_alt",
+        "offset": 5368822304
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: void __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::push_matched_paren(int,struct boost::sub_match<char const * __ptr64> const & __ptr64) __ptr64\n private: void __cdecl boost::re_detail_500::perl_matcher<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> >,struct boost::c_regex_traits<wchar_t> >::push_matched_paren(int,struct boost::sub_match<wchar_t const * __ptr64> const & __ptr64) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014001BB00",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?push_matched_paren@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXHAEBU?$sub_match@PEBD@3@@Z",
+        "name": "push_matched_paren",
+        "offset": 5368822528
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: void __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::push_recursion(int,struct boost::re_detail_500::re_syntax_base const * __ptr64,class boost::match_results<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> > > * __ptr64,class boost::match_results<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> > > * __ptr64) __ptr64\n private: void __cdecl boost::re_detail_500::perl_matcher<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> >,struct boost::c_regex_traits<wchar_t> >::push_recursion(int,struct boost::re_detail_500::re_syntax_base const * __ptr64,class boost::match_results<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> > > * __ptr64,class boost::match_results<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> > > * __ptr64) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014001BB70",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?push_recursion@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAAXHPEBUre_syntax_base@23@PEAV?$match_results@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@@3@1@Z",
+        "name": "push_recursion",
+        "offset": 5368822640
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: bool __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::skip_until_paren(int,bool) __ptr64\n private: bool __cdecl boost::re_detail_500::perl_matcher<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> >,struct boost::c_regex_traits<wchar_t> >::skip_until_paren(int,bool) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014001C450",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?skip_until_paren@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_NH_N@Z",
+        "name": "skip_until_paren",
+        "offset": 5368824912
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: bool __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::unwind(bool) __ptr64\n private: bool __cdecl boost::re_detail_500::perl_matcher<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> >,struct boost::c_regex_traits<wchar_t> >::unwind(bool) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014001D660",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?unwind@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+        "name": "unwind",
+        "offset": 5368829536
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: bool __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::unwind_commit(bool) __ptr64\n private: bool __cdecl boost::re_detail_500::perl_matcher<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> >,struct boost::c_regex_traits<wchar_t> >::unwind_commit(bool) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014001DD20",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?unwind_commit@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+        "name": "unwind_commit",
+        "offset": 5368831264
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: bool __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::unwind_extra_block(bool) __ptr64\n private: bool __cdecl boost::re_detail_500::perl_matcher<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> >,struct boost::c_regex_traits<wchar_t> >::unwind_extra_block(bool) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014001DDD0",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?unwind_extra_block@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+        "name": "unwind_extra_block",
+        "offset": 5368831440
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: bool __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::unwind_recursion_pop(bool) __ptr64\n private: bool __cdecl boost::re_detail_500::perl_matcher<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> >,struct boost::c_regex_traits<wchar_t> >::unwind_recursion_pop(bool) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014001E5F0",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?unwind_recursion_pop@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+        "name": "unwind_recursion_pop",
+        "offset": 5368833520
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: bool __cdecl boost::re_detail_500::perl_matcher<char const * __ptr64,class std::allocator<struct boost::sub_match<char const * __ptr64> >,struct boost::c_regex_traits<char> >::unwind_then(bool) __ptr64\n private: bool __cdecl boost::re_detail_500::perl_matcher<wchar_t const * __ptr64,class std::allocator<struct boost::sub_match<wchar_t const * __ptr64> >,struct boost::c_regex_traits<wchar_t> >::unwind_then(bool) __ptr64\n\nLibrary: Boost.Regex 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014001EAF0",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?unwind_then@?$perl_matcher@PEBDV?$allocator@U?$sub_match@PEBD@boost@@@std@@U?$c_regex_traits@D@boost@@@re_detail_500@boost@@AEAA_N_N@Z",
+        "name": "unwind_then",
+        "offset": 5368834800
+      }
+    ]
+  },
+  "fidb": {
+    "compiler_spec_filter": "windows",
+    "expected_function_records": [
+      "match_all_states",
+      "parse",
+      "perl_matcher"
+    ],
+    "fidb_path": "FIDB/libraries/boost/regex/1.86.0/boost-regex-1.86.0-msvc-x86_64-release.fidb",
+    "function_record_count": 520,
+    "language_id": "x86:LE:64:default",
+    "library_count": 1,
+    "library_family": "Boost.Regex",
+    "library_variant": "msvc-x86_64-release",
+    "library_version": "1.86.0",
+    "readable": true,
+    "source_language_filter": ""
+  },
+  "function_count": 435,
+  "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
+  "ghidra_version": "12.1.3",
+  "language_id": "x86:LE:64:default",
+  "library": "Boost.Regex",
+  "library_family": "Boost.Regex",
+  "linkage": "static",
+  "negative_control": {
+    "false_zlib_matches": [],
+    "map_offset": 5368791040,
+    "observed_rows": [
+      {
+        "comment": "",
+        "entry_point": "0x0000000140014000",
+        "fid_bookmark": "",
+        "name": "FUN_140014000",
+        "offset": 5368791040
+      }
+    ],
+    "symbol": "non_boost_control"
+  },
+  "pyghidra_version": "3.1.0",
+  "query_api": "Language compatibility overload",
+  "source_language_declared": "C++",
+  "stage": "verify",
+  "status": "PASS"
+}

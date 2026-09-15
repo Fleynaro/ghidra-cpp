@@ -1,6 +1,6 @@
-# zlib Function ID Database
+# Ghidra Function ID Databases
 
-This directory is a self-contained, reproducible pipeline for producing and validating a real Ghidra Function ID database for zlib. It does not use or modify `NEW/features/function_id`; the only FID implementation used at runtime is the installed Ghidra/PyGhidra implementation.
+This directory is a self-contained, reproducible pipeline for producing and validating real Ghidra Function ID databases for zlib and Boost. It does not use or modify `NEW/features/function_id`; the only FID implementation used at runtime is the installed Ghidra/PyGhidra implementation.
 
 ## Selected Build
 
@@ -19,6 +19,14 @@ The checked-in [`config.json`](config.json) fixes the build and database identit
 | FID library | family `zlib`, version `1.3.1`, variant `msvc-x86_64-release` |
 
 The build stage records the downloaded archive SHA-256, compiler version, exact upstream make target, object files, and paths in [`build/zlib/metadata.json`](build/zlib/metadata.json). `build/` is ignored because it is machine-generated.
+
+## Boost Build
+
+[`boost_config.json`](boost_config.json) fixes Boost 1.86.0 and all eight requested components: Filesystem, Regex, Program_options, System, Thread, Serialization, Locale, and Iostreams. [`scripts/build_boost.py`](scripts/build_boost.py) downloads the official archive, verifies SHA-256 `2575e74ffc3ef1cd0babac2c1ee8bdb5782a0ee672b1912da40e5b4b591ca01f`, bootstraps upstream `b2`, builds static MSVC x64 Release libraries, and extracts their real COFF members through Microsoft `LIB.EXE` for Ghidra import.
+
+Every Boost component has its own static library, `.fidb`, consumer executable, linker map, JSON report, and Markdown report. Consumers call actual Boost APIs and are built without PDB/debug symbols. Their negative `non_boost_control` function is located from the linker map and must produce zero matches for the component's FID family.
+
+Boost.System is an explicit upstream limitation rather than a fabricated database: Boost 1.86's `libs/system/src/error_code.cpp` contains only `dummy_exported_function`; categories and `error_code` are header-only. Original Ghidra ingestion excludes that dummy body, so the generated Boost.System `.fidb` is a valid readable empty database. Its test still builds and runs real Boost.System operations and proves there are no false Boost.System matches.
 
 ## Confirmed Ghidra Implementation
 
@@ -53,19 +61,26 @@ PyGhidra 3.1.0 is loaded from the Ghidra-managed virtual environment by [`TEST/r
 FIDB/
 ├── README.md
 ├── config.json
+├── boost_config.json
 ├── scripts/
 │   ├── common.py
 │   ├── build_zlib.py
+│   ├── build_boost.py
+│   ├── build_boost_consumer.py
 │   ├── analyze_library.py
 │   ├── create_fidb.py
 │   └── verify_fidb.py
 ├── libraries/zlib/1.3.1/
 │   └── zlib-1.3.1-msvc-x86_64-release.fidb
+├── libraries/boost/<component>/1.86.0/
+│   └── boost-<component>-1.86.0-msvc-x86_64-release.fidb
 ├── tests/zlib_detection/
 │   ├── README.md
 │   ├── test.cpp
 │   ├── build_consumer.py
 │   └── run_test.py
+├── tests/boost_<component>/test.cpp
+├── tests/run_boost.py
 └── reports/
     ├── library_analysis.json
     ├── fidb_generation.json
@@ -80,6 +95,7 @@ From the repository root, set the required environment variable and run:
 ```powershell
 $env:GHIDRA_INSTALL_DIR = 'C:\path\to\ghidra_12.1.3_PUBLIC'
 python FIDB\tests\zlib_detection\run_test.py --force
+python FIDB\tests\run_boost.py --force
 ```
 
 The command performs the explicit stages in order:
@@ -101,6 +117,8 @@ python FIDB\tests\zlib_detection\build_consumer.py
 
 The final verification command is normally run through `run_test.py`, because it supplies the generated executable, linker map, and `.fidb` paths.
 
+The Boost command runs the same separate `build`, `analyze`, `generate`, and `verify` stages for all eight components. A focused run is available with `python FIDB\tests\run_boost.py --library filesystem`.
+
 ## Validation Evidence
 
 The machine-readable reports are generated only after the relevant Ghidra operation succeeds:
@@ -111,5 +129,7 @@ The machine-readable reports are generated only after the relevant Ghidra operat
 | [`reports/fidb_generation.json`](reports/fidb_generation.json) | FidService population counts, database metadata, function records, and reopen count |
 | [`reports/fidb_verification.json`](reports/fidb_verification.json) | Ghidra version/PyGhidra version, direct FidService matches, analyzer markup/bookmarks, expected matches, and negative-control evidence |
 | [`reports/fidb_verification.md`](reports/fidb_verification.md) | Concise human-readable PASS summary with expected functions, scores, and negative-control result |
+
+Boost reports are under [`reports/boost/`](reports/boost/), with one report set per component plus [`summary.md`](reports/boost/summary.md).
 
 Failures are fatal and include the Ghidra installation, language/compiler choice, input paths, expected names, actual matches, and failed expectations where available. The generated `.fidb` is a normal packed Ghidra database and is intended to be attached through the normal Function ID infrastructure.

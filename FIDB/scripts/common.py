@@ -56,6 +56,12 @@ def portable_path(value: str | Path) -> str:
     return str(resolved)
 
 
+def workspace_path(value: str | Path) -> Path:
+    """Resolve a report path relative to the repository when it was serialized portably."""
+    path = Path(value)
+    return path if path.is_absolute() else (REPOSITORY_ROOT / path).resolve()
+
+
 def find_vcvarsall() -> Path:
     """Find the Visual Studio environment initializer without storing a local path."""
     candidates: list[Path] = []

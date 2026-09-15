@@ -1,0 +1,2227 @@
+{
+  "architecture": "x86-64",
+  "compiler": "MSVC",
+  "compiler_version": "19.34.31937 for x64",
+  "configuration": "Release",
+  "expected_functions": [
+    "join",
+    "start_thread",
+    "interrupt"
+  ],
+  "ghidra_compiler_spec": "windows",
+  "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
+  "ghidra_language_id": "x86:LE:64:default",
+  "library": "Boost.Thread",
+  "linkage": "static",
+  "object_programs": [
+    {
+      "compiler_spec": "windows",
+      "function_count": 270,
+      "functions": [
+        {
+          "entry_point": "0x0000000000140440",
+          "name": "??_R4?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@6Bbad_alloc@std@@@",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000140530",
+          "name": "??_R4?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@6Bbad_exception@std@@@",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141400",
+          "name": "??0exception@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141440",
+          "name": "?what@exception@std@@UEBAPEBDXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141460",
+          "name": "??0bad_exception@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001414A0",
+          "name": "??_Gbad_exception@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001414F0",
+          "name": "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141530",
+          "name": "??0exception@boost@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141590",
+          "name": "??0clone_base@exception_detail@boost@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001415A0",
+          "name": "??_Gclone_base@exception_detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001415D0",
+          "name": "??0bad_alloc_@exception_detail@boost@@QEAA@AEBU012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141660",
+          "name": "??_Gbad_alloc_@exception_detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001416E0",
+          "name": "??0bad_exception_@exception_detail@boost@@QEAA@AEBU012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141770",
+          "name": "??_Gbad_exception_@exception_detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001417F0",
+          "name": "?dispose@?$sp_counted_impl_p@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141810",
+          "name": "?get_deleter@?$sp_counted_impl_p@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXAEBVtype_info@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141820",
+          "name": "?get_local_deleter@?$sp_counted_impl_p@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXAEBVtype_info@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141830",
+          "name": "?get_untyped_deleter@?$sp_counted_impl_p@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141840",
+          "name": "??_G?$sp_counted_impl_p@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141870",
+          "name": "?dispose@?$sp_counted_impl_p@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141890",
+          "name": "?get_deleter@?$sp_counted_impl_p@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXAEBVtype_info@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001418A0",
+          "name": "?get_local_deleter@?$sp_counted_impl_p@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXAEBVtype_info@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001418B0",
+          "name": "?get_untyped_deleter@?$sp_counted_impl_p@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001418C0",
+          "name": "??_G?$sp_counted_impl_p@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001418F0",
+          "name": "??0?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141970",
+          "name": "??_G?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001419B0",
+          "name": "??_D?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@QEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141A50",
+          "name": "??0?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141AD0",
+          "name": "??_G?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141B10",
+          "name": "??_D?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@QEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141BA8",
+          "name": "??_Ebad_alloc_@exception_detail@boost@@WCI@EAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141BB4",
+          "name": "??_Ebad_exception_@exception_detail@boost@@WCI@EAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141BC0",
+          "name": "??_E?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@WCI@EAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141BCC",
+          "name": "?clone@?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@$0PPPPPPPM@A@EBAPEBVclone_base@23@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141BD8",
+          "name": "?rethrow@?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@$0PPPPPPPM@A@EBAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141BE4",
+          "name": "??_E?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@$4PPPPPPPM@FA@EAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141BF4",
+          "name": "??_E?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@WCI@EAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141C00",
+          "name": "?clone@?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@$0PPPPPPPM@A@EBAPEBVclone_base@23@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141C0C",
+          "name": "?rethrow@?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@$0PPPPPPPM@A@EBAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141C18",
+          "name": "??_E?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@$4PPPPPPPM@FA@EAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141C30",
+          "name": "?destroy@sp_counted_base@detail@boost@@UEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141C50",
+          "name": "??_Gsp_counted_base@detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141C80",
+          "name": "??$?0V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@shared_count@detail@boost@@QEAA@PEAV?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@2@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141CE0",
+          "name": "??$?0V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@shared_count@detail@boost@@QEAA@PEAV?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@2@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141D40",
+          "name": "??$_Allocate_manually_vector_aligned@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141D80",
+          "name": "??$_Atomic_address_as@JU?$_Atomic_padded@H@std@@@std@@YAPECJAEAU?$_Atomic_padded@H@0@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141D90",
+          "name": "??$_Construct@$00PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXQEBD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141E50",
+          "name": "??$_Copy_memmove@PEAU?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@PEAU12@@std@@YAPEAU?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@0@PEAU10@00@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141E80",
+          "name": "??$_Destroy_range@V?$allocator@V?$intrusive_ptr@Vbasic_cv_list_entry@detail@boost@@@boost@@@std@@@std@@YAXPEAV?$intrusive_ptr@Vbasic_cv_list_entry@detail@boost@@@boost@@QEAV12@AEAV?$allocator@V?$intrusive_ptr@Vbasic_cv_list_entry@detail@boost@@@boost@@@0@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141F10",
+          "name": "??$_Destroy_range@V?$allocator@V?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@@std@@@std@@YAXPEAV?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@QEAV12@AEAV?$allocator@V?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@@0@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000141F90",
+          "name": "??$_Emplace_reallocate@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@@?$vector@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@V?$allocator@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@@2@@std@@AEAAPEAU?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@1@QEAU21@$$QEAU21@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000142140",
+          "name": "??$_Erase_tree@V?$allocator@U?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@std@@@std@@@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAXAEAV?$allocator@U?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@std@@@1@PEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001421A0",
+          "name": "??$_Getvals@_W@?$time_get@DV?$istreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000142270",
+          "name": "??$_Getvals@_W@?$time_get@_WV?$istreambuf_iterator@_WU?$char_traits@_W@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000142340",
+          "name": "??$_Maklocstr@D@std@@YAPEADPEBDPEADAEBU_Cvtvec@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001423C0",
+          "name": "??$_Reallocate_grow_by@V<lambda_319d5e083f45f90dcdce5dce53cbb275>@@D@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_319d5e083f45f90dcdce5dce53cbb275>@@D@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000142540",
+          "name": "??$_Reallocate_grow_by@V<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001426D0",
+          "name": "??$_Reallocate_grow_by@V<lambda_e1befb086ad3257e3f042a63030725f7>@@_KD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_e1befb086ad3257e3f042a63030725f7>@@_KD@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000142860",
+          "name": "??$checked_delete@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@boost@@YAXPEAV?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@0@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000142880",
+          "name": "??$checked_delete@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@boost@@YAXPEAV?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@0@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001428A0",
+          "name": "??$get_static_exception_object@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@YA?AVexception_ptr@1@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000142D40",
+          "name": "??$get_static_exception_object@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@YA?AVexception_ptr@1@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001431E0",
+          "name": "??$heap_delete@Uexternally_launched_thread@?A0x0e1ddac1@boost@@@detail@boost@@YAXPEAUexternally_launched_thread@?A0x0e1ddac1@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143210",
+          "name": "??$heap_new@Uexternally_launched_thread@?A0x0e1ddac1@boost@@@detail@boost@@YAPEAUexternally_launched_thread@?A0x0e1ddac1@1@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143270",
+          "name": "??$heap_new@Uthread_exit_callback_node@detail@boost@@AEAPEAUthread_exit_function_base@23@AEAPEAU123@@detail@boost@@YAPEAUthread_exit_callback_node@01@AEAPEAUthread_exit_function_base@01@AEAPEAU201@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001432E0",
+          "name": "??$int_to_string@K@detail@boost@@YAXKPEAD@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143340",
+          "name": "??$int_to_string@_J@detail@boost@@YAX_JPEAD@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143420",
+          "name": "??$throw_exception@Vbad_alloc@std@@@boost@@YAXAEBVbad_alloc@std@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143450",
+          "name": "??$throw_exception@Vlock_error@boost@@@boost@@YAXAEBVlock_error@0@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143480",
+          "name": "??$throw_exception@Vthread_resource_error@boost@@@boost@@YAXAEBVthread_resource_error@0@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001434B0",
+          "name": "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@U_String_constructor_concat_tag@1@AEAV01@1@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143660",
+          "name": "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@_KD@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143740",
+          "name": "??0?$wrapexcept@Vbad_alloc@std@@@boost@@QEAA@AEBU01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143810",
+          "name": "??0?$wrapexcept@Vbad_alloc@std@@@boost@@QEAA@AEBVbad_alloc@std@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143890",
+          "name": "??0?$wrapexcept@Vlock_error@boost@@@boost@@QEAA@AEBU01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143970",
+          "name": "??0?$wrapexcept@Vlock_error@boost@@@boost@@QEAA@AEBVlock_error@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143A10",
+          "name": "??0?$wrapexcept@Vthread_resource_error@boost@@@boost@@QEAA@AEBU01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143AF0",
+          "name": "??0?$wrapexcept@Vthread_resource_error@boost@@@boost@@QEAA@AEBVthread_resource_error@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143B90",
+          "name": "??0bad_alloc@std@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143BC0",
+          "name": "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143C00",
+          "name": "??0bad_array_new_length@std@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143C30",
+          "name": "??0disable_interruption@this_thread@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143CB0",
+          "name": "??0lock_error@boost@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143D20",
+          "name": "??0lock_error@boost@@QEAA@HPEBD@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143D50",
+          "name": "??0restore_interruption@this_thread@boost@@QEAA@AEAVdisable_interruption@12@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143D90",
+          "name": "??0runtime_error@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143DD0",
+          "name": "??0system_error@system@boost@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000143E30",
+          "name": "??0system_error@system@boost@@QEAA@AEBVerror_code@12@PEBD@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001440D0",
+          "name": "??0thread@boost@@AEAA@V?$intrusive_ptr@Uthread_data_base@detail@boost@@@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144130",
+          "name": "??0thread@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144140",
+          "name": "??0thread_data_base@detail@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144200",
+          "name": "??0thread_exception@boost@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144270",
+          "name": "??0thread_exception@boost@@QEAA@HPEBD@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144310",
+          "name": "??0thread_resource_error@boost@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144380",
+          "name": "??0thread_resource_error@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144420",
+          "name": "??1?$_Alloc_construct_ptr@V?$allocator@U?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@std@@@std@@@std@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144440",
+          "name": "??1?$_Tree@V?$_Tmap_traits@PEBXUtss_data_node@detail@boost@@U?$less@PEBX@std@@V?$allocator@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@5@$0A@@std@@@std@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001444A0",
+          "name": "??1?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000001444B0",
+          "name": "??1?$intrusive_ptr@Uthread_data_base@detail@boost@@@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144500",
+          "name": "??1?$map@PEBXUtss_data_node@detail@boost@@U?$less@PEBX@std@@V?$allocator@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@5@@std@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000144510",
+          "name": "??1?$refcount_ptr@Uerror_info_container@exception_detail@boost@@@exception_detail@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144540",
+          "name": "??1?$unique_lock@Vmutex@boost@@@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144580",
+          "name": "??1?$vector@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@V?$allocator@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@@2@@std@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001445E0",
+          "name": "??1?$vector@V?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@V?$allocator@V?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@@std@@@std@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144650",
+          "name": "??1?$wrapexcept@Vbad_alloc@std@@@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001446B0",
+          "name": "??1?$wrapexcept@Vlock_error@boost@@@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144710",
+          "name": "??1?$wrapexcept@Vthread_resource_error@boost@@@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144770",
+          "name": "??1bad_alloc@std@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144790",
+          "name": "??1bad_alloc_@exception_detail@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001447F0",
+          "name": "??1bad_array_new_length@std@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144810",
+          "name": "??1bad_exception_@exception_detail@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144870",
+          "name": "??1clone_base@exception_detail@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144880",
+          "name": "??1deleter@?$wrapexcept@Vbad_alloc@std@@@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001448A0",
+          "name": "??1deleter@?$wrapexcept@Vlock_error@boost@@@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001448C0",
+          "name": "??1deleter@?$wrapexcept@Vthread_resource_error@boost@@@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001448E0",
+          "name": "??1disable_interruption@this_thread@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144930",
+          "name": "??1exception@boost@@MEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144970",
+          "name": "??1exception@std@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144990",
+          "name": "??1handle_manager@win32@detail@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001449B0",
+          "name": "??1local_free@detail@system@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001449D0",
+          "name": "??1lock_error@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001449F0",
+          "name": "??1once_context@detail@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144A10",
+          "name": "??1restore_interruption@this_thread@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144A50",
+          "name": "??1shared_count@detail@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144AA0",
+          "name": "??1sp_counted_base@detail@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144AB0",
+          "name": "??1thread_data_base@detail@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144D40",
+          "name": "??1thread_resource_error@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144D60",
+          "name": "??Bhandle_manager@win32@detail@boost@@QEBAPEAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144D70",
+          "name": "??_E?$unique_lock@Vmutex@boost@@@boost@@QEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144E28",
+          "name": "??_E?$wrapexcept@Vbad_alloc@std@@@boost@@W7EAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144E34",
+          "name": "??_E?$wrapexcept@Vbad_alloc@std@@@boost@@WCA@EAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144E40",
+          "name": "??_E?$wrapexcept@Vlock_error@boost@@@boost@@W7EAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144E4C",
+          "name": "??_E?$wrapexcept@Vlock_error@boost@@@boost@@WDI@EAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144E58",
+          "name": "??_E?$wrapexcept@Vthread_resource_error@boost@@@boost@@W7EAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144E64",
+          "name": "??_E?$wrapexcept@Vthread_resource_error@boost@@@boost@@WDI@EAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144E70",
+          "name": "??_G?$wrapexcept@Vbad_alloc@std@@@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144EF0",
+          "name": "??_G?$wrapexcept@Vlock_error@boost@@@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144F70",
+          "name": "??_G?$wrapexcept@Vthread_resource_error@boost@@@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000144FF0",
+          "name": "??_Gbad_alloc@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145040",
+          "name": "??_Gbad_array_new_length@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145090",
+          "name": "??_Gexception@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145160",
+          "name": "??_Glock_error@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001451B0",
+          "name": "??_Gruntime_error@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145200",
+          "name": "??_Gsystem_error@system@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145250",
+          "name": "??_Gthread_data_base@detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145290",
+          "name": "??_Gthread_exception@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001452E0",
+          "name": "??_Gthread_resource_error@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145330",
+          "name": "?SetWaitableTimerEx_emulation@detail_@this_thread@boost@@YAHPEAXPEBT_LARGE_INTEGER@@JP6AX0KK@Z0PEAU_REASON_CONTEXT@123@K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145340",
+          "name": "?_Erase_unchecked@?$_Tree@V?$_Tmap_traits@PEBXUtss_data_node@detail@boost@@U?$less@PEBX@std@@V?$allocator@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@5@$0A@@std@@@std@@AEAAPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@V?$_Tree_unchecked_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@U_Iterator_base0@2@@2@0@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001454B0",
+          "name": "?_Erase_unchecked@?$_Tree@V?$_Tmap_traits@PEBXUtss_data_node@detail@boost@@U?$less@PEBX@std@@V?$allocator@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@5@$0A@@std@@@std@@AEAAPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@V?$_Tree_unchecked_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@U_Iterator_base0@2@@2@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145520",
+          "name": "?_Extract@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@V?$_Tree_unchecked_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@U_Iterator_base0@2@@2@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001458F0",
+          "name": "?_Insert_node@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@U?$_Tree_id@PEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@std@@@2@QEAU32@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145B50",
+          "name": "?_Lrotate@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAXPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145BB0",
+          "name": "?_Maklocwcs@std@@YAPEA_WPEB_W@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145C20",
+          "name": "?_Rrotate@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAXPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145C80",
+          "name": "?_Throw_bad_array_new_length@std@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145CA0",
+          "name": "?_Throw_tree_length_error@std@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145CC0",
+          "name": "?_Tidy_deallocate@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145D20",
+          "name": "?_Xlen_string@std@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145D40",
+          "name": "?_Xlength@?$vector@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@V?$allocator@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@@2@@std@@CAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145D60",
+          "name": "?add_new_tss_node@detail@boost@@YAXPEBXP6AXP6AXPEAX@Z1@Z21@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145EB0",
+          "name": "?add_thread_exit_function@detail@boost@@YAXPEAUthread_exit_function_base@12@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145F10",
+          "name": "?allocate@?$allocator@D@std@@QEAAPEAD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000145F70",
+          "name": "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146000",
+          "name": "?append_int@detail@system@boost@@YAXAEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001460C0",
+          "name": "?call_once@boost@@YAXAEAUonce_flag@1@P6AXXZ@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001462F0",
+          "name": "?clone@?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@EEBAPEBVclone_base@23@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001463B0",
+          "name": "?clone@?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@EEBAPEBVclone_base@23@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146470",
+          "name": "?clone@?$wrapexcept@Vbad_alloc@std@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001464D0",
+          "name": "?clone@?$wrapexcept@Vlock_error@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146530",
+          "name": "?clone@?$wrapexcept@Vthread_resource_error@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146590",
+          "name": "?copy_boost_exception@exception_detail@boost@@YAXPEAVexception@2@PEBV32@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146670",
+          "name": "?deallocate@?$allocator@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@@std@@QEAAXQEAU?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@2@_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001466C0",
+          "name": "?default_error_condition@error_category@system@boost@@UEBA?AVerror_condition@23@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001466D0",
+          "name": "?default_error_condition@system_error_category@detail@system@boost@@UEBA?AVerror_condition@34@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146730",
+          "name": "?detach@thread@boost@@QEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146780",
+          "name": "?do_try_join_until_noexcept@thread@boost@@AEAA_NAEBUmono_platform_timepoint@detail@2@AEA_N@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146890",
+          "name": "?equivalent@error_category@system@boost@@UEBA_NAEBVerror_code@23@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146920",
+          "name": "?equivalent@error_category@system@boost@@UEBA_NHAEBVerror_condition@23@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001469C0",
+          "name": "?erase_tss_node@detail@boost@@YAXPEBX@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146A80",
+          "name": "?failed@error_category@system@boost@@UEBA_NH@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146A90",
+          "name": "?find_tss_data@detail@boost@@YAPEAUtss_data_node@12@PEBX@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146B00",
+          "name": "?free_raw_heap_memory@detail@boost@@YAXPEAX@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146B30",
+          "name": "?get_current_thread_data@detail@boost@@YAPEAUthread_data_base@12@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146B50",
+          "name": "?get_event@basic_timed_mutex@detail@boost@@AEAAPEAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146BC0",
+          "name": "?get_id@this_thread@boost@@YA?AVid@thread@2@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146BE0",
+          "name": "?get_id@thread@boost@@QEBA?AVid@12@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146C50",
+          "name": "?get_thread_info@thread@boost@@AEBA?AV?$intrusive_ptr@Uthread_data_base@detail@boost@@@2@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146C70",
+          "name": "?get_tss_data@detail@boost@@YAPEAXPEBX@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146C90",
+          "name": "?hardware_concurrency@thread@boost@@SAIXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146CB0",
+          "name": "?interrupt@thread@boost@@QEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000146D30",
+          "name": "?interruptible_wait@this_thread@boost@@YA_NPEAXAEBUmono_platform_timepoint@detail@2@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000147180",
+          "name": "?interruption_enabled@this_thread@boost@@YA_NXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001471D0",
+          "name": "?interruption_point@this_thread@boost@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000147290",
+          "name": "?interruption_requested@this_thread@boost@@YA_NXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001472E0",
+          "name": "?interruption_requested@thread@boost@@QEBA_NXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000147360",
+          "name": "?join_noexcept@thread@boost@@AEAA_NXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000147450",
+          "name": "?joinable@thread@boost@@QEBA_NXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001474A0",
+          "name": "?lock@basic_timed_mutex@detail@boost@@QEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000147560",
+          "name": "?make_external_thread_data@?A0x0e1ddac1@boost@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001475B0",
+          "name": "?mark_finished_internal@shared_state_base@detail@boost@@QEAAXAEAV?$unique_lock@Vmutex@boost@@@3@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000147700",
+          "name": "?message@generic_error_category@detail@system@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000147760",
+          "name": "?message@generic_error_category@detail@system@boost@@UEBAPEBDHPEAD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001477D0",
+          "name": "?message@interop_error_category@detail@system@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000147850",
+          "name": "?message@interop_error_category@detail@system@boost@@UEBAPEBDHPEAD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000147880",
+          "name": "?message@system_error_category@detail@system@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001478A0",
+          "name": "?message@system_error_category@detail@system@boost@@UEBAPEBDHPEAD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000147970",
+          "name": "?name@generic_error_category@detail@system@boost@@UEBAPEBDXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000147980",
+          "name": "?name@interop_error_category@detail@system@boost@@UEBAPEBDXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000147990",
+          "name": "?name@system_error_category@detail@system@boost@@UEBAPEBDXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001479A0",
+          "name": "?name_once_mutex@detail@boost@@YAXPEADPEAX@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000147B30",
+          "name": "?native_handle@thread@boost@@QEAAPEAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000147BA0",
+          "name": "?non_interruptible_wait@no_interruption_point@this_thread@boost@@YA_NPEAXAEBUmono_platform_timepoint@detail@3@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000147F30",
+          "name": "?notify_all@basic_condition_variable@detail@boost@@QEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000148030",
+          "name": "?notify_all_at_thread_exit@boost@@YAXAEAVcondition_variable@1@V?$unique_lock@Vmutex@boost@@@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001480D0",
+          "name": "?notify_all_at_thread_exit@thread_data_base@detail@boost@@UEAAXPEAVcondition_variable@3@PEAVmutex@3@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000148110",
+          "name": "?now@mono_platform_clock@detail@boost@@SA?AUmono_platform_timepoint@23@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001481C0",
+          "name": "?on_process_enter@boost@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001481D0",
+          "name": "?on_process_exit@boost@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000148200",
+          "name": "?on_thread_enter@boost@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000148210",
+          "name": "?on_thread_exit@boost@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000148220",
+          "name": "?physical_concurrency@thread@boost@@SAIXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001483B0",
+          "name": "?release_handle@thread@boost@@AEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000148400",
+          "name": "?resize@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAX_KD@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001484A0",
+          "name": "?rethrow@?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@EEBAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001484D0",
+          "name": "?rethrow@?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@EEBAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000148500",
+          "name": "?rethrow@?$wrapexcept@Vbad_alloc@std@@@boost@@UEBAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000148530",
+          "name": "?rethrow@?$wrapexcept@Vlock_error@boost@@@boost@@UEBAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000148560",
+          "name": "?rethrow@?$wrapexcept@Vthread_resource_error@boost@@@boost@@UEBAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000148590",
+          "name": "?rollback_once_region@detail@boost@@YAXAEAUonce_flag@2@AEAUonce_context@12@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000148620",
+          "name": "?run_thread_exit_callbacks@?A0x0e1ddac1@boost@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000148770",
+          "name": "?set_tss_data@detail@boost@@YAXPEBXP6AXP6AXPEAX@Z1@Z21_N@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001489D0",
+          "name": "?sp_enable_shared_from_this@detail@boost@@YAXZZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001489F0",
+          "name": "?start_thread_noexcept@thread@boost@@AEAA_NAEBVthread_attributes@2@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000148A80",
+          "name": "?start_thread_noexcept@thread@boost@@AEAA_NXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000148B10",
+          "name": "?system_category_condition_win32@detail@system@boost@@YAHH@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000148F10",
+          "name": "?system_category_message_win32@detail@system@boost@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001491A0",
+          "name": "?to_string@source_location@boost@@QEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001494C0",
+          "name": "?unknown_message_win32@detail@system@boost@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000149550",
+          "name": "?value@error_code@system@boost@@QEBAHXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001495A0",
+          "name": "?what@error_code@system@boost@@QEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000149980",
+          "name": "?yield@this_thread@boost@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001499A0",
+          "name": "__local_stdio_printf_options",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000001499B0",
+          "name": "snprintf",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000014AC00",
+          "name": "??__F?e@?$exception_ptr_static_exception_object@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@2Vexception_ptr@3@B@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000014AC50",
+          "name": "??__F?e@?$exception_ptr_static_exception_object@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@2Vexception_ptr@3@B@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000014E480",
+          "name": "??_Ebad_alloc_@exception_detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E488",
+          "name": "??_Ebad_exception_@exception_detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E4A0",
+          "name": "??_E?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E4A8",
+          "name": "??_E?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E4B8",
+          "name": "??_M@YAXPEAX_K1P6AX0@Z@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E4C0",
+          "name": "??2@YAPEAX_K@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E4C8",
+          "name": "??3@YAXPEAX_K@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E4D0",
+          "name": "??_V@YAXPEAX_K@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E4D8",
+          "name": "atexit",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E4E0",
+          "name": "_Init_thread_header",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E4F0",
+          "name": "_Init_thread_footer",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E528",
+          "name": "__std_exception_copy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E530",
+          "name": "__std_exception_destroy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E550",
+          "name": "?_Xbad_alloc@std@@YAXXZ",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E558",
+          "name": "?_Xlength_error@std@@YAXPEBD@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E6B8",
+          "name": "?tss_cleanup_implemented@boost@@YAXXZ",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E6C0",
+          "name": "??_E?$wrapexcept@Vthread_resource_error@boost@@@boost@@UEAAPEAXI@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E6C8",
+          "name": "??_E?$wrapexcept@Vbad_alloc@std@@@boost@@UEAAPEAXI@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E6D0",
+          "name": "??_E?$wrapexcept@Vlock_error@boost@@@boost@@UEAAPEAXI@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E6D8",
+          "name": "_CxxThrowException",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E6F8",
+          "name": "__security_check_cookie",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E700",
+          "name": "memcpy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E708",
+          "name": "memmove",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000014E710",
+          "name": "memset",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "??$?0V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@shared_count@detail@boost@@QEAA@PEAV?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@2@@Z",
+        "??$?0V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@shared_count@detail@boost@@QEAA@PEAV?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@2@@Z",
+        "??$_Allocate_manually_vector_aligned@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z",
+        "??$_Atomic_address_as@JU?$_Atomic_padded@H@std@@@std@@YAPECJAEAU?$_Atomic_padded@H@0@@Z",
+        "??$_Construct@$00PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXQEBD_K@Z",
+        "??$_Copy_memmove@PEAU?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@PEAU12@@std@@YAPEAU?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@0@PEAU10@00@Z",
+        "??$_Destroy_range@V?$allocator@V?$intrusive_ptr@Vbasic_cv_list_entry@detail@boost@@@boost@@@std@@@std@@YAXPEAV?$intrusive_ptr@Vbasic_cv_list_entry@detail@boost@@@boost@@QEAV12@AEAV?$allocator@V?$intrusive_ptr@Vbasic_cv_list_entry@detail@boost@@@boost@@@0@@Z",
+        "??$_Destroy_range@V?$allocator@V?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@@std@@@std@@YAXPEAV?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@QEAV12@AEAV?$allocator@V?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@@0@@Z",
+        "??$_Emplace_reallocate@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@@?$vector@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@V?$allocator@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@@2@@std@@AEAAPEAU?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@1@QEAU21@$$QEAU21@@Z",
+        "??$_Erase_tree@V?$allocator@U?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@std@@@std@@@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAXAEAV?$allocator@U?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@std@@@1@PEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@1@@Z",
+        "??$_Getvals@_W@?$time_get@DV?$istreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+        "??$_Getvals@_W@?$time_get@_WV?$istreambuf_iterator@_WU?$char_traits@_W@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+        "??$_Maklocstr@D@std@@YAPEADPEBDPEADAEBU_Cvtvec@@@Z",
+        "??$_Reallocate_grow_by@V<lambda_319d5e083f45f90dcdce5dce53cbb275>@@D@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_319d5e083f45f90dcdce5dce53cbb275>@@D@Z",
+        "??$_Reallocate_grow_by@V<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@Z",
+        "??$_Reallocate_grow_by@V<lambda_e1befb086ad3257e3f042a63030725f7>@@_KD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_e1befb086ad3257e3f042a63030725f7>@@_KD@Z",
+        "??$checked_delete@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@boost@@YAXPEAV?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@0@@Z",
+        "??$checked_delete@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@boost@@YAXPEAV?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@0@@Z",
+        "??$get_static_exception_object@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@YA?AVexception_ptr@1@XZ",
+        "??$get_static_exception_object@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@YA?AVexception_ptr@1@XZ",
+        "??$heap_delete@Uexternally_launched_thread@?A0x0e1ddac1@boost@@@detail@boost@@YAXPEAUexternally_launched_thread@?A0x0e1ddac1@1@@Z",
+        "??$heap_new@Uexternally_launched_thread@?A0x0e1ddac1@boost@@@detail@boost@@YAPEAUexternally_launched_thread@?A0x0e1ddac1@1@XZ",
+        "??$heap_new@Uthread_exit_callback_node@detail@boost@@AEAPEAUthread_exit_function_base@23@AEAPEAU123@@detail@boost@@YAPEAUthread_exit_callback_node@01@AEAPEAUthread_exit_function_base@01@AEAPEAU201@@Z",
+        "??$int_to_string@K@detail@boost@@YAXKPEAD@Z",
+        "??$int_to_string@_J@detail@boost@@YAX_JPEAD@Z",
+        "??$throw_exception@Vbad_alloc@std@@@boost@@YAXAEBVbad_alloc@std@@@Z",
+        "??$throw_exception@Vlock_error@boost@@@boost@@YAXAEBVlock_error@0@@Z",
+        "??$throw_exception@Vthread_resource_error@boost@@@boost@@YAXAEBVthread_resource_error@0@@Z",
+        "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@U_String_constructor_concat_tag@1@AEAV01@1@Z",
+        "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@_KD@Z",
+        "??0?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@QEAA@AEBV012@@Z",
+        "??0?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@QEAA@AEBV012@@Z",
+        "??0?$wrapexcept@Vbad_alloc@std@@@boost@@QEAA@AEBU01@@Z",
+        "??0?$wrapexcept@Vbad_alloc@std@@@boost@@QEAA@AEBVbad_alloc@std@@@Z",
+        "??0?$wrapexcept@Vlock_error@boost@@@boost@@QEAA@AEBU01@@Z",
+        "??0?$wrapexcept@Vlock_error@boost@@@boost@@QEAA@AEBVlock_error@1@@Z",
+        "??0?$wrapexcept@Vthread_resource_error@boost@@@boost@@QEAA@AEBU01@@Z",
+        "??0?$wrapexcept@Vthread_resource_error@boost@@@boost@@QEAA@AEBVthread_resource_error@1@@Z",
+        "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+        "??0bad_alloc@std@@QEAA@XZ",
+        "??0bad_alloc_@exception_detail@boost@@QEAA@AEBU012@@Z",
+        "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+        "??0bad_array_new_length@std@@QEAA@XZ",
+        "??0bad_exception@std@@QEAA@AEBV01@@Z",
+        "??0bad_exception_@exception_detail@boost@@QEAA@AEBU012@@Z",
+        "??0clone_base@exception_detail@boost@@QEAA@AEBV012@@Z",
+        "??0disable_interruption@this_thread@boost@@QEAA@XZ",
+        "??0exception@boost@@QEAA@AEBV01@@Z",
+        "??0exception@std@@QEAA@AEBV01@@Z",
+        "??0lock_error@boost@@QEAA@AEBV01@@Z",
+        "??0lock_error@boost@@QEAA@HPEBD@Z",
+        "??0restore_interruption@this_thread@boost@@QEAA@AEAVdisable_interruption@12@@Z",
+        "??0runtime_error@std@@QEAA@AEBV01@@Z",
+        "??0system_error@system@boost@@QEAA@AEBV012@@Z",
+        "??0system_error@system@boost@@QEAA@AEBVerror_code@12@PEBD@Z",
+        "??0thread@boost@@AEAA@V?$intrusive_ptr@Uthread_data_base@detail@boost@@@1@@Z",
+        "??0thread@boost@@QEAA@XZ",
+        "??0thread_data_base@detail@boost@@QEAA@XZ",
+        "??0thread_exception@boost@@QEAA@AEBV01@@Z",
+        "??0thread_exception@boost@@QEAA@HPEBD@Z",
+        "??0thread_resource_error@boost@@QEAA@AEBV01@@Z",
+        "??0thread_resource_error@boost@@QEAA@XZ",
+        "??1?$_Alloc_construct_ptr@V?$allocator@U?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@std@@@std@@@std@@QEAA@XZ",
+        "??1?$_Tree@V?$_Tmap_traits@PEBXUtss_data_node@detail@boost@@U?$less@PEBX@std@@V?$allocator@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@5@$0A@@std@@@std@@QEAA@XZ",
+        "??1?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@XZ",
+        "??1?$intrusive_ptr@Uthread_data_base@detail@boost@@@boost@@QEAA@XZ",
+        "??1?$map@PEBXUtss_data_node@detail@boost@@U?$less@PEBX@std@@V?$allocator@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@5@@std@@QEAA@XZ",
+        "??1?$refcount_ptr@Uerror_info_container@exception_detail@boost@@@exception_detail@boost@@QEAA@XZ",
+        "??1?$unique_lock@Vmutex@boost@@@boost@@QEAA@XZ",
+        "??1?$vector@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@V?$allocator@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@@2@@std@@QEAA@XZ",
+        "??1?$vector@V?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@V?$allocator@V?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@@std@@@std@@QEAA@XZ",
+        "??1?$wrapexcept@Vbad_alloc@std@@@boost@@UEAA@XZ",
+        "??1?$wrapexcept@Vlock_error@boost@@@boost@@UEAA@XZ",
+        "??1?$wrapexcept@Vthread_resource_error@boost@@@boost@@UEAA@XZ",
+        "??1bad_alloc@std@@UEAA@XZ",
+        "??1bad_alloc_@exception_detail@boost@@UEAA@XZ",
+        "??1bad_array_new_length@std@@UEAA@XZ",
+        "??1bad_exception_@exception_detail@boost@@UEAA@XZ",
+        "??1clone_base@exception_detail@boost@@UEAA@XZ",
+        "??1deleter@?$wrapexcept@Vbad_alloc@std@@@boost@@QEAA@XZ",
+        "??1deleter@?$wrapexcept@Vlock_error@boost@@@boost@@QEAA@XZ",
+        "??1deleter@?$wrapexcept@Vthread_resource_error@boost@@@boost@@QEAA@XZ",
+        "??1disable_interruption@this_thread@boost@@QEAA@XZ",
+        "??1exception@boost@@MEAA@XZ",
+        "??1exception@std@@UEAA@XZ",
+        "??1handle_manager@win32@detail@boost@@QEAA@XZ",
+        "??1local_free@detail@system@boost@@QEAA@XZ",
+        "??1lock_error@boost@@UEAA@XZ",
+        "??1once_context@detail@boost@@QEAA@XZ",
+        "??1restore_interruption@this_thread@boost@@QEAA@XZ",
+        "??1shared_count@detail@boost@@QEAA@XZ",
+        "??1sp_counted_base@detail@boost@@UEAA@XZ",
+        "??1thread_data_base@detail@boost@@UEAA@XZ",
+        "??1thread_resource_error@boost@@UEAA@XZ",
+        "??2@YAPEAX_K@Z",
+        "??3@YAXPEAX_K@Z",
+        "??Bhandle_manager@win32@detail@boost@@QEBAPEAXXZ",
+        "??_D?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@QEAAXXZ",
+        "??_D?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@QEAAXXZ",
+        "??_E?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@$4PPPPPPPM@FA@EAAPEAXI@Z",
+        "??_E?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@UEAAPEAXI@Z",
+        "??_E?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@WCI@EAAPEAXI@Z",
+        "??_E?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@$4PPPPPPPM@FA@EAAPEAXI@Z",
+        "??_E?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@UEAAPEAXI@Z",
+        "??_E?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@WCI@EAAPEAXI@Z",
+        "??_E?$unique_lock@Vmutex@boost@@@boost@@QEAAPEAXI@Z",
+        "??_E?$wrapexcept@Vbad_alloc@std@@@boost@@UEAAPEAXI@Z",
+        "??_E?$wrapexcept@Vbad_alloc@std@@@boost@@W7EAAPEAXI@Z",
+        "??_E?$wrapexcept@Vbad_alloc@std@@@boost@@WCA@EAAPEAXI@Z",
+        "??_E?$wrapexcept@Vlock_error@boost@@@boost@@UEAAPEAXI@Z",
+        "??_E?$wrapexcept@Vlock_error@boost@@@boost@@W7EAAPEAXI@Z",
+        "??_E?$wrapexcept@Vlock_error@boost@@@boost@@WDI@EAAPEAXI@Z",
+        "??_E?$wrapexcept@Vthread_resource_error@boost@@@boost@@UEAAPEAXI@Z",
+        "??_E?$wrapexcept@Vthread_resource_error@boost@@@boost@@W7EAAPEAXI@Z",
+        "??_E?$wrapexcept@Vthread_resource_error@boost@@@boost@@WDI@EAAPEAXI@Z",
+        "??_Ebad_alloc_@exception_detail@boost@@UEAAPEAXI@Z",
+        "??_Ebad_alloc_@exception_detail@boost@@WCI@EAAPEAXI@Z",
+        "??_Ebad_exception_@exception_detail@boost@@UEAAPEAXI@Z",
+        "??_Ebad_exception_@exception_detail@boost@@WCI@EAAPEAXI@Z",
+        "??_G?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@UEAAPEAXI@Z",
+        "??_G?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@UEAAPEAXI@Z",
+        "??_G?$sp_counted_impl_p@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXI@Z",
+        "??_G?$sp_counted_impl_p@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXI@Z",
+        "??_G?$wrapexcept@Vbad_alloc@std@@@boost@@UEAAPEAXI@Z",
+        "??_G?$wrapexcept@Vlock_error@boost@@@boost@@UEAAPEAXI@Z",
+        "??_G?$wrapexcept@Vthread_resource_error@boost@@@boost@@UEAAPEAXI@Z",
+        "??_Gbad_alloc@std@@UEAAPEAXI@Z",
+        "??_Gbad_alloc_@exception_detail@boost@@UEAAPEAXI@Z",
+        "??_Gbad_array_new_length@std@@UEAAPEAXI@Z",
+        "??_Gbad_exception@std@@UEAAPEAXI@Z",
+        "??_Gbad_exception_@exception_detail@boost@@UEAAPEAXI@Z",
+        "??_Gclone_base@exception_detail@boost@@UEAAPEAXI@Z",
+        "??_Gexception@std@@UEAAPEAXI@Z",
+        "??_Glock_error@boost@@UEAAPEAXI@Z",
+        "??_Gruntime_error@std@@UEAAPEAXI@Z",
+        "??_Gsp_counted_base@detail@boost@@UEAAPEAXI@Z",
+        "??_Gsystem_error@system@boost@@UEAAPEAXI@Z",
+        "??_Gthread_data_base@detail@boost@@UEAAPEAXI@Z",
+        "??_Gthread_exception@boost@@UEAAPEAXI@Z",
+        "??_Gthread_resource_error@boost@@UEAAPEAXI@Z",
+        "??_M@YAXPEAX_K1P6AX0@Z@Z",
+        "??_R4?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@6Bbad_alloc@std@@@",
+        "??_R4?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@6Bbad_exception@std@@@",
+        "??_V@YAXPEAX_K@Z",
+        "??__F?e@?$exception_ptr_static_exception_object@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@2Vexception_ptr@3@B@@YAXXZ",
+        "??__F?e@?$exception_ptr_static_exception_object@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@2Vexception_ptr@3@B@@YAXXZ",
+        "?SetWaitableTimerEx_emulation@detail_@this_thread@boost@@YAHPEAXPEBT_LARGE_INTEGER@@JP6AX0KK@Z0PEAU_REASON_CONTEXT@123@K@Z",
+        "?_Erase_unchecked@?$_Tree@V?$_Tmap_traits@PEBXUtss_data_node@detail@boost@@U?$less@PEBX@std@@V?$allocator@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@5@$0A@@std@@@std@@AEAAPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@V?$_Tree_unchecked_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@U_Iterator_base0@2@@2@0@Z",
+        "?_Erase_unchecked@?$_Tree@V?$_Tmap_traits@PEBXUtss_data_node@detail@boost@@U?$less@PEBX@std@@V?$allocator@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@5@$0A@@std@@@std@@AEAAPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@V?$_Tree_unchecked_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@U_Iterator_base0@2@@2@@Z",
+        "?_Extract@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@V?$_Tree_unchecked_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@U_Iterator_base0@2@@2@@Z",
+        "?_Insert_node@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@U?$_Tree_id@PEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@std@@@2@QEAU32@@Z",
+        "?_Lrotate@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAXPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@@Z",
+        "?_Maklocwcs@std@@YAPEA_WPEB_W@Z",
+        "?_Rrotate@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAXPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@@Z",
+        "?_Throw_bad_array_new_length@std@@YAXXZ",
+        "?_Throw_tree_length_error@std@@YAXXZ",
+        "?_Tidy_deallocate@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXXZ",
+        "?_Xbad_alloc@std@@YAXXZ",
+        "?_Xlen_string@std@@YAXXZ",
+        "?_Xlength@?$vector@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@V?$allocator@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@@2@@std@@CAXXZ",
+        "?_Xlength_error@std@@YAXPEBD@Z",
+        "?add_new_tss_node@detail@boost@@YAXPEBXP6AXP6AXPEAX@Z1@Z21@Z",
+        "?add_thread_exit_function@detail@boost@@YAXPEAUthread_exit_function_base@12@@Z",
+        "?allocate@?$allocator@D@std@@QEAAPEAD_K@Z",
+        "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+        "?append_int@detail@system@boost@@YAXAEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+        "?call_once@boost@@YAXAEAUonce_flag@1@P6AXXZ@Z",
+        "?clone@?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@$0PPPPPPPM@A@EBAPEBVclone_base@23@XZ",
+        "?clone@?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@EEBAPEBVclone_base@23@XZ",
+        "?clone@?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@$0PPPPPPPM@A@EBAPEBVclone_base@23@XZ",
+        "?clone@?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@EEBAPEBVclone_base@23@XZ",
+        "?clone@?$wrapexcept@Vbad_alloc@std@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+        "?clone@?$wrapexcept@Vlock_error@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+        "?clone@?$wrapexcept@Vthread_resource_error@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+        "?copy_boost_exception@exception_detail@boost@@YAXPEAVexception@2@PEBV32@@Z",
+        "?deallocate@?$allocator@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@@std@@QEAAXQEAU?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@2@_K@Z",
+        "?default_error_condition@error_category@system@boost@@UEBA?AVerror_condition@23@H@Z",
+        "?default_error_condition@system_error_category@detail@system@boost@@UEBA?AVerror_condition@34@H@Z",
+        "?destroy@sp_counted_base@detail@boost@@UEAAXXZ",
+        "?detach@thread@boost@@QEAAXXZ",
+        "?dispose@?$sp_counted_impl_p@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAXXZ",
+        "?dispose@?$sp_counted_impl_p@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAXXZ",
+        "?do_try_join_until_noexcept@thread@boost@@AEAA_NAEBUmono_platform_timepoint@detail@2@AEA_N@Z",
+        "?equivalent@error_category@system@boost@@UEBA_NAEBVerror_code@23@H@Z",
+        "?equivalent@error_category@system@boost@@UEBA_NHAEBVerror_condition@23@@Z",
+        "?erase_tss_node@detail@boost@@YAXPEBX@Z",
+        "?failed@error_category@system@boost@@UEBA_NH@Z",
+        "?find_tss_data@detail@boost@@YAPEAUtss_data_node@12@PEBX@Z",
+        "?free_raw_heap_memory@detail@boost@@YAXPEAX@Z",
+        "?get_current_thread_data@detail@boost@@YAPEAUthread_data_base@12@XZ",
+        "?get_deleter@?$sp_counted_impl_p@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXAEBVtype_info@@@Z",
+        "?get_deleter@?$sp_counted_impl_p@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXAEBVtype_info@@@Z",
+        "?get_event@basic_timed_mutex@detail@boost@@AEAAPEAXXZ",
+        "?get_id@this_thread@boost@@YA?AVid@thread@2@XZ",
+        "?get_id@thread@boost@@QEBA?AVid@12@XZ",
+        "?get_local_deleter@?$sp_counted_impl_p@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXAEBVtype_info@@@Z",
+        "?get_local_deleter@?$sp_counted_impl_p@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXAEBVtype_info@@@Z",
+        "?get_thread_info@thread@boost@@AEBA?AV?$intrusive_ptr@Uthread_data_base@detail@boost@@@2@XZ",
+        "?get_tss_data@detail@boost@@YAPEAXPEBX@Z",
+        "?get_untyped_deleter@?$sp_counted_impl_p@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXXZ",
+        "?get_untyped_deleter@?$sp_counted_impl_p@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXXZ",
+        "?hardware_concurrency@thread@boost@@SAIXZ",
+        "?interrupt@thread@boost@@QEAAXXZ",
+        "?interruptible_wait@this_thread@boost@@YA_NPEAXAEBUmono_platform_timepoint@detail@2@@Z",
+        "?interruption_enabled@this_thread@boost@@YA_NXZ",
+        "?interruption_point@this_thread@boost@@YAXXZ",
+        "?interruption_requested@this_thread@boost@@YA_NXZ",
+        "?interruption_requested@thread@boost@@QEBA_NXZ",
+        "?join_noexcept@thread@boost@@AEAA_NXZ",
+        "?joinable@thread@boost@@QEBA_NXZ",
+        "?lock@basic_timed_mutex@detail@boost@@QEAAXXZ",
+        "?make_external_thread_data@?A0x0e1ddac1@boost@@YAXXZ",
+        "?mark_finished_internal@shared_state_base@detail@boost@@QEAAXAEAV?$unique_lock@Vmutex@boost@@@3@@Z",
+        "?message@generic_error_category@detail@system@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+        "?message@generic_error_category@detail@system@boost@@UEBAPEBDHPEAD_K@Z",
+        "?message@interop_error_category@detail@system@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+        "?message@interop_error_category@detail@system@boost@@UEBAPEBDHPEAD_K@Z",
+        "?message@system_error_category@detail@system@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+        "?message@system_error_category@detail@system@boost@@UEBAPEBDHPEAD_K@Z",
+        "?name@generic_error_category@detail@system@boost@@UEBAPEBDXZ",
+        "?name@interop_error_category@detail@system@boost@@UEBAPEBDXZ",
+        "?name@system_error_category@detail@system@boost@@UEBAPEBDXZ",
+        "?name_once_mutex@detail@boost@@YAXPEADPEAX@Z",
+        "?native_handle@thread@boost@@QEAAPEAXXZ",
+        "?non_interruptible_wait@no_interruption_point@this_thread@boost@@YA_NPEAXAEBUmono_platform_timepoint@detail@3@@Z",
+        "?notify_all@basic_condition_variable@detail@boost@@QEAAXXZ",
+        "?notify_all_at_thread_exit@boost@@YAXAEAVcondition_variable@1@V?$unique_lock@Vmutex@boost@@@1@@Z",
+        "?notify_all_at_thread_exit@thread_data_base@detail@boost@@UEAAXPEAVcondition_variable@3@PEAVmutex@3@@Z",
+        "?now@mono_platform_clock@detail@boost@@SA?AUmono_platform_timepoint@23@XZ",
+        "?on_process_enter@boost@@YAXXZ",
+        "?on_process_exit@boost@@YAXXZ",
+        "?on_thread_enter@boost@@YAXXZ",
+        "?on_thread_exit@boost@@YAXXZ",
+        "?physical_concurrency@thread@boost@@SAIXZ",
+        "?release_handle@thread@boost@@AEAAXXZ",
+        "?resize@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAX_KD@Z",
+        "?rethrow@?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@$0PPPPPPPM@A@EBAXXZ",
+        "?rethrow@?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@EEBAXXZ",
+        "?rethrow@?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@$0PPPPPPPM@A@EBAXXZ",
+        "?rethrow@?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@EEBAXXZ",
+        "?rethrow@?$wrapexcept@Vbad_alloc@std@@@boost@@UEBAXXZ",
+        "?rethrow@?$wrapexcept@Vlock_error@boost@@@boost@@UEBAXXZ",
+        "?rethrow@?$wrapexcept@Vthread_resource_error@boost@@@boost@@UEBAXXZ",
+        "?rollback_once_region@detail@boost@@YAXAEAUonce_flag@2@AEAUonce_context@12@@Z",
+        "?run_thread_exit_callbacks@?A0x0e1ddac1@boost@@YAXXZ",
+        "?set_tss_data@detail@boost@@YAXPEBXP6AXP6AXPEAX@Z1@Z21_N@Z",
+        "?sp_enable_shared_from_this@detail@boost@@YAXZZ",
+        "?start_thread_noexcept@thread@boost@@AEAA_NAEBVthread_attributes@2@@Z",
+        "?start_thread_noexcept@thread@boost@@AEAA_NXZ",
+        "?system_category_condition_win32@detail@system@boost@@YAHH@Z",
+        "?system_category_message_win32@detail@system@boost@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+        "?to_string@source_location@boost@@QEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ",
+        "?tss_cleanup_implemented@boost@@YAXXZ",
+        "?unknown_message_win32@detail@system@boost@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+        "?value@error_code@system@boost@@QEBAHXZ",
+        "?what@error_code@system@boost@@QEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ",
+        "?what@exception@std@@UEBAPEBDXZ",
+        "?yield@this_thread@boost@@YAXXZ",
+        "_CxxThrowException",
+        "_Init_thread_footer",
+        "_Init_thread_header",
+        "__local_stdio_printf_options",
+        "__security_check_cookie",
+        "__std_exception_copy",
+        "__std_exception_destroy",
+        "atexit",
+        "memcpy",
+        "memmove",
+        "memset",
+        "snprintf"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "0000_thread.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 1,
+      "functions": [
+        {
+          "entry_point": "0x0000000000004C00",
+          "name": "?foo@link_static_warning_inhibit@boost@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "?foo@link_static_warning_inhibit@boost@@YAXXZ"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "0001_tss_dll.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 3,
+      "functions": [
+        {
+          "entry_point": "0x0000000000009CC0",
+          "name": "?tss_cleanup_implemented@boost@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000AE38",
+          "name": "?on_process_exit@boost@@YAXXZ",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000AE40",
+          "name": "?on_thread_exit@boost@@YAXXZ",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "?on_process_exit@boost@@YAXXZ",
+        "?on_thread_exit@boost@@YAXXZ",
+        "?tss_cleanup_implemented@boost@@YAXXZ"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "0002_tss_pe.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 0,
+      "functions": [],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "0003_thread_primitives.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 32,
+      "functions": [
+        {
+          "entry_point": "0x000000000006E300",
+          "name": "?name@future_error_category@thread_detail@boost@@UEBAPEBDXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E310",
+          "name": "?message@future_error_category@thread_detail@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E540",
+          "name": "?default_error_condition@error_category@system@boost@@UEBA?AVerror_condition@23@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E550",
+          "name": "?equivalent@error_category@system@boost@@UEBA_NHAEBVerror_condition@23@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E5F0",
+          "name": "?equivalent@error_category@system@boost@@UEBA_NAEBVerror_code@23@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E680",
+          "name": "?message@error_category@system@boost@@UEBAPEBDHPEAD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E750",
+          "name": "?failed@error_category@system@boost@@UEBA_NH@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E760",
+          "name": "??$_Allocate_manually_vector_aligned@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E7A0",
+          "name": "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E7E0",
+          "name": "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E820",
+          "name": "??0bad_array_new_length@std@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E850",
+          "name": "??0exception@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E890",
+          "name": "??1?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000006E8A0",
+          "name": "??1bad_array_new_length@std@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E8C0",
+          "name": "??1exception@std@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E8E0",
+          "name": "??_Gbad_alloc@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E930",
+          "name": "??_Gbad_array_new_length@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E980",
+          "name": "??_Gexception@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E9D0",
+          "name": "?_Throw_bad_array_new_length@std@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E9F0",
+          "name": "?_Tidy_deallocate@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006EA50",
+          "name": "?allocate@?$allocator@D@std@@QEAAPEAD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006EAB0",
+          "name": "?future_category@boost@@YAAEBVerror_category@system@1@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006EAC0",
+          "name": "?value@error_code@system@boost@@QEBAHXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006EB10",
+          "name": "?what@exception@std@@UEBAPEBDXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006EB30",
+          "name": "__local_stdio_printf_options",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006EB40",
+          "name": "snprintf",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000702C0",
+          "name": "??2@YAPEAX_K@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000702C8",
+          "name": "??3@YAXPEAX_K@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000702E8",
+          "name": "__std_exception_copy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000702F0",
+          "name": "__std_exception_destroy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000070318",
+          "name": "_CxxThrowException",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000070330",
+          "name": "__security_check_cookie",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "??$_Allocate_manually_vector_aligned@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z",
+        "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+        "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+        "??0bad_array_new_length@std@@QEAA@XZ",
+        "??0exception@std@@QEAA@AEBV01@@Z",
+        "??1?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@XZ",
+        "??1bad_array_new_length@std@@UEAA@XZ",
+        "??1exception@std@@UEAA@XZ",
+        "??2@YAPEAX_K@Z",
+        "??3@YAXPEAX_K@Z",
+        "??_Gbad_alloc@std@@UEAAPEAXI@Z",
+        "??_Gbad_array_new_length@std@@UEAAPEAXI@Z",
+        "??_Gexception@std@@UEAAPEAXI@Z",
+        "?_Throw_bad_array_new_length@std@@YAXXZ",
+        "?_Tidy_deallocate@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXXZ",
+        "?allocate@?$allocator@D@std@@QEAAPEAD_K@Z",
+        "?default_error_condition@error_category@system@boost@@UEBA?AVerror_condition@23@H@Z",
+        "?equivalent@error_category@system@boost@@UEBA_NAEBVerror_code@23@H@Z",
+        "?equivalent@error_category@system@boost@@UEBA_NHAEBVerror_condition@23@@Z",
+        "?failed@error_category@system@boost@@UEBA_NH@Z",
+        "?future_category@boost@@YAAEBVerror_category@system@1@XZ",
+        "?message@error_category@system@boost@@UEBAPEBDHPEAD_K@Z",
+        "?message@future_error_category@thread_detail@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+        "?name@future_error_category@thread_detail@boost@@UEBAPEBDXZ",
+        "?value@error_code@system@boost@@QEBAHXZ",
+        "?what@exception@std@@UEBAPEBDXZ",
+        "_CxxThrowException",
+        "__local_stdio_printf_options",
+        "__security_check_cookie",
+        "__std_exception_copy",
+        "__std_exception_destroy",
+        "snprintf"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "0004_future.obj",
+      "source_languages": []
+    }
+  ],
+  "project_name": "boost_thread_library",
+  "project_parent": "FIDB/build/boost_ghidra_projects/thread",
+  "stage": "analyze",
+  "total_functions": 306
+}

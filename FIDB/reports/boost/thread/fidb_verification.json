@@ -1,0 +1,955 @@
+{
+  "architecture": "x86-64",
+  "compiler": "MSVC",
+  "compiler_spec": "windows",
+  "compiler_version": "19.34.31937 for x64",
+  "configuration": "Release",
+  "consumer": "FIDB/build/boost_consumers/thread/thread_detection.exe",
+  "direct_library_matches": [
+    {
+      "fid_name": "??$_Destroy_range@V?$allocator@V?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@@std@@@std@@YAXPEAV?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@QEAV12@AEAV?$allocator@V?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@@0@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140001140",
+      "program_function": "_Destroy_range<>",
+      "score": 41.720001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0exception@boost@@QEAA@AEBV01@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140002600",
+      "program_function": "exception",
+      "score": 35.04999923706055,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0lock_error@boost@@QEAA@HPEBD@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140002710",
+      "program_function": "lock_error",
+      "score": 47.34000015258789,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0thread_exception@boost@@QEAA@HPEBD@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140002BA0",
+      "program_function": "thread_exception",
+      "score": 58.060001373291016,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0lock_error@boost@@QEAA@HPEBD@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140002CB0",
+      "program_function": "lock_error",
+      "score": 47.34000015258789,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0thread_resource_error@boost@@QEAA@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140002CE0",
+      "program_function": "thread_resource_error",
+      "score": 42.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$refcount_ptr@Uerror_info_container@exception_detail@boost@@@exception_detail@boost@@QEAA@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140002F90",
+      "program_function": "~refcount_ptr<boost::exception_detail::error_info_container>",
+      "score": 15.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vbad_alloc@std@@@boost@@UEAA@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400031A0",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vlock_error@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140003200",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$wrapexcept@Vthread_resource_error@boost@@@boost@@UEAA@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140003200",
+      "program_function": "~wrapexcept<>",
+      "score": 26.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1shared_count@detail@boost@@QEAA@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400033C0",
+      "program_function": "~shared_count",
+      "score": 29.3700008392334,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vbad_alloc@std@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400034B0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vlock_error@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140003530",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$wrapexcept@Vthread_resource_error@boost@@@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140003530",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gclone_base@exception_detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140003600",
+      "program_function": "FUN_140003600",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gthread_data_base@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140003680",
+      "program_function": "FUN_140003680",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140003780",
+      "program_function": "append",
+      "score": 48.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?append_int@detail@system@boost@@YAXAEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140003810",
+      "program_function": "append_int",
+      "score": 85.74000549316406,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?copy_boost_exception@exception_detail@boost@@YAXPEAVexception@2@PEBV32@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140003A20",
+      "program_function": "copy_boost_exception",
+      "score": 104.08999633789062,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?equivalent@error_category@system@boost@@UEBA_NAEBVerror_code@23@H@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140003B90",
+      "program_function": "equivalent",
+      "score": 71.05000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?equivalent@error_category@system@boost@@UEBA_NHAEBVerror_condition@23@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140003C20",
+      "program_function": "equivalent",
+      "score": 58.04999923706055,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?lock@basic_timed_mutex@detail@boost@@QEAAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140004350",
+      "program_function": "lock",
+      "score": 201.72000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?message@generic_error_category@detail@system@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140004410",
+      "program_function": "message",
+      "score": 68.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?to_string@source_location@boost@@QEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140004D70",
+      "program_function": "to_string",
+      "score": 334.0299987792969,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?unknown_message_win32@detail@system@boost@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005090",
+      "program_function": "unknown_message_win32",
+      "score": 107.72000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?value@error_code@system@boost@@QEBAHXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005120",
+      "program_function": "value",
+      "score": 66.36000061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "snprintf",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400055B0",
+      "program_function": "snprintf",
+      "score": 297.70001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005610",
+      "program_function": "FUN_140005610",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005610",
+      "program_function": "FUN_140005610",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0runtime_error@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005610",
+      "program_function": "FUN_140005610",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_exception@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005610",
+      "program_function": "FUN_140005610",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gexception@std@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005650",
+      "program_function": "FUN_140005650",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_array_new_length@std@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005650",
+      "program_function": "FUN_140005650",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gruntime_error@std@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005650",
+      "program_function": "FUN_140005650",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_alloc@std@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005650",
+      "program_function": "FUN_140005650",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_exception@std@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005650",
+      "program_function": "FUN_140005650",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_alloc_@exception_detail@boost@@QEAA@AEBU012@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400056A0",
+      "program_function": "FID_conflict:bad_alloc_",
+      "score": 111.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_exception_@exception_detail@boost@@QEAA@AEBU012@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400056A0",
+      "program_function": "FID_conflict:bad_alloc_",
+      "score": 111.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_alloc_@exception_detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005730",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_exception_@exception_detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005730",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_alloc_@exception_detail@boost@@QEAA@AEBU012@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400057B0",
+      "program_function": "FID_conflict:bad_alloc_",
+      "score": 111.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_exception_@exception_detail@boost@@QEAA@AEBU012@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400057B0",
+      "program_function": "FID_conflict:bad_alloc_",
+      "score": 111.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_alloc_@exception_detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005840",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_exception_@exception_detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005840",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 36.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400058F0",
+      "program_function": "FUN_1400058f0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400058F0",
+      "program_function": "FUN_1400058f0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005920",
+      "program_function": "clone_impl<>",
+      "score": 80.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005920",
+      "program_function": "clone_impl<>",
+      "score": 80.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400059A0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 52.02000045776367,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400059A0",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 52.02000045776367,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_D?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@QEAAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400059E0",
+      "program_function": "FID_conflict:`vbase_destructor'",
+      "score": 60.72999954223633,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_D?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@QEAAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400059E0",
+      "program_function": "FID_conflict:`vbase_destructor'",
+      "score": 60.72999954223633,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005A80",
+      "program_function": "clone_impl<>",
+      "score": 80.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005A80",
+      "program_function": "clone_impl<>",
+      "score": 80.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005B00",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 52.02000045776367,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005B00",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 52.02000045776367,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_D?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@QEAAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005B40",
+      "program_function": "FID_conflict:`vbase_destructor'",
+      "score": 60.72999954223633,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_D?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@QEAAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005B40",
+      "program_function": "FID_conflict:`vbase_destructor'",
+      "score": 60.72999954223633,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gsp_counted_base@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005C80",
+      "program_function": "FUN_140005c80",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$?0V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@shared_count@detail@boost@@QEAA@PEAV?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@2@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005CB0",
+      "program_function": "shared_count<>",
+      "score": 293.0400085449219,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$?0V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@shared_count@detail@boost@@QEAA@PEAV?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@2@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005CB0",
+      "program_function": "shared_count<>",
+      "score": 293.0400085449219,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$?0V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@shared_count@detail@boost@@QEAA@PEAV?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@2@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005D10",
+      "program_function": "shared_count<>",
+      "score": 293.0400085449219,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$?0V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@shared_count@detail@boost@@QEAA@PEAV?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@2@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005D10",
+      "program_function": "shared_count<>",
+      "score": 293.0400085449219,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$get_static_exception_object@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@YA?AVexception_ptr@1@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005D70",
+      "program_function": "get_static_exception_object<>",
+      "score": 290.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$get_static_exception_object@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@YA?AVexception_ptr@1@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140005D70",
+      "program_function": "get_static_exception_object<>",
+      "score": 290.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$get_static_exception_object@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@YA?AVexception_ptr@1@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140006210",
+      "program_function": "get_static_exception_object<>",
+      "score": 290.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$get_static_exception_object@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@YA?AVexception_ptr@1@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140006210",
+      "program_function": "get_static_exception_object<>",
+      "score": 290.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1bad_alloc_@exception_detail@boost@@UEAA@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400066B0",
+      "program_function": "FUN_1400066b0",
+      "score": 25.360000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1bad_exception_@exception_detail@boost@@UEAA@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400066B0",
+      "program_function": "FUN_1400066b0",
+      "score": 25.360000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1bad_alloc_@exception_detail@boost@@UEAA@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140006710",
+      "program_function": "FUN_140006710",
+      "score": 25.360000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1bad_exception_@exception_detail@boost@@UEAA@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140006710",
+      "program_function": "FUN_140006710",
+      "score": 25.360000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Erase_unchecked@?$_Tree@V?$_Tmap_traits@PEBXUtss_data_node@detail@boost@@U?$less@PEBX@std@@V?$allocator@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@5@$0A@@std@@@std@@AEAAPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@V?$_Tree_unchecked_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@U_Iterator_base0@2@@2@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140006A30",
+      "program_function": "_Erase_unchecked",
+      "score": 397.3900146484375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Extract@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@V?$_Tree_unchecked_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@U_Iterator_base0@2@@2@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140006AA0",
+      "program_function": "_Extract",
+      "score": 448.0899963378906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Lrotate@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAXPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140006E70",
+      "program_function": "Lrotate",
+      "score": 313.3800048828125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Rrotate@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAXPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140006ED0",
+      "program_function": "Rrotate",
+      "score": 316.05999755859375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?call_once@boost@@YAXAEAUonce_flag@1@P6AXXZ@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140006F30",
+      "program_function": "call_once",
+      "score": 332.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@EEBAPEBVclone_base@23@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007160",
+      "program_function": "clone",
+      "score": 139.08999633789062,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@EEBAPEBVclone_base@23@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007160",
+      "program_function": "clone",
+      "score": 139.08999633789062,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@EEBAPEBVclone_base@23@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007220",
+      "program_function": "clone",
+      "score": 139.08999633789062,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?clone@?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@EEBAPEBVclone_base@23@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007220",
+      "program_function": "clone",
+      "score": 139.08999633789062,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?detach@thread@boost@@QEAAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007300",
+      "program_function": "FUN_140007300",
+      "score": 23.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?release_handle@thread@boost@@AEAAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007300",
+      "program_function": "FUN_140007300",
+      "score": 23.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_current_thread_data@detail@boost@@YAPEAUthread_data_base@12@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007350",
+      "program_function": "get_current_thread_data",
+      "score": 260.6700134277344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_id@thread@boost@@QEBA?AVid@12@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007390",
+      "program_function": "get_id",
+      "score": 33.70000076293945,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?interruptible_wait@this_thread@boost@@YA_NPEAXAEBUmono_platform_timepoint@detail@2@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007400",
+      "program_function": "interruptible_wait",
+      "score": 364.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?join_noexcept@thread@boost@@AEAA_NXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007850",
+      "program_function": "join_noexcept",
+      "score": 356.07000732421875,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?mark_finished_internal@shared_state_base@detail@boost@@QEAAXAEAV?$unique_lock@Vmutex@boost@@@3@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007940",
+      "program_function": "mark_finished_internal",
+      "score": 216.45999145507812,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?name_once_mutex@detail@boost@@YAXPEADPEAX@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007A90",
+      "program_function": "name_once_mutex",
+      "score": 353.010009765625,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?native_handle@thread@boost@@QEAAPEAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007C20",
+      "program_function": "native_handle",
+      "score": 94.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?notify_all@basic_condition_variable@detail@boost@@QEAAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007C90",
+      "program_function": "notify_all",
+      "score": 213.77999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?now@mono_platform_clock@detail@boost@@SA?AUmono_platform_timepoint@23@XZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007D90",
+      "program_function": "now",
+      "score": 308.3900146484375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@EEBAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007E90",
+      "program_function": "rethrow",
+      "score": 36.349998474121094,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@EEBAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007E90",
+      "program_function": "rethrow",
+      "score": 36.349998474121094,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@EEBAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007EC0",
+      "program_function": "rethrow",
+      "score": 36.349998474121094,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rethrow@?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@EEBAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007EC0",
+      "program_function": "rethrow",
+      "score": 36.349998474121094,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?rollback_once_region@detail@boost@@YAXAEAUonce_flag@2@AEAUonce_context@12@@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007EF0",
+      "program_function": "rollback_once_region",
+      "score": 162.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?run_thread_exit_callbacks@?A0x0e1ddac1@boost@@YAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140007F70",
+      "program_function": "run_thread_exit_callbacks",
+      "score": 251.10000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?sp_enable_shared_from_this@detail@boost@@YAXZZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400080C0",
+      "program_function": "sp_enable_shared_from_this",
+      "score": 273.67999267578125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?start_thread_noexcept@thread@boost@@AEAA_NXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400080E0",
+      "program_function": "start_thread_noexcept",
+      "score": 47.72999954223633,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140008380",
+      "program_function": "FUN_140008380",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140008380",
+      "program_function": "FUN_140008380",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??__F?e@?$exception_ptr_static_exception_object@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@2Vexception_ptr@3@B@@YAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400099B0",
+      "program_function": "FUN_1400099b0",
+      "score": 29.3700008392334,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??__F?e@?$exception_ptr_static_exception_object@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@2Vexception_ptr@3@B@@YAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x00000001400099B0",
+      "program_function": "FUN_1400099b0",
+      "score": 29.3700008392334,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??__F?e@?$exception_ptr_static_exception_object@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@2Vexception_ptr@3@B@@YAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140009A00",
+      "program_function": "FUN_140009a00",
+      "score": 29.3700008392334,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??__F?e@?$exception_ptr_static_exception_object@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@2Vexception_ptr@3@B@@YAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140009A00",
+      "program_function": "FUN_140009a00",
+      "score": 29.3700008392334,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??__F?e@?$exception_ptr_static_exception_object@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@2Vexception_ptr@3@B@@YAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140009A50",
+      "program_function": "FUN_140009a50",
+      "score": 29.3700008392334,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??__F?e@?$exception_ptr_static_exception_object@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@2Vexception_ptr@3@B@@YAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140009A50",
+      "program_function": "FUN_140009a50",
+      "score": 29.3700008392334,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??__F?e@?$exception_ptr_static_exception_object@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@2Vexception_ptr@3@B@@YAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140009AA0",
+      "program_function": "FUN_140009aa0",
+      "score": 29.3700008392334,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??__F?e@?$exception_ptr_static_exception_object@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@2Vexception_ptr@3@B@@YAXXZ",
+      "library": "Boost.Thread",
+      "program_entry_point": "0x0000000140009AA0",
+      "program_function": "FUN_140009aa0",
+      "score": 29.3700008392334,
+      "version": "1.86.0"
+    }
+  ],
+  "expected_match_count": 3,
+  "expected_matches": {
+    "interrupt": [
+      {
+        "comment": "Library Function - Single Match\n bool __cdecl boost::this_thread::interruptible_wait(void * __ptr64,struct boost::detail::mono_platform_timepoint const & __ptr64)\n\nLibrary: Boost.Thread 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140007400",
+        "fid_bookmark": "Library Function - Single Match,  ?interruptible_wait@this_thread@boost@@YA_NPEAXAEBUmono_platform_timepoint@detail@2@@Z",
+        "name": "interruptible_wait",
+        "offset": 5368738816
+      }
+    ],
+    "join": [
+      {
+        "comment": "Library Function - Single Match\n private: bool __cdecl boost::thread::join_noexcept(void) __ptr64\n\nLibrary: Boost.Thread 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140007850",
+        "fid_bookmark": "Library Function - Single Match,  ?join_noexcept@thread@boost@@AEAA_NXZ",
+        "name": "join_noexcept",
+        "offset": 5368739920
+      }
+    ],
+    "start_thread": [
+      {
+        "comment": "Library Function - Single Match\n private: bool __cdecl boost::thread::start_thread_noexcept(void) __ptr64\n\nLibrary: Boost.Thread 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x00000001400080E0",
+        "fid_bookmark": "Library Function - Single Match,  ?start_thread_noexcept@thread@boost@@AEAA_NXZ",
+        "name": "start_thread_noexcept",
+        "offset": 5368742112
+      }
+    ]
+  },
+  "fidb": {
+    "compiler_spec_filter": "windows",
+    "expected_function_records": [
+      "interrupt",
+      "join",
+      "start_thread"
+    ],
+    "fidb_path": "FIDB/libraries/boost/thread/1.86.0/boost-thread-1.86.0-msvc-x86_64-release.fidb",
+    "function_record_count": 210,
+    "language_id": "x86:LE:64:default",
+    "library_count": 1,
+    "library_family": "Boost.Thread",
+    "library_variant": "msvc-x86_64-release",
+    "library_version": "1.86.0",
+    "readable": true,
+    "source_language_filter": ""
+  },
+  "function_count": 301,
+  "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
+  "ghidra_version": "12.1.3",
+  "language_id": "x86:LE:64:default",
+  "library": "Boost.Thread",
+  "library_family": "Boost.Thread",
+  "linkage": "static",
+  "negative_control": {
+    "false_zlib_matches": [],
+    "map_offset": 5368726768,
+    "observed_rows": [
+      {
+        "comment": "",
+        "entry_point": "0x00000001400044F0",
+        "fid_bookmark": "",
+        "name": "FUN_1400044f0",
+        "offset": 5368726768
+      }
+    ],
+    "symbol": "non_boost_control"
+  },
+  "pyghidra_version": "3.1.0",
+  "query_api": "Language compatibility overload",
+  "source_language_declared": "C++",
+  "stage": "verify",
+  "status": "PASS"
+}

@@ -1,0 +1,50 @@
+{
+  "architecture": "x86-64",
+  "compiler": "MSVC",
+  "compiler_spec": "windows",
+  "compiler_version": "19.34.31937 for x64",
+  "configuration": "Release",
+  "consumer": "FIDB/build/boost_consumers/system/system_detection.exe",
+  "direct_library_matches": [],
+  "expected_match_count": 0,
+  "expected_matches": {},
+  "fidb": {
+    "compiler_spec_filter": "windows",
+    "expected_function_records": [],
+    "fidb_path": "FIDB/libraries/boost/system/1.86.0/boost-system-1.86.0-msvc-x86_64-release.fidb",
+    "function_record_count": 0,
+    "language_id": "x86:LE:64:default",
+    "library_count": 1,
+    "library_family": "Boost.System",
+    "library_variant": "msvc-x86_64-release",
+    "library_version": "1.86.0",
+    "readable": true,
+    "source_language_filter": ""
+  },
+  "function_count": 125,
+  "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
+  "ghidra_version": "12.1.3",
+  "language_id": "x86:LE:64:default",
+  "library": "Boost.System",
+  "library_family": "Boost.System",
+  "linkage": "static",
+  "negative_control": {
+    "false_zlib_matches": [],
+    "map_offset": 5368716272,
+    "observed_rows": [
+      {
+        "comment": "",
+        "entry_point": "0x0000000140001BF0",
+        "fid_bookmark": "",
+        "name": "FUN_140001bf0",
+        "offset": 5368716272
+      }
+    ],
+    "symbol": "non_boost_control"
+  },
+  "pyghidra_version": "3.1.0",
+  "query_api": "Language compatibility overload",
+  "source_language_declared": "C++",
+  "stage": "verify",
+  "status": "PASS"
+}

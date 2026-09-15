@@ -1,0 +1,1506 @@
+{
+  "allow_empty": false,
+  "architecture": "x86-64",
+  "compiler": "MSVC",
+  "compiler_spec_filter": "windows",
+  "compiler_version": "19.34.31937 for x64",
+  "configuration": "Release",
+  "empty_reason": "",
+  "expected_functions": [
+    "join",
+    "start_thread",
+    "interrupt"
+  ],
+  "filter_api": "LanguageID compatibility overload",
+  "function_record_count": 210,
+  "function_records": [
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141660",
+      "full_hash": "0x34DBD1437B809A96",
+      "name": "??_Gbad_alloc_@exception_detail@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xF1CCDF0261B2CB8F"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000147700",
+      "full_hash": "0xAC661EF145C76BBD",
+      "name": "?message@generic_error_category@detail@system@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0xBA0BCA1FAF14BCFA"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145090",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gexception@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000148030",
+      "full_hash": "0x6B86A12201E81C72",
+      "name": "?notify_all_at_thread_exit@boost@@YAXAEAVcondition_variable@1@V?$unique_lock@Vmutex@boost@@@1@@Z",
+      "specific_hash": "0xD8EC5FE1FC9F52E3"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001484A0",
+      "full_hash": "0x40EA3A1229D9D411",
+      "name": "?rethrow@?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@EEBAXXZ",
+      "specific_hash": "0x4BFE6CFDFF28E5D6"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141530",
+      "full_hash": "0x3EE5299F68B33AF4",
+      "name": "??0exception@boost@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x1047CAECCA2AAFD7"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001446B0",
+      "full_hash": "0x4827AA7B4E2E991A",
+      "name": "??1?$wrapexcept@Vlock_error@boost@@@boost@@UEAA@XZ",
+      "specific_hash": "0x88DFAC0740B9CE93"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141CE0",
+      "full_hash": "0xAC8085E119013D94",
+      "name": "??$?0V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@shared_count@detail@boost@@QEAA@PEAV?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@2@@Z",
+      "specific_hash": "0x21B13DD18ECAA8A9"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001449B0",
+      "full_hash": "0xD0643FB6F9C21BB0",
+      "name": "??1local_free@detail@system@boost@@QEAA@XZ",
+      "specific_hash": "0x4628C99F5E427048"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144200",
+      "full_hash": "0x7314A10560F201BC",
+      "name": "??0thread_exception@boost@@QEAA@AEBV01@@Z",
+      "specific_hash": "0xCFBC6B732DB51677"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143270",
+      "full_hash": "0x839AE56179F8EBC0",
+      "name": "??$heap_new@Uthread_exit_callback_node@detail@boost@@AEAPEAUthread_exit_function_base@23@AEAPEAU123@@detail@boost@@YAPEAUthread_exit_callback_node@01@AEAPEAUthread_exit_function_base@01@AEAPEAU201@@Z",
+      "specific_hash": "0x6AB3D14A09DB2B89"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001428A0",
+      "full_hash": "0x3E9175B633946A9A",
+      "name": "??$get_static_exception_object@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@YA?AVexception_ptr@1@XZ",
+      "specific_hash": "0xFE99A19BCCDED008"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143C00",
+      "full_hash": "0x3F776102123EF13B",
+      "name": "??0bad_array_new_length@std@@QEAA@XZ",
+      "specific_hash": "0xE89F366BE03F8AE1"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144310",
+      "full_hash": "0x7314A10560F201BC",
+      "name": "??0thread_resource_error@boost@@QEAA@AEBV01@@Z",
+      "specific_hash": "0xCFBC6B732DB51677"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145200",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gsystem_error@system@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xEBA39E63DD2FC5AE"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141440",
+      "full_hash": "0xF28FA0EB7AE1A1CA",
+      "name": "?what@exception@std@@UEBAPEBDXZ",
+      "specific_hash": "0x15643C00B67E7F07"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001432E0",
+      "full_hash": "0xE93B69E297ADE374",
+      "name": "??$int_to_string@K@detail@boost@@YAXKPEAD@Z",
+      "specific_hash": "0x83B277657D73C86A"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001469C0",
+      "full_hash": "0x4755F45E36E91197",
+      "name": "?erase_tss_node@detail@boost@@YAXPEBX@Z",
+      "specific_hash": "0x89BAC7D70024BCB7"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000149550",
+      "full_hash": "0x492465650966A807",
+      "name": "?value@error_code@system@boost@@QEBAHXZ",
+      "specific_hash": "0xB12C71C663877B3B"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141BE4",
+      "full_hash": "0xA5B7C143FEAC5141",
+      "name": "??_E?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@$4PPPPPPPM@FA@EAAPEAXI@Z",
+      "specific_hash": "0x0D51367954C538DD"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146730",
+      "full_hash": "0x278C691018774747",
+      "name": "?detach@thread@boost@@QEAAXXZ",
+      "specific_hash": "0xFA6A78D56B01E8A0"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001478A0",
+      "full_hash": "0xBC1BEC6DC03AE066",
+      "name": "?message@system_error_category@detail@system@boost@@UEBAPEBDHPEAD_K@Z",
+      "specific_hash": "0x689280A1176F86AF"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141F10",
+      "full_hash": "0x0D7D010197A043A6",
+      "name": "??$_Destroy_range@V?$allocator@V?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@@std@@@std@@YAXPEAV?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@QEAV12@AEAV?$allocator@V?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@@0@@Z",
+      "specific_hash": "0x4B15B0908A1269F0"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145B50",
+      "full_hash": "0x59681E7727BEFEAE",
+      "name": "?_Lrotate@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAXPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@@Z",
+      "specific_hash": "0xB5D161184B6D3E10"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000142140",
+      "full_hash": "0x79525203C247F14D",
+      "name": "??$_Erase_tree@V?$allocator@U?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@std@@@std@@@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAXAEAV?$allocator@U?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@std@@@1@PEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@1@@Z",
+      "specific_hash": "0x1C35F752C57C7191"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001463B0",
+      "full_hash": "0xDDA4BDC6580E4FAB",
+      "name": "?clone@?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@EEBAPEBVclone_base@23@XZ",
+      "specific_hash": "0x495800891DF7AF2F"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001472E0",
+      "full_hash": "0x5F2FF5C0D1426C79",
+      "name": "?interruption_requested@thread@boost@@QEBA_NXZ",
+      "specific_hash": "0xC926DBC14A67B7A7"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141F90",
+      "full_hash": "0x37CCA686789A15F6",
+      "name": "??$_Emplace_reallocate@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@@?$vector@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@V?$allocator@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@@2@@std@@AEAAPEAU?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@1@QEAU21@$$QEAU21@@Z",
+      "specific_hash": "0xE1C77367D2714A61"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000148530",
+      "full_hash": "0xCC57799FB18138A2",
+      "name": "?rethrow@?$wrapexcept@Vlock_error@boost@@@boost@@UEBAXXZ",
+      "specific_hash": "0xB4B35FE04D9942BD"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145340",
+      "full_hash": "0xBB48073ADCE277B5",
+      "name": "?_Erase_unchecked@?$_Tree@V?$_Tmap_traits@PEBXUtss_data_node@detail@boost@@U?$less@PEBX@std@@V?$allocator@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@5@$0A@@std@@@std@@AEAAPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@V?$_Tree_unchecked_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@U_Iterator_base0@2@@2@0@Z",
+      "specific_hash": "0x11DC58D3C516E13F"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144650",
+      "full_hash": "0x4827AA7B4E2E991A",
+      "name": "??1?$wrapexcept@Vbad_alloc@std@@@boost@@UEAA@XZ",
+      "specific_hash": "0x537DB655F467DF47"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146530",
+      "full_hash": "0x68D1EDFAD9717480",
+      "name": "?clone@?$wrapexcept@Vthread_resource_error@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "specific_hash": "0xB4116829756B26C6"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000147880",
+      "full_hash": "0xABDE0B6C67537764",
+      "name": "?message@system_error_category@detail@system@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0x7F3FC6CD709F2F6C"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000147180",
+      "full_hash": "0x26B755A1AC14CF2D",
+      "name": "?interruption_enabled@this_thread@boost@@YA_NXZ",
+      "specific_hash": "0x32210346E9731BE9"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x000000000014AC00",
+      "full_hash": "0x199E974FA87F7354",
+      "name": "??__F?e@?$exception_ptr_static_exception_object@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@2Vexception_ptr@3@B@@YAXXZ",
+      "specific_hash": "0x086B014849ED6C4D"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143970",
+      "full_hash": "0x0F8A264154E093AE",
+      "name": "??0?$wrapexcept@Vlock_error@boost@@@boost@@QEAA@AEBVlock_error@1@@Z",
+      "specific_hash": "0x2AFABC424DFBDEF6"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143CB0",
+      "full_hash": "0x7314A10560F201BC",
+      "name": "??0lock_error@boost@@QEAA@AEBV01@@Z",
+      "specific_hash": "0xCFBC6B732DB51677"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001431E0",
+      "full_hash": "0xC56D108CBBDE3402",
+      "name": "??$heap_delete@Uexternally_launched_thread@?A0x0e1ddac1@boost@@@detail@boost@@YAXPEAUexternally_launched_thread@?A0x0e1ddac1@1@@Z",
+      "specific_hash": "0x73F1FAE50670D6BE"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000142860",
+      "full_hash": "0x616D6AAFF3A3C983",
+      "name": "??$checked_delete@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@boost@@YAXPEAV?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@0@@Z",
+      "specific_hash": "0x6C679742A5A4BAB5"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141400",
+      "full_hash": "0x8394F617ED90D651",
+      "name": "??0exception@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x27E5355338B09110"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001484D0",
+      "full_hash": "0x40EA3A1229D9D411",
+      "name": "?rethrow@?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@EEBAXXZ",
+      "specific_hash": "0x4BFE6CFDFF28E5D6"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001475B0",
+      "full_hash": "0xC1AE2774FDF37EB4",
+      "name": "?mark_finished_internal@shared_state_base@detail@boost@@QEAAXAEAV?$unique_lock@Vmutex@boost@@@3@@Z",
+      "specific_hash": "0x1CF8B3EB1F4D4E78"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145250",
+      "full_hash": "0x205BB2F03257B770",
+      "name": "??_Gthread_data_base@detail@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xBC369327D7F99C97"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143A10",
+      "full_hash": "0xD5C8F37344F632CE",
+      "name": "??0?$wrapexcept@Vthread_resource_error@boost@@@boost@@QEAA@AEBU01@@Z",
+      "specific_hash": "0x859C91AAB35EBE3A"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001449F0",
+      "full_hash": "0x015CBB50C8529E26",
+      "name": "??1once_context@detail@boost@@QEAA@XZ",
+      "specific_hash": "0x6339AC43F757258D"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143450",
+      "full_hash": "0xCC57799FB18138A2",
+      "name": "??$throw_exception@Vlock_error@boost@@@boost@@YAXAEBVlock_error@0@@Z",
+      "specific_hash": "0xB4B35FE04D9942BD"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000147290",
+      "full_hash": "0xE79D6495CA27C28E",
+      "name": "?interruption_requested@this_thread@boost@@YA_NXZ",
+      "specific_hash": "0xDA32703D4F1A471B"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001448E0",
+      "full_hash": "0x1FE3B4B5CF36A7B1",
+      "name": "??1disable_interruption@this_thread@boost@@QEAA@XZ",
+      "specific_hash": "0x71478B509EFEFE82"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001414F0",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143BC0",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001452E0",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gthread_resource_error@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xEBA39E63DD2FC5AE"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001434B0",
+      "full_hash": "0x9ACF24092FE4BE1D",
+      "name": "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@U_String_constructor_concat_tag@1@AEAV01@1@Z",
+      "specific_hash": "0x818893F937DB3823"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144380",
+      "full_hash": "0x20785501094813BA",
+      "name": "??0thread_resource_error@boost@@QEAA@XZ",
+      "specific_hash": "0x4C09A0AFB9F7FBAA"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146000",
+      "full_hash": "0x27C2A2B3E11CAF92",
+      "name": "?append_int@detail@system@boost@@YAXAEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0x6618FB10C714601C"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146C70",
+      "full_hash": "0x7F50402EFC34E41C",
+      "name": "?get_tss_data@detail@boost@@YAPEAXPEBX@Z",
+      "specific_hash": "0xBF419217BE92FE9D"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001495A0",
+      "full_hash": "0x0B272E9A1B3F86E9",
+      "name": "?what@error_code@system@boost@@QEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ",
+      "specific_hash": "0x958F17EB2EA40824"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145EB0",
+      "full_hash": "0x3908A659726B6719",
+      "name": "?add_thread_exit_function@detail@boost@@YAXPEAUthread_exit_function_base@12@@Z",
+      "specific_hash": "0xC73DC67624AFA37E"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000148B10",
+      "full_hash": "0xFD8B0EA8ADEB7E7D",
+      "name": "?system_category_condition_win32@detail@system@boost@@YAHH@Z",
+      "specific_hash": "0x24C3560C8B0507A4"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146780",
+      "full_hash": "0x038D28BB23399AFA",
+      "name": "?do_try_join_until_noexcept@thread@boost@@AEAA_NAEBUmono_platform_timepoint@detail@2@AEA_N@Z",
+      "specific_hash": "0xDD26619363984E22"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143480",
+      "full_hash": "0xCC57799FB18138A2",
+      "name": "??$throw_exception@Vthread_resource_error@boost@@@boost@@YAXAEBVthread_resource_error@0@@Z",
+      "specific_hash": "0xB4B35FE04D9942BD"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144790",
+      "full_hash": "0x6E4BD2C2942E890A",
+      "name": "??1bad_alloc_@exception_detail@boost@@UEAA@XZ",
+      "specific_hash": "0xB59FFACC38F948B3"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143420",
+      "full_hash": "0x1016C3D3D93CF334",
+      "name": "??$throw_exception@Vbad_alloc@std@@@boost@@YAXAEBVbad_alloc@std@@@Z",
+      "specific_hash": "0xB4F55B517E42594E"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001444B0",
+      "full_hash": "0xF4BBAC836AA97D68",
+      "name": "??1?$intrusive_ptr@Uthread_data_base@detail@boost@@@boost@@QEAA@XZ",
+      "specific_hash": "0xB13CD19B0A0DE01F"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145290",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gthread_exception@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xEBA39E63DD2FC5AE"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144420",
+      "full_hash": "0xEB3B3D1382C81EF5",
+      "name": "??1?$_Alloc_construct_ptr@V?$allocator@U?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@std@@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0xEC1D700078D3E677"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144140",
+      "full_hash": "0xB67C1B838FF47A45",
+      "name": "??0thread_data_base@detail@boost@@QEAA@XZ",
+      "specific_hash": "0xEF0B322C1A0BDB41"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144930",
+      "full_hash": "0x50755EF479BBEA56",
+      "name": "??1exception@boost@@MEAA@XZ",
+      "specific_hash": "0xAC308368D2F3C806"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001415A0",
+      "full_hash": "0x108D55EA8A0D124C",
+      "name": "??_Gclone_base@exception_detail@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x80EAEE8E330F4C9B"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145040",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gbad_array_new_length@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145F10",
+      "full_hash": "0xE2E3C78B887BD16A",
+      "name": "?allocate@?$allocator@D@std@@QEAAPEAD_K@Z",
+      "specific_hash": "0x6A9596D6B0011C9B"
+    },
+    {
+      "domain_path": "/0004_future.obj",
+      "entry_point": "0x000000000006EA50",
+      "full_hash": "0x04DDB818EA653D12",
+      "name": "?allocate@?$allocator@D@std@@QEAAPEAD_K@Z",
+      "specific_hash": "0x1D4BA5CD11E327D5"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001466C0",
+      "full_hash": "0x5B236DC9338E41AF",
+      "name": "?default_error_condition@error_category@system@boost@@UEBA?AVerror_condition@23@H@Z",
+      "specific_hash": "0x8922F35F672C67D9"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146C90",
+      "full_hash": "0x045F372220027744",
+      "name": "?hardware_concurrency@thread@boost@@SAIXZ",
+      "specific_hash": "0xD5BF205AF3DC3AB5"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000147F30",
+      "full_hash": "0x8025A87D364F09C7",
+      "name": "?notify_all@basic_condition_variable@detail@boost@@QEAAXXZ",
+      "specific_hash": "0x0123D2DE485C182B"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001451B0",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gruntime_error@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146B50",
+      "full_hash": "0x61C2C8963389BE2D",
+      "name": "?get_event@basic_timed_mutex@detail@boost@@AEAAPEAXXZ",
+      "specific_hash": "0xF65F892870119CBC"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001426D0",
+      "full_hash": "0x13444B980B8C70B9",
+      "name": "??$_Reallocate_grow_by@V<lambda_e1befb086ad3257e3f042a63030725f7>@@_KD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_e1befb086ad3257e3f042a63030725f7>@@_KD@Z",
+      "specific_hash": "0x888C1DC2FC9363D5"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001499B0",
+      "full_hash": "0xA0869973A31F3B58",
+      "name": "snprintf",
+      "specific_hash": "0xB3EEEB8B917B587C"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143B90",
+      "full_hash": "0x3F776102123EF13B",
+      "name": "??0bad_alloc@std@@QEAA@XZ",
+      "specific_hash": "0xE89F366BE03F8AE1"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001448A0",
+      "full_hash": "0xA6C2FFC026B4746C",
+      "name": "??1deleter@?$wrapexcept@Vlock_error@boost@@@boost@@QEAA@XZ",
+      "specific_hash": "0x781A282DF24EFE89"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144D40",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1thread_resource_error@boost@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001464D0",
+      "full_hash": "0x68D1EDFAD9717480",
+      "name": "?clone@?$wrapexcept@Vlock_error@boost@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "specific_hash": "0xB4116829756B26C6"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145F70",
+      "full_hash": "0x48A7BB07EBECBD72",
+      "name": "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+      "specific_hash": "0x7B4467EA497E04E1"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001471D0",
+      "full_hash": "0x13664C1F42047D12",
+      "name": "?interruption_point@this_thread@boost@@YAXXZ",
+      "specific_hash": "0x2E1DA3DEE5169276"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143340",
+      "full_hash": "0xE64526FCDF12F2A9",
+      "name": "??$int_to_string@_J@detail@boost@@YAX_JPEAD@Z",
+      "specific_hash": "0x53FC3C5519948167"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001421A0",
+      "full_hash": "0x7FD74D56EBE0B967",
+      "name": "??$_Getvals@_W@?$time_get@DV?$istreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+      "specific_hash": "0x3FBB7FB8DA13BB48"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145BB0",
+      "full_hash": "0xE4072E7F5F1BE002",
+      "name": "?_Maklocwcs@std@@YAPEA_WPEB_W@Z",
+      "specific_hash": "0x7AF1F07FF2BD73A2"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001479A0",
+      "full_hash": "0x5F1399ED56C2DC3E",
+      "name": "?name_once_mutex@detail@boost@@YAXPEADPEAX@Z",
+      "specific_hash": "0xEAA2E663B35246CF"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143D20",
+      "full_hash": "0x9D12CF71A921A19B",
+      "name": "??0lock_error@boost@@QEAA@HPEBD@Z",
+      "specific_hash": "0x619E6A8ACF189B09"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146C50",
+      "full_hash": "0x6252224696EF31F9",
+      "name": "?get_thread_info@thread@boost@@AEBA?AV?$intrusive_ptr@Uthread_data_base@detail@boost@@@2@XZ",
+      "specific_hash": "0x1C6D66217F60ABF5"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143DD0",
+      "full_hash": "0x29549D17C65BF463",
+      "name": "??0system_error@system@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0xDAF4EEF529C466FC"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000148110",
+      "full_hash": "0xA0A2DDFA7C2A0E62",
+      "name": "?now@mono_platform_clock@detail@boost@@SA?AUmono_platform_timepoint@23@XZ",
+      "specific_hash": "0x0D6E1F226BAF3AB9"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146CB0",
+      "full_hash": "0x014344C8925E5D1F",
+      "name": "?interrupt@thread@boost@@QEAAXXZ",
+      "specific_hash": "0x65A5DBC130F676F1"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143D90",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0runtime_error@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001447F0",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1bad_array_new_length@std@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146470",
+      "full_hash": "0x68D1EDFAD9717480",
+      "name": "?clone@?$wrapexcept@Vbad_alloc@std@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+      "specific_hash": "0x043AA54D8DF15408"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141E50",
+      "full_hash": "0xF27DEDA43ACD6528",
+      "name": "??$_Copy_memmove@PEAU?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@PEAU12@@std@@YAPEAU?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@0@PEAU10@00@Z",
+      "specific_hash": "0xE0D37EBF08A17034"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001494C0",
+      "full_hash": "0x8B13FBEF9C784BFC",
+      "name": "?unknown_message_win32@detail@system@boost@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0x969FA0246D5F6FCF"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000147360",
+      "full_hash": "0x5CBDF2E9E624EDC5",
+      "name": "?join_noexcept@thread@boost@@AEAA_NXZ",
+      "specific_hash": "0x43D957A5A8CB9A35"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141590",
+      "full_hash": "0xA3556930B7BDBC69",
+      "name": "??0clone_base@exception_detail@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0x34D7633BB0971F45"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141C18",
+      "full_hash": "0xA5B7C143FEAC5141",
+      "name": "??_E?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@$4PPPPPPPM@FA@EAAPEAXI@Z",
+      "specific_hash": "0x0D51367954C538DD"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146BE0",
+      "full_hash": "0xE3CF8D4CB4FA70F5",
+      "name": "?get_id@thread@boost@@QEBA?AVid@12@XZ",
+      "specific_hash": "0xC267BF87CABC10C5"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143660",
+      "full_hash": "0x751BD7F9286DF52B",
+      "name": "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@_KD@Z",
+      "specific_hash": "0x080C7B1A66E33D75"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144580",
+      "full_hash": "0xFD21E295089DBC55",
+      "name": "??1?$vector@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@V?$allocator@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@@2@@std@@QEAA@XZ",
+      "specific_hash": "0x84504BC96F08EF57"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000148A80",
+      "full_hash": "0xA4CD972A8A3F8AAF",
+      "name": "?start_thread_noexcept@thread@boost@@AEAA_NXZ",
+      "specific_hash": "0x74D51DA4CB1BAF4C"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000142270",
+      "full_hash": "0x7FD74D56EBE0B967",
+      "name": "??$_Getvals@_W@?$time_get@_WV?$istreambuf_iterator@_WU?$char_traits@_W@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+      "specific_hash": "0x3FBB7FB8DA13BB48"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145160",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Glock_error@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xEBA39E63DD2FC5AE"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141460",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0bad_exception@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000148590",
+      "full_hash": "0x084FE165BF7B170A",
+      "name": "?rollback_once_region@detail@boost@@YAXAEAUonce_flag@2@AEAUonce_context@12@@Z",
+      "specific_hash": "0x67625F0B9D791CF6"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001462F0",
+      "full_hash": "0xDDA4BDC6580E4FAB",
+      "name": "?clone@?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@EEBAPEBVclone_base@23@XZ",
+      "specific_hash": "0x495800891DF7AF2F"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145520",
+      "full_hash": "0xF0C180ED989BE7AF",
+      "name": "?_Extract@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@V?$_Tree_unchecked_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@U_Iterator_base0@2@@2@@Z",
+      "specific_hash": "0xA257543387ABA150"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000147450",
+      "full_hash": "0xD6C4967C279FCEB0",
+      "name": "?joinable@thread@boost@@QEBA_NXZ",
+      "specific_hash": "0xDF9EAD7C16148201"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001415D0",
+      "full_hash": "0x6620C573C000DDD6",
+      "name": "??0bad_alloc_@exception_detail@boost@@QEAA@AEBU012@@Z",
+      "specific_hash": "0x294075334DFAEA41"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001448C0",
+      "full_hash": "0xA6C2FFC026B4746C",
+      "name": "??1deleter@?$wrapexcept@Vthread_resource_error@boost@@@boost@@QEAA@XZ",
+      "specific_hash": "0x781A282DF24EFE89"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143E30",
+      "full_hash": "0x1589DD873790424E",
+      "name": "??0system_error@system@boost@@QEAA@AEBVerror_code@12@PEBD@Z",
+      "specific_hash": "0xC1E926A8906B61A5"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001480D0",
+      "full_hash": "0xE90F35BA426244C9",
+      "name": "?notify_all_at_thread_exit@thread_data_base@detail@boost@@UEAAXPEAVcondition_variable@3@PEAVmutex@3@@Z",
+      "specific_hash": "0x4742F6D7BF20DDD7"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000149980",
+      "full_hash": "0x2F3EA8BE8AEA239E",
+      "name": "?yield@this_thread@boost@@YAXXZ",
+      "specific_hash": "0x4C59A697F3302462"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144A10",
+      "full_hash": "0x4A249698F87B7885",
+      "name": "??1restore_interruption@this_thread@boost@@QEAA@XZ",
+      "specific_hash": "0x046C98E494BF0793"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000148F10",
+      "full_hash": "0x5F74DEBDF5A14384",
+      "name": "?system_category_message_win32@detail@system@boost@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0x32952E44B7AD8CE5"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143AF0",
+      "full_hash": "0x0F8A264154E093AE",
+      "name": "??0?$wrapexcept@Vthread_resource_error@boost@@@boost@@QEAA@AEBVthread_resource_error@1@@Z",
+      "specific_hash": "0x2AFABC424DFBDEF6"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143C30",
+      "full_hash": "0x8C5C34FE2EE2C6C9",
+      "name": "??0disable_interruption@this_thread@boost@@QEAA@XZ",
+      "specific_hash": "0x3A0E18EDB0EF6322"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143740",
+      "full_hash": "0x7E80452A00B66FF7",
+      "name": "??0?$wrapexcept@Vbad_alloc@std@@@boost@@QEAA@AEBU01@@Z",
+      "specific_hash": "0xED5C133E0A2A5E99"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146B30",
+      "full_hash": "0xD65CC67D32E75B3F",
+      "name": "?get_current_thread_data@detail@boost@@YAPEAUthread_data_base@12@XZ",
+      "specific_hash": "0x01C3A57069CCB7B5"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001449D0",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1lock_error@boost@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141870",
+      "full_hash": "0x0D608AFF0ACDA35A",
+      "name": "?dispose@?$sp_counted_impl_p@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAXXZ",
+      "specific_hash": "0x39562A9FBE25F88C"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000148560",
+      "full_hash": "0xCC57799FB18138A2",
+      "name": "?rethrow@?$wrapexcept@Vthread_resource_error@boost@@@boost@@UEBAXXZ",
+      "specific_hash": "0xB4B35FE04D9942BD"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145C80",
+      "full_hash": "0x8FEE42DB1909DA52",
+      "name": "?_Throw_bad_array_new_length@std@@YAXXZ",
+      "specific_hash": "0x05BA479C99E9031C"
+    },
+    {
+      "domain_path": "/0004_future.obj",
+      "entry_point": "0x000000000006E9D0",
+      "full_hash": "0x9BB6384B8BBE7A7A",
+      "name": "?_Throw_bad_array_new_length@std@@YAXXZ",
+      "specific_hash": "0xA48B7F1986F17A70"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001423C0",
+      "full_hash": "0xD413C8A4F1D186EE",
+      "name": "??$_Reallocate_grow_by@V<lambda_319d5e083f45f90dcdce5dce53cbb275>@@D@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_319d5e083f45f90dcdce5dce53cbb275>@@D@Z",
+      "specific_hash": "0x2C1052593F851D39"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000147B30",
+      "full_hash": "0x744890B92F263BF1",
+      "name": "?native_handle@thread@boost@@QEAAPEAXXZ",
+      "specific_hash": "0x4CF3557ED55ED110"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141B10",
+      "full_hash": "0xE24748C152B9D74F",
+      "name": "??_D?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@QEAAXXZ",
+      "specific_hash": "0x5A8EA9233F441D79"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141D40",
+      "full_hash": "0x9FA7EFBE8CB25EF9",
+      "name": "??$_Allocate_manually_vector_aligned@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z",
+      "specific_hash": "0x55E227005570AF09"
+    },
+    {
+      "domain_path": "/0004_future.obj",
+      "entry_point": "0x000000000006E760",
+      "full_hash": "0xFCBA95C91316140F",
+      "name": "??$_Allocate_manually_vector_aligned@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z",
+      "specific_hash": "0x5FF80A912E7AABBF"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141AD0",
+      "full_hash": "0x205BB2F03257B770",
+      "name": "??_G?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xB7C1A5758570B462"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143810",
+      "full_hash": "0x7E6B1F99484023F8",
+      "name": "??0?$wrapexcept@Vbad_alloc@std@@@boost@@QEAA@AEBVbad_alloc@std@@@Z",
+      "specific_hash": "0x197EA8A337A7C1C1"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001417F0",
+      "full_hash": "0x0D608AFF0ACDA35A",
+      "name": "?dispose@?$sp_counted_impl_p@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAXXZ",
+      "specific_hash": "0x39562A9FBE25F88C"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001466D0",
+      "full_hash": "0x841E0735154667F1",
+      "name": "?default_error_condition@system_error_category@detail@system@boost@@UEBA?AVerror_condition@34@H@Z",
+      "specific_hash": "0x89AFC52FEB9934CB"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144EF0",
+      "full_hash": "0xAF12996DDFA18C30",
+      "name": "??_G?$wrapexcept@Vlock_error@boost@@@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x9E702014CFC4DFE8"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144810",
+      "full_hash": "0x6E4BD2C2942E890A",
+      "name": "??1bad_exception_@exception_detail@boost@@UEAA@XZ",
+      "specific_hash": "0xB59FFACC38F948B3"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000148770",
+      "full_hash": "0x80EB03538F0D46DD",
+      "name": "?set_tss_data@detail@boost@@YAXPEBXP6AXP6AXPEAX@Z1@Z21_N@Z",
+      "specific_hash": "0x89CAA70B29703D27"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141840",
+      "full_hash": "0x108D55EA8A0D124C",
+      "name": "??_G?$sp_counted_impl_p@V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x9721B4EB13E4E1A2"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141D90",
+      "full_hash": "0x699B6386F2EFF6EF",
+      "name": "??$_Construct@$00PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXQEBD_K@Z",
+      "specific_hash": "0x5AABC68BA83568D5"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001474A0",
+      "full_hash": "0xDD08ADF436962EC4",
+      "name": "?lock@basic_timed_mutex@detail@boost@@QEAAXXZ",
+      "specific_hash": "0x8171C0ECF0EA4DB8"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001418F0",
+      "full_hash": "0xE899CF57DEB7D73D",
+      "name": "??0?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0xD8388A60EDEA6C7B"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001458F0",
+      "full_hash": "0x9957129889CAF406",
+      "name": "?_Insert_node@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@U?$_Tree_id@PEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@std@@@2@QEAU32@@Z",
+      "specific_hash": "0x586BA7A75B85A476"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001454B0",
+      "full_hash": "0x9E44D698E79490BF",
+      "name": "?_Erase_unchecked@?$_Tree@V?$_Tmap_traits@PEBXUtss_data_node@detail@boost@@U?$less@PEBX@std@@V?$allocator@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@5@$0A@@std@@@std@@AEAAPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@V?$_Tree_unchecked_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@U_Iterator_base0@2@@2@@Z",
+      "specific_hash": "0x9295274732CD20A5"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144270",
+      "full_hash": "0xB1E72294312DF99C",
+      "name": "??0thread_exception@boost@@QEAA@HPEBD@Z",
+      "specific_hash": "0x48D622830783B88F"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141C30",
+      "full_hash": "0x616D6AAFF3A3C983",
+      "name": "?destroy@sp_counted_base@detail@boost@@UEAAXXZ",
+      "specific_hash": "0x6C679742A5A4BAB5"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141C80",
+      "full_hash": "0xAC8085E119013D94",
+      "name": "??$?0V?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@@shared_count@detail@boost@@QEAA@PEAV?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@2@@Z",
+      "specific_hash": "0x21B13DD18ECAA8A9"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141A50",
+      "full_hash": "0xE899CF57DEB7D73D",
+      "name": "??0?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0xD8388A60EDEA6C7B"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146B00",
+      "full_hash": "0xB2342084FC14BE4A",
+      "name": "?free_raw_heap_memory@detail@boost@@YAXPEAX@Z",
+      "specific_hash": "0x8B5213E6BECD9920"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001460C0",
+      "full_hash": "0x5C805322F0D26EB4",
+      "name": "?call_once@boost@@YAXAEAUonce_flag@1@P6AXXZ@Z",
+      "specific_hash": "0x1EBCCE75C404B003"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144990",
+      "full_hash": "0x1584BAE897CE465F",
+      "name": "??1handle_manager@win32@detail@boost@@QEAA@XZ",
+      "specific_hash": "0x34D155D562089FAC"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000147BA0",
+      "full_hash": "0xF53BB3FA9F59F475",
+      "name": "?non_interruptible_wait@no_interruption_point@this_thread@boost@@YA_NPEAXAEBUmono_platform_timepoint@detail@3@@Z",
+      "specific_hash": "0x9912088A806FA167"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001418C0",
+      "full_hash": "0x108D55EA8A0D124C",
+      "name": "??_G?$sp_counted_impl_p@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x9721B4EB13E4E1A2"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146920",
+      "full_hash": "0x8199890F8AD40A7F",
+      "name": "?equivalent@error_category@system@boost@@UEBA_NHAEBVerror_condition@23@@Z",
+      "specific_hash": "0xA9F406B5C626AF71"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145C20",
+      "full_hash": "0x83287D148C570650",
+      "name": "?_Rrotate@?$_Tree_val@U?$_Tree_simple_types@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@std@@@std@@QEAAXPEAU?$_Tree_node@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@PEAX@2@@Z",
+      "specific_hash": "0x692359C2BC767A22"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146D30",
+      "full_hash": "0x8B454A3382A147F7",
+      "name": "?interruptible_wait@this_thread@boost@@YA_NPEAXAEBUmono_platform_timepoint@detail@2@@Z",
+      "specific_hash": "0x499E616066A57A66"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001491A0",
+      "full_hash": "0xA8470CFA04FD9D9C",
+      "name": "?to_string@source_location@boost@@QEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ",
+      "specific_hash": "0xD7A311E5519BCEC2"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000142D40",
+      "full_hash": "0x3E9175B633946A9A",
+      "name": "??$get_static_exception_object@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@YA?AVexception_ptr@1@XZ",
+      "specific_hash": "0xFE99A19BCCDED008"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144710",
+      "full_hash": "0x4827AA7B4E2E991A",
+      "name": "??1?$wrapexcept@Vthread_resource_error@boost@@@boost@@UEAA@XZ",
+      "specific_hash": "0x88DFAC0740B9CE93"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001489F0",
+      "full_hash": "0xCCE2A1C9E96E1445",
+      "name": "?start_thread_noexcept@thread@boost@@AEAA_NAEBVthread_attributes@2@@Z",
+      "specific_hash": "0x63FBB696DD25AB67"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141E80",
+      "full_hash": "0x82C466275BAAC785",
+      "name": "??$_Destroy_range@V?$allocator@V?$intrusive_ptr@Vbasic_cv_list_entry@detail@boost@@@boost@@@std@@@std@@YAXPEAV?$intrusive_ptr@Vbasic_cv_list_entry@detail@boost@@@boost@@QEAV12@AEAV?$allocator@V?$intrusive_ptr@Vbasic_cv_list_entry@detail@boost@@@boost@@@0@@Z",
+      "specific_hash": "0xB553274E20E75B20"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144880",
+      "full_hash": "0xA6C2FFC026B4746C",
+      "name": "??1deleter@?$wrapexcept@Vbad_alloc@std@@@boost@@QEAA@XZ",
+      "specific_hash": "0x781A282DF24EFE89"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000142540",
+      "full_hash": "0xD6181E1D082292AE",
+      "name": "??$_Reallocate_grow_by@V<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@Z",
+      "specific_hash": "0x2EBFDD6768E4A52F"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144AB0",
+      "full_hash": "0x4FCEC539461DB6CE",
+      "name": "??1thread_data_base@detail@boost@@UEAA@XZ",
+      "specific_hash": "0x4F7EDEF43D129CF5"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000147560",
+      "full_hash": "0xE9E08A4973D2F489",
+      "name": "?make_external_thread_data@?A0x0e1ddac1@boost@@YAXXZ",
+      "specific_hash": "0xC6397BBCA8170E76"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001477D0",
+      "full_hash": "0xC2B1C2CD77F69626",
+      "name": "?message@interop_error_category@detail@system@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0xA1CF453086BCBF96"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144440",
+      "full_hash": "0x756AF5D5465B2C10",
+      "name": "??1?$_Tree@V?$_Tmap_traits@PEBXUtss_data_node@detail@boost@@U?$less@PEBX@std@@V?$allocator@U?$pair@QEBXUtss_data_node@detail@boost@@@std@@@5@$0A@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0xBFE09740DD56FDD2"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144540",
+      "full_hash": "0x33E66531C16E652D",
+      "name": "??1?$unique_lock@Vmutex@boost@@@boost@@QEAA@XZ",
+      "specific_hash": "0x5AFDA3F24D19813C"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000147760",
+      "full_hash": "0xD8579B46643FC493",
+      "name": "?message@generic_error_category@detail@system@boost@@UEBAPEBDHPEAD_K@Z",
+      "specific_hash": "0x86ED56FC1415BF6B"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000147850",
+      "full_hash": "0xF4203975176764FF",
+      "name": "?message@interop_error_category@detail@system@boost@@UEBAPEBDHPEAD_K@Z",
+      "specific_hash": "0xDD10F31796BB962B"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x000000000014AC50",
+      "full_hash": "0x199E974FA87F7354",
+      "name": "??__F?e@?$exception_ptr_static_exception_object@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@2Vexception_ptr@3@B@@YAXXZ",
+      "specific_hash": "0x086B014849ED6C4D"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000148220",
+      "full_hash": "0x8DDCD0E3C3601017",
+      "name": "?physical_concurrency@thread@boost@@SAIXZ",
+      "specific_hash": "0xC39B851D6CC2D1FC"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000148620",
+      "full_hash": "0x860EA05A141CF220",
+      "name": "?run_thread_exit_callbacks@?A0x0e1ddac1@boost@@YAXXZ",
+      "specific_hash": "0x302E8770F6AAF17D"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146590",
+      "full_hash": "0xA5AE14FB2CEC0678",
+      "name": "?copy_boost_exception@exception_detail@boost@@YAXPEAVexception@2@PEBV32@@Z",
+      "specific_hash": "0x9A97440CD961857E"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001419B0",
+      "full_hash": "0xE24748C152B9D74F",
+      "name": "??_D?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@QEAAXXZ",
+      "specific_hash": "0x5A8EA9233F441D79"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141C50",
+      "full_hash": "0x108D55EA8A0D124C",
+      "name": "??_Gsp_counted_base@detail@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x09923AFD56C8941C"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001416E0",
+      "full_hash": "0x6620C573C000DDD6",
+      "name": "??0bad_exception_@exception_detail@boost@@QEAA@AEBU012@@Z",
+      "specific_hash": "0x294075334DFAEA41"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000148400",
+      "full_hash": "0xE21ECE93F932D6A0",
+      "name": "?resize@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAX_KD@Z",
+      "specific_hash": "0x34174117512C791D"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144A50",
+      "full_hash": "0x50C8EB4013041F74",
+      "name": "??1shared_count@detail@boost@@QEAA@XZ",
+      "specific_hash": "0xC3586D55F83B0D29"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144F70",
+      "full_hash": "0xAF12996DDFA18C30",
+      "name": "??_G?$wrapexcept@Vthread_resource_error@boost@@@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x9E702014CFC4DFE8"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001481D0",
+      "full_hash": "0x7DAC16E6F2A13265",
+      "name": "?on_process_exit@boost@@YAXXZ",
+      "specific_hash": "0xAE7C29FC01A50D41"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001489D0",
+      "full_hash": "0x36D78B7FE2E52B0E",
+      "name": "?sp_enable_shared_from_this@detail@boost@@YAXZZ",
+      "specific_hash": "0x4231A7D1CE19EF00"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144D70",
+      "full_hash": "0x28BF30F5CD0BCF3B",
+      "name": "??_E?$unique_lock@Vmutex@boost@@@boost@@QEAAPEAXI@Z",
+      "specific_hash": "0x975A799DB8BAF1AE"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001445E0",
+      "full_hash": "0x3E2DA11C3C6BD15B",
+      "name": "??1?$vector@V?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@V?$allocator@V?$shared_ptr@Ushared_state_base@detail@boost@@@boost@@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0x886F34B4D4BA5B34"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144970",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1exception@std@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146BC0",
+      "full_hash": "0xB03E682E62650B79",
+      "name": "?get_id@this_thread@boost@@YA?AVid@thread@2@XZ",
+      "specific_hash": "0xABB6DC63DE668591"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141970",
+      "full_hash": "0x205BB2F03257B770",
+      "name": "??_G?$clone_impl@Ubad_alloc_@exception_detail@boost@@@exception_detail@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xB7C1A5758570B462"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000148500",
+      "full_hash": "0x1016C3D3D93CF334",
+      "name": "?rethrow@?$wrapexcept@Vbad_alloc@std@@@boost@@UEBAXXZ",
+      "specific_hash": "0xB4F55B517E42594E"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144E70",
+      "full_hash": "0xAF12996DDFA18C30",
+      "name": "??_G?$wrapexcept@Vbad_alloc@std@@@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x993C9B7862AEB502"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001440D0",
+      "full_hash": "0x3CC20B5DC310A288",
+      "name": "??0thread@boost@@AEAA@V?$intrusive_ptr@Uthread_data_base@detail@boost@@@1@@Z",
+      "specific_hash": "0xE86E6D7BADF9A928"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145D60",
+      "full_hash": "0x2B5E4EDCBC065086",
+      "name": "?add_new_tss_node@detail@boost@@YAXPEBXP6AXP6AXPEAX@Z1@Z21@Z",
+      "specific_hash": "0x6F0C03F7BEBFBEE6"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144510",
+      "full_hash": "0x68234105B1E58585",
+      "name": "??1?$refcount_ptr@Uerror_info_container@exception_detail@boost@@@exception_detail@boost@@QEAA@XZ",
+      "specific_hash": "0x1C9B914DF1D42AC1"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000141770",
+      "full_hash": "0x34DBD1437B809A96",
+      "name": "??_Gbad_exception_@exception_detail@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xF1CCDF0261B2CB8F"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146890",
+      "full_hash": "0xD1A45B502F1DA9A4",
+      "name": "?equivalent@error_category@system@boost@@UEBA_NAEBVerror_code@23@H@Z",
+      "specific_hash": "0x1C6062B84BDFB73A"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000142880",
+      "full_hash": "0x616D6AAFF3A3C983",
+      "name": "??$checked_delete@V?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@boost@@@boost@@YAXPEAV?$clone_impl@Ubad_exception_@exception_detail@boost@@@exception_detail@0@@Z",
+      "specific_hash": "0x6C679742A5A4BAB5"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000142340",
+      "full_hash": "0x00671F8B2B5D5C48",
+      "name": "??$_Maklocstr@D@std@@YAPEADPEBDPEADAEBU_Cvtvec@@@Z",
+      "specific_hash": "0xAFB2D484DD2BD228"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143D50",
+      "full_hash": "0xD1B03EEDDD327D89",
+      "name": "??0restore_interruption@this_thread@boost@@QEAA@AEAVdisable_interruption@12@@Z",
+      "specific_hash": "0x780A696900104E82"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146670",
+      "full_hash": "0xC9E12062B8569662",
+      "name": "?deallocate@?$allocator@U?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@std@@@std@@QEAAXQEAU?$pair@PEAVcondition_variable@boost@@PEAVmutex@2@@2@_K@Z",
+      "specific_hash": "0xBCEF8D0AE3D0B04F"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144FF0",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gbad_alloc@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001483B0",
+      "full_hash": "0x278C691018774747",
+      "name": "?release_handle@thread@boost@@AEAAXXZ",
+      "specific_hash": "0xFA6A78D56B01E8A0"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143210",
+      "full_hash": "0x362D107B38B553BE",
+      "name": "??$heap_new@Uexternally_launched_thread@?A0x0e1ddac1@boost@@@detail@boost@@YAPEAUexternally_launched_thread@?A0x0e1ddac1@1@XZ",
+      "specific_hash": "0x7EADB64ABBE4324B"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000144770",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1bad_alloc@std@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000143890",
+      "full_hash": "0xD5C8F37344F632CE",
+      "name": "??0?$wrapexcept@Vlock_error@boost@@@boost@@QEAA@AEBU01@@Z",
+      "specific_hash": "0x859C91AAB35EBE3A"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x00000000001414A0",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gbad_exception@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000145CC0",
+      "full_hash": "0xDB2685ECD014AEFD",
+      "name": "?_Tidy_deallocate@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXXZ",
+      "specific_hash": "0xF9272CA2EB63170B"
+    },
+    {
+      "domain_path": "/0000_thread.obj",
+      "entry_point": "0x0000000000146A90",
+      "full_hash": "0xBD06836034AE4C12",
+      "name": "?find_tss_data@detail@boost@@YAPEAUtss_data_node@12@PEBX@Z",
+      "specific_hash": "0x8E09CED55A32C121"
+    },
+    {
+      "domain_path": "/0004_future.obj",
+      "entry_point": "0x000000000006E310",
+      "full_hash": "0x355A2ABAD690B36D",
+      "name": "?message@future_error_category@thread_detail@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0x2F7185B75F5AF0C3"
+    },
+    {
+      "domain_path": "/0004_future.obj",
+      "entry_point": "0x000000000006E680",
+      "full_hash": "0xCC5E730D89C6CCBC",
+      "name": "?message@error_category@system@boost@@UEBAPEBDHPEAD_K@Z",
+      "specific_hash": "0x31259893CD9FB016"
+    }
+  ],
+  "functions_added": 226,
+  "functions_attempted": 290,
+  "functions_excluded": 64,
+  "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
+  "ghidra_version": "12.1.3",
+  "language_id": "x86:LE:64:default",
+  "language_minor_version": 8,
+  "language_version": 4,
+  "library_family": "Boost.Thread",
+  "library_path": "FIDB/libraries/boost/thread/1.86.0/boost-thread-1.86.0-msvc-x86_64-release.fidb",
+  "library_variant": "msvc-x86_64-release",
+  "library_version": "1.86.0",
+  "linkage": "static",
+  "reopened_function_record_count": 210,
+  "source_language_declared": "C++",
+  "source_language_filter": "",
+  "source_language_metadata_note": "Installed Ghidra 12.1.3 legacy FunctionID schema has no source-language column; empty metadata means all source languages.",
+  "stage": "generate"
+}

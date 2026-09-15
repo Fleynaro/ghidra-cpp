@@ -56,15 +56,25 @@ def source_language_ids(program) -> list[str]:
 
 
 def main() -> int:
-    """Create a persistent Ghidra project containing analyzed zlib object programs."""
+    """Create a persistent Ghidra project containing analyzed library object programs."""
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--manifest", type=Path, help="JSON stage manifest for arguments exceeding wrapper limits")
+    parser.add_argument("--metadata", type=Path, help="build metadata JSON; defaults to the zlib manifest")
+    parser.add_argument("--project-parent", type=Path, help="generated Ghidra project parent directory")
+    parser.add_argument("--project-name", help="generated Ghidra project name")
+    parser.add_argument("--report", type=Path, help="analysis report path")
+    parser.add_argument("--display-name", help="library display name")
     parser.add_argument("--force", action="store_true", help="accepted for an explicit generated-state rebuild")
     args = parser.parse_args()
+    manifest = json.loads(args.manifest.read_text(encoding="utf-8")) if args.manifest else {}
     config = load_config()
     ghidra_install_dir = require_ghidra_environment()
-    metadata = json.loads((ZLIB_BUILD_ROOT / "metadata.json").read_text(encoding="utf-8"))
-    project_parent = BUILD_ROOT / "ghidra_library_project"
-    project_name = "zlib_library"
+    metadata_path = Path(manifest.get("metadata", args.metadata or ZLIB_BUILD_ROOT / "metadata.json"))
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    display_name = manifest.get("display_name", args.display_name or metadata.get("display_name", "zlib"))
+    project_parent = Path(manifest.get("project_parent", args.project_parent or BUILD_ROOT / "ghidra_library_project"))
+    project_name = manifest.get("project_name", args.project_name or f"{metadata.get('library_key', 'zlib')}_library")
+    report_path = Path(manifest.get("report", args.report or REPORT_ROOT / "library_analysis.json"))
     # The project is generated state, so rebuilding this stage is safe and
     # keeps a no-flag rerun from accidentally ingesting stale programs.
     if project_parent.exists():
@@ -90,7 +100,7 @@ def main() -> int:
         compiler = language.getCompilerSpecByID(CompilerSpecID(GHIDRA_COMPILER_SPEC))
         object_paths = [Path(path) for path in metadata["object_files"]]
         if not object_paths:
-            raise RuntimeError("zlib build metadata contains no object files")
+            raise RuntimeError(f"{display_name} build metadata contains no object files")
         for object_path in object_paths:
             imported = project.importProgram(File(str(object_path)), language, compiler)
             if imported is None:
@@ -165,9 +175,15 @@ def main() -> int:
             project.close()
 
     if not analyzed:
-        raise RuntimeError("No zlib object programs were analyzed")
+        raise RuntimeError(f"No {display_name} object programs were analyzed")
     report = {
         "stage": "analyze",
+        "library": display_name,
+        "compiler": metadata.get("compiler", ""),
+        "compiler_version": metadata.get("compiler_version", ""),
+        "architecture": metadata.get("architecture", ""),
+        "configuration": metadata.get("configuration", ""),
+        "linkage": metadata.get("linkage", ""),
         "ghidra_install_dir": portable_path(ghidra_install_dir),
         "ghidra_language_id": GHIDRA_LANGUAGE_ID,
         "ghidra_compiler_spec": GHIDRA_COMPILER_SPEC,
@@ -175,11 +191,10 @@ def main() -> int:
         "project_name": project_name,
         "object_programs": analyzed,
         "total_functions": sum(item["function_count"] for item in analyzed),
-        "expected_functions": config["expected_functions"],
+        "expected_functions": metadata.get("expected_functions", config["expected_functions"]),
     }
-    report_path = REPORT_ROOT / "library_analysis.json"
     write_json(report_path, report)
-    print(f"[+] Analyzed {len(analyzed)} zlib object programs")
+    print(f"[+] Analyzed {len(analyzed)} {display_name} object programs")
     print(f"[+] Total analyzed functions: {report['total_functions']}")
     print(f"[+] Analysis report: {report_path}")
     return 0

@@ -1,5 +1,11 @@
 {
+  "allow_empty": false,
+  "architecture": "x86-64",
+  "compiler": "MSVC",
   "compiler_spec_filter": "windows",
+  "compiler_version": "19.34.31937 for x64",
+  "configuration": "Release",
+  "empty_reason": "",
   "expected_functions": [
     "adler32_z",
     "compress",
@@ -32,38 +38,17 @@
     },
     {
       "domain_path": "/compress.obj",
-      "entry_point": "0x0000000000003600",
-      "full_hash": "0x0D90B13E8A789538",
-      "name": "compress2",
-      "specific_hash": "0xD5BA8507C91CD2CC"
-    },
-    {
-      "domain_path": "/compress.obj",
       "entry_point": "0x0000000000003500",
       "full_hash": "0xB4C68D4878EEE7B4",
       "name": "compress",
       "specific_hash": "0x6823167542C98176"
     },
     {
-      "domain_path": "/crc32.obj",
-      "entry_point": "0x0000000000007490",
-      "full_hash": "0xE272D6A3B5119BE7",
-      "name": "crc32_combine64",
-      "specific_hash": "0x58A11B7A21EBCD9F"
-    },
-    {
-      "domain_path": "/crc32.obj",
-      "entry_point": "0x0000000000007AE0",
-      "full_hash": "0xA611E5A59E21967F",
-      "name": "x2nmodp",
-      "specific_hash": "0x65B681FCC4958BCD"
-    },
-    {
-      "domain_path": "/crc32.obj",
-      "entry_point": "0x0000000000007420",
-      "full_hash": "0xD46E003443213747",
-      "name": "crc32_combine",
-      "specific_hash": "0x4AD11E7BAD850C95"
+      "domain_path": "/compress.obj",
+      "entry_point": "0x0000000000003600",
+      "full_hash": "0x0D90B13E8A789538",
+      "name": "compress2",
+      "specific_hash": "0xD5BA8507C91CD2CC"
     },
     {
       "domain_path": "/crc32.obj",
@@ -74,59 +59,31 @@
     },
     {
       "domain_path": "/crc32.obj",
+      "entry_point": "0x0000000000007AE0",
+      "full_hash": "0xA611E5A59E21967F",
+      "name": "x2nmodp",
+      "specific_hash": "0x65B681FCC4958BCD"
+    },
+    {
+      "domain_path": "/crc32.obj",
+      "entry_point": "0x0000000000007490",
+      "full_hash": "0xE272D6A3B5119BE7",
+      "name": "crc32_combine64",
+      "specific_hash": "0x58A11B7A21EBCD9F"
+    },
+    {
+      "domain_path": "/crc32.obj",
       "entry_point": "0x0000000000007560",
       "full_hash": "0xE90A33174719E713",
       "name": "crc32_z",
       "specific_hash": "0xCBB856D57EDA2683"
     },
     {
-      "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000B630",
-      "full_hash": "0x9F585B60B2433A27",
-      "name": "deflateReset",
-      "specific_hash": "0x8386CAAC4E0A25F7"
-    },
-    {
-      "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000C260",
-      "full_hash": "0x6D7C4956233105F6",
-      "name": "fill_window",
-      "specific_hash": "0xBE98EB61628F5703"
-    },
-    {
-      "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000B270",
-      "full_hash": "0x7C2F96BA407CA4AE",
-      "name": "deflateInit_",
-      "specific_hash": "0xDE2080630247B0AA"
-    },
-    {
-      "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000B7D0",
-      "full_hash": "0xEEEA67E8B888CBFE",
-      "name": "deflateResetKeep",
-      "specific_hash": "0x8CC4AF29707C0037"
-    },
-    {
-      "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000BEC0",
-      "full_hash": "0xD558DFCCC45E6BCB",
-      "name": "deflate_rle",
-      "specific_hash": "0x6A59E745056B119C"
-    },
-    {
-      "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000C8A0",
-      "full_hash": "0xD709B4E0B91AE359",
-      "name": "slide_hash",
-      "specific_hash": "0x6F5E41358C489FDC"
-    },
-    {
-      "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000C4E0",
-      "full_hash": "0x93F6E7ECF9F3F329",
-      "name": "flush_pending",
-      "specific_hash": "0xC0466EFDD6F33AE2"
+      "domain_path": "/crc32.obj",
+      "entry_point": "0x0000000000007420",
+      "full_hash": "0xD46E003443213747",
+      "name": "crc32_combine",
+      "specific_hash": "0x4AD11E7BAD850C95"
     },
     {
       "domain_path": "/deflate.obj",
@@ -137,17 +94,17 @@
     },
     {
       "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000B500",
-      "full_hash": "0xB7E3D00DA7276D3A",
-      "name": "deflatePrime",
-      "specific_hash": "0x9A9D8BF31A5FF5CF"
+      "entry_point": "0x000000000000C610",
+      "full_hash": "0x76997F9C85E9AE3F",
+      "name": "longest_match",
+      "specific_hash": "0x17605D5D27E05511"
     },
     {
       "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000AFE0",
-      "full_hash": "0xCE1028220A5FEB36",
-      "name": "deflateInit2_",
-      "specific_hash": "0x7D74E00021448416"
+      "entry_point": "0x000000000000B7D0",
+      "full_hash": "0xEEEA67E8B888CBFE",
+      "name": "deflateResetKeep",
+      "specific_hash": "0x8CC4AF29707C0037"
     },
     {
       "domain_path": "/deflate.obj",
@@ -158,31 +115,31 @@
     },
     {
       "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000BB20",
-      "full_hash": "0x696B0A6ED7B5150B",
-      "name": "deflateSetHeader",
-      "specific_hash": "0x2CE70510C0993D32"
+      "entry_point": "0x000000000000AFE0",
+      "full_hash": "0xCE1028220A5FEB36",
+      "name": "deflateInit2_",
+      "specific_hash": "0x7D74E00021448416"
     },
     {
       "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000B8D0",
-      "full_hash": "0xA76787A6A10CA6EF",
-      "name": "deflateSetDictionary",
-      "specific_hash": "0xDA0C8F23B5289D48"
+      "entry_point": "0x000000000000BEC0",
+      "full_hash": "0xD558DFCCC45E6BCB",
+      "name": "deflate_rle",
+      "specific_hash": "0x6A59E745056B119C"
     },
     {
       "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000C610",
-      "full_hash": "0x76997F9C85E9AE3F",
-      "name": "longest_match",
-      "specific_hash": "0x17605D5D27E05511"
+      "entry_point": "0x000000000000B630",
+      "full_hash": "0x9F585B60B2433A27",
+      "name": "deflateReset",
+      "specific_hash": "0x8386CAAC4E0A25F7"
     },
     {
       "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000BBF0",
-      "full_hash": "0x9F978BF4A81F7626",
-      "name": "deflateTune",
-      "specific_hash": "0xF8B95C7EB1B4E88D"
+      "entry_point": "0x000000000000C800",
+      "full_hash": "0x36ECC6E59C9DAC3F",
+      "name": "read_buf",
+      "specific_hash": "0x2ED33E76EF1641F0"
     },
     {
       "domain_path": "/deflate.obj",
@@ -193,10 +150,10 @@
     },
     {
       "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000ABE0",
-      "full_hash": "0xDBAF6F99B8A03894",
-      "name": "deflateCopy",
-      "specific_hash": "0x881AD919FF034D5C"
+      "entry_point": "0x000000000000B8D0",
+      "full_hash": "0xA76787A6A10CA6EF",
+      "name": "deflateSetDictionary",
+      "specific_hash": "0xDA0C8F23B5289D48"
     },
     {
       "domain_path": "/deflate.obj",
@@ -207,10 +164,10 @@
     },
     {
       "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000B2B0",
-      "full_hash": "0x901FAE0487087F9C",
-      "name": "deflateParams",
-      "specific_hash": "0x8059A07CB1C2F630"
+      "entry_point": "0x000000000000C260",
+      "full_hash": "0x6D7C4956233105F6",
+      "name": "fill_window",
+      "specific_hash": "0xBE98EB61628F5703"
     },
     {
       "domain_path": "/deflate.obj",
@@ -221,10 +178,31 @@
     },
     {
       "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000AA20",
-      "full_hash": "0x524E890FB9F85CD9",
-      "name": "deflateBound",
-      "specific_hash": "0x28D668BA6589A7AC"
+      "entry_point": "0x000000000000C8A0",
+      "full_hash": "0xD709B4E0B91AE359",
+      "name": "slide_hash",
+      "specific_hash": "0x6F5E41358C489FDC"
+    },
+    {
+      "domain_path": "/deflate.obj",
+      "entry_point": "0x000000000000B2B0",
+      "full_hash": "0x901FAE0487087F9C",
+      "name": "deflateParams",
+      "specific_hash": "0x8059A07CB1C2F630"
+    },
+    {
+      "domain_path": "/deflate.obj",
+      "entry_point": "0x000000000000B270",
+      "full_hash": "0x7C2F96BA407CA4AE",
+      "name": "deflateInit_",
+      "specific_hash": "0xDE2080630247B0AA"
+    },
+    {
+      "domain_path": "/deflate.obj",
+      "entry_point": "0x000000000000BB20",
+      "full_hash": "0x696B0A6ED7B5150B",
+      "name": "deflateSetHeader",
+      "specific_hash": "0x2CE70510C0993D32"
     },
     {
       "domain_path": "/deflate.obj",
@@ -235,10 +213,38 @@
     },
     {
       "domain_path": "/deflate.obj",
-      "entry_point": "0x000000000000C800",
-      "full_hash": "0x36ECC6E59C9DAC3F",
-      "name": "read_buf",
-      "specific_hash": "0x2ED33E76EF1641F0"
+      "entry_point": "0x000000000000B500",
+      "full_hash": "0xB7E3D00DA7276D3A",
+      "name": "deflatePrime",
+      "specific_hash": "0x9A9D8BF31A5FF5CF"
+    },
+    {
+      "domain_path": "/deflate.obj",
+      "entry_point": "0x000000000000C4E0",
+      "full_hash": "0x93F6E7ECF9F3F329",
+      "name": "flush_pending",
+      "specific_hash": "0xC0466EFDD6F33AE2"
+    },
+    {
+      "domain_path": "/deflate.obj",
+      "entry_point": "0x000000000000AA20",
+      "full_hash": "0x524E890FB9F85CD9",
+      "name": "deflateBound",
+      "specific_hash": "0x28D668BA6589A7AC"
+    },
+    {
+      "domain_path": "/deflate.obj",
+      "entry_point": "0x000000000000ABE0",
+      "full_hash": "0xDBAF6F99B8A03894",
+      "name": "deflateCopy",
+      "specific_hash": "0x881AD919FF034D5C"
+    },
+    {
+      "domain_path": "/deflate.obj",
+      "entry_point": "0x000000000000BBF0",
+      "full_hash": "0x9F978BF4A81F7626",
+      "name": "deflateTune",
+      "specific_hash": "0xF8B95C7EB1B4E88D"
     },
     {
       "domain_path": "/gzclose.obj",
@@ -249,6 +255,20 @@
     },
     {
       "domain_path": "/gzlib.obj",
+      "entry_point": "0x00000000000064A0",
+      "full_hash": "0x8F5141DDB97FC8E4",
+      "name": "gzoffset",
+      "specific_hash": "0xB1DDF1557AB06302"
+    },
+    {
+      "domain_path": "/gzlib.obj",
+      "entry_point": "0x0000000000006340",
+      "full_hash": "0xC0BDE8764AA826B2",
+      "name": "gzclearerr",
+      "specific_hash": "0xC9C507852A44F820"
+    },
+    {
+      "domain_path": "/gzlib.obj",
       "entry_point": "0x0000000000006810",
       "full_hash": "0x628642A3E65AA61F",
       "name": "gztell64",
@@ -256,17 +276,24 @@
     },
     {
       "domain_path": "/gzlib.obj",
-      "entry_point": "0x00000000000065A0",
-      "full_hash": "0x1695DF932AC816C3",
-      "name": "gzrewind",
-      "specific_hash": "0xDC56EF17C5EAF671"
+      "entry_point": "0x0000000000006850",
+      "full_hash": "0xA0869973A31F3B58",
+      "name": "snprintf",
+      "specific_hash": "0xB3EEEB8B917B587C"
     },
     {
       "domain_path": "/gzlib.obj",
-      "entry_point": "0x00000000000062A0",
-      "full_hash": "0x4ACD651C8468932E",
-      "name": "gz_reset",
-      "specific_hash": "0x5D9BF33EA98280F7"
+      "entry_point": "0x0000000000006510",
+      "full_hash": "0xAB351A8A011253A0",
+      "name": "gzoffset64",
+      "specific_hash": "0xD940CC67164DC68E"
+    },
+    {
+      "domain_path": "/gzlib.obj",
+      "entry_point": "0x0000000000005F30",
+      "full_hash": "0x4E21D157FBE3AF89",
+      "name": "gz_open",
+      "specific_hash": "0x84347A9774D3D3F0"
     },
     {
       "domain_path": "/gzlib.obj",
@@ -277,24 +304,17 @@
     },
     {
       "domain_path": "/gzlib.obj",
-      "entry_point": "0x00000000000063A0",
-      "full_hash": "0x33D802AFFE681070",
-      "name": "gzdopen",
-      "specific_hash": "0xE54828DDD3415AD2"
-    },
-    {
-      "domain_path": "/gzlib.obj",
-      "entry_point": "0x0000000000006450",
-      "full_hash": "0x30138BD2CF6DFA23",
-      "name": "gzerror",
-      "specific_hash": "0x7874EC235DDED0B5"
-    },
-    {
-      "domain_path": "/gzlib.obj",
       "entry_point": "0x0000000000006430",
       "full_hash": "0xBF50BD094DBFB2C8",
       "name": "gzeof",
       "specific_hash": "0xDDE765F4FCEA0DE5"
+    },
+    {
+      "domain_path": "/gzlib.obj",
+      "entry_point": "0x00000000000068B0",
+      "full_hash": "0x846E0FBB5E0E340A",
+      "name": "vsnprintf",
+      "specific_hash": "0xBEF5C0DC95C1E826"
     },
     {
       "domain_path": "/gzlib.obj",
@@ -312,31 +332,17 @@
     },
     {
       "domain_path": "/gzlib.obj",
-      "entry_point": "0x00000000000068B0",
-      "full_hash": "0x846E0FBB5E0E340A",
-      "name": "vsnprintf",
-      "specific_hash": "0xBEF5C0DC95C1E826"
+      "entry_point": "0x0000000000006450",
+      "full_hash": "0x30138BD2CF6DFA23",
+      "name": "gzerror",
+      "specific_hash": "0x7874EC235DDED0B5"
     },
     {
       "domain_path": "/gzlib.obj",
-      "entry_point": "0x0000000000006850",
-      "full_hash": "0xA0869973A31F3B58",
-      "name": "snprintf",
-      "specific_hash": "0xB3EEEB8B917B587C"
-    },
-    {
-      "domain_path": "/gzlib.obj",
-      "entry_point": "0x0000000000006340",
-      "full_hash": "0xC0BDE8764AA826B2",
-      "name": "gzclearerr",
-      "specific_hash": "0xC9C507852A44F820"
-    },
-    {
-      "domain_path": "/gzlib.obj",
-      "entry_point": "0x0000000000006510",
-      "full_hash": "0xAB351A8A011253A0",
-      "name": "gzoffset64",
-      "specific_hash": "0xD940CC67164DC68E"
+      "entry_point": "0x0000000000006300",
+      "full_hash": "0x991A10156547E3F4",
+      "name": "gzbuffer",
+      "specific_hash": "0x030AC278E1E44FC4"
     },
     {
       "domain_path": "/gzlib.obj",
@@ -347,94 +353,24 @@
     },
     {
       "domain_path": "/gzlib.obj",
-      "entry_point": "0x00000000000064A0",
-      "full_hash": "0x8F5141DDB97FC8E4",
-      "name": "gzoffset",
-      "specific_hash": "0xB1DDF1557AB06302"
+      "entry_point": "0x00000000000063A0",
+      "full_hash": "0x33D802AFFE681070",
+      "name": "gzdopen",
+      "specific_hash": "0xE54828DDD3415AD2"
     },
     {
       "domain_path": "/gzlib.obj",
-      "entry_point": "0x0000000000005F30",
-      "full_hash": "0x4E21D157FBE3AF89",
-      "name": "gz_open",
-      "specific_hash": "0x84347A9774D3D3F0"
+      "entry_point": "0x00000000000062A0",
+      "full_hash": "0x4ACD651C8468932E",
+      "name": "gz_reset",
+      "specific_hash": "0x5D9BF33EA98280F7"
     },
     {
       "domain_path": "/gzlib.obj",
-      "entry_point": "0x0000000000006300",
-      "full_hash": "0x991A10156547E3F4",
-      "name": "gzbuffer",
-      "specific_hash": "0x030AC278E1E44FC4"
-    },
-    {
-      "domain_path": "/gzread.obj",
-      "entry_point": "0x0000000000006120",
-      "full_hash": "0x8097A208695C0A98",
-      "name": "gzgetc",
-      "specific_hash": "0xF4F463DD63DFEA77"
-    },
-    {
-      "domain_path": "/gzread.obj",
-      "entry_point": "0x0000000000005D10",
-      "full_hash": "0xD62F603EE309E202",
-      "name": "gz_read",
-      "specific_hash": "0x707EBA78FEF3C8FE"
-    },
-    {
-      "domain_path": "/gzread.obj",
-      "entry_point": "0x00000000000060A0",
-      "full_hash": "0xC687EC5CB9D1EE22",
-      "name": "gzfread",
-      "specific_hash": "0x99171980A5B85861"
-    },
-    {
-      "domain_path": "/gzread.obj",
-      "entry_point": "0x0000000000005FB0",
-      "full_hash": "0x7ABFB7DD2C7BCB34",
-      "name": "gzclose_r",
-      "specific_hash": "0xE387B1C3DCBDD634"
-    },
-    {
-      "domain_path": "/gzread.obj",
-      "entry_point": "0x00000000000061A0",
-      "full_hash": "0x968AA60F56DCB1DB",
-      "name": "gzgetc_",
-      "specific_hash": "0x650159480FE2390A"
-    },
-    {
-      "domain_path": "/gzread.obj",
-      "entry_point": "0x0000000000006210",
-      "full_hash": "0xAA21DF5A8A456E89",
-      "name": "gzgets",
-      "specific_hash": "0x854B807343EA58C2"
-    },
-    {
-      "domain_path": "/gzread.obj",
-      "entry_point": "0x0000000000006350",
-      "full_hash": "0x6874704B583B2EA1",
-      "name": "gzread",
-      "specific_hash": "0xAF2733D1F5B28E8E"
-    },
-    {
-      "domain_path": "/gzread.obj",
-      "entry_point": "0x0000000000005AA0",
-      "full_hash": "0xB7948DDB2E37F549",
-      "name": "gz_load",
-      "specific_hash": "0x0D9FB99D322CDECB"
-    },
-    {
-      "domain_path": "/gzread.obj",
-      "entry_point": "0x0000000000006060",
-      "full_hash": "0x8D798FED73224B40",
-      "name": "gzdirect",
-      "specific_hash": "0xCF9899BB4C6AEF4B"
-    },
-    {
-      "domain_path": "/gzread.obj",
-      "entry_point": "0x0000000000005800",
-      "full_hash": "0x8E0AD421A26941DA",
-      "name": "gz_avail",
-      "specific_hash": "0x5FD5637AAE1D3BAD"
+      "entry_point": "0x00000000000065A0",
+      "full_hash": "0x1695DF932AC816C3",
+      "name": "gzrewind",
+      "specific_hash": "0xDC56EF17C5EAF671"
     },
     {
       "domain_path": "/gzread.obj",
@@ -445,17 +381,17 @@
     },
     {
       "domain_path": "/gzread.obj",
-      "entry_point": "0x00000000000063C0",
-      "full_hash": "0x3450316C7F30F9B7",
-      "name": "gzungetc",
-      "specific_hash": "0x9921C0D313EE83EF"
+      "entry_point": "0x00000000000061A0",
+      "full_hash": "0x968AA60F56DCB1DB",
+      "name": "gzgetc_",
+      "specific_hash": "0x650159480FE2390A"
     },
     {
       "domain_path": "/gzread.obj",
-      "entry_point": "0x00000000000059F0",
-      "full_hash": "0x2585BEBFC111AAF4",
-      "name": "gz_fetch",
-      "specific_hash": "0xA86E686584980107"
+      "entry_point": "0x0000000000005AA0",
+      "full_hash": "0xB7948DDB2E37F549",
+      "name": "gz_load",
+      "specific_hash": "0x0D9FB99D322CDECB"
     },
     {
       "domain_path": "/gzread.obj",
@@ -466,31 +402,80 @@
     },
     {
       "domain_path": "/gzread.obj",
+      "entry_point": "0x0000000000006350",
+      "full_hash": "0x6874704B583B2EA1",
+      "name": "gzread",
+      "specific_hash": "0xAF2733D1F5B28E8E"
+    },
+    {
+      "domain_path": "/gzread.obj",
+      "entry_point": "0x00000000000060A0",
+      "full_hash": "0xC687EC5CB9D1EE22",
+      "name": "gzfread",
+      "specific_hash": "0x99171980A5B85861"
+    },
+    {
+      "domain_path": "/gzread.obj",
+      "entry_point": "0x0000000000005D10",
+      "full_hash": "0xD62F603EE309E202",
+      "name": "gz_read",
+      "specific_hash": "0x707EBA78FEF3C8FE"
+    },
+    {
+      "domain_path": "/gzread.obj",
       "entry_point": "0x0000000000005EA0",
       "full_hash": "0x058B16D60C436034",
       "name": "gz_skip",
       "specific_hash": "0xC96D8AE146F5445B"
     },
     {
-      "domain_path": "/gzwrite.obj",
-      "entry_point": "0x0000000000006180",
-      "full_hash": "0xA25CD4285F6B0736",
-      "name": "gzfwrite",
-      "specific_hash": "0x7E8470DA1050DE49"
+      "domain_path": "/gzread.obj",
+      "entry_point": "0x0000000000005FB0",
+      "full_hash": "0x7ABFB7DD2C7BCB34",
+      "name": "gzclose_r",
+      "specific_hash": "0xE387B1C3DCBDD634"
     },
     {
-      "domain_path": "/gzwrite.obj",
-      "entry_point": "0x0000000000006110",
-      "full_hash": "0xBDB91D953B9FE9A8",
-      "name": "gzflush",
-      "specific_hash": "0x972A7344C34F71CA"
+      "domain_path": "/gzread.obj",
+      "entry_point": "0x00000000000059F0",
+      "full_hash": "0x2585BEBFC111AAF4",
+      "name": "gz_fetch",
+      "specific_hash": "0xA86E686584980107"
     },
     {
-      "domain_path": "/gzwrite.obj",
-      "entry_point": "0x0000000000005CF0",
-      "full_hash": "0xEB6DAC4E9D102140",
-      "name": "gz_write",
-      "specific_hash": "0x2307B6624A436B10"
+      "domain_path": "/gzread.obj",
+      "entry_point": "0x0000000000006060",
+      "full_hash": "0x8D798FED73224B40",
+      "name": "gzdirect",
+      "specific_hash": "0xCF9899BB4C6AEF4B"
+    },
+    {
+      "domain_path": "/gzread.obj",
+      "entry_point": "0x0000000000006210",
+      "full_hash": "0xAA21DF5A8A456E89",
+      "name": "gzgets",
+      "specific_hash": "0x854B807343EA58C2"
+    },
+    {
+      "domain_path": "/gzread.obj",
+      "entry_point": "0x00000000000063C0",
+      "full_hash": "0x3450316C7F30F9B7",
+      "name": "gzungetc",
+      "specific_hash": "0x9921C0D313EE83EF"
+    },
+    {
+      "domain_path": "/gzread.obj",
+      "entry_point": "0x0000000000006120",
+      "full_hash": "0x8097A208695C0A98",
+      "name": "gzgetc",
+      "specific_hash": "0xF4F463DD63DFEA77"
+    },
+    {
+      "domain_path": "/gzread.obj",
+      "entry_point": "0x0000000000005800",
+      "full_hash": "0x8E0AD421A26941DA",
+      "name": "gz_avail",
+      "specific_hash": "0x5FD5637AAE1D3BAD"
     },
     {
       "domain_path": "/gzwrite.obj",
@@ -498,13 +483,6 @@
       "full_hash": "0xDD99B5245E978E40",
       "name": "gzprintf",
       "specific_hash": "0xABDE98E267E7442B"
-    },
-    {
-      "domain_path": "/gzwrite.obj",
-      "entry_point": "0x0000000000005E30",
-      "full_hash": "0x2260DCF5EE52EE48",
-      "name": "gz_zero",
-      "specific_hash": "0x6719FB32E195AC5C"
     },
     {
       "domain_path": "/gzwrite.obj",
@@ -522,24 +500,17 @@
     },
     {
       "domain_path": "/gzwrite.obj",
-      "entry_point": "0x0000000000006390",
-      "full_hash": "0xB791FCFD7EB1463A",
-      "name": "gzsetparams",
-      "specific_hash": "0x7B3D408BBA2DB123"
-    },
-    {
-      "domain_path": "/gzwrite.obj",
-      "entry_point": "0x0000000000006230",
-      "full_hash": "0x238D13F6B845D026",
-      "name": "gzputc",
-      "specific_hash": "0x62B15AFC755E915E"
-    },
-    {
-      "domain_path": "/gzwrite.obj",
       "entry_point": "0x0000000000005BD0",
       "full_hash": "0xD94759CE2E9F86BF",
       "name": "gz_init",
       "specific_hash": "0xAA7CF686A2631A05"
+    },
+    {
+      "domain_path": "/gzwrite.obj",
+      "entry_point": "0x0000000000006180",
+      "full_hash": "0xA25CD4285F6B0736",
+      "name": "gzfwrite",
+      "specific_hash": "0x7E8470DA1050DE49"
     },
     {
       "domain_path": "/gzwrite.obj",
@@ -550,10 +521,31 @@
     },
     {
       "domain_path": "/gzwrite.obj",
-      "entry_point": "0x0000000000006300",
-      "full_hash": "0x5AB0F0E6A6AC437C",
-      "name": "gzputs",
-      "specific_hash": "0xC8CD4E22EF6B913A"
+      "entry_point": "0x0000000000006390",
+      "full_hash": "0xB791FCFD7EB1463A",
+      "name": "gzsetparams",
+      "specific_hash": "0x7B3D408BBA2DB123"
+    },
+    {
+      "domain_path": "/gzwrite.obj",
+      "entry_point": "0x0000000000005CF0",
+      "full_hash": "0xEB6DAC4E9D102140",
+      "name": "gz_write",
+      "specific_hash": "0x2307B6624A436B10"
+    },
+    {
+      "domain_path": "/gzwrite.obj",
+      "entry_point": "0x0000000000005E30",
+      "full_hash": "0x2260DCF5EE52EE48",
+      "name": "gz_zero",
+      "specific_hash": "0x6719FB32E195AC5C"
+    },
+    {
+      "domain_path": "/gzwrite.obj",
+      "entry_point": "0x0000000000006230",
+      "full_hash": "0x238D13F6B845D026",
+      "name": "gzputc",
+      "specific_hash": "0x62B15AFC755E915E"
     },
     {
       "domain_path": "/gzwrite.obj",
@@ -563,11 +555,18 @@
       "specific_hash": "0x238735A3E7E02D31"
     },
     {
-      "domain_path": "/infback.obj",
-      "entry_point": "0x0000000000005730",
-      "full_hash": "0xDEED2B3A94978A1B",
-      "name": "inflateBack",
-      "specific_hash": "0x9EFE41A09901C449"
+      "domain_path": "/gzwrite.obj",
+      "entry_point": "0x0000000000006110",
+      "full_hash": "0xBDB91D953B9FE9A8",
+      "name": "gzflush",
+      "specific_hash": "0x972A7344C34F71CA"
+    },
+    {
+      "domain_path": "/gzwrite.obj",
+      "entry_point": "0x0000000000006300",
+      "full_hash": "0x5AB0F0E6A6AC437C",
+      "name": "gzputs",
+      "specific_hash": "0xC8CD4E22EF6B913A"
     },
     {
       "domain_path": "/infback.obj",
@@ -584,60 +583,18 @@
       "specific_hash": "0x1F453AE0DB2FAF51"
     },
     {
+      "domain_path": "/infback.obj",
+      "entry_point": "0x0000000000005730",
+      "full_hash": "0xDEED2B3A94978A1B",
+      "name": "inflateBack",
+      "specific_hash": "0x9EFE41A09901C449"
+    },
+    {
       "domain_path": "/inffast.obj",
       "entry_point": "0x0000000000003F00",
       "full_hash": "0x9BE2AA3851F9E5DD",
       "name": "inflate_fast",
       "specific_hash": "0xD37265E247F06C46"
-    },
-    {
-      "domain_path": "/inflate.obj",
-      "entry_point": "0x000000000000AC30",
-      "full_hash": "0x7F1603243E6C24E8",
-      "name": "inflateReset2",
-      "specific_hash": "0xD1AF71CACFC9E130"
-    },
-    {
-      "domain_path": "/inflate.obj",
-      "entry_point": "0x000000000000AD00",
-      "full_hash": "0x3A89C4EEE8AA8C80",
-      "name": "inflateResetKeep",
-      "specific_hash": "0x4E30DBC4DF1A4641"
-    },
-    {
-      "domain_path": "/inflate.obj",
-      "entry_point": "0x000000000000B1B0",
-      "full_hash": "0x4EF6A79E21A82C98",
-      "name": "syncsearch",
-      "specific_hash": "0x8775E316B66F348D"
-    },
-    {
-      "domain_path": "/inflate.obj",
-      "entry_point": "0x000000000000A600",
-      "full_hash": "0xAD6016318EA83DD7",
-      "name": "inflateEnd",
-      "specific_hash": "0x4AE0B1EA62788555"
-    },
-    {
-      "domain_path": "/inflate.obj",
-      "entry_point": "0x000000000000B100",
-      "full_hash": "0xC09198DA37FD2B1B",
-      "name": "inflateUndermine",
-      "specific_hash": "0x1816FE2AC2568725"
-    },
-    {
-      "domain_path": "/inflate.obj",
-      "entry_point": "0x000000000000A780",
-      "full_hash": "0xD9AE8A4A50A46100",
-      "name": "inflateInit2_",
-      "specific_hash": "0xD7E508005B335026"
-    },
-    {
-      "domain_path": "/inflate.obj",
-      "entry_point": "0x000000000000AAA0",
-      "full_hash": "0x8291358142B9C8BD",
-      "name": "inflatePrime",
-      "specific_hash": "0x2FDE6CE5762CF498"
     },
     {
       "domain_path": "/inflate.obj",
@@ -648,24 +605,17 @@
     },
     {
       "domain_path": "/inflate.obj",
-      "entry_point": "0x000000000000AA10",
-      "full_hash": "0xA77661703AEB9DC4",
-      "name": "inflateInit_",
-      "specific_hash": "0xBC88F81ED6ACB000"
+      "entry_point": "0x000000000000A780",
+      "full_hash": "0xD9AE8A4A50A46100",
+      "name": "inflateInit2_",
+      "specific_hash": "0xD7E508005B335026"
     },
     {
       "domain_path": "/inflate.obj",
-      "entry_point": "0x0000000000008B30",
-      "full_hash": "0xB22414BA7151600C",
-      "name": "inflate",
-      "specific_hash": "0x685E54B64A34335B"
-    },
-    {
-      "domain_path": "/inflate.obj",
-      "entry_point": "0x000000000000A680",
-      "full_hash": "0x3B6C4B93C804AFD6",
-      "name": "inflateGetDictionary",
-      "specific_hash": "0x4D58DA45F0CB4471"
+      "entry_point": "0x000000000000AD00",
+      "full_hash": "0x3A89C4EEE8AA8C80",
+      "name": "inflateResetKeep",
+      "specific_hash": "0x4E30DBC4DF1A4641"
     },
     {
       "domain_path": "/inflate.obj",
@@ -676,17 +626,10 @@
     },
     {
       "domain_path": "/inflate.obj",
-      "entry_point": "0x000000000000AA20",
-      "full_hash": "0x158946A33D6B2697",
-      "name": "inflateMark",
-      "specific_hash": "0x081E9BA01EAB7A88"
-    },
-    {
-      "domain_path": "/inflate.obj",
-      "entry_point": "0x000000000000A3C0",
-      "full_hash": "0x3470751072B125FE",
-      "name": "inflateCodesUsed",
-      "specific_hash": "0x1DF9611A4EB5855D"
+      "entry_point": "0x000000000000AEF0",
+      "full_hash": "0xA08CA4C4393C2B7E",
+      "name": "inflateSync",
+      "specific_hash": "0x272B6C044AF50C01"
     },
     {
       "domain_path": "/inflate.obj",
@@ -697,10 +640,31 @@
     },
     {
       "domain_path": "/inflate.obj",
-      "entry_point": "0x000000000000ADC0",
-      "full_hash": "0x9BF39E079D5D56B0",
-      "name": "inflateSetDictionary",
-      "specific_hash": "0x3FDE1515661559F6"
+      "entry_point": "0x0000000000008B30",
+      "full_hash": "0xB22414BA7151600C",
+      "name": "inflate",
+      "specific_hash": "0x685E54B64A34335B"
+    },
+    {
+      "domain_path": "/inflate.obj",
+      "entry_point": "0x000000000000A600",
+      "full_hash": "0xAD6016318EA83DD7",
+      "name": "inflateEnd",
+      "specific_hash": "0x4AE0B1EA62788555"
+    },
+    {
+      "domain_path": "/inflate.obj",
+      "entry_point": "0x000000000000A3C0",
+      "full_hash": "0x3470751072B125FE",
+      "name": "inflateCodesUsed",
+      "specific_hash": "0x1DF9611A4EB5855D"
+    },
+    {
+      "domain_path": "/inflate.obj",
+      "entry_point": "0x000000000000AC30",
+      "full_hash": "0x7F1603243E6C24E8",
+      "name": "inflateReset2",
+      "specific_hash": "0xD1AF71CACFC9E130"
     },
     {
       "domain_path": "/inflate.obj",
@@ -718,10 +682,24 @@
     },
     {
       "domain_path": "/inflate.obj",
-      "entry_point": "0x000000000000AEF0",
-      "full_hash": "0xA08CA4C4393C2B7E",
-      "name": "inflateSync",
-      "specific_hash": "0x272B6C044AF50C01"
+      "entry_point": "0x000000000000A680",
+      "full_hash": "0x3B6C4B93C804AFD6",
+      "name": "inflateGetDictionary",
+      "specific_hash": "0x4D58DA45F0CB4471"
+    },
+    {
+      "domain_path": "/inflate.obj",
+      "entry_point": "0x000000000000B100",
+      "full_hash": "0xC09198DA37FD2B1B",
+      "name": "inflateUndermine",
+      "specific_hash": "0x1816FE2AC2568725"
+    },
+    {
+      "domain_path": "/inflate.obj",
+      "entry_point": "0x000000000000AA10",
+      "full_hash": "0xA77661703AEB9DC4",
+      "name": "inflateInit_",
+      "specific_hash": "0xBC88F81ED6ACB000"
     },
     {
       "domain_path": "/inflate.obj",
@@ -729,6 +707,34 @@
       "full_hash": "0x3026422A435C60EE",
       "name": "updatewindow",
       "specific_hash": "0xBDD454B06DB8A024"
+    },
+    {
+      "domain_path": "/inflate.obj",
+      "entry_point": "0x000000000000AAA0",
+      "full_hash": "0x8291358142B9C8BD",
+      "name": "inflatePrime",
+      "specific_hash": "0x2FDE6CE5762CF498"
+    },
+    {
+      "domain_path": "/inflate.obj",
+      "entry_point": "0x000000000000AA20",
+      "full_hash": "0x158946A33D6B2697",
+      "name": "inflateMark",
+      "specific_hash": "0x081E9BA01EAB7A88"
+    },
+    {
+      "domain_path": "/inflate.obj",
+      "entry_point": "0x000000000000ADC0",
+      "full_hash": "0x9BF39E079D5D56B0",
+      "name": "inflateSetDictionary",
+      "specific_hash": "0x3FDE1515661559F6"
+    },
+    {
+      "domain_path": "/inflate.obj",
+      "entry_point": "0x000000000000B1B0",
+      "full_hash": "0x4EF6A79E21A82C98",
+      "name": "syncsearch",
+      "specific_hash": "0x8775E316B66F348D"
     },
     {
       "domain_path": "/inftrees.obj",
@@ -739,80 +745,10 @@
     },
     {
       "domain_path": "/trees.obj",
-      "entry_point": "0x00000000000081F0",
-      "full_hash": "0xC0B095221EA0E99D",
-      "name": "gen_bitlen",
-      "specific_hash": "0x11E0EA7707FDB908"
-    },
-    {
-      "domain_path": "/trees.obj",
-      "entry_point": "0x0000000000007200",
-      "full_hash": "0xD0BCF24AFB8DED2C",
-      "name": "_tr_align",
-      "specific_hash": "0x7739FDAFAE493B3F"
-    },
-    {
-      "domain_path": "/trees.obj",
-      "entry_point": "0x0000000000007300",
-      "full_hash": "0x49219EE9A0C5BFAD",
-      "name": "_tr_flush_block",
-      "specific_hash": "0xD3A449238C81F610"
-    },
-    {
-      "domain_path": "/trees.obj",
-      "entry_point": "0x0000000000007AD0",
-      "full_hash": "0x5C974EC6D7899711",
-      "name": "build_tree",
-      "specific_hash": "0xBC62B8C8F6210F74"
-    },
-    {
-      "domain_path": "/trees.obj",
-      "entry_point": "0x00000000000079A0",
-      "full_hash": "0xA05E48A3A3FF2EFF",
-      "name": "bi_windup",
-      "specific_hash": "0x1BB2352BCCF3B588"
-    },
-    {
-      "domain_path": "/trees.obj",
-      "entry_point": "0x0000000000008810",
-      "full_hash": "0x01E3D09BBE92B264",
-      "name": "scan_tree",
-      "specific_hash": "0xA27BEBC83EF2EDEC"
-    },
-    {
-      "domain_path": "/trees.obj",
-      "entry_point": "0x0000000000008BC0",
-      "full_hash": "0x8A685D87DAE61F29",
-      "name": "send_tree",
-      "specific_hash": "0x6528E531E0394015"
-    },
-    {
-      "domain_path": "/trees.obj",
-      "entry_point": "0x0000000000007670",
-      "full_hash": "0x9A81D74F4EE9E9F4",
-      "name": "_tr_init",
-      "specific_hash": "0x07D9E950577497B0"
-    },
-    {
-      "domain_path": "/trees.obj",
-      "entry_point": "0x0000000000007D10",
-      "full_hash": "0x5EF143099EDFE05B",
-      "name": "compress_block",
-      "specific_hash": "0x1212C8EA180A683E"
-    },
-    {
-      "domain_path": "/trees.obj",
-      "entry_point": "0x0000000000008720",
-      "full_hash": "0xB1218D2347682B1E",
-      "name": "pqdownheap",
-      "specific_hash": "0x4A2FAF17DC7C5376"
-    },
-    {
-      "domain_path": "/trees.obj",
-      "entry_point": "0x0000000000007830",
-      "full_hash": "0x6EBD6193150568CB",
-      "name": "_tr_tally",
-      "specific_hash": "0xDB927CCAABCFAD15"
+      "entry_point": "0x00000000000076E0",
+      "full_hash": "0xD1DFFB5DB25F4EF6",
+      "name": "_tr_stored_block",
+      "specific_hash": "0xAFE483647A4C934A"
     },
     {
       "domain_path": "/trees.obj",
@@ -830,10 +766,31 @@
     },
     {
       "domain_path": "/trees.obj",
-      "entry_point": "0x0000000000007900",
-      "full_hash": "0xDD0702CB92124601",
-      "name": "bi_flush",
-      "specific_hash": "0x314645684B9CC10C"
+      "entry_point": "0x0000000000007300",
+      "full_hash": "0x49219EE9A0C5BFAD",
+      "name": "_tr_flush_block",
+      "specific_hash": "0xD3A449238C81F610"
+    },
+    {
+      "domain_path": "/trees.obj",
+      "entry_point": "0x0000000000007200",
+      "full_hash": "0xD0BCF24AFB8DED2C",
+      "name": "_tr_align",
+      "specific_hash": "0x7739FDAFAE493B3F"
+    },
+    {
+      "domain_path": "/trees.obj",
+      "entry_point": "0x0000000000007AD0",
+      "full_hash": "0x5C974EC6D7899711",
+      "name": "build_tree",
+      "specific_hash": "0xBC62B8C8F6210F74"
+    },
+    {
+      "domain_path": "/trees.obj",
+      "entry_point": "0x0000000000008810",
+      "full_hash": "0x01E3D09BBE92B264",
+      "name": "scan_tree",
+      "specific_hash": "0xA27BEBC83EF2EDEC"
     },
     {
       "domain_path": "/trees.obj",
@@ -844,17 +801,59 @@
     },
     {
       "domain_path": "/trees.obj",
-      "entry_point": "0x00000000000076E0",
-      "full_hash": "0xD1DFFB5DB25F4EF6",
-      "name": "_tr_stored_block",
-      "specific_hash": "0xAFE483647A4C934A"
+      "entry_point": "0x00000000000081F0",
+      "full_hash": "0xC0B095221EA0E99D",
+      "name": "gen_bitlen",
+      "specific_hash": "0x11E0EA7707FDB908"
     },
     {
-      "domain_path": "/uncompr.obj",
-      "entry_point": "0x0000000000003660",
-      "full_hash": "0x52B4E88F6754DFEF",
-      "name": "uncompress2",
-      "specific_hash": "0x1B7111DDAB038668"
+      "domain_path": "/trees.obj",
+      "entry_point": "0x0000000000008BC0",
+      "full_hash": "0x8A685D87DAE61F29",
+      "name": "send_tree",
+      "specific_hash": "0x6528E531E0394015"
+    },
+    {
+      "domain_path": "/trees.obj",
+      "entry_point": "0x0000000000007670",
+      "full_hash": "0x9A81D74F4EE9E9F4",
+      "name": "_tr_init",
+      "specific_hash": "0x07D9E950577497B0"
+    },
+    {
+      "domain_path": "/trees.obj",
+      "entry_point": "0x00000000000079A0",
+      "full_hash": "0xA05E48A3A3FF2EFF",
+      "name": "bi_windup",
+      "specific_hash": "0x1BB2352BCCF3B588"
+    },
+    {
+      "domain_path": "/trees.obj",
+      "entry_point": "0x0000000000007830",
+      "full_hash": "0x6EBD6193150568CB",
+      "name": "_tr_tally",
+      "specific_hash": "0xDB927CCAABCFAD15"
+    },
+    {
+      "domain_path": "/trees.obj",
+      "entry_point": "0x0000000000007D10",
+      "full_hash": "0x5EF143099EDFE05B",
+      "name": "compress_block",
+      "specific_hash": "0x1212C8EA180A683E"
+    },
+    {
+      "domain_path": "/trees.obj",
+      "entry_point": "0x0000000000008720",
+      "full_hash": "0xB1218D2347682B1E",
+      "name": "pqdownheap",
+      "specific_hash": "0x4A2FAF17DC7C5376"
+    },
+    {
+      "domain_path": "/trees.obj",
+      "entry_point": "0x0000000000007900",
+      "full_hash": "0xDD0702CB92124601",
+      "name": "bi_flush",
+      "specific_hash": "0x314645684B9CC10C"
     },
     {
       "domain_path": "/uncompr.obj",
@@ -862,6 +861,13 @@
       "full_hash": "0xB7523CF68371E64F",
       "name": "uncompress",
       "specific_hash": "0x20B8E664A243E1DA"
+    },
+    {
+      "domain_path": "/uncompr.obj",
+      "entry_point": "0x0000000000003660",
+      "full_hash": "0x52B4E88F6754DFEF",
+      "name": "uncompress2",
+      "specific_hash": "0x1B7111DDAB038668"
     },
     {
       "domain_path": "/zutil.obj",
@@ -883,6 +889,7 @@
   "library_path": "FIDB/libraries/zlib/1.3.1/zlib-1.3.1-msvc-x86_64-release.fidb",
   "library_variant": "msvc-x86_64-release",
   "library_version": "1.3.1",
+  "linkage": "static",
   "reopened_function_record_count": 123,
   "source_language_declared": "C",
   "source_language_filter": "",

@@ -75,7 +75,7 @@ def main() -> int:
     print(f"FIDB: {fid_path}")
     print(f"Ingested records: {generation['function_record_count']}")
     print(f"Expected zlib matches: {verification['expected_match_count']}")
-    print(f"False zlib matches for negative control: {len(verification['non_zlib_control']['false_zlib_matches'])}")
+    print(f"False zlib matches for negative control: {len(verification['negative_control']['false_zlib_matches'])}")
     return 0
 
 

@@ -1,0 +1,2155 @@
+{
+  "architecture": "x86-64",
+  "compiler": "MSVC",
+  "compiler_version": "19.34.31937 for x64",
+  "configuration": "Release",
+  "expected_functions": [
+    "file_descriptor",
+    "mapped_file_impl",
+    "mapped_file_source"
+  ],
+  "ghidra_compiler_spec": "windows",
+  "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
+  "ghidra_language_id": "x86:LE:64:default",
+  "library": "Boost.Iostreams",
+  "linkage": "static",
+  "object_programs": [
+    {
+      "compiler_spec": "windows",
+      "function_count": 157,
+      "functions": [
+        {
+          "entry_point": "0x000000000006A600",
+          "name": "??$?0Ufile_descriptor_impl@detail@iostreams@boost@@@?$shared_ptr@Ufile_descriptor_impl@detail@iostreams@boost@@@boost@@QEAA@PEAUfile_descriptor_impl@detail@iostreams@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006A690",
+          "name": "??$?0Ufile_descriptor_impl@detail@iostreams@boost@@@shared_count@detail@boost@@QEAA@PEAUfile_descriptor_impl@1iostreams@2@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006A6F0",
+          "name": "??$_Allocate_manually_vector_aligned@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006A730",
+          "name": "??$_Atomic_address_as@JU?$_Atomic_padded@H@std@@@std@@YAPECJAEAU?$_Atomic_padded@H@0@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006A740",
+          "name": "??$_Construct@$00PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXQEBD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006A800",
+          "name": "??$_Getvals@_W@?$time_get@DV?$istreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006A8D0",
+          "name": "??$_Getvals@_W@?$time_get@_WV?$istreambuf_iterator@_WU?$char_traits@_W@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006A9A0",
+          "name": "??$_Immortalize_memcpy_image@V_Iostream_error_category2@std@@@std@@YAAEBV_Iostream_error_category2@0@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006A9B0",
+          "name": "??$_Maklocstr@D@std@@YAPEADPEBDPEADAEBU_Cvtvec@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006AA30",
+          "name": "??$_Reallocate_grow_by@V<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006ABC0",
+          "name": "??$_Reallocate_grow_by@V<lambda_9013ee9e23efe4882b67eff5b0ecf103>@@$$V@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_9013ee9e23efe4882b67eff5b0ecf103>@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006AD20",
+          "name": "??$checked_delete@Ufile_descriptor_impl@detail@iostreams@boost@@@boost@@YAXPEAUfile_descriptor_impl@detail@iostreams@0@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006AD70",
+          "name": "??$throw_exception@Vfailure@ios_base@std@@@boost@@YAXAEBVfailure@ios_base@std@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006ADA0",
+          "name": "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006AE70",
+          "name": "??0?$wrapexcept@Vfailure@ios_base@std@@@boost@@QEAA@AEBU01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006AF50",
+          "name": "??0?$wrapexcept@Vfailure@ios_base@std@@@boost@@QEAA@AEBVfailure@ios_base@std@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006AFE0",
+          "name": "??0_System_error@std@@IEAA@Verror_code@1@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B1F0",
+          "name": "??0_System_error@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B240",
+          "name": "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B280",
+          "name": "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B2C0",
+          "name": "??0bad_array_new_length@std@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B2F0",
+          "name": "??0clone_base@exception_detail@boost@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B300",
+          "name": "??0exception@boost@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B360",
+          "name": "??0exception@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B3A0",
+          "name": "??0failure@ios_base@std@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B400",
+          "name": "??0failure@ios_base@std@@QEAA@PEBDAEBVerror_code@2@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B4E0",
+          "name": "??0file_descriptor@iostreams@boost@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B500",
+          "name": "??0file_descriptor@iostreams@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B620",
+          "name": "??0file_descriptor@iostreams@boost@@QEAA@HW4file_descriptor_flags@12@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B690",
+          "name": "??0file_descriptor@iostreams@boost@@QEAA@H_N@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B700",
+          "name": "??0file_descriptor@iostreams@boost@@QEAA@PEAXW4file_descriptor_flags@12@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B7C0",
+          "name": "??0file_descriptor@iostreams@boost@@QEAA@PEAX_N@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B830",
+          "name": "??0file_descriptor@iostreams@boost@@QEAA@PEBDH@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006B9C0",
+          "name": "??0file_descriptor@iostreams@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006BA00",
+          "name": "??0file_descriptor_impl@detail@iostreams@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006BA20",
+          "name": "??0file_descriptor_sink@iostreams@boost@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006BA40",
+          "name": "??0file_descriptor_sink@iostreams@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006BBC0",
+          "name": "??0file_descriptor_sink@iostreams@boost@@QEAA@HW4file_descriptor_flags@12@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006BC30",
+          "name": "??0file_descriptor_sink@iostreams@boost@@QEAA@H_N@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006BCA0",
+          "name": "??0file_descriptor_sink@iostreams@boost@@QEAA@PEAXW4file_descriptor_flags@12@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006BD60",
+          "name": "??0file_descriptor_sink@iostreams@boost@@QEAA@PEAX_N@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006BDD0",
+          "name": "??0file_descriptor_sink@iostreams@boost@@QEAA@PEBDH@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006BE40",
+          "name": "??0file_descriptor_source@iostreams@boost@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006BE60",
+          "name": "??0file_descriptor_source@iostreams@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006BFE0",
+          "name": "??0file_descriptor_source@iostreams@boost@@QEAA@HW4file_descriptor_flags@12@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C050",
+          "name": "??0file_descriptor_source@iostreams@boost@@QEAA@H_N@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C0C0",
+          "name": "??0file_descriptor_source@iostreams@boost@@QEAA@PEAXW4file_descriptor_flags@12@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C180",
+          "name": "??0file_descriptor_source@iostreams@boost@@QEAA@PEAX_N@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C1F0",
+          "name": "??0file_descriptor_source@iostreams@boost@@QEAA@PEBDH@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C260",
+          "name": "??0runtime_error@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C2A0",
+          "name": "??0system_error@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C300",
+          "name": "??1?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000006C310",
+          "name": "??1?$refcount_ptr@Uerror_info_container@exception_detail@boost@@@exception_detail@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C340",
+          "name": "??1?$shared_ptr@Ufile_descriptor_impl@detail@iostreams@boost@@@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C390",
+          "name": "??1?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C3F0",
+          "name": "??1bad_array_new_length@std@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C410",
+          "name": "??1clone_base@exception_detail@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C420",
+          "name": "??1deleter@?$wrapexcept@Vfailure@ios_base@std@@@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C440",
+          "name": "??1error_category@std@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C450",
+          "name": "??1exception@boost@@MEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C490",
+          "name": "??1exception@std@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C4B0",
+          "name": "??1failure@ios_base@std@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C4D0",
+          "name": "??1file_descriptor@iostreams@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C520",
+          "name": "??1file_descriptor_impl@detail@iostreams@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C560",
+          "name": "??1path@detail@iostreams@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C580",
+          "name": "??1shared_count@detail@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C5D0",
+          "name": "??1sp_counted_base@detail@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C5E0",
+          "name": "??1system_error@std@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C600",
+          "name": "??_E?$wrapexcept@Vfailure@ios_base@std@@@boost@@W7EAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C60C",
+          "name": "??_E?$wrapexcept@Vfailure@ios_base@std@@@boost@@WDA@EAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C620",
+          "name": "??_G?$sp_counted_impl_p@Ufile_descriptor_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C650",
+          "name": "??_G?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C6D0",
+          "name": "??_G_Iostream_error_category2@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C700",
+          "name": "??_G_System_error@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C750",
+          "name": "??_Gbad_alloc@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C7A0",
+          "name": "??_Gbad_array_new_length@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C7F0",
+          "name": "??_Gclone_base@exception_detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C820",
+          "name": "??_Gexception@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C870",
+          "name": "??_Gfailure@ios_base@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C8C0",
+          "name": "??_Gruntime_error@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C910",
+          "name": "??_Gsp_counted_base@detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C940",
+          "name": "??_Gsystem_error@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006C990",
+          "name": "?_Maklocwcs@std@@YAPEA_WPEB_W@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CA00",
+          "name": "?_Throw_bad_array_new_length@std@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CA20",
+          "name": "?_Tidy_deallocate@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CA80",
+          "name": "?_Tidy_deallocate@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CAF0",
+          "name": "?_Xlen_string@std@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CB10",
+          "name": "?allocate@?$allocator@D@std@@QEAAPEAD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CB70",
+          "name": "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CC00",
+          "name": "?clone@?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CC60",
+          "name": "?close@file_descriptor@iostreams@boost@@QEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CCB0",
+          "name": "?close@file_descriptor_impl@detail@iostreams@boost@@QEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CD00",
+          "name": "?close_impl@file_descriptor_impl@detail@iostreams@boost@@QEAAX_N0@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CD60",
+          "name": "?copy_boost_exception@exception_detail@boost@@YAXPEAVexception@2@PEBV32@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CE20",
+          "name": "?default_error_condition@error_category@std@@UEBA?AVerror_condition@2@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CE30",
+          "name": "?destroy@sp_counted_base@detail@boost@@UEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CE50",
+          "name": "?dispose@?$sp_counted_impl_p@Ufile_descriptor_impl@detail@iostreams@boost@@@detail@boost@@UEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CEA0",
+          "name": "?equivalent@error_category@std@@UEBA_NAEBVerror_code@2@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CEC0",
+          "name": "?equivalent@error_category@std@@UEBA_NHAEBVerror_condition@2@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CF00",
+          "name": "?get_deleter@?$sp_counted_impl_p@Ufile_descriptor_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXAEBVtype_info@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CF10",
+          "name": "?get_local_deleter@?$sp_counted_impl_p@Ufile_descriptor_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXAEBVtype_info@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CF20",
+          "name": "?get_untyped_deleter@?$sp_counted_impl_p@Ufile_descriptor_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CF30",
+          "name": "?handle@file_descriptor@iostreams@boost@@QEBAPEAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006CF40",
+          "name": "?init@file_descriptor@iostreams@boost@@AEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D050",
+          "name": "?invalid_handle@file_descriptor_impl@detail@iostreams@boost@@SAPEAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D060",
+          "name": "?is_open@file_descriptor@iostreams@boost@@QEBA_NXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D070",
+          "name": "?is_open@file_descriptor_impl@detail@iostreams@boost@@QEBA_NXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D080",
+          "name": "?make_error_code@std@@YA?AVerror_code@1@W4io_errc@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D0A0",
+          "name": "?message@_Iostream_error_category2@std@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D160",
+          "name": "?name@_Iostream_error_category2@std@@UEBAPEBDXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D170",
+          "name": "?open@file_descriptor@iostreams@boost@@AEAAXAEBVpath@detail@23@HH@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D180",
+          "name": "?open@file_descriptor@iostreams@boost@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D270",
+          "name": "?open@file_descriptor@iostreams@boost@@QEAAXHW4file_descriptor_flags@23@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D280",
+          "name": "?open@file_descriptor@iostreams@boost@@QEAAXH_N@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D290",
+          "name": "?open@file_descriptor@iostreams@boost@@QEAAXPEAXW4file_descriptor_flags@23@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D300",
+          "name": "?open@file_descriptor@iostreams@boost@@QEAAXPEAX_N@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D370",
+          "name": "?open@file_descriptor@iostreams@boost@@QEAAXPEBDH@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D4C0",
+          "name": "?open@file_descriptor_impl@detail@iostreams@boost@@QEAAXAEBVpath@234@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D660",
+          "name": "?open@file_descriptor_impl@detail@iostreams@boost@@QEAAXHW4flags@1234@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D6E0",
+          "name": "?open@file_descriptor_impl@detail@iostreams@boost@@QEAAXPEAXW4flags@1234@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D750",
+          "name": "?open@file_descriptor_sink@iostreams@boost@@AEAAXAEBVpath@detail@23@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D7A0",
+          "name": "?open@file_descriptor_sink@iostreams@boost@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D8E0",
+          "name": "?open@file_descriptor_sink@iostreams@boost@@QEAAXHW4file_descriptor_flags@23@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D8F0",
+          "name": "?open@file_descriptor_sink@iostreams@boost@@QEAAXH_N@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D900",
+          "name": "?open@file_descriptor_sink@iostreams@boost@@QEAAXPEAXW4file_descriptor_flags@23@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006D970",
+          "name": "?open@file_descriptor_sink@iostreams@boost@@QEAAXPEAX_N@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000006D980",
+          "name": "?open@file_descriptor_sink@iostreams@boost@@QEAAXPEBDH@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006DB20",
+          "name": "?open@file_descriptor_source@iostreams@boost@@AEAAXAEBVpath@detail@23@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006DB70",
+          "name": "?open@file_descriptor_source@iostreams@boost@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006DCB0",
+          "name": "?open@file_descriptor_source@iostreams@boost@@QEAAXHW4file_descriptor_flags@23@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006DCC0",
+          "name": "?open@file_descriptor_source@iostreams@boost@@QEAAXH_N@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006DCD0",
+          "name": "?open@file_descriptor_source@iostreams@boost@@QEAAXPEAXW4file_descriptor_flags@23@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006DD40",
+          "name": "?open@file_descriptor_source@iostreams@boost@@QEAAXPEAX_N@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000006DD50",
+          "name": "?open@file_descriptor_source@iostreams@boost@@QEAAXPEBDH@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006DEF0",
+          "name": "?read@file_descriptor@iostreams@boost@@QEAA_JPEAD_J@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006DF40",
+          "name": "?read@file_descriptor_impl@detail@iostreams@boost@@QEAA_JPEAD_J@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006DF90",
+          "name": "?rethrow@?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEBAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006DFC0",
+          "name": "?seek@file_descriptor@iostreams@boost@@QEAA?AV?$fpos@U_Mbstatet@@@std@@_JH@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E060",
+          "name": "?seek@file_descriptor_impl@detail@iostreams@boost@@QEAA?AV?$fpos@U_Mbstatet@@@std@@_JH@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E100",
+          "name": "?sp_enable_shared_from_this@detail@boost@@YAXZZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E120",
+          "name": "?system_failure@detail@iostreams@boost@@YA?AVfailure@ios_base@std@@PEBD@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E4B0",
+          "name": "?throw_system_failure@detail@iostreams@boost@@YAXPEBD@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E4D0",
+          "name": "?what@exception@std@@UEBAPEBDXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E4F0",
+          "name": "?write@file_descriptor@iostreams@boost@@QEAA_JPEBD_J@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000006E530",
+          "name": "?write@file_descriptor_impl@detail@iostreams@boost@@QEAA_JPEBD_J@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000071670",
+          "name": "??2@YAPEAX_K@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000071678",
+          "name": "??3@YAXPEAX_K@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000071698",
+          "name": "?_Xbad_alloc@std@@YAXXZ",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000716A0",
+          "name": "?_Xlength_error@std@@YAXPEBD@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000716A8",
+          "name": "__std_exception_copy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000716B0",
+          "name": "__std_exception_destroy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000716E8",
+          "name": "?_Syserror_map@std@@YAPEBDH@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000071780",
+          "name": "??_E?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEAAPEAXI@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000071790",
+          "name": "_CxxThrowException",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000717B0",
+          "name": "__security_check_cookie",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000717B8",
+          "name": "memcpy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000717C0",
+          "name": "memmove",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "??$?0Ufile_descriptor_impl@detail@iostreams@boost@@@?$shared_ptr@Ufile_descriptor_impl@detail@iostreams@boost@@@boost@@QEAA@PEAUfile_descriptor_impl@detail@iostreams@1@@Z",
+        "??$?0Ufile_descriptor_impl@detail@iostreams@boost@@@shared_count@detail@boost@@QEAA@PEAUfile_descriptor_impl@1iostreams@2@@Z",
+        "??$_Allocate_manually_vector_aligned@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z",
+        "??$_Atomic_address_as@JU?$_Atomic_padded@H@std@@@std@@YAPECJAEAU?$_Atomic_padded@H@0@@Z",
+        "??$_Construct@$00PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXQEBD_K@Z",
+        "??$_Getvals@_W@?$time_get@DV?$istreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+        "??$_Getvals@_W@?$time_get@_WV?$istreambuf_iterator@_WU?$char_traits@_W@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+        "??$_Immortalize_memcpy_image@V_Iostream_error_category2@std@@@std@@YAAEBV_Iostream_error_category2@0@XZ",
+        "??$_Maklocstr@D@std@@YAPEADPEBDPEADAEBU_Cvtvec@@@Z",
+        "??$_Reallocate_grow_by@V<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@Z",
+        "??$_Reallocate_grow_by@V<lambda_9013ee9e23efe4882b67eff5b0ecf103>@@$$V@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_9013ee9e23efe4882b67eff5b0ecf103>@@@Z",
+        "??$checked_delete@Ufile_descriptor_impl@detail@iostreams@boost@@@boost@@YAXPEAUfile_descriptor_impl@detail@iostreams@0@@Z",
+        "??$throw_exception@Vfailure@ios_base@std@@@boost@@YAXAEBVfailure@ios_base@std@@@Z",
+        "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@AEBV01@@Z",
+        "??0?$wrapexcept@Vfailure@ios_base@std@@@boost@@QEAA@AEBU01@@Z",
+        "??0?$wrapexcept@Vfailure@ios_base@std@@@boost@@QEAA@AEBVfailure@ios_base@std@@@Z",
+        "??0_System_error@std@@IEAA@Verror_code@1@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@1@@Z",
+        "??0_System_error@std@@QEAA@AEBV01@@Z",
+        "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+        "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+        "??0bad_array_new_length@std@@QEAA@XZ",
+        "??0clone_base@exception_detail@boost@@QEAA@AEBV012@@Z",
+        "??0exception@boost@@QEAA@AEBV01@@Z",
+        "??0exception@std@@QEAA@AEBV01@@Z",
+        "??0failure@ios_base@std@@QEAA@AEBV012@@Z",
+        "??0failure@ios_base@std@@QEAA@PEBDAEBVerror_code@2@@Z",
+        "??0file_descriptor@iostreams@boost@@QEAA@AEBV012@@Z",
+        "??0file_descriptor@iostreams@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+        "??0file_descriptor@iostreams@boost@@QEAA@HW4file_descriptor_flags@12@@Z",
+        "??0file_descriptor@iostreams@boost@@QEAA@H_N@Z",
+        "??0file_descriptor@iostreams@boost@@QEAA@PEAXW4file_descriptor_flags@12@@Z",
+        "??0file_descriptor@iostreams@boost@@QEAA@PEAX_N@Z",
+        "??0file_descriptor@iostreams@boost@@QEAA@PEBDH@Z",
+        "??0file_descriptor@iostreams@boost@@QEAA@XZ",
+        "??0file_descriptor_impl@detail@iostreams@boost@@QEAA@XZ",
+        "??0file_descriptor_sink@iostreams@boost@@QEAA@AEBV012@@Z",
+        "??0file_descriptor_sink@iostreams@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+        "??0file_descriptor_sink@iostreams@boost@@QEAA@HW4file_descriptor_flags@12@@Z",
+        "??0file_descriptor_sink@iostreams@boost@@QEAA@H_N@Z",
+        "??0file_descriptor_sink@iostreams@boost@@QEAA@PEAXW4file_descriptor_flags@12@@Z",
+        "??0file_descriptor_sink@iostreams@boost@@QEAA@PEAX_N@Z",
+        "??0file_descriptor_sink@iostreams@boost@@QEAA@PEBDH@Z",
+        "??0file_descriptor_source@iostreams@boost@@QEAA@AEBV012@@Z",
+        "??0file_descriptor_source@iostreams@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+        "??0file_descriptor_source@iostreams@boost@@QEAA@HW4file_descriptor_flags@12@@Z",
+        "??0file_descriptor_source@iostreams@boost@@QEAA@H_N@Z",
+        "??0file_descriptor_source@iostreams@boost@@QEAA@PEAXW4file_descriptor_flags@12@@Z",
+        "??0file_descriptor_source@iostreams@boost@@QEAA@PEAX_N@Z",
+        "??0file_descriptor_source@iostreams@boost@@QEAA@PEBDH@Z",
+        "??0runtime_error@std@@QEAA@AEBV01@@Z",
+        "??0system_error@std@@QEAA@AEBV01@@Z",
+        "??1?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@XZ",
+        "??1?$refcount_ptr@Uerror_info_container@exception_detail@boost@@@exception_detail@boost@@QEAA@XZ",
+        "??1?$shared_ptr@Ufile_descriptor_impl@detail@iostreams@boost@@@boost@@QEAA@XZ",
+        "??1?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEAA@XZ",
+        "??1bad_array_new_length@std@@UEAA@XZ",
+        "??1clone_base@exception_detail@boost@@UEAA@XZ",
+        "??1deleter@?$wrapexcept@Vfailure@ios_base@std@@@boost@@QEAA@XZ",
+        "??1error_category@std@@UEAA@XZ",
+        "??1exception@boost@@MEAA@XZ",
+        "??1exception@std@@UEAA@XZ",
+        "??1failure@ios_base@std@@UEAA@XZ",
+        "??1file_descriptor@iostreams@boost@@QEAA@XZ",
+        "??1file_descriptor_impl@detail@iostreams@boost@@QEAA@XZ",
+        "??1path@detail@iostreams@boost@@QEAA@XZ",
+        "??1shared_count@detail@boost@@QEAA@XZ",
+        "??1sp_counted_base@detail@boost@@UEAA@XZ",
+        "??1system_error@std@@UEAA@XZ",
+        "??2@YAPEAX_K@Z",
+        "??3@YAXPEAX_K@Z",
+        "??_E?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEAAPEAXI@Z",
+        "??_E?$wrapexcept@Vfailure@ios_base@std@@@boost@@W7EAAPEAXI@Z",
+        "??_E?$wrapexcept@Vfailure@ios_base@std@@@boost@@WDA@EAAPEAXI@Z",
+        "??_G?$sp_counted_impl_p@Ufile_descriptor_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXI@Z",
+        "??_G?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEAAPEAXI@Z",
+        "??_G_Iostream_error_category2@std@@UEAAPEAXI@Z",
+        "??_G_System_error@std@@UEAAPEAXI@Z",
+        "??_Gbad_alloc@std@@UEAAPEAXI@Z",
+        "??_Gbad_array_new_length@std@@UEAAPEAXI@Z",
+        "??_Gclone_base@exception_detail@boost@@UEAAPEAXI@Z",
+        "??_Gexception@std@@UEAAPEAXI@Z",
+        "??_Gfailure@ios_base@std@@UEAAPEAXI@Z",
+        "??_Gruntime_error@std@@UEAAPEAXI@Z",
+        "??_Gsp_counted_base@detail@boost@@UEAAPEAXI@Z",
+        "??_Gsystem_error@std@@UEAAPEAXI@Z",
+        "?_Maklocwcs@std@@YAPEA_WPEB_W@Z",
+        "?_Syserror_map@std@@YAPEBDH@Z",
+        "?_Throw_bad_array_new_length@std@@YAXXZ",
+        "?_Tidy_deallocate@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXXZ",
+        "?_Tidy_deallocate@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAXXZ",
+        "?_Xbad_alloc@std@@YAXXZ",
+        "?_Xlen_string@std@@YAXXZ",
+        "?_Xlength_error@std@@YAXPEBD@Z",
+        "?allocate@?$allocator@D@std@@QEAAPEAD_K@Z",
+        "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+        "?clone@?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+        "?close@file_descriptor@iostreams@boost@@QEAAXXZ",
+        "?close@file_descriptor_impl@detail@iostreams@boost@@QEAAXXZ",
+        "?close_impl@file_descriptor_impl@detail@iostreams@boost@@QEAAX_N0@Z",
+        "?copy_boost_exception@exception_detail@boost@@YAXPEAVexception@2@PEBV32@@Z",
+        "?default_error_condition@error_category@std@@UEBA?AVerror_condition@2@H@Z",
+        "?destroy@sp_counted_base@detail@boost@@UEAAXXZ",
+        "?dispose@?$sp_counted_impl_p@Ufile_descriptor_impl@detail@iostreams@boost@@@detail@boost@@UEAAXXZ",
+        "?equivalent@error_category@std@@UEBA_NAEBVerror_code@2@H@Z",
+        "?equivalent@error_category@std@@UEBA_NHAEBVerror_condition@2@@Z",
+        "?get_deleter@?$sp_counted_impl_p@Ufile_descriptor_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXAEBVtype_info@@@Z",
+        "?get_local_deleter@?$sp_counted_impl_p@Ufile_descriptor_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXAEBVtype_info@@@Z",
+        "?get_untyped_deleter@?$sp_counted_impl_p@Ufile_descriptor_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXXZ",
+        "?handle@file_descriptor@iostreams@boost@@QEBAPEAXXZ",
+        "?init@file_descriptor@iostreams@boost@@AEAAXXZ",
+        "?invalid_handle@file_descriptor_impl@detail@iostreams@boost@@SAPEAXXZ",
+        "?is_open@file_descriptor@iostreams@boost@@QEBA_NXZ",
+        "?is_open@file_descriptor_impl@detail@iostreams@boost@@QEBA_NXZ",
+        "?make_error_code@std@@YA?AVerror_code@1@W4io_errc@1@@Z",
+        "?message@_Iostream_error_category2@std@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@H@Z",
+        "?name@_Iostream_error_category2@std@@UEBAPEBDXZ",
+        "?open@file_descriptor@iostreams@boost@@AEAAXAEBVpath@detail@23@HH@Z",
+        "?open@file_descriptor@iostreams@boost@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+        "?open@file_descriptor@iostreams@boost@@QEAAXHW4file_descriptor_flags@23@@Z",
+        "?open@file_descriptor@iostreams@boost@@QEAAXH_N@Z",
+        "?open@file_descriptor@iostreams@boost@@QEAAXPEAXW4file_descriptor_flags@23@@Z",
+        "?open@file_descriptor@iostreams@boost@@QEAAXPEAX_N@Z",
+        "?open@file_descriptor@iostreams@boost@@QEAAXPEBDH@Z",
+        "?open@file_descriptor_impl@detail@iostreams@boost@@QEAAXAEBVpath@234@H@Z",
+        "?open@file_descriptor_impl@detail@iostreams@boost@@QEAAXHW4flags@1234@@Z",
+        "?open@file_descriptor_impl@detail@iostreams@boost@@QEAAXPEAXW4flags@1234@@Z",
+        "?open@file_descriptor_sink@iostreams@boost@@AEAAXAEBVpath@detail@23@H@Z",
+        "?open@file_descriptor_sink@iostreams@boost@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+        "?open@file_descriptor_sink@iostreams@boost@@QEAAXHW4file_descriptor_flags@23@@Z",
+        "?open@file_descriptor_sink@iostreams@boost@@QEAAXH_N@Z",
+        "?open@file_descriptor_sink@iostreams@boost@@QEAAXPEAXW4file_descriptor_flags@23@@Z",
+        "?open@file_descriptor_sink@iostreams@boost@@QEAAXPEAX_N@Z",
+        "?open@file_descriptor_sink@iostreams@boost@@QEAAXPEBDH@Z",
+        "?open@file_descriptor_source@iostreams@boost@@AEAAXAEBVpath@detail@23@H@Z",
+        "?open@file_descriptor_source@iostreams@boost@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+        "?open@file_descriptor_source@iostreams@boost@@QEAAXHW4file_descriptor_flags@23@@Z",
+        "?open@file_descriptor_source@iostreams@boost@@QEAAXH_N@Z",
+        "?open@file_descriptor_source@iostreams@boost@@QEAAXPEAXW4file_descriptor_flags@23@@Z",
+        "?open@file_descriptor_source@iostreams@boost@@QEAAXPEAX_N@Z",
+        "?open@file_descriptor_source@iostreams@boost@@QEAAXPEBDH@Z",
+        "?read@file_descriptor@iostreams@boost@@QEAA_JPEAD_J@Z",
+        "?read@file_descriptor_impl@detail@iostreams@boost@@QEAA_JPEAD_J@Z",
+        "?rethrow@?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEBAXXZ",
+        "?seek@file_descriptor@iostreams@boost@@QEAA?AV?$fpos@U_Mbstatet@@@std@@_JH@Z",
+        "?seek@file_descriptor_impl@detail@iostreams@boost@@QEAA?AV?$fpos@U_Mbstatet@@@std@@_JH@Z",
+        "?sp_enable_shared_from_this@detail@boost@@YAXZZ",
+        "?system_failure@detail@iostreams@boost@@YA?AVfailure@ios_base@std@@PEBD@Z",
+        "?throw_system_failure@detail@iostreams@boost@@YAXPEBD@Z",
+        "?what@exception@std@@UEBAPEBDXZ",
+        "?write@file_descriptor@iostreams@boost@@QEAA_JPEBD_J@Z",
+        "?write@file_descriptor_impl@detail@iostreams@boost@@QEAA_JPEBD_J@Z",
+        "_CxxThrowException",
+        "__security_check_cookie",
+        "__std_exception_copy",
+        "__std_exception_destroy",
+        "memcpy",
+        "memmove"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "0000_file_descriptor.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 144,
+      "functions": [
+        {
+          "entry_point": "0x0000000000080000",
+          "name": "??$?0Vmapped_file_impl@detail@iostreams@boost@@@?$shared_ptr@Vmapped_file_impl@detail@iostreams@boost@@@boost@@QEAA@PEAVmapped_file_impl@detail@iostreams@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080090",
+          "name": "??$?0Vmapped_file_impl@detail@iostreams@boost@@@shared_count@detail@boost@@QEAA@PEAVmapped_file_impl@1iostreams@2@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000800F0",
+          "name": "??$_Allocate_manually_vector_aligned@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080130",
+          "name": "??$_Atomic_address_as@JU?$_Atomic_padded@H@std@@@std@@YAPECJAEAU?$_Atomic_padded@H@0@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080140",
+          "name": "??$_Construct@$00PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXQEBD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080200",
+          "name": "??$_Getvals@_W@?$time_get@DV?$istreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000802D0",
+          "name": "??$_Getvals@_W@?$time_get@_WV?$istreambuf_iterator@_WU?$char_traits@_W@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000803A0",
+          "name": "??$_Immortalize_memcpy_image@V_Iostream_error_category2@std@@@std@@YAAEBV_Iostream_error_category2@0@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000803B0",
+          "name": "??$_Maklocstr@D@std@@YAPEADPEBDPEADAEBU_Cvtvec@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080430",
+          "name": "??$_Reallocate_for@V<lambda_66f57f934f28d61049862f64df852ff0>@@PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_66f57f934f28d61049862f64df852ff0>@@PEBD@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080570",
+          "name": "??$_Reallocate_grow_by@V<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080700",
+          "name": "??$_Reallocate_grow_by@V<lambda_9013ee9e23efe4882b67eff5b0ecf103>@@$$V@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_9013ee9e23efe4882b67eff5b0ecf103>@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080860",
+          "name": "??$checked_delete@Vmapped_file_impl@detail@iostreams@boost@@@boost@@YAXPEAVmapped_file_impl@detail@iostreams@0@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080890",
+          "name": "??$throw_exception@Vfailure@ios_base@std@@@boost@@YAXAEBVfailure@ios_base@std@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000808C0",
+          "name": "??0?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@iostreams@boost@@QEAA@AEBU012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080930",
+          "name": "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080A00",
+          "name": "??0?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080AD0",
+          "name": "??0?$wrapexcept@Vfailure@ios_base@std@@@boost@@QEAA@AEBU01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080BB0",
+          "name": "??0?$wrapexcept@Vfailure@ios_base@std@@@boost@@QEAA@AEBVfailure@ios_base@std@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080C40",
+          "name": "??0_System_error@std@@IEAA@Verror_code@1@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080E50",
+          "name": "??0_System_error@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080EA0",
+          "name": "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080EE0",
+          "name": "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080F20",
+          "name": "??0bad_array_new_length@std@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080F50",
+          "name": "??0bad_cast@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080F90",
+          "name": "??0bad_numeric_cast@numeric@boost@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080FD0",
+          "name": "??0clone_base@exception_detail@boost@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000080FE0",
+          "name": "??0exception@boost@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081040",
+          "name": "??0exception@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081080",
+          "name": "??0failure@ios_base@std@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000810E0",
+          "name": "??0failure@ios_base@std@@QEAA@PEBDAEBVerror_code@2@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000811C0",
+          "name": "??0mapped_file@iostreams@boost@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000811E0",
+          "name": "??0mapped_file_impl@detail@iostreams@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081250",
+          "name": "??0mapped_file_sink@iostreams@boost@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081270",
+          "name": "??0mapped_file_source@iostreams@boost@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081290",
+          "name": "??0mapped_file_source@iostreams@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000812D0",
+          "name": "??0negative_overflow@numeric@boost@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081310",
+          "name": "??0negative_overflow@numeric@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081340",
+          "name": "??0positive_overflow@numeric@boost@@QEAA@AEBV012@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081380",
+          "name": "??0runtime_error@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000813C0",
+          "name": "??0system_error@std@@QEAA@AEBV01@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081420",
+          "name": "??1?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@iostreams@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081440",
+          "name": "??1?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000081450",
+          "name": "??1?$refcount_ptr@Uerror_info_container@exception_detail@boost@@@exception_detail@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081480",
+          "name": "??1?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000814E0",
+          "name": "??1bad_array_new_length@std@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081500",
+          "name": "??1bad_cast@std@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081520",
+          "name": "??1clone_base@exception_detail@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081530",
+          "name": "??1deleter@?$wrapexcept@Vfailure@ios_base@std@@@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081550",
+          "name": "??1error_category@std@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081560",
+          "name": "??1exception@boost@@MEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000815A0",
+          "name": "??1exception@std@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000815C0",
+          "name": "??1failure@ios_base@std@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000815E0",
+          "name": "??1mapped_file_impl@detail@iostreams@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081620",
+          "name": "??1negative_overflow@numeric@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081640",
+          "name": "??1positive_overflow@numeric@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081660",
+          "name": "??1shared_count@detail@boost@@QEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000816B0",
+          "name": "??1sp_counted_base@detail@boost@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000816C0",
+          "name": "??1system_error@std@@UEAA@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000816E0",
+          "name": "??4path@detail@iostreams@boost@@QEAAAEAV0123@AEBV0123@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081850",
+          "name": "??7mapped_file_source@iostreams@boost@@QEBA_NXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081860",
+          "name": "??Bmapped_file_source@iostreams@boost@@QEBAPEQsafe_bool_helper@012@HXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081874",
+          "name": "??_E?$wrapexcept@Vfailure@ios_base@std@@@boost@@W7EAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081880",
+          "name": "??_E?$wrapexcept@Vfailure@ios_base@std@@@boost@@WDA@EAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081890",
+          "name": "??_G?$sp_counted_impl_p@Vmapped_file_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000818C0",
+          "name": "??_G?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081940",
+          "name": "??_G_Iostream_error_category2@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081970",
+          "name": "??_G_System_error@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000819C0",
+          "name": "??_Gbad_alloc@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081A10",
+          "name": "??_Gbad_array_new_length@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081A60",
+          "name": "??_Gbad_cast@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081AB0",
+          "name": "??_Gbad_numeric_cast@numeric@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081B00",
+          "name": "??_Gclone_base@exception_detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081B30",
+          "name": "??_Gexception@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081B80",
+          "name": "??_Gfailure@ios_base@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081BD0",
+          "name": "??_Gnegative_overflow@numeric@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081C20",
+          "name": "??_Gpositive_overflow@numeric@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081C70",
+          "name": "??_Gruntime_error@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081CC0",
+          "name": "??_Gsp_counted_base@detail@boost@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081CF0",
+          "name": "??_Gsystem_error@std@@UEAAPEAXI@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081D40",
+          "name": "?_Maklocwcs@std@@YAPEA_WPEB_W@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081DB0",
+          "name": "?_Throw_bad_array_new_length@std@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081DD0",
+          "name": "?_Tidy_deallocate@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081E30",
+          "name": "?_Tidy_deallocate@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081EA0",
+          "name": "?_Xlen_string@std@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081EC0",
+          "name": "?alignment@mapped_file_impl@detail@iostreams@boost@@SAHXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081EE0",
+          "name": "?alignment@mapped_file_source@iostreams@boost@@SAHXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081F00",
+          "name": "?allocate@?$allocator@D@std@@QEAAPEAD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081F60",
+          "name": "?allocate@?$allocator@_W@std@@QEAAPEA_W_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000081FD0",
+          "name": "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082060",
+          "name": "?assign@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000820D0",
+          "name": "?begin@mapped_file_source@iostreams@boost@@QEBAPEBDXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000820E0",
+          "name": "?cleanup_and_throw@mapped_file_impl@detail@iostreams@boost@@AEAAXPEBD@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082140",
+          "name": "?clear@mapped_file_impl@detail@iostreams@boost@@AEAAX_N@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000822C0",
+          "name": "?clone@?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082320",
+          "name": "?close@mapped_file_impl@detail@iostreams@boost@@QEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000823B0",
+          "name": "?close@mapped_file_source@iostreams@boost@@QEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000823C0",
+          "name": "?copy_boost_exception@exception_detail@boost@@YAXPEAVexception@2@PEBV32@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082480",
+          "name": "?data@mapped_file_source@iostreams@boost@@QEBAPEBDXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082490",
+          "name": "?default_error_condition@error_category@std@@UEBA?AVerror_condition@2@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000824A0",
+          "name": "?destroy@sp_counted_base@detail@boost@@UEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000824C0",
+          "name": "?dispose@?$sp_counted_impl_p@Vmapped_file_impl@detail@iostreams@boost@@@detail@boost@@UEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000824F0",
+          "name": "?end@mapped_file_source@iostreams@boost@@QEBAPEBDXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082500",
+          "name": "?equivalent@error_category@std@@UEBA_NAEBVerror_code@2@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082520",
+          "name": "?equivalent@error_category@std@@UEBA_NHAEBVerror_condition@2@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082560",
+          "name": "?flags@mapped_file_source@iostreams@boost@@QEBA?AW4mapmode@mapped_file_base@23@XZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082570",
+          "name": "?get_deleter@?$sp_counted_impl_p@Vmapped_file_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXAEBVtype_info@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082580",
+          "name": "?get_local_deleter@?$sp_counted_impl_p@Vmapped_file_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXAEBVtype_info@@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082590",
+          "name": "?get_untyped_deleter@?$sp_counted_impl_p@Vmapped_file_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000825A0",
+          "name": "?init@mapped_file_source@iostreams@boost@@AEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000826B0",
+          "name": "?is_open@mapped_file_source@iostreams@boost@@QEBA_NXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000826C0",
+          "name": "?make_error_code@std@@YA?AVerror_code@1@W4io_errc@1@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000826E0",
+          "name": "?map_file@mapped_file_impl@detail@iostreams@boost@@AEAAXAEAU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082720",
+          "name": "?message@_Iostream_error_category2@std@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@H@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000827E0",
+          "name": "?name@_Iostream_error_category2@std@@UEBAPEBDXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000827F0",
+          "name": "?normalize@mapped_file_params_base@detail@iostreams@boost@@AEAAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082900",
+          "name": "?open@mapped_file_impl@detail@iostreams@boost@@QEAAXU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082AF0",
+          "name": "?open_file@mapped_file_impl@detail@iostreams@boost@@AEAAXU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082D00",
+          "name": "?open_impl@mapped_file_source@iostreams@boost@@AEAAXAEBU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@23@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082D30",
+          "name": "?resize@mapped_file@iostreams@boost@@QEAAX_J@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082D40",
+          "name": "?resize@mapped_file_impl@detail@iostreams@boost@@QEAAX_J@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082FB0",
+          "name": "?rethrow@?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEBAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082FE0",
+          "name": "?size@mapped_file_source@iostreams@boost@@QEBA_KXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000082FF0",
+          "name": "?sp_enable_shared_from_this@detail@boost@@YAXZZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000083010",
+          "name": "?system_failure@detail@iostreams@boost@@YA?AVfailure@ios_base@std@@PEBD@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000833A0",
+          "name": "?throw_system_failure@detail@iostreams@boost@@YAXPEBD@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000833C0",
+          "name": "?try_map_file@mapped_file_impl@detail@iostreams@boost@@AEAAXU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000083520",
+          "name": "?unmap_file@mapped_file_impl@detail@iostreams@boost@@AEAA_NXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000083570",
+          "name": "?what@bad_numeric_cast@numeric@boost@@UEBAPEBDXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000083580",
+          "name": "?what@exception@std@@UEBAPEBDXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000835A0",
+          "name": "?what@negative_overflow@numeric@boost@@UEBAPEBDXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000835B0",
+          "name": "?what@positive_overflow@numeric@boost@@UEBAPEBDXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000863A0",
+          "name": "??2@YAPEAX_K@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000863A8",
+          "name": "??3@YAXPEAX_K@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000863C8",
+          "name": "__std_exception_copy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000863D0",
+          "name": "__std_exception_destroy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000863F0",
+          "name": "?_Xbad_alloc@std@@YAXXZ",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000863F8",
+          "name": "?_Xlength_error@std@@YAXPEBD@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000086420",
+          "name": "?_Syserror_map@std@@YAPEBDH@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000086500",
+          "name": "??_E?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEAAPEAXI@Z",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000086510",
+          "name": "_CxxThrowException",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000086530",
+          "name": "__security_check_cookie",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000086538",
+          "name": "memcpy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000086540",
+          "name": "memmove",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "??$?0Vmapped_file_impl@detail@iostreams@boost@@@?$shared_ptr@Vmapped_file_impl@detail@iostreams@boost@@@boost@@QEAA@PEAVmapped_file_impl@detail@iostreams@1@@Z",
+        "??$?0Vmapped_file_impl@detail@iostreams@boost@@@shared_count@detail@boost@@QEAA@PEAVmapped_file_impl@1iostreams@2@@Z",
+        "??$_Allocate_manually_vector_aligned@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z",
+        "??$_Atomic_address_as@JU?$_Atomic_padded@H@std@@@std@@YAPECJAEAU?$_Atomic_padded@H@0@@Z",
+        "??$_Construct@$00PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXQEBD_K@Z",
+        "??$_Getvals@_W@?$time_get@DV?$istreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+        "??$_Getvals@_W@?$time_get@_WV?$istreambuf_iterator@_WU?$char_traits@_W@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+        "??$_Immortalize_memcpy_image@V_Iostream_error_category2@std@@@std@@YAAEBV_Iostream_error_category2@0@XZ",
+        "??$_Maklocstr@D@std@@YAPEADPEBDPEADAEBU_Cvtvec@@@Z",
+        "??$_Reallocate_for@V<lambda_66f57f934f28d61049862f64df852ff0>@@PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_66f57f934f28d61049862f64df852ff0>@@PEBD@Z",
+        "??$_Reallocate_grow_by@V<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@Z",
+        "??$_Reallocate_grow_by@V<lambda_9013ee9e23efe4882b67eff5b0ecf103>@@$$V@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_9013ee9e23efe4882b67eff5b0ecf103>@@@Z",
+        "??$checked_delete@Vmapped_file_impl@detail@iostreams@boost@@@boost@@YAXPEAVmapped_file_impl@detail@iostreams@0@@Z",
+        "??$throw_exception@Vfailure@ios_base@std@@@boost@@YAXAEBVfailure@ios_base@std@@@Z",
+        "??0?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@iostreams@boost@@QEAA@AEBU012@@Z",
+        "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@AEBV01@@Z",
+        "??0?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAA@AEBV01@@Z",
+        "??0?$wrapexcept@Vfailure@ios_base@std@@@boost@@QEAA@AEBU01@@Z",
+        "??0?$wrapexcept@Vfailure@ios_base@std@@@boost@@QEAA@AEBVfailure@ios_base@std@@@Z",
+        "??0_System_error@std@@IEAA@Verror_code@1@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@1@@Z",
+        "??0_System_error@std@@QEAA@AEBV01@@Z",
+        "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+        "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+        "??0bad_array_new_length@std@@QEAA@XZ",
+        "??0bad_cast@std@@QEAA@AEBV01@@Z",
+        "??0bad_numeric_cast@numeric@boost@@QEAA@AEBV012@@Z",
+        "??0clone_base@exception_detail@boost@@QEAA@AEBV012@@Z",
+        "??0exception@boost@@QEAA@AEBV01@@Z",
+        "??0exception@std@@QEAA@AEBV01@@Z",
+        "??0failure@ios_base@std@@QEAA@AEBV012@@Z",
+        "??0failure@ios_base@std@@QEAA@PEBDAEBVerror_code@2@@Z",
+        "??0mapped_file@iostreams@boost@@QEAA@AEBV012@@Z",
+        "??0mapped_file_impl@detail@iostreams@boost@@QEAA@XZ",
+        "??0mapped_file_sink@iostreams@boost@@QEAA@AEBV012@@Z",
+        "??0mapped_file_source@iostreams@boost@@QEAA@AEBV012@@Z",
+        "??0mapped_file_source@iostreams@boost@@QEAA@XZ",
+        "??0negative_overflow@numeric@boost@@QEAA@AEBV012@@Z",
+        "??0negative_overflow@numeric@boost@@QEAA@XZ",
+        "??0positive_overflow@numeric@boost@@QEAA@AEBV012@@Z",
+        "??0runtime_error@std@@QEAA@AEBV01@@Z",
+        "??0system_error@std@@QEAA@AEBV01@@Z",
+        "??1?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@iostreams@boost@@QEAA@XZ",
+        "??1?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@XZ",
+        "??1?$refcount_ptr@Uerror_info_container@exception_detail@boost@@@exception_detail@boost@@QEAA@XZ",
+        "??1?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEAA@XZ",
+        "??1bad_array_new_length@std@@UEAA@XZ",
+        "??1bad_cast@std@@UEAA@XZ",
+        "??1clone_base@exception_detail@boost@@UEAA@XZ",
+        "??1deleter@?$wrapexcept@Vfailure@ios_base@std@@@boost@@QEAA@XZ",
+        "??1error_category@std@@UEAA@XZ",
+        "??1exception@boost@@MEAA@XZ",
+        "??1exception@std@@UEAA@XZ",
+        "??1failure@ios_base@std@@UEAA@XZ",
+        "??1mapped_file_impl@detail@iostreams@boost@@QEAA@XZ",
+        "??1negative_overflow@numeric@boost@@UEAA@XZ",
+        "??1positive_overflow@numeric@boost@@UEAA@XZ",
+        "??1shared_count@detail@boost@@QEAA@XZ",
+        "??1sp_counted_base@detail@boost@@UEAA@XZ",
+        "??1system_error@std@@UEAA@XZ",
+        "??2@YAPEAX_K@Z",
+        "??3@YAXPEAX_K@Z",
+        "??4path@detail@iostreams@boost@@QEAAAEAV0123@AEBV0123@@Z",
+        "??7mapped_file_source@iostreams@boost@@QEBA_NXZ",
+        "??Bmapped_file_source@iostreams@boost@@QEBAPEQsafe_bool_helper@012@HXZ",
+        "??_E?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEAAPEAXI@Z",
+        "??_E?$wrapexcept@Vfailure@ios_base@std@@@boost@@W7EAAPEAXI@Z",
+        "??_E?$wrapexcept@Vfailure@ios_base@std@@@boost@@WDA@EAAPEAXI@Z",
+        "??_G?$sp_counted_impl_p@Vmapped_file_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXI@Z",
+        "??_G?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEAAPEAXI@Z",
+        "??_G_Iostream_error_category2@std@@UEAAPEAXI@Z",
+        "??_G_System_error@std@@UEAAPEAXI@Z",
+        "??_Gbad_alloc@std@@UEAAPEAXI@Z",
+        "??_Gbad_array_new_length@std@@UEAAPEAXI@Z",
+        "??_Gbad_cast@std@@UEAAPEAXI@Z",
+        "??_Gbad_numeric_cast@numeric@boost@@UEAAPEAXI@Z",
+        "??_Gclone_base@exception_detail@boost@@UEAAPEAXI@Z",
+        "??_Gexception@std@@UEAAPEAXI@Z",
+        "??_Gfailure@ios_base@std@@UEAAPEAXI@Z",
+        "??_Gnegative_overflow@numeric@boost@@UEAAPEAXI@Z",
+        "??_Gpositive_overflow@numeric@boost@@UEAAPEAXI@Z",
+        "??_Gruntime_error@std@@UEAAPEAXI@Z",
+        "??_Gsp_counted_base@detail@boost@@UEAAPEAXI@Z",
+        "??_Gsystem_error@std@@UEAAPEAXI@Z",
+        "?_Maklocwcs@std@@YAPEA_WPEB_W@Z",
+        "?_Syserror_map@std@@YAPEBDH@Z",
+        "?_Throw_bad_array_new_length@std@@YAXXZ",
+        "?_Tidy_deallocate@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXXZ",
+        "?_Tidy_deallocate@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAXXZ",
+        "?_Xbad_alloc@std@@YAXXZ",
+        "?_Xlen_string@std@@YAXXZ",
+        "?_Xlength_error@std@@YAXPEBD@Z",
+        "?alignment@mapped_file_impl@detail@iostreams@boost@@SAHXZ",
+        "?alignment@mapped_file_source@iostreams@boost@@SAHXZ",
+        "?allocate@?$allocator@D@std@@QEAAPEAD_K@Z",
+        "?allocate@?$allocator@_W@std@@QEAAPEA_W_K@Z",
+        "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+        "?assign@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+        "?begin@mapped_file_source@iostreams@boost@@QEBAPEBDXZ",
+        "?cleanup_and_throw@mapped_file_impl@detail@iostreams@boost@@AEAAXPEBD@Z",
+        "?clear@mapped_file_impl@detail@iostreams@boost@@AEAAX_N@Z",
+        "?clone@?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEBAPEBVclone_base@exception_detail@2@XZ",
+        "?close@mapped_file_impl@detail@iostreams@boost@@QEAAXXZ",
+        "?close@mapped_file_source@iostreams@boost@@QEAAXXZ",
+        "?copy_boost_exception@exception_detail@boost@@YAXPEAVexception@2@PEBV32@@Z",
+        "?data@mapped_file_source@iostreams@boost@@QEBAPEBDXZ",
+        "?default_error_condition@error_category@std@@UEBA?AVerror_condition@2@H@Z",
+        "?destroy@sp_counted_base@detail@boost@@UEAAXXZ",
+        "?dispose@?$sp_counted_impl_p@Vmapped_file_impl@detail@iostreams@boost@@@detail@boost@@UEAAXXZ",
+        "?end@mapped_file_source@iostreams@boost@@QEBAPEBDXZ",
+        "?equivalent@error_category@std@@UEBA_NAEBVerror_code@2@H@Z",
+        "?equivalent@error_category@std@@UEBA_NHAEBVerror_condition@2@@Z",
+        "?flags@mapped_file_source@iostreams@boost@@QEBA?AW4mapmode@mapped_file_base@23@XZ",
+        "?get_deleter@?$sp_counted_impl_p@Vmapped_file_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXAEBVtype_info@@@Z",
+        "?get_local_deleter@?$sp_counted_impl_p@Vmapped_file_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXAEBVtype_info@@@Z",
+        "?get_untyped_deleter@?$sp_counted_impl_p@Vmapped_file_impl@detail@iostreams@boost@@@detail@boost@@UEAAPEAXXZ",
+        "?init@mapped_file_source@iostreams@boost@@AEAAXXZ",
+        "?is_open@mapped_file_source@iostreams@boost@@QEBA_NXZ",
+        "?make_error_code@std@@YA?AVerror_code@1@W4io_errc@1@@Z",
+        "?map_file@mapped_file_impl@detail@iostreams@boost@@AEAAXAEAU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+        "?message@_Iostream_error_category2@std@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@H@Z",
+        "?name@_Iostream_error_category2@std@@UEBAPEBDXZ",
+        "?normalize@mapped_file_params_base@detail@iostreams@boost@@AEAAXXZ",
+        "?open@mapped_file_impl@detail@iostreams@boost@@QEAAXU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+        "?open_file@mapped_file_impl@detail@iostreams@boost@@AEAAXU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+        "?open_impl@mapped_file_source@iostreams@boost@@AEAAXAEBU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@23@@Z",
+        "?resize@mapped_file@iostreams@boost@@QEAAX_J@Z",
+        "?resize@mapped_file_impl@detail@iostreams@boost@@QEAAX_J@Z",
+        "?rethrow@?$wrapexcept@Vfailure@ios_base@std@@@boost@@UEBAXXZ",
+        "?size@mapped_file_source@iostreams@boost@@QEBA_KXZ",
+        "?sp_enable_shared_from_this@detail@boost@@YAXZZ",
+        "?system_failure@detail@iostreams@boost@@YA?AVfailure@ios_base@std@@PEBD@Z",
+        "?throw_system_failure@detail@iostreams@boost@@YAXPEBD@Z",
+        "?try_map_file@mapped_file_impl@detail@iostreams@boost@@AEAAXU?$basic_mapped_file_params@Vpath@detail@iostreams@boost@@@34@@Z",
+        "?unmap_file@mapped_file_impl@detail@iostreams@boost@@AEAA_NXZ",
+        "?what@bad_numeric_cast@numeric@boost@@UEBAPEBDXZ",
+        "?what@exception@std@@UEBAPEBDXZ",
+        "?what@negative_overflow@numeric@boost@@UEBAPEBDXZ",
+        "?what@positive_overflow@numeric@boost@@UEBAPEBDXZ",
+        "_CxxThrowException",
+        "__security_check_cookie",
+        "__std_exception_copy",
+        "__std_exception_destroy",
+        "memcpy",
+        "memmove"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "0001_mapped_file.obj",
+      "source_languages": []
+    }
+  ],
+  "project_name": "boost_iostreams_library",
+  "project_parent": "FIDB/build/boost_ghidra_projects/iostreams",
+  "stage": "analyze",
+  "total_functions": 301
+}

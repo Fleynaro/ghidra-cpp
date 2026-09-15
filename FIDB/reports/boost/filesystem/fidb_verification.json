@@ -1,0 +1,1106 @@
+{
+  "architecture": "x86-64",
+  "compiler": "MSVC",
+  "compiler_spec": "windows",
+  "compiler_version": "19.34.31937 for x64",
+  "configuration": "Release",
+  "consumer": "FIDB/build/boost_consumers/filesystem/filesystem_detection.exe",
+  "direct_library_matches": [
+    {
+      "fid_name": "??1directory_iterator@filesystem@boost@@QEAA@XZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x00000001400019B0",
+      "program_function": "~directory_iterator",
+      "score": 36.349998474121094,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1locale@std@@QEAA@XZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140001C10",
+      "program_function": "~locale",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??Berror_code@system@boost@@QEBA_NXZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140001C90",
+      "program_function": "operator_bool",
+      "score": 316.3500061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Xlen_string@std@@YAXXZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140002000",
+      "program_function": "_Xlen_string",
+      "score": 656.6699829101562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Construct@$00PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXQEBD_K@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140003740",
+      "program_function": "_Construct<1,char_const*___ptr64>",
+      "score": 345.739990234375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Reallocate_grow_by@V<lambda_1dfe18491bcca09701d8ccb01d0b0af4>@@PEB_W_K@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAAEAV01@_KV<lambda_1dfe18491bcca09701d8ccb01d0b0af4>@@PEB_W_K@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140003800",
+      "program_function": "_Reallocate_grow_by<<lambda_1dfe18491bcca09701d8ccb01d0b0af4>,wchar_t_const*___ptr64,unsigned___int64>",
+      "score": 142.76998901367188,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@U_String_constructor_concat_tag@1@AEAV01@1@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140003C70",
+      "program_function": "basic_string<char,std::char_traits<char>,std::allocator<char>_>",
+      "score": 145.8300018310547,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@_KD@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140003E20",
+      "program_function": "basic_string<char,std::char_traits<char>,std::allocator<char>_>",
+      "score": 68.08000183105469,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0error_code@system@boost@@QEAA@HAEBVerror_category@12@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140003F00",
+      "program_function": "error_code",
+      "score": 1365.7099609375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140003F70",
+      "program_function": "FUN_140003f70",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140003F70",
+      "program_function": "FUN_140003f70",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0runtime_error@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140003F70",
+      "program_function": "FUN_140003f70",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0bad_cast@std@@QEAA@AEBV01@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140003F70",
+      "program_function": "FUN_140003f70",
+      "score": 18.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0system_error@system@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140003FB0",
+      "program_function": "system_error",
+      "score": 28.700000762939453,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_array_new_length@std@@UEAAPEAXI@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140004350",
+      "program_function": "FUN_140004350",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gexception@std@@UEAAPEAXI@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140004350",
+      "program_function": "FUN_140004350",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_alloc@std@@UEAAPEAXI@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140004350",
+      "program_function": "FUN_140004350",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gruntime_error@std@@UEAAPEAXI@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140004350",
+      "program_function": "FUN_140004350",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbad_cast@std@@UEAAPEAXI@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140004350",
+      "program_function": "FUN_140004350",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gsystem_error@system@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x00000001400043A0",
+      "program_function": "FUN_1400043a0",
+      "score": 21.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x00000001400043F0",
+      "program_function": "append",
+      "score": 81.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?append@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAAAEAV12@QEB_W_K@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140004480",
+      "program_function": "append",
+      "score": 164.72000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?append_int@detail@system@boost@@YAXAEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140004500",
+      "program_function": "append_int",
+      "score": 85.74000549316406,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?convert@path_traits@detail@filesystem@boost@@YAXPEBD0AEAV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@PEBV?$codecvt@_WDU_Mbstatet@@@6@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x00000001400045C0",
+      "program_function": "convert",
+      "score": 176.70999145507812,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?convert@path_traits@detail@filesystem@boost@@YAXPEB_W0AEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBV?$codecvt@_WDU_Mbstatet@@@6@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x00000001400046B0",
+      "program_function": "convert",
+      "score": 172.70999145507812,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?convert_aux@?A0x05524874@@YAXPEBD0PEA_W1AEAV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEBV?$codecvt@_WDU_Mbstatet@@@3@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140004790",
+      "program_function": "convert_aux",
+      "score": 137.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?convert_aux@?A0x05524874@@YAXPEB_W0PEAD1AEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBV?$codecvt@_WDU_Mbstatet@@@3@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140004840",
+      "program_function": "convert_aux",
+      "score": 134.05999755859375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?default_error_condition@system_error_category@detail@system@boost@@UEBA?AVerror_condition@34@H@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140004900",
+      "program_function": "default_error_condition",
+      "score": 34.709999084472656,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?equivalent@error_category@system@boost@@UEBA_NAEBVerror_code@23@H@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140004960",
+      "program_function": "equivalent",
+      "score": 446.04998779296875,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?equivalent@error_category@system@boost@@UEBA_NHAEBVerror_condition@23@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x00000001400049F0",
+      "program_function": "equivalent",
+      "score": 433.04998779296875,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?message@system_error_category@detail@system@boost@@UEBAPEBDHPEAD_K@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140004AC0",
+      "program_function": "message",
+      "score": 97.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?resize@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAX_KD@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140004BA0",
+      "program_function": "resize",
+      "score": 54.7400016784668,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?to_string@source_location@boost@@QEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140005280",
+      "program_function": "to_string",
+      "score": 334.0299987792969,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?unknown_message_win32@detail@system@boost@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x00000001400055A0",
+      "program_function": "unknown_message_win32",
+      "score": 107.72000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?value@error_code@system@boost@@QEBAHXZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140005630",
+      "program_function": "value",
+      "score": 66.36000061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "snprintf",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140005A70",
+      "program_function": "snprintf",
+      "score": 351.70001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$?9Vpath_iterator@path_detail@filesystem@boost@@$$CBVpath@23@Ubidirectional_traversal_tag@iterators@3@AEBV423@_JV0123@$$CBV423@U563@AEBV423@_J@iterators@boost@@YA_NAEBV?$iterator_facade@Vpath_iterator@path_detail@filesystem@boost@@$$CBVpath@34@Ubidirectional_traversal_tag@iterators@4@AEBV534@_J@01@0@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140005AE0",
+      "program_function": "operator!=<boost::filesystem::path_detail::path_iterator,boost::filesystem::path_const_,boost::iterators::bidirectional_traversal_tag,boost::filesystem::path_const&___ptr64,__int64,boost::filesystem::path_detail::path_iterator,boost::filesystem::path_const_,boost::iterators::bidirectional_traversal_tag,boost::filesystem::path_const&___ptr64,__int64>",
+      "score": 114.3499984741211,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$?M_WU?$char_traits@_W@std@@V?$allocator@_W@1@@std@@YA_NAEBV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@0@0@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140005B00",
+      "program_function": "operator<<wchar_t,std::char_traits<wchar_t>,std::allocator<wchar_t>_>",
+      "score": 261.3800048828125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Construct@$00PEB_W@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAXQEB_W_K@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140005B70",
+      "program_function": "_Construct<1,wchar_t_const*___ptr64>",
+      "score": 100.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gwindows_file_codecvt@detail@filesystem@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140005C30",
+      "program_function": "FUN_140005c30",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Xlen_string@std@@YAXXZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140005C70",
+      "program_function": "_Xran",
+      "score": 165.6699981689453,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Xran@?$_String_val@U?$_Simple_types@_W@std@@@std@@SAXXZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140005C70",
+      "program_function": "_Xran",
+      "score": 165.6699981689453,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?append_separator_if_needed@path_algorithms@detail@filesystem@boost@@SA_KAEAVpath@34@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140005C90",
+      "program_function": "append_separator_if_needed",
+      "score": 124.05000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?assign@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAAAEAV12@QEB_W_K@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x00000001400060B0",
+      "program_function": "assign",
+      "score": 974.0999755859375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?begin@path@filesystem@boost@@QEBA?AVpath_iterator@path_detail@23@XZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x00000001400061E0",
+      "program_function": "begin",
+      "score": 491.95001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?codecvt@path@filesystem@boost@@SAAEBV?$codecvt@_WDU_Mbstatet@@@std@@XZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140006490",
+      "program_function": "codecvt",
+      "score": 247.10000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?compare_v4@path_algorithms@detail@filesystem@boost@@SAHAEBVpath@34@0@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x00000001400065E0",
+      "program_function": "compare_v4",
+      "score": 326.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?compare_v3@path_algorithms@detail@filesystem@boost@@SAHAEBVpath@34@0@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x00000001400065E0",
+      "program_function": "compare_v4",
+      "score": 326.75,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?decrement_v4@path_algorithms@detail@filesystem@boost@@SAXAEAVpath_iterator@path_detail@34@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x00000001400066E0",
+      "program_function": "decrement_v4",
+      "score": 400.1600036621094,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?default_locale@?A0x3403cc3b@@YA?AVlocale@std@@XZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140006890",
+      "program_function": "default_locale",
+      "score": 132.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?dot_dot_path@detail@filesystem@boost@@YAAEBVpath@23@XZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140006A30",
+      "program_function": "dot_dot_path",
+      "score": 87.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?dot_path@detail@filesystem@boost@@YAAEBVpath@23@XZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140006AC0",
+      "program_function": "dot_path",
+      "score": 87.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?end@path@filesystem@boost@@QEBA?AVpath_iterator@path_detail@23@XZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140006B50",
+      "program_function": "end",
+      "score": 18.360000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?erase@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAA?AV?$_String_iterator@V?$_String_val@U?$_Simple_types@_W@std@@@std@@@2@V?$_String_const_iterator@V?$_String_val@U?$_Simple_types@_W@std@@@std@@@2@0@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140006B80",
+      "program_function": "erase",
+      "score": 61.40999984741211,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?find_extension_v4_size@path_algorithms@detail@filesystem@boost@@SA_KAEBVpath@34@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140006C30",
+      "program_function": "find_extension_v4_size",
+      "score": 238.11000061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?find_filename_size@?A0x3403cc3b@@YA_KAEBV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@_K1@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140006D40",
+      "program_function": "find_filename_size",
+      "score": 161.36000061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?find_filename_v4_size@path_algorithms@detail@filesystem@boost@@SA_KAEBVpath@34@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140006DB0",
+      "program_function": "find_filename_v4_size",
+      "score": 272.05999755859375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?find_first_of@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEBA_KQEB_W_K@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140006E50",
+      "program_function": "find_first_of",
+      "score": 494.760009765625,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?find_parent_path_size@path_algorithms@detail@filesystem@boost@@SA_KAEBVpath@34@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140006F90",
+      "program_function": "find_parent_path_size",
+      "score": 219.739990234375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?find_relative_path@path_algorithms@detail@filesystem@boost@@SA?AUsubstring@1234@AEBVpath@34@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140007080",
+      "program_function": "find_relative_path",
+      "score": 195.07000732421875,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?find_root_directory_start@?A0x3403cc3b@@YA_KPEB_W_KAEA_K@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140007130",
+      "program_function": "find_root_directory_start",
+      "score": 922.2100219726562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?increment_v4@path_algorithms@detail@filesystem@boost@@SAXAEAVpath_iterator@path_detail@34@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140007310",
+      "program_function": "increment_v4",
+      "score": 578.1900024414062,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?is_root_separator@?A0x3403cc3b@@YA_NAEBV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@_K1@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x00000001400074C0",
+      "program_function": "is_root_separator",
+      "score": 144.02000427246094,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?lex_compare_v4@path_algorithms@detail@filesystem@boost@@SAHVpath_iterator@path_detail@34@AEBV5634@01@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140007500",
+      "program_function": "lex_compare_v4",
+      "score": 448.42999267578125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?push_back@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAAX_W@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x00000001400076A0",
+      "program_function": "push_back",
+      "score": 143.47000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?remove_filename_and_trailing_separators@path@filesystem@boost@@QEAAAEAV123@XZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140007800",
+      "program_function": "remove_filename_and_trailing_separators",
+      "score": 262.7799987792969,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?remove_filename_v4@path_algorithms@detail@filesystem@boost@@SAXAEAVpath@34@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140007970",
+      "program_function": "remove_filename_v4",
+      "score": 116.72999572753906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?replace_filename@path@filesystem@boost@@QEAAAEAV123@AEBV123@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140007A10",
+      "program_function": "replace_filename",
+      "score": 69.36000061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "wmemchr",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140007A60",
+      "program_function": "wmemchr",
+      "score": 216.7899932861328,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "wmemcmp",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140007BD0",
+      "program_function": "wmemcmp",
+      "score": 283.489990234375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1dir_itr_imp@detail@filesystem@boost@@QEAA@XZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140008040",
+      "program_function": "~dir_itr_imp",
+      "score": 339.0400085449219,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??3dir_itr_imp@detail@filesystem@boost@@SAXPEAX@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140008080",
+      "program_function": "operator_delete",
+      "score": 321.3399963378906,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??8system@boost@@YA_NAEBVerror_code@01@AEBVerror_condition@01@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140008130",
+      "program_function": "operator==",
+      "score": 267.7699890136719,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??Berror_category@system@boost@@QEBAAEBV0std@@XZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140008240",
+      "program_function": "operator_class_std::error_category_const&___ptr64",
+      "score": 615.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?assign@error_code@system@boost@@QEAAXHAEBVerror_category@23@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x00000001400083E0",
+      "program_function": "assign",
+      "score": 314.7300109863281,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?default_error_condition@_System_error_category@std@@UEBA?AVerror_condition@2@H@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140008460",
+      "program_function": "default_error_condition",
+      "score": 41.369998931884766,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?default_error_condition@std_category@detail@system@boost@@UEBA?AVerror_condition@std@@H@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x00000001400084E0",
+      "program_function": "default_error_condition",
+      "score": 88.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?dir_itr_create@?A0xc3d2085b@detail@filesystem@boost@@YA?AVerror_code@system@4@AEAV?$intrusive_ptr@Udir_itr_imp@detail@filesystem@boost@@@4@AEBVpath@34@W4directory_options@34@PEAUdirectory_iterator_params@234@AEAV834@AEAVfile_status@34@5@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140008530",
+      "program_function": "dir_itr_create",
+      "score": 964.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?dir_itr_increment@?A0xc3d2085b@detail@filesystem@boost@@YA?AVerror_code@system@4@AEAUdir_itr_imp@234@AEAVpath@34@AEAVfile_status@34@2@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140009120",
+      "program_function": "dir_itr_increment",
+      "score": 373.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?equivalent@error_category@std@@UEBA_NAEBVerror_code@2@H@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140009FD0",
+      "program_function": "equivalent",
+      "score": 102.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?equivalent@error_category@std@@UEBA_NHAEBVerror_condition@2@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x0000000140009FF0",
+      "program_function": "equivalent",
+      "score": 403.70001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?equivalent@std_category@detail@system@boost@@UEBA_NAEBVerror_code@std@@H@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000A030",
+      "program_function": "equivalent",
+      "score": 185.45999145507812,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?equivalent@std_category@detail@system@boost@@UEBA_NAEBVerror_code@std@@H@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000A030",
+      "program_function": "equivalent",
+      "score": 185.45999145507812,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?equivalent@std_category@detail@system@boost@@UEBA_NHAEBVerror_condition@std@@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000A1A0",
+      "program_function": "equivalent",
+      "score": 152.1199951171875,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?file_type@directory_entry@filesystem@boost@@QEBA?AW4023@AEAVerror_code@system@3@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000A2B0",
+      "program_function": "file_type",
+      "score": 60.37000274658203,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?filename_v4@path_algorithms@detail@filesystem@boost@@SA?AVpath@34@AEBV534@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000A2F0",
+      "program_function": "filename_v4",
+      "score": 138.07000732421875,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?is_dir_info_class_not_supported@?A0xc3d2085b@detail@filesystem@boost@@YA_NK@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000A3A0",
+      "program_function": "is_dir_info_class_not_supported",
+      "score": 683.6900024414062,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?make_error_code@errc@system@boost@@YA?AVerror_code@23@W4errc_t@123@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000A3E0",
+      "program_function": "make_error_code",
+      "score": 700.0399780273438,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?message@_Generic_error_category@std@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@H@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000A650",
+      "program_function": "message",
+      "score": 66.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?message@_System_error_category@std@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@H@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000A6A0",
+      "program_function": "message",
+      "score": 81.72000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?message@generic_error_category@detail@system@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000A730",
+      "program_function": "message",
+      "score": 68.02999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?message@generic_error_category@detail@system@boost@@UEBAPEBDHPEAD_K@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000A790",
+      "program_function": "message",
+      "score": 36.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?pop_back@?$vector@Vdirectory_iterator@filesystem@boost@@V?$allocator@Vdirectory_iterator@filesystem@boost@@@std@@@std@@QEAAXXZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000A840",
+      "program_function": "pop_back",
+      "score": 157.0800018310547,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?recursive_directory_iterator_increment@detail@filesystem@boost@@YAXAEAVrecursive_directory_iterator@23@PEAVerror_code@system@3@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000B450",
+      "program_function": "recursive_directory_iterator_increment",
+      "score": 311.25,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?recursive_directory_iterator_pop_on_error@?A0xc3d2085b@detail@filesystem@boost@@YAXPEAUrecur_dir_itr_imp@234@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000B670",
+      "program_function": "FUN_14000b670",
+      "score": 319.2200012207031,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?refresh_impl@directory_entry@filesystem@boost@@AEBAXPEAVerror_code@system@3@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000B840",
+      "program_function": "refresh_impl",
+      "score": 81.74000549316406,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?reset@?$intrusive_ptr@Urecur_dir_itr_imp@detail@filesystem@boost@@@boost@@QEAAXXZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000B8C0",
+      "program_function": "reset",
+      "score": 157.36000061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?set_file_statuses@?A0xc3d2085b@detail@filesystem@boost@@YAXKPEBKAEBVpath@34@AEAVfile_status@34@2@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000B910",
+      "program_function": "set_file_statuses",
+      "score": 947.4199829101562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?symlink_file_type@directory_entry@filesystem@boost@@QEBA?AW4file_type@23@AEAVerror_code@system@3@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000B9D0",
+      "program_function": "symlink_file_type",
+      "score": 60.37000274658203,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_reparse_point_tag_ioctl@detail@filesystem@boost@@YAKPEAXAEBVpath@23@PEAVerror_code@system@3@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000C2F0",
+      "program_function": "get_reparse_point_tag_ioctl",
+      "score": 851.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?nt_create_file_handle_at@detail@filesystem@boost@@YAJAEAV?$unique_resource@PEAXUhandle_deleter@detail@filesystem@boost@@Uhandle_resource_traits@234@@scope@3@PEAXAEBVpath@23@KKKKK@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000C4F0",
+      "program_function": "nt_create_file_handle_at",
+      "score": 138.5500030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?process_status_failure@?A0x48cfdbf0@detail@filesystem@boost@@YA?AVfile_status@34@KAEBVpath@34@PEAVerror_code@system@4@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000C680",
+      "program_function": "process_status_failure",
+      "score": 310.4700012207031,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?remove_all@detail@filesystem@boost@@YA_KAEBVpath@23@PEAVerror_code@system@3@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000C7F0",
+      "program_function": "remove_all",
+      "score": 465.4800109863281,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?remove_all_nt5_impl@?A0x48cfdbf0@detail@filesystem@boost@@YA_KAEBVpath@34@PEAVerror_code@system@4@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000C980",
+      "program_function": "remove_all_nt5_impl",
+      "score": 1412.0899658203125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?remove_nt5_impl@?A0x48cfdbf0@detail@filesystem@boost@@YA_NAEBVpath@34@KPEAVerror_code@system@4@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000D760",
+      "program_function": "remove_nt5_impl",
+      "score": 461.44000244140625,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?remove_nt6_by_handle@?A0x48cfdbf0@detail@filesystem@boost@@YAKPEAXW4remove_impl_type@1234@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000D8C0",
+      "program_function": "remove_nt6_by_handle",
+      "score": 164.8699951171875,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?status@detail@filesystem@boost@@YA?AVfile_status@23@AEBVpath@23@PEAVerror_code@system@3@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000DAC0",
+      "program_function": "status",
+      "score": 53.02000045776367,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?symlink_status@detail@filesystem@boost@@YA?AVfile_status@23@AEBVpath@23@PEAVerror_code@system@3@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000DAC0",
+      "program_function": "status",
+      "score": 53.02000045776367,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?status_by_handle@detail@filesystem@boost@@YA?AVfile_status@23@PEAXAEBVpath@23@PEAVerror_code@system@3@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000DB00",
+      "program_function": "status_by_handle",
+      "score": 345.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?status@detail@filesystem@boost@@YA?AVfile_status@23@AEBVpath@23@PEAVerror_code@system@3@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000DFD0",
+      "program_function": "symlink_status",
+      "score": 53.02000045776367,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?symlink_status@detail@filesystem@boost@@YA?AVfile_status@23@AEBVpath@23@PEAVerror_code@system@3@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000DFD0",
+      "program_function": "symlink_status",
+      "score": 53.02000045776367,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?do_in@windows_file_codecvt@detail@filesystem@boost@@MEBAHAEAU_Mbstatet@@PEBD1AEAPEBDPEA_W3AEAPEA_W@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000E850",
+      "program_function": "do_in",
+      "score": 51.060001373291016,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?do_out@windows_file_codecvt@detail@filesystem@boost@@MEBAHAEAU_Mbstatet@@PEB_W1AEAPEB_WPEAD3AEAPEAD@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000E8E0",
+      "program_function": "do_out",
+      "score": 57.06999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0filesystem_error@filesystem@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000EAD0",
+      "program_function": "filesystem_error",
+      "score": 37.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0impl@filesystem_error@filesystem@boost@@QEAA@AEBVpath@23@0@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000F0D0",
+      "program_function": "impl",
+      "score": 33.38999938964844,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$intrusive_ptr@Uimpl@filesystem_error@filesystem@boost@@@boost@@QEAA@XZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000F3E0",
+      "program_function": "~intrusive_ptr<boost::filesystem::filesystem_error::impl>",
+      "score": 25.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1filesystem_error@filesystem@boost@@UEAA@XZ",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000F430",
+      "program_function": "~filesystem_error",
+      "score": 33.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gfilesystem_error@filesystem@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000F4E0",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 43.720001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?emit_error@filesystem@boost@@YAXKAEBVpath@12@PEAVerror_code@system@2@PEBD@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000F580",
+      "program_function": "emit_error",
+      "score": 571.0899658203125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?emit_error@filesystem@boost@@YAXKPEAVerror_code@system@2@PEBD@Z",
+      "library": "Boost.Filesystem",
+      "program_entry_point": "0x000000014000F680",
+      "program_function": "emit_error",
+      "score": 94.75,
+      "version": "1.86.0"
+    }
+  ],
+  "expected_match_count": 12,
+  "expected_matches": {
+    "recursive_directory_iterator_increment": [
+      {
+        "comment": "Library Function - Single Match\n void __cdecl boost::filesystem::detail::recursive_directory_iterator_increment(class boost::filesystem::recursive_directory_iterator & __ptr64,class boost::system::error_code * __ptr64)\n\nLibrary: Boost.Filesystem 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014000B450",
+        "fid_bookmark": "Library Function - Single Match,  ?recursive_directory_iterator_increment@detail@filesystem@boost@@YAXAEAVrecursive_directory_iterator@23@PEAVerror_code@system@3@@Z",
+        "name": "recursive_directory_iterator_increment",
+        "offset": 5368755280
+      }
+    ],
+    "remove_all": [
+      {
+        "comment": "Library Function - Single Match\n unsigned __int64 __cdecl boost::filesystem::detail::remove_all(class boost::filesystem::path const & __ptr64,class boost::system::error_code * __ptr64)\n\nLibrary: Boost.Filesystem 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014000C7F0",
+        "fid_bookmark": "Library Function - Single Match,  ?remove_all@detail@filesystem@boost@@YA_KAEBVpath@23@PEAVerror_code@system@3@@Z",
+        "name": "remove_all",
+        "offset": 5368760304
+      },
+      {
+        "comment": "Library Function - Single Match\n unsigned __int64 __cdecl boost::filesystem::detail::`anonymous namespace'::remove_all_nt5_impl(class boost::filesystem::path const & __ptr64,class boost::system::error_code * __ptr64)\n\nLibrary: Boost.Filesystem 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014000C980",
+        "fid_bookmark": "Library Function - Single Match,  ?remove_all_nt5_impl@?A0x48cfdbf0@detail@filesystem@boost@@YA_KAEBVpath@34@PEAVerror_code@system@4@@Z",
+        "name": "remove_all_nt5_impl",
+        "offset": 5368760704
+      }
+    ],
+    "status": [
+      {
+        "comment": "Library Function - Single Match\n class boost::system::error_code __cdecl boost::filesystem::detail::`anonymous namespace'::dir_itr_create(class boost::intrusive_ptr<struct boost::filesystem::detail::dir_itr_imp> & __ptr64,class boost::filesystem::path const & __ptr64,enum boost::filesystem::directory_options,struct boost::filesystem::detail::directory_iterator_params * __ptr64,class boost::filesystem::path & __ptr64,class boost::filesystem::file_status & __ptr64,class boost::filesystem::file_status & __ptr64)\n\nLibrary: Boost.Filesystem 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140008530",
+        "fid_bookmark": "Library Function - Single Match,  ?dir_itr_create@?A0xc3d2085b@detail@filesystem@boost@@YA?AVerror_code@system@4@AEAV?$intrusive_ptr@Udir_itr_imp@detail@filesystem@boost@@@4@AEBVpath@34@W4directory_options@34@PEAUdirectory_iterator_params@234@AEAV834@AEAVfile_status@34@5@Z",
+        "name": "dir_itr_create",
+        "offset": 5368743216
+      },
+      {
+        "comment": "Library Function - Single Match\n class boost::system::error_code __cdecl boost::filesystem::detail::`anonymous namespace'::dir_itr_increment(struct boost::filesystem::detail::dir_itr_imp & __ptr64,class boost::filesystem::path & __ptr64,class boost::filesystem::file_status & __ptr64,class boost::filesystem::file_status & __ptr64)\n\nLibrary: Boost.Filesystem 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140009120",
+        "fid_bookmark": "Library Function - Single Match,  ?dir_itr_increment@?A0xc3d2085b@detail@filesystem@boost@@YA?AVerror_code@system@4@AEAUdir_itr_imp@234@AEAVpath@34@AEAVfile_status@34@2@Z",
+        "name": "dir_itr_increment",
+        "offset": 5368746272
+      },
+      {
+        "comment": "Library Function - Single Match\n void __cdecl boost::filesystem::detail::`anonymous namespace'::set_file_statuses(unsigned long,unsigned long const * __ptr64,class boost::filesystem::path const & __ptr64,class boost::filesystem::file_status & __ptr64,class boost::filesystem::file_status & __ptr64)\n\nLibrary: Boost.Filesystem 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014000B910",
+        "fid_bookmark": "Library Function - Single Match,  ?set_file_statuses@?A0xc3d2085b@detail@filesystem@boost@@YAXKPEBKAEBVpath@34@AEAVfile_status@34@2@Z",
+        "name": "set_file_statuses",
+        "offset": 5368756496
+      },
+      {
+        "comment": "Library Function - Single Match\n class boost::filesystem::file_status __cdecl boost::filesystem::detail::`anonymous namespace'::process_status_failure(unsigned long,class boost::filesystem::path const & __ptr64,class boost::system::error_code * __ptr64)\n\nLibrary: Boost.Filesystem 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014000C680",
+        "fid_bookmark": "Library Function - Single Match,  ?process_status_failure@?A0x48cfdbf0@detail@filesystem@boost@@YA?AVfile_status@34@KAEBVpath@34@PEAVerror_code@system@4@@Z",
+        "name": "process_status_failure",
+        "offset": 5368759936
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Different Base Names\n class boost::filesystem::file_status __cdecl boost::filesystem::detail::status(class boost::filesystem::path const & __ptr64,class boost::system::error_code * __ptr64)\n class boost::filesystem::file_status __cdecl boost::filesystem::detail::symlink_status(class boost::filesystem::path const & __ptr64,class boost::system::error_code * __ptr64)\n\nLibrary: Boost.Filesystem 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014000DAC0",
+        "fid_bookmark": "Library Function - Multiple Matches, Different  ?status@detail@filesystem@boost@@YA?AVfile_status@23@AEBVpath@23@PEAVerror_code@system@3@@Z",
+        "name": "status",
+        "offset": 5368765120
+      },
+      {
+        "comment": "Library Function - Single Match\n class boost::filesystem::file_status __cdecl boost::filesystem::detail::status_by_handle(void * __ptr64,class boost::filesystem::path const & __ptr64,class boost::system::error_code * __ptr64)\n\nLibrary: Boost.Filesystem 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014000DB00",
+        "fid_bookmark": "Library Function - Single Match,  ?status_by_handle@detail@filesystem@boost@@YA?AVfile_status@23@PEAXAEBVpath@23@PEAVerror_code@system@3@@Z",
+        "name": "status_by_handle",
+        "offset": 5368765184
+      },
+      {
+        "comment": "Library Function - Single Match\n class boost::filesystem::file_status __cdecl boost::filesystem::detail::`anonymous namespace'::status_impl(class boost::filesystem::path const & __ptr64,class boost::system::error_code * __ptr64)\n\nLibrary: Boost.Filesystem 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014000DE20",
+        "fid_bookmark": "Library Function - Single Match,  ?status_impl@?A0x48cfdbf0@detail@filesystem@boost@@YA?AVfile_status@34@AEBVpath@34@PEAVerror_code@system@4@@Z",
+        "name": "status_impl",
+        "offset": 5368765984
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Different Base Names\n class boost::filesystem::file_status __cdecl boost::filesystem::detail::status(class boost::filesystem::path const & __ptr64,class boost::system::error_code * __ptr64)\n class boost::filesystem::file_status __cdecl boost::filesystem::detail::symlink_status(class boost::filesystem::path const & __ptr64,class boost::system::error_code * __ptr64)\n\nLibrary: Boost.Filesystem 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014000DFD0",
+        "fid_bookmark": "Library Function - Multiple Matches, Different  ?status@detail@filesystem@boost@@YA?AVfile_status@23@AEBVpath@23@PEAVerror_code@system@3@@Z",
+        "name": "symlink_status",
+        "offset": 5368766416
+      },
+      {
+        "comment": "Library Function - Single Match\n class boost::filesystem::file_status __cdecl boost::filesystem::detail::`anonymous namespace'::symlink_status_impl(class boost::filesystem::path const & __ptr64,class boost::system::error_code * __ptr64)\n\nLibrary: Boost.Filesystem 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x000000014000E010",
+        "fid_bookmark": "Library Function - Single Match,  ?symlink_status_impl@?A0x48cfdbf0@detail@filesystem@boost@@YA?AVfile_status@34@AEBVpath@34@PEAVerror_code@system@4@@Z",
+        "name": "symlink_status_impl",
+        "offset": 5368766480
+      }
+    ]
+  },
+  "fidb": {
+    "compiler_spec_filter": "windows",
+    "expected_function_records": [
+      "recursive_directory_iterator_increment",
+      "remove_all",
+      "status"
+    ],
+    "fidb_path": "FIDB/libraries/boost/filesystem/1.86.0/boost-filesystem-1.86.0-msvc-x86_64-release.fidb",
+    "function_record_count": 290,
+    "language_id": "x86:LE:64:default",
+    "library_count": 1,
+    "library_family": "Boost.Filesystem",
+    "library_variant": "msvc-x86_64-release",
+    "library_version": "1.86.0",
+    "readable": true,
+    "source_language_filter": ""
+  },
+  "function_count": 357,
+  "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
+  "ghidra_version": "12.1.3",
+  "language_id": "x86:LE:64:default",
+  "library": "Boost.Filesystem",
+  "library_family": "Boost.Filesystem",
+  "linkage": "static",
+  "negative_control": {
+    "false_zlib_matches": [],
+    "map_offset": 5368720400,
+    "observed_rows": [
+      {
+        "comment": "",
+        "entry_point": "0x0000000140002C10",
+        "fid_bookmark": "",
+        "name": "FUN_140002c10",
+        "offset": 5368720400
+      }
+    ],
+    "symbol": "non_boost_control"
+  },
+  "pyghidra_version": "3.1.0",
+  "query_api": "Language compatibility overload",
+  "source_language_declared": "C++",
+  "stage": "verify",
+  "status": "PASS"
+}

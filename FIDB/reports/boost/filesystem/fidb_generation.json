@@ -1,0 +1,2066 @@
+{
+  "allow_empty": false,
+  "architecture": "x86-64",
+  "compiler": "MSVC",
+  "compiler_spec_filter": "windows",
+  "compiler_version": "19.34.31937 for x64",
+  "configuration": "Release",
+  "empty_reason": "",
+  "expected_functions": [
+    "remove_all",
+    "status",
+    "recursive_directory_iterator_increment"
+  ],
+  "filter_api": "LanguageID compatibility overload",
+  "function_record_count": 290,
+  "function_records": [
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F3A0",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0bad_array_new_length@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F9D0",
+      "full_hash": "0x492465650966A807",
+      "name": "?value@error_code@system@boost@@QEBAHXZ",
+      "specific_hash": "0xB12C71C663877B3B"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F8F0",
+      "full_hash": "0xCC5E730D89C6CCBC",
+      "name": "?message@error_category@system@boost@@UEBAPEBDHPEAD_K@Z",
+      "specific_hash": "0x31259893CD9FB016"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F6A0",
+      "full_hash": "0xD1A45B502F1DA9A4",
+      "name": "?equivalent@error_category@system@boost@@UEBA_NAEBVerror_code@23@H@Z",
+      "specific_hash": "0x1C6062B84BDFB73A"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F2E0",
+      "full_hash": "0x00671F8B2B5D5C48",
+      "name": "??$_Maklocstr@D@std@@YAPEADPEBDPEADAEBU_Cvtvec@@@Z",
+      "specific_hash": "0xAFB2D484DD2BD228"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F100",
+      "full_hash": "0xFCBA95C91316140F",
+      "name": "??$_Allocate_manually_vector_aligned@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z",
+      "specific_hash": "0x5FF80A912E7AABBF"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A7100",
+      "full_hash": "0x9FA7EFBE8CB25EF9",
+      "name": "??$_Allocate_manually_vector_aligned@U_Default_allocate_traits@std@@@std@@YAPEAX_K@Z",
+      "specific_hash": "0x55E227005570AF09"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F690",
+      "full_hash": "0x5B236DC9338E41AF",
+      "name": "?default_error_condition@error_category@system@boost@@UEBA?AVerror_condition@23@H@Z",
+      "specific_hash": "0x8922F35F672C67D9"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F730",
+      "full_hash": "0x8199890F8AD40A7F",
+      "name": "?equivalent@error_category@system@boost@@UEBA_NHAEBVerror_condition@23@@Z",
+      "specific_hash": "0xA9F406B5C626AF71"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007FA20",
+      "full_hash": "0xF28FA0EB7AE1A1CA",
+      "name": "?what@exception@std@@UEBAPEBDXZ",
+      "specific_hash": "0x15643C00B67E7F07"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F210",
+      "full_hash": "0x7FD74D56EBE0B967",
+      "name": "??$_Getvals@_W@?$time_get@_WV?$istreambuf_iterator@_WU?$char_traits@_W@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+      "specific_hash": "0x3FBB7FB8DA13BB48"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F3E0",
+      "full_hash": "0x3F776102123EF13B",
+      "name": "??0bad_array_new_length@std@@QEAA@XZ",
+      "specific_hash": "0xE89F366BE03F8AE1"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F600",
+      "full_hash": "0x9BB6384B8BBE7A7A",
+      "name": "?_Throw_bad_array_new_length@std@@YAXXZ",
+      "specific_hash": "0xA48B7F1986F17A70"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A95A0",
+      "full_hash": "0x8FEE42DB1909DA52",
+      "name": "?_Throw_bad_array_new_length@std@@YAXXZ",
+      "specific_hash": "0x05BA479C99E9031C"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F460",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1bad_array_new_length@std@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F4F0",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gbad_array_new_length@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F540",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gexception@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F140",
+      "full_hash": "0x7FD74D56EBE0B967",
+      "name": "??$_Getvals@_W@?$time_get@DV?$istreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@IEAAX_WAEBV_Locinfo@1@@Z",
+      "specific_hash": "0x3FBB7FB8DA13BB48"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F620",
+      "full_hash": "0xDB2685ECD014AEFD",
+      "name": "?_Tidy_deallocate@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXXZ",
+      "specific_hash": "0xF9272CA2EB63170B"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F410",
+      "full_hash": "0x8394F617ED90D651",
+      "name": "??0exception@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x27E5355338B09110"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F480",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1exception@std@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F4A0",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gbad_alloc@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F360",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0bad_alloc@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007F590",
+      "full_hash": "0xE4072E7F5F1BE002",
+      "name": "?_Maklocwcs@std@@YAPEA_WPEB_W@Z",
+      "specific_hash": "0x7AF1F07FF2BD73A2"
+    },
+    {
+      "domain_path": "/0000_codecvt_error_category.obj",
+      "entry_point": "0x000000000007FA50",
+      "full_hash": "0xA0869973A31F3B58",
+      "name": "snprintf",
+      "specific_hash": "0xB3EEEB8B917B587C"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9620",
+      "full_hash": "0xCEDE3E4772FDA156",
+      "name": "?_Tidy_deallocate@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAXXZ",
+      "specific_hash": "0x12B1D430123B39E5"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9250",
+      "full_hash": "0xA20C6C2CC4A3C249",
+      "name": "??4filesystem_error@filesystem@boost@@QEAAAEAV012@AEBV012@@Z",
+      "specific_hash": "0xEABD41FAAC7897F5"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A91D0",
+      "full_hash": "0x17B1E2D5C2AD716A",
+      "name": "??1impl@filesystem_error@filesystem@boost@@QEAA@XZ",
+      "specific_hash": "0x1EE9EFBF8FA60A1D"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000AA9B0",
+      "full_hash": "0x8B13FBEF9C784BFC",
+      "name": "?unknown_message_win32@detail@system@boost@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0x969FA0246D5F6FCF"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9E90",
+      "full_hash": "0xABDE0B6C67537764",
+      "name": "?message@system_error_category@detail@system@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0x7F3FC6CD709F2F6C"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000AAE90",
+      "full_hash": "0xA6405FB079AD295B",
+      "name": "?what@filesystem_error@filesystem@boost@@UEBAPEBDXZ",
+      "specific_hash": "0x767B13A44685C5D2"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A76F0",
+      "full_hash": "0xD6181E1D082292AE",
+      "name": "??$_Reallocate_grow_by@V<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_65e615be2a453ca0576c979606f46740>@@PEBD_K@Z",
+      "specific_hash": "0x2EBFDD6768E4A52F"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9230",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1system_error@system@boost@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A84D0",
+      "full_hash": "0x1E2A2E916C187B4E",
+      "name": "??0filesystem_error@filesystem@boost@@QEAA@PEBDAEBVpath@12@1Verror_code@system@2@@Z",
+      "specific_hash": "0x4C11B09EFB043CC5"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A90C0",
+      "full_hash": "0xE75ABACE64C8E192",
+      "name": "??1?$intrusive_ptr@Uimpl@filesystem_error@filesystem@boost@@@boost@@QEAA@XZ",
+      "specific_hash": "0x5A3F0F76A4A9A78F"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9D70",
+      "full_hash": "0x3F545AA207412C3F",
+      "name": "?get_empty_path@filesystem_error@filesystem@boost@@CAAEBVpath@23@XZ",
+      "specific_hash": "0x98E795FF1B5D9F7E"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A7150",
+      "full_hash": "0x699B6386F2EFF6EF",
+      "name": "??$_Construct@$00PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXQEBD_K@Z",
+      "specific_hash": "0x5AABC68BA83568D5"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9810",
+      "full_hash": "0x27C2A2B3E11CAF92",
+      "name": "?append_int@detail@system@boost@@YAXAEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0x6618FB10C714601C"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A7E20",
+      "full_hash": "0x3E51A30769BBC8D5",
+      "name": "??0error_code@system@boost@@QEAA@HAEBVerror_category@12@@Z",
+      "specific_hash": "0xBE126C5E08E320C0"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A7F50",
+      "full_hash": "0x1E2A2E916C187B4E",
+      "name": "??0filesystem_error@filesystem@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBVpath@12@1Verror_code@system@2@@Z",
+      "specific_hash": "0x4C11B09EFB043CC5"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A8B60",
+      "full_hash": "0xDC5CD39C14CB20BA",
+      "name": "??0system_error@system@boost@@QEAA@AEBVerror_code@12@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+      "specific_hash": "0xC989A8F453E1CC97"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A7A10",
+      "full_hash": "0x9ACF24092FE4BE1D",
+      "name": "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@U_String_constructor_concat_tag@1@AEAV01@1@Z",
+      "specific_hash": "0x818893F937DB3823"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A7430",
+      "full_hash": "0x0C26C0C0ED37F74D",
+      "name": "??$_Reallocate_for@V<lambda_66f57f934f28d61049862f64df852ff0>@@PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_66f57f934f28d61049862f64df852ff0>@@PEBD@Z",
+      "specific_hash": "0xFABD7E953887D48A"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A93F0",
+      "full_hash": "0x4F3FFB933D8721F4",
+      "name": "??_Gfilesystem_error@filesystem@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xE1528A12224B2A33"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9200",
+      "full_hash": "0xD0643FB6F9C21BB0",
+      "name": "??1local_free@detail@system@boost@@QEAA@XZ",
+      "specific_hash": "0x4628C99F5E427048"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A98E0",
+      "full_hash": "0x841E0735154667F1",
+      "name": "?default_error_condition@system_error_category@detail@system@boost@@UEBA?AVerror_condition@34@H@Z",
+      "specific_hash": "0x89AFC52FEB9934CB"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9E60",
+      "full_hash": "0xF4203975176764FF",
+      "name": "?message@interop_error_category@detail@system@boost@@UEBAPEBDHPEAD_K@Z",
+      "specific_hash": "0xDD10F31796BB962B"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A8110",
+      "full_hash": "0x8E92D3543C5788A3",
+      "name": "??0filesystem_error@filesystem@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBVpath@12@Verror_code@system@2@@Z",
+      "specific_hash": "0x502341359D7A91CC"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A7880",
+      "full_hash": "0x13444B980B8C70B9",
+      "name": "??$_Reallocate_grow_by@V<lambda_e1befb086ad3257e3f042a63030725f7>@@_KD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_e1befb086ad3257e3f042a63030725f7>@@_KD@Z",
+      "specific_hash": "0x888C1DC2FC9363D5"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9490",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gruntime_error@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A96B0",
+      "full_hash": "0xE2E3C78B887BD16A",
+      "name": "?allocate@?$allocator@D@std@@QEAAPEAD_K@Z",
+      "specific_hash": "0x6A9596D6B0011C9B"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9A40",
+      "full_hash": "0xCD41A2D060009276",
+      "name": "?emit_error@filesystem@boost@@YAXKAEBVpath@12@PEAVerror_code@system@2@PEBD@Z",
+      "specific_hash": "0xBAD1CD238898ECE9"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A7570",
+      "full_hash": "0xD413C8A4F1D186EE",
+      "name": "??$_Reallocate_grow_by@V<lambda_319d5e083f45f90dcdce5dce53cbb275>@@D@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAAEAV01@_KV<lambda_319d5e083f45f90dcdce5dce53cbb275>@@D@Z",
+      "specific_hash": "0x2C1052593F851D39"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A8E10",
+      "full_hash": "0x1589DD873790424E",
+      "name": "??0system_error@system@boost@@QEAA@AEBVerror_code@12@PEBD@Z",
+      "specific_hash": "0xC1E926A8906B61A5"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9710",
+      "full_hash": "0x1DCD80FDEBE2A090",
+      "name": "?allocate@?$allocator@_W@std@@QEAAPEA_W_K@Z",
+      "specific_hash": "0x4BD9802345F30F01"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B9B30",
+      "full_hash": "0x86D28B77D2167C54",
+      "name": "?allocate@?$allocator@_W@std@@QEAAPEA_W_K@Z",
+      "specific_hash": "0xD5A488EFDC03D957"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A7CA0",
+      "full_hash": "0xBE1C5F9CCC84387A",
+      "name": "??0?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x517156E10A109DA8"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B94F0",
+      "full_hash": "0xBE1C5F9CCC84387A",
+      "name": "??0?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x517156E10A109DA8"
+    },
+    {
+      "domain_path": "/0007_unique_path.obj",
+      "entry_point": "0x000000000008F960",
+      "full_hash": "0x8E6F2D6F84AC5D42",
+      "name": "??0?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x743404641A3B70EC"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A82F0",
+      "full_hash": "0xCC6FD5860324F36E",
+      "name": "??0filesystem_error@filesystem@boost@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@Verror_code@system@2@@Z",
+      "specific_hash": "0xB40D8B6BB4AED25B"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A8690",
+      "full_hash": "0x8E92D3543C5788A3",
+      "name": "??0filesystem_error@filesystem@boost@@QEAA@PEBDAEBVpath@12@Verror_code@system@2@@Z",
+      "specific_hash": "0x502341359D7A91CC"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A8B00",
+      "full_hash": "0x29549D17C65BF463",
+      "name": "??0system_error@system@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0xDAF4EEF529C466FC"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9780",
+      "full_hash": "0x48A7BB07EBECBD72",
+      "name": "?append@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAAEAV12@QEBD_K@Z",
+      "specific_hash": "0x7B4467EA497E04E1"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A8A50",
+      "full_hash": "0x9AB99FD8A4875218",
+      "name": "??0impl@filesystem_error@filesystem@boost@@QEAA@AEBVpath@23@0@Z",
+      "specific_hash": "0xB7F9DE1BE1AA4D4D"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000AA450",
+      "full_hash": "0x5F74DEBDF5A14384",
+      "name": "?system_category_message_win32@detail@system@boost@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0x32952E44B7AD8CE5"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A8AC0",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0runtime_error@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9B40",
+      "full_hash": "0xC5ABB0CAD3955BDB",
+      "name": "?emit_error@filesystem@boost@@YAXKPEAVerror_code@system@2@PEBD@Z",
+      "specific_hash": "0xBE84811F4B6A6A8B"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9DE0",
+      "full_hash": "0xC2B1C2CD77F69626",
+      "name": "?message@interop_error_category@detail@system@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0xA1CF453086BCBF96"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000AA690",
+      "full_hash": "0xA8470CFA04FD9D9C",
+      "name": "?to_string@source_location@boost@@QEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ",
+      "specific_hash": "0xD7A311E5519BCEC2"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A7BC0",
+      "full_hash": "0x751BD7F9286DF52B",
+      "name": "??0?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAA@_KD@Z",
+      "specific_hash": "0x080C7B1A66E33D75"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A94E0",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gsystem_error@system@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xEBA39E63DD2FC5AE"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000AA050",
+      "full_hash": "0xFD8B0EA8ADEB7E7D",
+      "name": "?system_category_condition_win32@detail@system@boost@@YAHH@Z",
+      "specific_hash": "0x24C3560C8B0507A4"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9FA0",
+      "full_hash": "0xE21ECE93F932D6A0",
+      "name": "?resize@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAX_KD@Z",
+      "specific_hash": "0x34174117512C791D"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000AAA90",
+      "full_hash": "0x0B272E9A1B3F86E9",
+      "name": "?what@error_code@system@boost@@QEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ",
+      "specific_hash": "0x958F17EB2EA40824"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9940",
+      "full_hash": "0xB6337922DC582A2B",
+      "name": "?emit_error@filesystem@boost@@YAXKAEBVpath@12@0PEAVerror_code@system@2@PEBD@Z",
+      "specific_hash": "0x975601A6F84C261D"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A8870",
+      "full_hash": "0xCC6FD5860324F36E",
+      "name": "??0filesystem_error@filesystem@boost@@QEAA@PEBDVerror_code@system@2@@Z",
+      "specific_hash": "0xB40D8B6BB4AED25B"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A7ED0",
+      "full_hash": "0x57D491C01CD24826",
+      "name": "??0filesystem_error@filesystem@boost@@QEAA@AEBV012@@Z",
+      "specific_hash": "0xAB84C8E6608FC93D"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9150",
+      "full_hash": "0xD346FC463E7AFF96",
+      "name": "??1filesystem_error@filesystem@boost@@UEAA@XZ",
+      "specific_hash": "0x4AC85EF55E09ECD8"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9690",
+      "full_hash": "0x5610857A30E5C1DC",
+      "name": "?_Xlen_string@std@@YAXXZ",
+      "specific_hash": "0xB4552899B2665788"
+    },
+    {
+      "domain_path": "/0001_exception.obj",
+      "entry_point": "0x00000000000A9EB0",
+      "full_hash": "0xBC1BEC6DC03AE066",
+      "name": "?message@system_error_category@detail@system@boost@@UEBAPEBDHPEAD_K@Z",
+      "specific_hash": "0x689280A1176F86AF"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D2310",
+      "full_hash": "0x9CFBBC63A2389157",
+      "name": "?message@std_category@detail@system@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0x88A4D38CD4EDBA22"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CF580",
+      "full_hash": "0x2590034C5B0350D1",
+      "name": "??_G_System_error_category@std@@UEAAPEAXI@Z",
+      "specific_hash": "0x3ADA5DF8EAF1AF91"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CF270",
+      "full_hash": "0x57BFEFA2D2088ECC",
+      "name": "??3dir_itr_imp@detail@filesystem@boost@@SAXPEAX_K@Z",
+      "specific_hash": "0x485D26CDF5767334"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CF110",
+      "full_hash": "0x5A20BF61800253FE",
+      "name": "??1dir_itr_imp@detail@filesystem@boost@@QEAA@XZ",
+      "specific_hash": "0xC7FCEE36BD598ACC"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CF6F0",
+      "full_hash": "0x2590034C5B0350D1",
+      "name": "??_Gstd_category@detail@system@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0xEEF4E051EA5AE687"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D12D0",
+      "full_hash": "0xDE4EFD8357A6B271",
+      "name": "?directory_iterator_increment@detail@filesystem@boost@@YAXAEAVdirectory_iterator@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x07074CEB7D3651C2"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D34A0",
+      "full_hash": "0x1E591FF26E0FDADC",
+      "name": "?recursive_directory_iterator_pop_on_error@?A0xc3d2085b@detail@filesystem@boost@@YAXPEAUrecur_dir_itr_imp@234@@Z",
+      "specific_hash": "0xC74FD0F49A4F66F5"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D1980",
+      "full_hash": "0x9AC48925DF18A1F4",
+      "name": "?equivalent@std_category@detail@system@boost@@UEBA_NAEBVerror_code@std@@H@Z",
+      "specific_hash": "0xAA973F381B7AF6B9"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FD830",
+      "full_hash": "0x9AC48925DF18A1F4",
+      "name": "?equivalent@std_category@detail@system@boost@@UEBA_NAEBVerror_code@std@@H@Z",
+      "specific_hash": "0xAA973F381B7AF6B9"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CF550",
+      "full_hash": "0x2590034C5B0350D1",
+      "name": "??_G_Generic_error_category@std@@UEAAPEAXI@Z",
+      "specific_hash": "0x3ADA5DF8EAF1AF91"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D2480",
+      "full_hash": "0xCDB5961E84F9C71B",
+      "name": "?pop_back@?$vector@Vdirectory_iterator@filesystem@boost@@V?$allocator@Vdirectory_iterator@filesystem@boost@@@std@@@std@@QEAAXXZ",
+      "specific_hash": "0x8597438DF0187521"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D1CE0",
+      "full_hash": "0x71F4AA3C72FE20B5",
+      "name": "?init_directory_iterator_impl@detail@filesystem@boost@@YAXXZ",
+      "specific_hash": "0x52BB012A8FA0F7F8"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CFCA0",
+      "full_hash": "0x572650B875452E6A",
+      "name": "?default_error_condition@std_category@detail@system@boost@@UEBA?AVerror_condition@std@@H@Z",
+      "specific_hash": "0xC1B7787DB991CCE7"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CE590",
+      "full_hash": "0x3B165CF7E5BF1B1D",
+      "name": "??$_Emplace_reallocate@Vdirectory_iterator@filesystem@boost@@@?$vector@Vdirectory_iterator@filesystem@boost@@V?$allocator@Vdirectory_iterator@filesystem@boost@@@std@@@std@@AEAAPEAVdirectory_iterator@filesystem@boost@@QEAV234@$$QEAV234@@Z",
+      "specific_hash": "0xE152568394F36B47"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D3670",
+      "full_hash": "0x55E86BFC11850956",
+      "name": "?refresh_impl@directory_entry@filesystem@boost@@AEBAXPEAVerror_code@system@3@@Z",
+      "specific_hash": "0x4C0909FBEE6935F3"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CF8F0",
+      "full_hash": "0x5610857A30E5C1DC",
+      "name": "?_Xlength@?$vector@Vdirectory_iterator@filesystem@boost@@V?$allocator@Vdirectory_iterator@filesystem@boost@@@std@@@std@@CAXXZ",
+      "specific_hash": "0xB4552899B2665788"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D1810",
+      "full_hash": "0x94A8A0D8242AED72",
+      "name": "?equivalent@error_category@std@@UEBA_NHAEBVerror_condition@2@@Z",
+      "specific_hash": "0xBD83EA49B84D31DE"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D2510",
+      "full_hash": "0x537A5AE8C72776AD",
+      "name": "?push_directory@local@?1??recursive_directory_iterator_increment@detail@filesystem@boost@@YAXAEAVrecursive_directory_iterator@45@PEAVerror_code@system@5@@Z@SA?AW4push_directory_result@?1??2345@YAX01@Z@PEAUrecur_dir_itr_imp@345@AEAV785@@Z",
+      "specific_hash": "0x4681652948F9CE4D"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D1E40",
+      "full_hash": "0x3C436CAE420533C6",
+      "name": "?make_error_code@errc@system@boost@@YA?AVerror_code@23@W4errc_t@123@@Z",
+      "specific_hash": "0x675E32FDF3867B0D"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FEE60",
+      "full_hash": "0x3C436CAE420533C6",
+      "name": "?make_error_code@errc@system@boost@@YA?AVerror_code@23@W4errc_t@123@@Z",
+      "specific_hash": "0x675E32FDF3867B0D"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CF210",
+      "full_hash": "0xE6FFEEB19FF929CC",
+      "name": "??2dir_itr_imp@detail@filesystem@boost@@SAPEAX_K0@Z",
+      "specific_hash": "0x7366ACA0BE60D6C7"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CF060",
+      "full_hash": "0x557BBFAE68184DC9",
+      "name": "??1?$vector@Vdirectory_iterator@filesystem@boost@@V?$allocator@Vdirectory_iterator@filesystem@boost@@@std@@@std@@QEAA@XZ",
+      "specific_hash": "0xCA163A76EA8408F2"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D1D40",
+      "full_hash": "0x6B1815102D1A1FA1",
+      "name": "?is_empty_directory@detail@filesystem@boost@@YA_N$$QEAV?$unique_resource@PEAXUhandle_deleter@detail@filesystem@boost@@Uhandle_resource_traits@234@@scope@3@AEBVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x9DFDB40092128F67"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D3F20",
+      "full_hash": "0x41E7CDAD42B56321",
+      "name": "?translate_ntstatus@filesystem@boost@@YAKJ@Z",
+      "specific_hash": "0xA7E26A673CA23208"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CF280",
+      "full_hash": "0x566CB86FB57A33FC",
+      "name": "??4?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAAAEAV01@$$QEAV01@@Z",
+      "specific_hash": "0x13C33FBC172989F1"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D2100",
+      "full_hash": "0x6F7643991AECE1A6",
+      "name": "?message@_System_error_category@std@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@H@Z",
+      "specific_hash": "0x19BAF7B0107BE1C4"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CE500",
+      "full_hash": "0xA10A8D0A20C7E60C",
+      "name": "??$_Destroy_range@V?$allocator@Vdirectory_iterator@filesystem@boost@@@std@@@std@@YAXPEAVdirectory_iterator@filesystem@boost@@QEAV123@AEAV?$allocator@Vdirectory_iterator@filesystem@boost@@@0@@Z",
+      "specific_hash": "0x891EA29DB9D0DA63"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CEFA0",
+      "full_hash": "0xEF3351A7C5913CC1",
+      "name": "??1?$intrusive_ptr@Udir_itr_imp@detail@filesystem@boost@@@boost@@QEAA@XZ",
+      "specific_hash": "0x4B8C046CBB4D7C8B"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CFC00",
+      "full_hash": "0xC85D263A76C7C6BF",
+      "name": "?default_error_condition@_System_error_category@std@@UEBA?AVerror_condition@2@H@Z",
+      "specific_hash": "0xCFEA104B0156FBA2"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CF260",
+      "full_hash": "0x57BFEFA2D2088ECC",
+      "name": "??3dir_itr_imp@detail@filesystem@boost@@SAXPEAX@Z",
+      "specific_hash": "0x485D26CDF5767334"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CFBB0",
+      "full_hash": "0xC436972A2B939B86",
+      "name": "?deallocate@?$allocator@Vdirectory_iterator@filesystem@boost@@@std@@QEAAXQEAVdirectory_iterator@filesystem@boost@@_K@Z",
+      "specific_hash": "0xEE6B66BD6A9C8F71"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D36F0",
+      "full_hash": "0x59BB50DDFF69F7B9",
+      "name": "?reset@?$intrusive_ptr@Urecur_dir_itr_imp@detail@filesystem@boost@@@boost@@QEAAXXZ",
+      "specific_hash": "0x63879A1A26E62EFB"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CFB30",
+      "full_hash": "0x48771CBC07CDCF31",
+      "name": "?assign@error_code@system@boost@@QEAAXHAEBVerror_category@23@@Z",
+      "specific_hash": "0x1DBD5588EB306AF9"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D2B90",
+      "full_hash": "0xAAF1149641DAB79D",
+      "name": "?recursive_directory_iterator_construct@detail@filesystem@boost@@YAXAEAVrecursive_directory_iterator@23@AEBVpath@23@W4directory_options@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x57679A92CFB02BCA"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D0CB0",
+      "full_hash": "0x16B81E6CDDAB2CCC",
+      "name": "?directory_iterator_construct@detail@filesystem@boost@@YAXAEAVdirectory_iterator@23@AEBVpath@23@W4directory_options@23@PEAUdirectory_iterator_params@123@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x2512DCD6D880B953"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CFA00",
+      "full_hash": "0x548C32F718D09193",
+      "name": "?assign@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAAAEAV12@QEB_W_K@Z",
+      "specific_hash": "0x12CC0FBB817CB262"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BA040",
+      "full_hash": "0x548C32F718D09193",
+      "name": "?assign@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAAAEAV12@QEB_W_K@Z",
+      "specific_hash": "0x12CC0FBB817CB262"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CF040",
+      "full_hash": "0x1584BAE897CE465F",
+      "name": "??1?$unique_resource@PEAXUhandle_deleter@detail@filesystem@boost@@Uhandle_resource_traits@234@@scope@boost@@QEAA@XZ",
+      "specific_hash": "0x34D155D562089FAC"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CFD50",
+      "full_hash": "0x6C4B3A41C7A5F1F5",
+      "name": "?dir_itr_create@?A0xc3d2085b@detail@filesystem@boost@@YA?AVerror_code@system@4@AEAV?$intrusive_ptr@Udir_itr_imp@detail@filesystem@boost@@@4@AEBVpath@34@W4directory_options@34@PEAUdirectory_iterator_params@234@AEAV834@AEAVfile_status@34@5@Z",
+      "specific_hash": "0xE6FAF72F8EF4712C"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D0940",
+      "full_hash": "0xD64D5877747569D7",
+      "name": "?dir_itr_increment@?A0xc3d2085b@detail@filesystem@boost@@YA?AVerror_code@system@4@AEAUdir_itr_imp@234@AEAVpath@34@AEAVfile_status@34@2@Z",
+      "specific_hash": "0xDF74E143BC8914E8"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D21F0",
+      "full_hash": "0xD8579B46643FC493",
+      "name": "?message@generic_error_category@detail@system@boost@@UEBAPEBDHPEAD_K@Z",
+      "specific_hash": "0x86ED56FC1415BF6B"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D1C50",
+      "full_hash": "0xE49D5542082DA9D7",
+      "name": "?filename_v4@path_algorithms@detail@filesystem@boost@@SA?AVpath@34@AEBV534@@Z",
+      "specific_hash": "0x4BD51F7102C42B11"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D1EC0",
+      "full_hash": "0x0C2682B1497242D3",
+      "name": "?make_permissions@detail@filesystem@boost@@YA?AW4perms@23@AEBVpath@23@K@Z",
+      "specific_hash": "0x5C7152E04E97E6F3"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CF320",
+      "full_hash": "0xAD464E2BDFE6BABF",
+      "name": "??8system@boost@@YA_NAEBVerror_code@01@AEBVerror_condition@01@@Z",
+      "specific_hash": "0xDD6DB751E066DF6F"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D20B0",
+      "full_hash": "0x762473B9C0E7CE95",
+      "name": "?message@_Generic_error_category@std@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@H@Z",
+      "specific_hash": "0x97DA596A669CA523"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CE440",
+      "full_hash": "0xDD321A7C7D4308EF",
+      "name": "??$_Construct@$00PEB_W@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAXQEB_W_K@Z",
+      "specific_hash": "0x4413EC1343169DF3"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B8FE0",
+      "full_hash": "0xDD321A7C7D4308EF",
+      "name": "??$_Construct@$00PEB_W@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAXQEB_W_K@Z",
+      "specific_hash": "0x4413EC1343169DF3"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D1C10",
+      "full_hash": "0xAA200050FBC20169",
+      "name": "?file_type@directory_entry@filesystem@boost@@QEBA?AW4023@AEAVerror_code@system@3@@Z",
+      "specific_hash": "0xF3E53D60E2830606"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CF150",
+      "full_hash": "0xEF3351A7C5913CC1",
+      "name": "??1directory_iterator@filesystem@boost@@QEAA@XZ",
+      "specific_hash": "0x4B8C046CBB4D7C8B"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000F8880",
+      "full_hash": "0xB461F663ACBC0E12",
+      "name": "??1directory_iterator@filesystem@boost@@QEAA@XZ",
+      "specific_hash": "0x9BE98B00A28EB65F"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D1AF0",
+      "full_hash": "0xB0C1FB361090FB4F",
+      "name": "?equivalent@std_category@detail@system@boost@@UEBA_NHAEBVerror_condition@std@@@Z",
+      "specific_hash": "0x119C48EE239AA9D5"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D37E0",
+      "full_hash": "0x2232BBF2532F9ABF",
+      "name": "?set_file_statuses@?A0xc3d2085b@detail@filesystem@boost@@YAXKPEBKAEBVpath@34@AEAVfile_status@34@2@Z",
+      "specific_hash": "0xCD8FD367DE49F639"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D17F0",
+      "full_hash": "0x86AD5A9ED0517A0D",
+      "name": "?equivalent@error_category@std@@UEBA_NAEBVerror_code@2@H@Z",
+      "specific_hash": "0x7CB0E50975828D2B"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CFC80",
+      "full_hash": "0x5B236DC9338E41AF",
+      "name": "?default_error_condition@error_category@std@@UEBA?AVerror_condition@2@H@Z",
+      "specific_hash": "0x8922F35F672C67D9"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CF430",
+      "full_hash": "0x19397EB0CE2C15EE",
+      "name": "??Berror_category@system@boost@@QEBAAEBV0std@@XZ",
+      "specific_hash": "0x3ED1F0A787CF0342"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D3090",
+      "full_hash": "0x28137DCF56E96205",
+      "name": "?recursive_directory_iterator_increment@detail@filesystem@boost@@YAXAEAVrecursive_directory_iterator@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x65BBF9DD030B610E"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D2190",
+      "full_hash": "0xAC661EF145C76BBD",
+      "name": "?message@generic_error_category@detail@system@boost@@UEBA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+      "specific_hash": "0xBA0BCA1FAF14BCFA"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000CF000",
+      "full_hash": "0x2D507D12FAB36E06",
+      "name": "??1?$intrusive_ptr@Urecur_dir_itr_imp@detail@filesystem@boost@@@boost@@QEAA@XZ",
+      "specific_hash": "0x49315157FC4F6B1C"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D1D00",
+      "full_hash": "0xE44332C35902E746",
+      "name": "?is_dir_info_class_not_supported@?A0xc3d2085b@detail@filesystem@boost@@YA_NK@Z",
+      "specific_hash": "0xCDC9DF862B9A5393"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D38A0",
+      "full_hash": "0xAA200050FBC20169",
+      "name": "?symlink_file_type@directory_entry@filesystem@boost@@QEBA?AW4file_type@23@AEAVerror_code@system@3@@Z",
+      "specific_hash": "0x8295C8ADA7172917"
+    },
+    {
+      "domain_path": "/0002_directory.obj",
+      "entry_point": "0x00000000000D32B0",
+      "full_hash": "0x5C314EE832735FDC",
+      "name": "?recursive_directory_iterator_pop@detail@filesystem@boost@@YAXAEAVrecursive_directory_iterator@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xD7A8D8227F050389"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x0000000000101710",
+      "full_hash": "0x5B3745B0F5E9C300",
+      "name": "?resize_file@detail@filesystem@boost@@YAXAEBVpath@23@_KPEAVerror_code@system@3@@Z",
+      "specific_hash": "0xE90BD93DB092C427"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x0000000000100120",
+      "full_hash": "0x383CAB81A3D9A6C4",
+      "name": "?remove@detail@filesystem@boost@@YA_NAEBVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x164C0A028101EA0C"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FDAB0",
+      "full_hash": "0xF505B4248BF7AF95",
+      "name": "?equivalent_v3@detail@filesystem@boost@@YA_NAEBVpath@23@0PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xFC13C7874535F375"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000001007E0",
+      "full_hash": "0x58FBE42A349306BD",
+      "name": "?remove_all_nt6_by_handle@?A0x48cfdbf0@detail@filesystem@boost@@YA_KPEAXAEBVpath@34@PEAVerror_code@system@4@@Z",
+      "specific_hash": "0xB7097C0EF3B502C8"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FC840",
+      "full_hash": "0x0B82061EE13A1CCC",
+      "name": "?copy_symlink@detail@filesystem@boost@@YAXAEBVpath@23@0PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xF8CCAB2477BF39F3"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x0000000000102C10",
+      "full_hash": "0x23D676222E078F21",
+      "name": "?system_complete@detail@filesystem@boost@@YA?AVpath@23@AEBV423@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x4162A7025276AC0B"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x0000000000100150",
+      "full_hash": "0x78273F73B4D1CEEF",
+      "name": "?remove_all@detail@filesystem@boost@@YA_KAEBVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x0080D3A4667165FF"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FDE40",
+      "full_hash": "0xA41B08BC7C7F0322",
+      "name": "?equivalent_v4@detail@filesystem@boost@@YA_NAEBVpath@23@0PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x04D264407668B693"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x0000000000101260",
+      "full_hash": "0x00FC46DE62CF421C",
+      "name": "?remove_nt5_impl@?A0x48cfdbf0@detail@filesystem@boost@@YA_NAEBVpath@34@KPEAVerror_code@system@4@@Z",
+      "specific_hash": "0xF18615AFF69CCCD6"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FEA90",
+      "full_hash": "0x8DF5E8C23D9C4C62",
+      "name": "?last_write_time@detail@filesystem@boost@@YAXAEBVpath@23@_JPEAVerror_code@system@3@@Z",
+      "specific_hash": "0x76976FB2E091686B"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FD1E0",
+      "full_hash": "0xABF314D8CE6AD6B4",
+      "name": "?creation_time@detail@filesystem@boost@@YA_JAEBVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x420B4C344AC7F011"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FE880",
+      "full_hash": "0x2D81C0C0D54C25BA",
+      "name": "?is_absolute@path@filesystem@boost@@QEBA_NXZ",
+      "specific_hash": "0xC780B01F3D3E5D0B"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000001021F0",
+      "full_hash": "0xA160711CEE781ED1",
+      "name": "?status_impl@?A0x48cfdbf0@detail@filesystem@boost@@YA?AVfile_status@34@AEBVpath@34@PEAVerror_code@system@4@@Z",
+      "specific_hash": "0xE0B639213099F27A"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FE8C0",
+      "full_hash": "0x0E0BDB4298B7B4CA",
+      "name": "?is_empty@detail@filesystem@boost@@YA_NAEBVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x46C58CBE3EED6563"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FCFE0",
+      "full_hash": "0xCCD7739A0226FF14",
+      "name": "?create_directory_symlink@detail@filesystem@boost@@YAXAEBVpath@23@0PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x2F8F8018B0AD5AB6"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FE780",
+      "full_hash": "0x72824ECE474053DD",
+      "name": "?initial_path@detail@filesystem@boost@@YA?AVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x0B8AC0F87B272378"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000001010C0",
+      "full_hash": "0x392B84E50036D611",
+      "name": "?remove_impl@?A0x48cfdbf0@detail@filesystem@boost@@YA_NAEBVpath@34@PEAVerror_code@system@4@@Z",
+      "specific_hash": "0x787CF9F55726C26E"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FE3D0",
+      "full_hash": "0x6BA664BA0F3CEE2B",
+      "name": "?get_reparse_point_tag_ioctl@detail@filesystem@boost@@YAKPEAXAEBVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xCE8A87E4DF36230F"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FF9A0",
+      "full_hash": "0xC659C91EFBBF9769",
+      "name": "?read_symlink@detail@filesystem@boost@@YA?AVpath@23@AEBV423@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xFA64BEB19A84D4F6"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FF680",
+      "full_hash": "0xAB02C52B719D1CCE",
+      "name": "?parent_path@path@filesystem@boost@@QEBA?AV123@XZ",
+      "specific_hash": "0xA6BFAD4E2503123B"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FF4A0",
+      "full_hash": "0xFE2C9B86EB8A35D5",
+      "name": "?nt_create_file_handle_at@detail@filesystem@boost@@YAJAEAV?$unique_resource@PEAXUhandle_deleter@detail@filesystem@boost@@Uhandle_resource_traits@234@@scope@3@PEAXAEBVpath@23@KKKKK@Z",
+      "specific_hash": "0xC31556B8298951CE"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FD130",
+      "full_hash": "0xCCD7739A0226FF14",
+      "name": "?create_symlink@detail@filesystem@boost@@YAXAEBVpath@23@0PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xBE40B89E6E8D79CA"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FAAE0",
+      "full_hash": "0x540A458F7BAD6502",
+      "name": "?canonical_v4@detail@filesystem@boost@@YA?AVpath@23@AEBV423@0PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xB71B48D90AA96F54"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FE5D0",
+      "full_hash": "0xF6E95D11DB6CE5D0",
+      "name": "?hard_link_count@detail@filesystem@boost@@YA_KAEBVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x626504FA61A3A53A"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000001018B0",
+      "full_hash": "0xAB02C52B719D1CCE",
+      "name": "?root_name@path@filesystem@boost@@QEBA?AV123@XZ",
+      "specific_hash": "0xA6BFAD4E2503123B"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000001002E0",
+      "full_hash": "0xEFF9FFE3A2427B03",
+      "name": "?remove_all_nt5_impl@?A0x48cfdbf0@detail@filesystem@boost@@YA_KAEBVpath@34@PEAVerror_code@system@4@@Z",
+      "specific_hash": "0x256B68DD79BEACE9"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FCEF0",
+      "full_hash": "0x7038A7417146561E",
+      "name": "?create_directory@detail@filesystem@boost@@YA_NAEBVpath@23@PEBV423@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x7DADBF8E0BFD6763"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000F8150",
+      "full_hash": "0x7536F8E10657B3E8",
+      "name": "??$_Reallocate_grow_by@V<lambda_1dfe18491bcca09701d8ccb01d0b0af4>@@PEB_W_K@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAAEAV01@_KV<lambda_1dfe18491bcca09701d8ccb01d0b0af4>@@PEB_W_K@Z",
+      "specific_hash": "0x73853A3E7C914BA6"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B92C0",
+      "full_hash": "0x7536F8E10657B3E8",
+      "name": "??$_Reallocate_grow_by@V<lambda_1dfe18491bcca09701d8ccb01d0b0af4>@@PEB_W_K@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEAAAEAV01@_KV<lambda_1dfe18491bcca09701d8ccb01d0b0af4>@@PEB_W_K@Z",
+      "specific_hash": "0x73853A3E7C914BA6"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x0000000000101940",
+      "full_hash": "0x1890CC083B7CA23A",
+      "name": "?space@detail@filesystem@boost@@YA?AUspace_info@23@AEBVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x89C78D7671555F59"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x0000000000101E90",
+      "full_hash": "0xCA2D3839670E3085",
+      "name": "?status@detail@filesystem@boost@@YA?AVfile_status@23@AEBVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xF4D725F895FAC812"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x0000000000100080",
+      "full_hash": "0x1E72B4A4DE724057",
+      "name": "?relative_path@path@filesystem@boost@@QEBA?AV123@XZ",
+      "specific_hash": "0xA837DE5955719306"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FD4D0",
+      "full_hash": "0x3B5A375F3AE67EEC",
+      "name": "?current_path@detail@filesystem@boost@@YAXAEBVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x8D9ED39861A11592"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000001015C0",
+      "full_hash": "0x2FA44A5CC11C7578",
+      "name": "?rename@detail@filesystem@boost@@YAXAEBVpath@23@0PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x1DCA33F1F40F59D3"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x0000000000103C60",
+      "full_hash": "0xEB5DFA9C9D1AFD5D",
+      "name": "?weakly_canonical_v4@detail@filesystem@boost@@YA?AVpath@23@AEBV423@0PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xF1029987BDD6A696"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FEC70",
+      "full_hash": "0x367554C1A063C65E",
+      "name": "?last_write_time@detail@filesystem@boost@@YA_JAEBVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x475F203ADC0E659D"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000F8AF0",
+      "full_hash": "0xB33CB836FA68EB5E",
+      "name": "??Berror_code@system@boost@@QEBA_NXZ",
+      "specific_hash": "0xCD0829374B021A5A"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000F9D50",
+      "full_hash": "0xA2480A646352D270",
+      "name": "?append@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAAAEAV12@QEB_W_K@Z",
+      "specific_hash": "0x772C73B698619F8E"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000001013C0",
+      "full_hash": "0xB2CE4AED745E80E3",
+      "name": "?remove_nt6_by_handle@?A0x48cfdbf0@detail@filesystem@boost@@YAKPEAXW4remove_impl_type@1234@@Z",
+      "specific_hash": "0x4AFDA8AFFEB2A46E"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FB640",
+      "full_hash": "0x9D8D9742284F5A48",
+      "name": "?convert_nt_path_to_win32_path@?A0x48cfdbf0@detail@filesystem@boost@@YA?AVpath@34@PEB_W_K@Z",
+      "specific_hash": "0x360C0759D1341F8F"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000001023A0",
+      "full_hash": "0xCA2D3839670E3085",
+      "name": "?symlink_status@detail@filesystem@boost@@YA?AVfile_status@23@AEBVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xF4D725F895FAC812"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x0000000000103450",
+      "full_hash": "0xEB5DFA9C9D1AFD5D",
+      "name": "?weakly_canonical_v3@detail@filesystem@boost@@YA?AVpath@23@AEBV423@0PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xF1029987BDD6A696"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FC930",
+      "full_hash": "0xD8278142A21D9222",
+      "name": "?create_directories@detail@filesystem@boost@@YA_NAEBVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x84F1A9D20C803CEF"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FF830",
+      "full_hash": "0xB97844E61D4D681C",
+      "name": "?process_status_failure@?A0x48cfdbf0@detail@filesystem@boost@@YA?AVfile_status@34@KAEBVpath@34@PEAVerror_code@system@4@@Z",
+      "specific_hash": "0x73829C0947B5D905"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FB950",
+      "full_hash": "0xB86DE7B7689D2395",
+      "name": "?copy@detail@filesystem@boost@@YAXAEBVpath@23@0W4copy_options@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x366210303FC55052"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000F8800",
+      "full_hash": "0x307BC487859E4EC6",
+      "name": "??1?$unique_ptr@$$BY0A@_WU?$default_delete@$$BY0A@_W@std@@@std@@QEAA@XZ",
+      "specific_hash": "0x14248AB38C0F69FE"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FD3D0",
+      "full_hash": "0xA797853034B43773",
+      "name": "?current_path@detail@filesystem@boost@@YA?AVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x2D83447156F051F3"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x0000000000101810",
+      "full_hash": "0x1E72B4A4DE724057",
+      "name": "?root_directory@path@filesystem@boost@@QEBA?AV123@XZ",
+      "specific_hash": "0xA837DE5955719306"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x0000000000102F20",
+      "full_hash": "0xD299CCB0A2EE61A7",
+      "name": "?temp_directory_path@detail@filesystem@boost@@YA?AVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xD89A3119B89D2C4D"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FD090",
+      "full_hash": "0xB90CA7588D8D5367",
+      "name": "?create_hard_link@detail@filesystem@boost@@YAXAEBVpath@23@0PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xD9F46C62F0C7B0F6"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000001023E0",
+      "full_hash": "0xD0B39C9155B82E1A",
+      "name": "?symlink_status_impl@?A0x48cfdbf0@detail@filesystem@boost@@YA?AVfile_status@34@AEBVpath@34@PEAVerror_code@system@4@@Z",
+      "specific_hash": "0xC29E5F9D7E160253"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FFCC0",
+      "full_hash": "0x94F4556376519439",
+      "name": "?relative@detail@filesystem@boost@@YA?AVpath@23@AEBV423@0PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x8C50F04A037B8906"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000F9630",
+      "full_hash": "0x8288F4E6700E5C06",
+      "name": "?absolute_v4@detail@filesystem@boost@@YA?AVpath@23@AEBV423@0PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x4D519032E5BD2C9D"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000F9F80",
+      "full_hash": "0x540A458F7BAD6502",
+      "name": "?canonical_v3@detail@filesystem@boost@@YA?AVpath@23@AEBV423@0PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xB71B48D90AA96F54"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x0000000000101ED0",
+      "full_hash": "0x66E642A9F6C5C3AB",
+      "name": "?status_by_handle@detail@filesystem@boost@@YA?AVfile_status@23@PEAXAEBVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x6A6EB5EBD6E6F773"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FC4E0",
+      "full_hash": "0x81778FF4689FFCB1",
+      "name": "?copy_file@detail@filesystem@boost@@YA_NAEBVpath@23@0W4copy_options@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x24C40531B5391BDD"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FF710",
+      "full_hash": "0x8BC894FE7A767A05",
+      "name": "?permissions@detail@filesystem@boost@@YAXAEBVpath@23@W4perms@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0x801853E44638F5CD"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000FE170",
+      "full_hash": "0x51B962382DB955FD",
+      "name": "?file_size@detail@filesystem@boost@@YA_KAEBVpath@23@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xC117496F2D265860"
+    },
+    {
+      "domain_path": "/0003_operations.obj",
+      "entry_point": "0x00000000000F8ED0",
+      "full_hash": "0xA63FCAC83E5CF3E4",
+      "name": "?absolute_v3@detail@filesystem@boost@@YA?AVpath@23@AEBV423@0PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xF468EC8D408484D6"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BBB80",
+      "full_hash": "0xD42E57B27EBA61A5",
+      "name": "?generic_path_v3@path_algorithms@detail@filesystem@boost@@SA?AVpath@34@AEBV534@@Z",
+      "specific_hash": "0xB7019DF478A5C00F"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BC930",
+      "full_hash": "0x5A98ADFDE64D0377",
+      "name": "?lex_compare_v4@path_algorithms@detail@filesystem@boost@@SAHVpath_iterator@path_detail@34@AEBV5634@01@Z",
+      "specific_hash": "0x0CB407089CA99040"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BE840",
+      "full_hash": "0x574520CAEC0A657E",
+      "name": "?stem_v4@path_algorithms@detail@filesystem@boost@@SA?AVpath@34@AEBV534@@Z",
+      "specific_hash": "0x27B2BA9741977165"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BE360",
+      "full_hash": "0x015E033E801E80EA",
+      "name": "?replace_extension_v3@path_algorithms@detail@filesystem@boost@@SAXAEAVpath@34@AEBV534@@Z",
+      "specific_hash": "0x1ACD66683D10EB82"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BBAF0",
+      "full_hash": "0x9062014D79E5DC00",
+      "name": "?find_root_name_size@path_algorithms@detail@filesystem@boost@@SA_KAEBVpath@34@@Z",
+      "specific_hash": "0x7D4B9090A6FE7B5C"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BB8C0",
+      "full_hash": "0x4181536B35F6320A",
+      "name": "?find_root_directory@path_algorithms@detail@filesystem@boost@@SA?AUsubstring@1234@AEBVpath@34@@Z",
+      "specific_hash": "0x627771589CFDAF6B"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B9A60",
+      "full_hash": "0x9BB6384B8BBE7A7A",
+      "name": "?_Throw_bad_cast@std@@YAXXZ",
+      "specific_hash": "0xA48B7F1986F17A70"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BB4D0",
+      "full_hash": "0x749D13356CF48F6F",
+      "name": "?find_filename_size@?A0x3403cc3b@@YA_KAEBV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@_K1@Z",
+      "specific_hash": "0x1F44AA82B1E46A3F"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BB810",
+      "full_hash": "0xEC2460EDC14F6CAE",
+      "name": "?find_relative_path@path_algorithms@detail@filesystem@boost@@SA?AUsubstring@1234@AEBVpath@34@@Z",
+      "specific_hash": "0xDD5F132F916DA8FF"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B9410",
+      "full_hash": "0xD6A0B992E6E08BFE",
+      "name": "??$use_facet@V?$codecvt@_WDU_Mbstatet@@@std@@@std@@YAAEBV?$codecvt@_WDU_Mbstatet@@@0@AEBVlocale@0@@Z",
+      "specific_hash": "0x29A5AE2B2F442206"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BE760",
+      "full_hash": "0x8B8775839916E7FA",
+      "name": "?stem_v3@path_algorithms@detail@filesystem@boost@@SA?AVpath@34@AEBV534@@Z",
+      "specific_hash": "0x74922BA5F6030F8E"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BACA0",
+      "full_hash": "0x0A66189A7232D5FD",
+      "name": "?dot_dot_path@detail@filesystem@boost@@YAAEBVpath@23@XZ",
+      "specific_hash": "0xC4DD70C5D73513BE"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B9790",
+      "full_hash": "0xBD28BC7B2CE0BFFA",
+      "name": "??1bad_cast@std@@UEAA@XZ",
+      "specific_hash": "0xE35EB43CD328F8EF"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BE570",
+      "full_hash": "0x4471E1C4E4D577DB",
+      "name": "?replace_filename@path@filesystem@boost@@QEAAAEAV123@AEBV123@@Z",
+      "specific_hash": "0x124461894EE300ED"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BAD30",
+      "full_hash": "0x0A66189A7232D5FD",
+      "name": "?dot_path@detail@filesystem@boost@@YAAEBVpath@23@XZ",
+      "specific_hash": "0xAE3287AFC9F1138D"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BCF20",
+      "full_hash": "0xDD28736AFA0FCBE8",
+      "name": "?lexically_normal_v4@path_algorithms@detail@filesystem@boost@@SA?AVpath@34@AEBV534@@Z",
+      "specific_hash": "0xBD33664E19D692A9"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BA920",
+      "full_hash": "0xE6D78DF09DA1FDBB",
+      "name": "?decrement_v4@path_algorithms@detail@filesystem@boost@@SAXAEAVpath_iterator@path_detail@34@@Z",
+      "specific_hash": "0x9434B6A16AD7749F"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BE480",
+      "full_hash": "0x41A7DDE3D72DB1A8",
+      "name": "?replace_extension_v4@path_algorithms@detail@filesystem@boost@@SAXAEAVpath@34@AEBV534@@Z",
+      "specific_hash": "0xA57B48D5484A07F5"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B98F0",
+      "full_hash": "0x836C23D7268023E4",
+      "name": "??_Gbad_cast@std@@UEAAPEAXI@Z",
+      "specific_hash": "0xD34867488C2C1026"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BBFA0",
+      "full_hash": "0x086C506F68BACB1B",
+      "name": "?generic_path_v4@path_algorithms@detail@filesystem@boost@@SA?AVpath@34@AEBV534@@Z",
+      "specific_hash": "0xE81FDA3AAEBEFA8B"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B9750",
+      "full_hash": "0xA0C1AE53AEB67F09",
+      "name": "??1?$unique_ptr@V_Facet_base@std@@U?$default_delete@V_Facet_base@std@@@2@@std@@QEAA@XZ",
+      "specific_hash": "0x968D8D0C6E7CC307"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BDF00",
+      "full_hash": "0x52901462AADBB5C1",
+      "name": "?make_preferred_v4@path_algorithms@detail@filesystem@boost@@SAXAEAVpath@34@@Z",
+      "specific_hash": "0xA5C9A67380589EAE"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BB3C0",
+      "full_hash": "0xA9EC664578E88B11",
+      "name": "?find_extension_v4_size@path_algorithms@detail@filesystem@boost@@SA_KAEBVpath@34@@Z",
+      "specific_hash": "0xDD8D840FA68BD2CF"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B8F30",
+      "full_hash": "0x76D8272AEDF62B44",
+      "name": "??$?M_WU?$char_traits@_W@std@@V?$allocator@_W@1@@std@@YA_NAEBV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@0@0@Z",
+      "specific_hash": "0x8B210FA02CE85855"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BB5E0",
+      "full_hash": "0x5560F09946FC6F2A",
+      "name": "?find_first_of@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEBA_KQEB_W_K@Z",
+      "specific_hash": "0x5FC484922F215D78"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BBB30",
+      "full_hash": "0xE2984993E0E1432A",
+      "name": "?find_root_path_size@path_algorithms@detail@filesystem@boost@@SA_KAEBVpath@34@@Z",
+      "specific_hash": "0xBC24A0F34229A608"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B96B0",
+      "full_hash": "0x3F776102123EF13B",
+      "name": "??0bad_cast@std@@QEAA@XZ",
+      "specific_hash": "0xE89F366BE03F8AE1"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B9C80",
+      "full_hash": "0xCE13B53EB51C54ED",
+      "name": "?append_v3@path_algorithms@detail@filesystem@boost@@SAXAEAVpath@34@PEB_W1@Z",
+      "specific_hash": "0x1B3837852F52524F"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BA170",
+      "full_hash": "0x512ECE602DA00797",
+      "name": "?begin@path@filesystem@boost@@QEBA?AVpath_iterator@path_detail@23@XZ",
+      "specific_hash": "0x579579F21A6089AB"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BADF0",
+      "full_hash": "0xB0414D596C8AE170",
+      "name": "?erase@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAA?AV?$_String_iterator@V?$_String_val@U?$_Simple_types@_W@std@@@std@@@2@V?$_String_const_iterator@V?$_String_val@U?$_Simple_types@_W@std@@@std@@@2@0@Z",
+      "specific_hash": "0xA3AD9D40C7578A90"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B97D0",
+      "full_hash": "0x891B4D8BCB874A38",
+      "name": "??1locale@std@@QEAA@XZ",
+      "specific_hash": "0xD226D9B447A5CC2C"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BA670",
+      "full_hash": "0x31D1D80B71343CA4",
+      "name": "?compare_v4@path_algorithms@detail@filesystem@boost@@SAHAEBVpath@34@0@Z",
+      "specific_hash": "0x6C79B51F7752A54C"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BDF70",
+      "full_hash": "0x08D2BA9EBC1A1238",
+      "name": "?push_back@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAAX_W@Z",
+      "specific_hash": "0xD28C033DE5B42661"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B9730",
+      "full_hash": "0x599F82B7BF659B2A",
+      "name": "??1?$pair@Vpath_iterator@path_detail@filesystem@boost@@V1234@@std@@QEAA@XZ",
+      "specific_hash": "0x41AC5AA9E77322B2"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BC5A0",
+      "full_hash": "0x91FE9883223FC5D1",
+      "name": "?increment_v4@path_algorithms@detail@filesystem@boost@@SAXAEAVpath_iterator@path_detail@34@@Z",
+      "specific_hash": "0x3548DCAA951E548A"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BB1E0",
+      "full_hash": "0xAED5AD82B75967BC",
+      "name": "?filename_v3@path_algorithms@detail@filesystem@boost@@SA?AVpath@34@AEBV534@@Z",
+      "specific_hash": "0x9403CC7D968E9AC0"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BDEB0",
+      "full_hash": "0x793AA1E0A8AAFEA1",
+      "name": "?make_preferred_v3@path_algorithms@detail@filesystem@boost@@SAXAEAVpath@34@@Z",
+      "specific_hash": "0xCDB7C22DED1735E8"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B9670",
+      "full_hash": "0x221711819D85654B",
+      "name": "??0bad_cast@std@@QEAA@AEBV01@@Z",
+      "specific_hash": "0x89E0F6147234539A"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BAAD0",
+      "full_hash": "0x5D9A436F8C981982",
+      "name": "?default_locale@?A0x3403cc3b@@YA?AVlocale@std@@XZ",
+      "specific_hash": "0xE08462549385E7C5"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B9C20",
+      "full_hash": "0xA85C71FBFFEDED24",
+      "name": "?append_separator_if_needed@path_algorithms@detail@filesystem@boost@@SA_KAEAVpath@34@@Z",
+      "specific_hash": "0x8DD83E124E3A4E3C"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BA770",
+      "full_hash": "0x10B764450FA794BF",
+      "name": "?decrement_v3@path_algorithms@detail@filesystem@boost@@SAXAEAVpath_iterator@path_detail@34@@Z",
+      "specific_hash": "0x611512580A0C5176"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B9820",
+      "full_hash": "0xDC52AA1698D85D5E",
+      "name": "??4path@filesystem@boost@@QEAAAEAV012@AEBV012@@Z",
+      "specific_hash": "0x3EFBFB347716160F"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BEA00",
+      "full_hash": "0x51BFB216719C815C",
+      "name": "wmemchr",
+      "specific_hash": "0x7F73C5EE2B877CBC"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BE2F0",
+      "full_hash": "0x8EC014A1B8C56FB7",
+      "name": "?remove_trailing_separator@path@filesystem@boost@@QEAAAEAV123@XZ",
+      "specific_hash": "0x0974188A3CC39F72"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BEB70",
+      "full_hash": "0xA8A25FB4A7FBF6C4",
+      "name": "wmemcmp",
+      "specific_hash": "0xF7FC9C2352D68D3D"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BB720",
+      "full_hash": "0xA9D53CE3F27E9F5D",
+      "name": "?find_parent_path_size@path_algorithms@detail@filesystem@boost@@SA_KAEBVpath@34@@Z",
+      "specific_hash": "0x4694355E5E530341"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BA570",
+      "full_hash": "0x31D1D80B71343CA4",
+      "name": "?compare_v3@path_algorithms@detail@filesystem@boost@@SAHAEBVpath@34@0@Z",
+      "specific_hash": "0x6C79B51F7752A54C"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BC750",
+      "full_hash": "0x983135E0F4532425",
+      "name": "?is_root_separator@?A0x3403cc3b@@YA_NAEBV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@_K1@Z",
+      "specific_hash": "0xEB3EA00B1D664BEE"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B8F10",
+      "full_hash": "0xF6B24DBD75252D8B",
+      "name": "??$?9Vpath_iterator@path_detail@filesystem@boost@@$$CBVpath@23@Ubidirectional_traversal_tag@iterators@3@AEBV423@_JV0123@$$CBV423@U563@AEBV423@_J@iterators@boost@@YA_NAEBV?$iterator_facade@Vpath_iterator@path_detail@filesystem@boost@@$$CBVpath@34@Ubidirectional_traversal_tag@iterators@4@AEBV534@_J@01@0@Z",
+      "specific_hash": "0x8DE8FD35BB75601D"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B9990",
+      "full_hash": "0xBA005D8040202C2A",
+      "name": "??_Gwindows_file_codecvt@detail@filesystem@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x28B0A9F8369536C4"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BAEA0",
+      "full_hash": "0xC34D161BE9BE2073",
+      "name": "?erase@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAA?AV?$_String_iterator@V?$_String_val@U?$_Simple_types@_W@std@@@std@@@2@V?$_String_const_iterator@V?$_String_val@U?$_Simple_types@_W@std@@@std@@@2@@Z",
+      "specific_hash": "0x6FC24A970F4147C6"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BC420",
+      "full_hash": "0x04D78CF83F5620F3",
+      "name": "?increment_v3@path_algorithms@detail@filesystem@boost@@SAXAEAVpath_iterator@path_detail@34@@Z",
+      "specific_hash": "0xE4458A8031AA44DC"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BC790",
+      "full_hash": "0x5A98ADFDE64D0377",
+      "name": "?lex_compare_v3@path_algorithms@detail@filesystem@boost@@SAHVpath_iterator@path_detail@34@AEBV5634@01@Z",
+      "specific_hash": "0x0CB407089CA99040"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BB910",
+      "full_hash": "0x404DB849FF383A49",
+      "name": "?find_root_directory_start@?A0x3403cc3b@@YA_KPEB_W_KAEA_K@Z",
+      "specific_hash": "0x493ABCC1D6AA2EE2"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BCAD0",
+      "full_hash": "0xABBA64A0A2DFF162",
+      "name": "?lexically_normal_v3@path_algorithms@detail@filesystem@boost@@SA?AVpath@34@AEBV534@@Z",
+      "specific_hash": "0x1CBC6AD770226BEA"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BAFB0",
+      "full_hash": "0x912FD469E5BAB57D",
+      "name": "?extension_v3@path_algorithms@detail@filesystem@boost@@SA?AVpath@34@AEBV534@@Z",
+      "specific_hash": "0xA531680FD84612B0"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BC350",
+      "full_hash": "0xCE58DF5663C8EF8C",
+      "name": "?imbue@path@filesystem@boost@@SA?AVlocale@std@@AEBV45@@Z",
+      "specific_hash": "0x6CAD1572170573E9"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BE5C0",
+      "full_hash": "0xD735DDC113398A4E",
+      "name": "?reserve@?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@QEAAX_K@Z",
+      "specific_hash": "0x87883530B3541A2B"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BA420",
+      "full_hash": "0x27E29C3B5C55E465",
+      "name": "?codecvt@path@filesystem@boost@@SAAEBV?$codecvt@_WDU_Mbstatet@@@std@@XZ",
+      "specific_hash": "0x503AFD011E1FC148"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BADC0",
+      "full_hash": "0xD948B0B2AE237224",
+      "name": "?end@path@filesystem@boost@@QEBA?AVpath_iterator@path_detail@23@XZ",
+      "specific_hash": "0x82FA3D9783A22951"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BE250",
+      "full_hash": "0xB4605B2381C5D9A8",
+      "name": "?remove_filename_v4@path_algorithms@detail@filesystem@boost@@SAXAEAVpath@34@@Z",
+      "specific_hash": "0xDD39C0779AC59339"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BE0D0",
+      "full_hash": "0xB20948A76FDE5103",
+      "name": "?remove_filename_and_trailing_separators@path@filesystem@boost@@QEAAAEAV123@XZ",
+      "specific_hash": "0x20A48F5C3B2EA606"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BAF50",
+      "full_hash": "0x3469BC3756AF68DA",
+      "name": "?erase_redundant_separator@path_algorithms@detail@filesystem@boost@@SAXAEAVpath@34@_K@Z",
+      "specific_hash": "0x725626EF1EEC40F1"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B9B10",
+      "full_hash": "0x5610857A30E5C1DC",
+      "name": "?_Xran@?$_String_val@U?$_Simple_types@_W@std@@@std@@SAXXZ",
+      "specific_hash": "0xB4552899B2665788"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000B9E00",
+      "full_hash": "0x1B0A548034A003B1",
+      "name": "?append_v4@path_algorithms@detail@filesystem@boost@@SAXAEAVpath@34@PEB_W1@Z",
+      "specific_hash": "0xB701588D95953E6D"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BD860",
+      "full_hash": "0x3B99DE8645F34BD2",
+      "name": "?lexically_relative@path@filesystem@boost@@QEBA?AV123@AEBV123@@Z",
+      "specific_hash": "0x934F05F4A8B0855E"
+    },
+    {
+      "domain_path": "/0004_path.obj",
+      "entry_point": "0x00000000000BB540",
+      "full_hash": "0xB1BE425BAB229305",
+      "name": "?find_filename_v4_size@path_algorithms@detail@filesystem@boost@@SA_KAEBVpath@34@@Z",
+      "specific_hash": "0x89184D0F60EE6B18"
+    },
+    {
+      "domain_path": "/0005_path_traits.obj",
+      "entry_point": "0x000000000009AFA0",
+      "full_hash": "0x5CEB565B9D7438A4",
+      "name": "??0system_error@system@boost@@QEAA@HAEBVerror_category@12@PEBD@Z",
+      "specific_hash": "0xC399F4A55A068E11"
+    },
+    {
+      "domain_path": "/0005_path_traits.obj",
+      "entry_point": "0x000000000009B880",
+      "full_hash": "0xD061842A54DC6B0E",
+      "name": "?convert@path_traits@detail@filesystem@boost@@YAXPEBD0AEAV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@PEBV?$codecvt@_WDU_Mbstatet@@@6@@Z",
+      "specific_hash": "0x93776A2691E992B1"
+    },
+    {
+      "domain_path": "/0005_path_traits.obj",
+      "entry_point": "0x000000000009B2A0",
+      "full_hash": "0x307BC487859E4EC6",
+      "name": "??1?$unique_ptr@$$BY0A@DU?$default_delete@$$BY0A@D@std@@@std@@QEAA@XZ",
+      "specific_hash": "0x14248AB38C0F69FE"
+    },
+    {
+      "domain_path": "/0005_path_traits.obj",
+      "entry_point": "0x000000000009BA50",
+      "full_hash": "0xB4EA206A67A661DE",
+      "name": "?convert_aux@?A0x05524874@@YAXPEBD0PEA_W1AEAV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@AEBV?$codecvt@_WDU_Mbstatet@@@3@@Z",
+      "specific_hash": "0xDC57D5F6D5060AF4"
+    },
+    {
+      "domain_path": "/0005_path_traits.obj",
+      "entry_point": "0x000000000009B970",
+      "full_hash": "0x227127B92B90E028",
+      "name": "?convert@path_traits@detail@filesystem@boost@@YAXPEB_W0AEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PEBV?$codecvt@_WDU_Mbstatet@@@6@@Z",
+      "specific_hash": "0x8B2525D71AB81A28"
+    },
+    {
+      "domain_path": "/0005_path_traits.obj",
+      "entry_point": "0x000000000009BB00",
+      "full_hash": "0x306CDD3B3524786F",
+      "name": "?convert_aux@?A0x05524874@@YAXPEB_W0PEAD1AEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBV?$codecvt@_WDU_Mbstatet@@@3@@Z",
+      "specific_hash": "0x6B5475D65EF12F5F"
+    },
+    {
+      "domain_path": "/0006_portability.obj",
+      "entry_point": "0x00000000000839E0",
+      "full_hash": "0x5432149A3AE01AEF",
+      "name": "?windows_name@filesystem@boost@@YA_NAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+      "specific_hash": "0x46845C28F1C423B4"
+    },
+    {
+      "domain_path": "/0006_portability.obj",
+      "entry_point": "0x00000000000835F0",
+      "full_hash": "0xFE15B83945BDF524",
+      "name": "?portable_directory_name@filesystem@boost@@YA_NAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+      "specific_hash": "0xF15339A1FE495FFF"
+    },
+    {
+      "domain_path": "/0006_portability.obj",
+      "entry_point": "0x0000000000083300",
+      "full_hash": "0x2E1C818D95A0F003",
+      "name": "??$?9DU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA_NAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@QEBD@Z",
+      "specific_hash": "0x6CC7548E6329C3FD"
+    },
+    {
+      "domain_path": "/0006_portability.obj",
+      "entry_point": "0x00000000000837B0",
+      "full_hash": "0x8C09DEC6F7B16804",
+      "name": "?portable_name@filesystem@boost@@YA_NAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+      "specific_hash": "0x9801DC5FE9A9440B"
+    },
+    {
+      "domain_path": "/0006_portability.obj",
+      "entry_point": "0x0000000000083910",
+      "full_hash": "0xE9A4D44B84303A2A",
+      "name": "?portable_posix_name@filesystem@boost@@YA_NAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+      "specific_hash": "0x16B43DC317399C54"
+    },
+    {
+      "domain_path": "/0006_portability.obj",
+      "entry_point": "0x00000000000836A0",
+      "full_hash": "0x1C09E1EFE9BBDF62",
+      "name": "?portable_file_name@filesystem@boost@@YA_NAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+      "specific_hash": "0xCCD7192EC96C7005"
+    },
+    {
+      "domain_path": "/0007_unique_path.obj",
+      "entry_point": "0x000000000008FDF0",
+      "full_hash": "0x457BFD519E68CDAF",
+      "name": "?unique_path@detail@filesystem@boost@@YA?AVpath@23@AEBV423@PEAVerror_code@system@3@@Z",
+      "specific_hash": "0xC772D79887143948"
+    },
+    {
+      "domain_path": "/0008_utf8_codecvt_facet.obj",
+      "entry_point": "0x000000000003E950",
+      "full_hash": "0xEFDD24358C99AFB4",
+      "name": "?do_out@utf8_codecvt_facet@detail@filesystem@boost@@MEBAHAEAU_Mbstatet@@PEB_W1AEAPEB_WPEAD3AEAPEAD@Z",
+      "specific_hash": "0x5245F82094620367"
+    },
+    {
+      "domain_path": "/0008_utf8_codecvt_facet.obj",
+      "entry_point": "0x000000000003E620",
+      "full_hash": "0x9F589B4DE70E3BDB",
+      "name": "??0utf8_codecvt_facet@detail@filesystem@boost@@QEAA@_K@Z",
+      "specific_hash": "0x8240C2558AF588DB"
+    },
+    {
+      "domain_path": "/0008_utf8_codecvt_facet.obj",
+      "entry_point": "0x000000000003E740",
+      "full_hash": "0x06235D0BAB401E55",
+      "name": "?do_in@utf8_codecvt_facet@detail@filesystem@boost@@MEBAHAEAU_Mbstatet@@PEBD1AEAPEBDPEA_W3AEAPEA_W@Z",
+      "specific_hash": "0xCE88BF193ABDF324"
+    },
+    {
+      "domain_path": "/0008_utf8_codecvt_facet.obj",
+      "entry_point": "0x000000000003E670",
+      "full_hash": "0x8ABE44C25D8B1EF3",
+      "name": "??_Gutf8_codecvt_facet@detail@filesystem@boost@@UEAAPEAXI@Z",
+      "specific_hash": "0x92707E634524B7FD"
+    },
+    {
+      "domain_path": "/0008_utf8_codecvt_facet.obj",
+      "entry_point": "0x000000000003EAB0",
+      "full_hash": "0x9FA5E2849AA1E5A9",
+      "name": "?get_cont_octet_out_count@utf8_codecvt_facet@detail@filesystem@boost@@KAH_W@Z",
+      "specific_hash": "0xE6EB9693EA36C122"
+    },
+    {
+      "domain_path": "/0008_utf8_codecvt_facet.obj",
+      "entry_point": "0x000000000003EAD0",
+      "full_hash": "0x1D014C315A57CE19",
+      "name": "?get_octet_count@utf8_codecvt_facet@detail@filesystem@boost@@KAIE@Z",
+      "specific_hash": "0x020123015569B0BE"
+    },
+    {
+      "domain_path": "/0008_utf8_codecvt_facet.obj",
+      "entry_point": "0x000000000003E8B0",
+      "full_hash": "0x214917034E9DE625",
+      "name": "?do_length@utf8_codecvt_facet@detail@filesystem@boost@@MEBAHAEAU_Mbstatet@@PEBD1_K@Z",
+      "specific_hash": "0xCD8640817F38A29C"
+    },
+    {
+      "domain_path": "/0008_utf8_codecvt_facet.obj",
+      "entry_point": "0x000000000003EAA0",
+      "full_hash": "0x49BDAF0C131B84CE",
+      "name": "?do_unshift@utf8_codecvt_facet@detail@filesystem@boost@@MEBAHAEAU_Mbstatet@@PEAD1AEAPEAD@Z",
+      "specific_hash": "0xDA67FF7B29A72A90"
+    },
+    {
+      "domain_path": "/0009_windows_file_codecvt.obj",
+      "entry_point": "0x000000000003FB20",
+      "full_hash": "0x14172ABBC171EFCC",
+      "name": "?do_out@windows_file_codecvt@detail@filesystem@boost@@MEBAHAEAU_Mbstatet@@PEB_W1AEAPEB_WPEAD3AEAPEAD@Z",
+      "specific_hash": "0x3BA7EDF8DB76CF9E"
+    },
+    {
+      "domain_path": "/0009_windows_file_codecvt.obj",
+      "entry_point": "0x000000000003FA90",
+      "full_hash": "0xAADAD6110C67A412",
+      "name": "?do_in@windows_file_codecvt@detail@filesystem@boost@@MEBAHAEAU_Mbstatet@@PEBD1AEAPEBDPEA_W3AEAPEA_W@Z",
+      "specific_hash": "0x899D100DD1D79C73"
+    }
+  ],
+  "functions_added": 526,
+  "functions_attempted": 841,
+  "functions_excluded": 315,
+  "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
+  "ghidra_version": "12.1.3",
+  "language_id": "x86:LE:64:default",
+  "language_minor_version": 8,
+  "language_version": 4,
+  "library_family": "Boost.Filesystem",
+  "library_path": "FIDB/libraries/boost/filesystem/1.86.0/boost-filesystem-1.86.0-msvc-x86_64-release.fidb",
+  "library_variant": "msvc-x86_64-release",
+  "library_version": "1.86.0",
+  "linkage": "static",
+  "reopened_function_record_count": 290,
+  "source_language_declared": "C++",
+  "source_language_filter": "",
+  "source_language_metadata_note": "Installed Ghidra 12.1.3 legacy FunctionID schema has no source-language column; empty metadata means all source languages.",
+  "stage": "generate"
+}

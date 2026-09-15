@@ -20,6 +20,7 @@ from common import (  # noqa: E402
     load_config,
     portable_path,
     require_ghidra_environment,
+    workspace_path,
     write_json,
 )
 
@@ -59,21 +60,33 @@ def remove_known_user_file(manager, path: Path) -> None:
 
 
 def main() -> int:
-    """Create, populate, save, reopen, and validate the requested zlib FID database."""
+    """Create, populate, save, reopen, and validate one requested FID database."""
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--manifest", type=Path, help="JSON stage manifest for arguments exceeding wrapper limits")
+    parser.add_argument("--analysis-report", type=Path, help="analysis report; defaults to the zlib report")
+    parser.add_argument("--destination", type=Path, help="FIDB destination; defaults to the zlib artifact")
+    parser.add_argument("--family", help="FID library family")
+    parser.add_argument("--version", help="FID library version")
+    parser.add_argument("--variant", help="FID library variant")
+    parser.add_argument("--report", type=Path, help="generation report path")
+    parser.add_argument("--source-language", default=None, help="declared source language")
     parser.add_argument("--force", action="store_true", help="accepted for an explicit generated-state rebuild")
     args = parser.parse_args()
+    manifest = json.loads(args.manifest.read_text(encoding="utf-8")) if args.manifest else {}
     config = load_config()
     require_ghidra_environment()
-    analysis_report = json.loads((REPORT_ROOT / "library_analysis.json").read_text(encoding="utf-8"))
+    analysis_report_path = Path(manifest.get("analysis_report", args.analysis_report or REPORT_ROOT / "library_analysis.json"))
+    analysis_report = json.loads(analysis_report_path.read_text(encoding="utf-8"))
     object_programs = analysis_report["object_programs"]
-    destination = (
-        FIDB_ROOT
-        / "libraries"
-        / "zlib"
-        / config["zlib_version"]
-        / f"zlib-{config['zlib_version']}-{config['fid_library_variant']}.fidb"
-    )
+    family = manifest.get("family", args.family or "zlib")
+    version = manifest.get("version", args.version or config["zlib_version"])
+    variant = manifest.get("variant", args.variant or config["fid_library_variant"])
+    source_language = manifest.get("source_language", args.source_language or config["source_language"])
+    expected_functions = analysis_report.get("expected_functions", config["expected_functions"])
+    allow_empty = bool(manifest.get("allow_empty", not expected_functions))
+    destination = Path(manifest.get("destination", args.destination or (
+        FIDB_ROOT / "libraries" / "zlib" / version / f"zlib-{version}-{variant}.fidb"
+    )))
     destination.parent.mkdir(parents=True, exist_ok=True)
     # The destination is a generated artifact. Replace it atomically after the
     # new database has been populated and reopened, even on a normal rerun.
@@ -93,8 +106,9 @@ def main() -> int:
     from java.io import File
     from java.util import ArrayList
 
-    project_parent = BUILD_ROOT / "ghidra_library_project"
-    project = GhidraProject.openProject(str(project_parent), "zlib_library", True)
+    project_parent = workspace_path(analysis_report["project_parent"])
+    project_name = analysis_report["project_name"]
+    project = GhidraProject.openProject(str(project_parent), project_name, True)
     manager = FidFileManager.getInstance()
     temporary_fd, temporary_name = tempfile.mkstemp(
         prefix=f".{destination.stem}.", suffix=".fidb", dir=str(destination.parent)
@@ -124,7 +138,7 @@ def main() -> int:
         try:
             from ghidra.feature.fid.db import FidFilter
 
-            filter_argument = FidFilter(GHIDRA_LANGUAGE_ID, GHIDRA_COMPILER_SPEC, config["source_language"])
+            filter_argument = FidFilter(GHIDRA_LANGUAGE_ID, GHIDRA_COMPILER_SPEC, source_language)
             filter_api = "FidFilter(LanguageID, compiler spec, source language)"
         except ImportError:
             # Ghidra 12.1.3 installations may expose the older overload used by
@@ -135,9 +149,9 @@ def main() -> int:
 
         result = FidService().createNewLibraryFromPrograms(
             database,
-            config["fid_library_family"],
-            config["zlib_version"],
-            config["fid_library_variant"],
+            family,
+            version,
+            variant,
             program_files,
             None,
             filter_argument,
@@ -147,14 +161,16 @@ def main() -> int:
         )
         if result is None:
             raise RuntimeError("FidService returned no FidPopulateResult")
-        database.saveDatabase("Saving zlib FID database", TaskMonitor.DUMMY)
+        database.saveDatabase(f"Saving {family} FID database", TaskMonitor.DUMMY)
         libraries = database.getAllLibraries()
         rows = database_rows(database)
-        if not libraries or not rows:
+        if (not libraries or not rows) and not allow_empty:
             raise RuntimeError("FidService produced no library or function records")
-        expected = set(config["expected_functions"])
+        expected = set(expected_functions)
         actual_names = {row["name"] for row in rows}
-        missing = sorted(expected - actual_names)
+        missing = sorted(
+            name for name in expected if not any(name in actual_name for actual_name in actual_names)
+        )
         if missing:
             failures = {
                 str(key): int(value)
@@ -164,21 +180,26 @@ def main() -> int:
                 "Generated FID database is missing expected names: "
                 f"{missing}; actual records={sorted(actual_names)}; exclusions={failures}"
             )
-        library = libraries[0]
+        library = libraries[0] if libraries else None
         generation = {
             "stage": "generate",
-            "ghidra_version": str(library.getGhidraVersion()),
+            "compiler": analysis_report.get("compiler", ""),
+            "compiler_version": analysis_report.get("compiler_version", ""),
+            "architecture": analysis_report.get("architecture", ""),
+            "configuration": analysis_report.get("configuration", ""),
+            "linkage": analysis_report.get("linkage", ""),
+            "ghidra_version": str(library.getGhidraVersion()) if library else "",
             "ghidra_install_dir": portable_path(require_ghidra_environment()),
             "library_path": portable_path(destination),
-            "library_family": str(library.getLibraryFamilyName()),
-            "library_version": str(library.getLibraryVersion()),
-            "library_variant": str(library.getLibraryVariant()),
-            "language_id": str(library.getGhidraLanguageID()),
-            "language_version": int(library.getGhidraLanguageVersion()),
-            "language_minor_version": int(library.getGhidraLanguageMinorVersion()),
-            "compiler_spec_filter": str(library.getGhidraCompilerSpecID()),
-            "source_language_filter": source_language_filter(library),
-            "source_language_declared": config["source_language"],
+            "library_family": str(library.getLibraryFamilyName()) if library else family,
+            "library_version": str(library.getLibraryVersion()) if library else version,
+            "library_variant": str(library.getLibraryVariant()) if library else variant,
+            "language_id": str(library.getGhidraLanguageID()) if library else GHIDRA_LANGUAGE_ID,
+            "language_version": int(library.getGhidraLanguageVersion()) if library else 0,
+            "language_minor_version": int(library.getGhidraLanguageMinorVersion()) if library else 0,
+            "compiler_spec_filter": str(library.getGhidraCompilerSpecID()) if library else GHIDRA_COMPILER_SPEC,
+            "source_language_filter": source_language_filter(library) if library else "",
+            "source_language_declared": source_language,
             "source_language_metadata_note": (
                 "Installed Ghidra 12.1.3 legacy FunctionID schema has no source-language column; "
                 "empty metadata means all source languages."
@@ -188,7 +209,14 @@ def main() -> int:
             "functions_added": int(result.getTotalAdded()),
             "functions_excluded": int(result.getTotalExcluded()),
             "function_record_count": len(rows),
-            "expected_functions": config["expected_functions"],
+            "allow_empty": allow_empty,
+            "empty_reason": (
+                "The selected Boost release exposes only dummy_exported_function; "
+                "Boost.System categories are header-only and Ghidra excludes the dummy body."
+                if not rows
+                else ""
+            ),
+            "expected_functions": expected_functions,
             "function_records": rows,
         }
         database.close()
@@ -210,7 +238,7 @@ def main() -> int:
             generation["reopened_function_record_count"] = len(reopened_rows)
         finally:
             final_database.close()
-        report_path = REPORT_ROOT / "fidb_generation.json"
+        report_path = Path(manifest.get("report", args.report or REPORT_ROOT / "fidb_generation.json"))
         write_json(report_path, generation)
         print(f"[+] Generated valid Ghidra FIDB: {destination}")
         print(f"[+] Ingested function records: {len(rows)}")

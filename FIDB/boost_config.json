@@ -1,0 +1,107 @@
+{
+  "boost_version": "1.86.0",
+  "boost_archive_url": "https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.gz",
+  "boost_archive_sha256": "2575e74ffc3ef1cd0babac2c1ee8bdb5782a0ee672b1912da40e5b4b591ca01f",
+  "architecture": "x86-64",
+  "ghidra_language_id": "x86:LE:64:default",
+  "ghidra_compiler_spec": "windows",
+  "source_language": "C++",
+  "compiler": "MSVC",
+  "configuration": "Release",
+  "linkage": "static",
+  "msvc_architecture": "x64",
+  "b2_flags": [
+    "toolset=msvc",
+    "variant=release",
+    "address-model=64",
+    "architecture=x86",
+    "link=static",
+    "runtime-link=shared",
+    "threading=multi",
+    "debug-symbols=on",
+    "cxxflags=/Oy-"
+  ],
+  "libraries": {
+    "filesystem": {
+      "display_name": "Boost.Filesystem",
+      "b2_name": "filesystem",
+      "fid_family": "Boost.Filesystem",
+      "fid_variant": "msvc-x86_64-release",
+      "link_libraries": ["filesystem", "system"],
+      "test_source": "tests/boost_filesystem/test.cpp",
+      "expected_functions": ["remove_all", "status", "recursive_directory_iterator_increment"],
+      "negative_function": "non_boost_control"
+    },
+    "regex": {
+      "display_name": "Boost.Regex",
+      "b2_name": "regex",
+      "fid_family": "Boost.Regex",
+      "fid_variant": "msvc-x86_64-release",
+      "link_libraries": ["regex"],
+      "test_source": "tests/boost_regex/test.cpp",
+      "expected_functions": ["perl_matcher", "parse", "match_all_states"],
+      "negative_function": "non_boost_control"
+    },
+    "program_options": {
+      "display_name": "Boost.Program_options",
+      "b2_name": "program_options",
+      "fid_family": "Boost.Program_options",
+      "fid_variant": "msvc-x86_64-release",
+      "link_libraries": ["program_options"],
+      "test_source": "tests/boost_program_options/test.cpp",
+      "expected_functions": ["options_description", "variables_map", "store"],
+      "negative_function": "non_boost_control"
+    },
+    "system": {
+      "display_name": "Boost.System",
+      "b2_name": "system",
+      "fid_family": "Boost.System",
+      "fid_variant": "msvc-x86_64-release",
+      "link_libraries": ["system"],
+      "test_source": "tests/boost_system/test.cpp",
+      "expected_functions": [],
+      "allow_empty_fidb": true,
+      "negative_function": "non_boost_control"
+    },
+    "thread": {
+      "display_name": "Boost.Thread",
+      "b2_name": "thread",
+      "fid_family": "Boost.Thread",
+      "fid_variant": "msvc-x86_64-release",
+      "link_libraries": ["thread", "chrono", "atomic", "system"],
+      "test_source": "tests/boost_thread/test.cpp",
+      "expected_functions": ["join", "start_thread", "interrupt"],
+      "negative_function": "non_boost_control"
+    },
+    "serialization": {
+      "display_name": "Boost.Serialization",
+      "b2_name": "serialization",
+      "fid_family": "Boost.Serialization",
+      "fid_variant": "msvc-x86_64-release",
+      "link_libraries": ["serialization"],
+      "test_source": "tests/boost_serialization/test.cpp",
+      "expected_functions": ["save", "load", "text_oarchive"],
+      "negative_function": "non_boost_control"
+    },
+    "locale": {
+      "display_name": "Boost.Locale",
+      "b2_name": "locale",
+      "fid_family": "Boost.Locale",
+      "fid_variant": "msvc-x86_64-release",
+      "link_libraries": ["locale"],
+      "test_source": "tests/boost_locale/test.cpp",
+      "expected_functions": ["generate", "clear_paths", "clear_domains"],
+      "negative_function": "non_boost_control"
+    },
+    "iostreams": {
+      "display_name": "Boost.Iostreams",
+      "b2_name": "iostreams",
+      "fid_family": "Boost.Iostreams",
+      "fid_variant": "msvc-x86_64-release",
+      "link_libraries": ["iostreams"],
+      "test_source": "tests/boost_iostreams/test.cpp",
+      "expected_functions": ["file_descriptor", "mapped_file_impl", "mapped_file_source"],
+      "negative_function": "non_boost_control"
+    }
+  }
+}

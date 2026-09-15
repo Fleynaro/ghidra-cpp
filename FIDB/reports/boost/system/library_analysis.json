@@ -1,0 +1,38 @@
+{
+  "architecture": "x86-64",
+  "compiler": "MSVC",
+  "compiler_version": "19.34.31937 for x64",
+  "configuration": "Release",
+  "expected_functions": [],
+  "ghidra_compiler_spec": "windows",
+  "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
+  "ghidra_language_id": "x86:LE:64:default",
+  "library": "Boost.System",
+  "linkage": "static",
+  "object_programs": [
+    {
+      "compiler_spec": "windows",
+      "function_count": 1,
+      "functions": [
+        {
+          "entry_point": "0x0000000000003A00",
+          "name": "?dummy_exported_function@system@boost@@YAXXZ",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "?dummy_exported_function@system@boost@@YAXXZ"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "0000_error_code.obj",
+      "source_languages": []
+    }
+  ],
+  "project_name": "boost_system_library",
+  "project_parent": "FIDB/build/boost_ghidra_projects/system",
+  "stage": "analyze",
+  "total_functions": 1
+}

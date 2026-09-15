@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -35,6 +36,19 @@ def main() -> int:
         raise RuntimeError(
             f"consumer compilation produced no executable:\nstdout:\n{completed.stdout}\nstderr:\n{completed.stderr}"
         )
+    execution = subprocess.run(
+        [str(executable)],
+        cwd=output_root,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    if execution.returncode != 0:
+        raise RuntimeError(
+            f"zlib consumer exited with {execution.returncode}:\n"
+            f"stdout:\n{execution.stdout}\nstderr:\n{execution.stderr}"
+        )
     metadata = {
         "executable": str(executable),
         "map_file": str(map_file),
@@ -50,6 +64,8 @@ def main() -> int:
         "compile_command": command,
         "build_stdout_tail": completed.stdout[-4000:],
         "build_stderr_tail": completed.stderr[-4000:],
+        "execution_stdout": execution.stdout[-4000:],
+        "execution_stderr": execution.stderr[-4000:],
     }
     output_metadata = output_root / "metadata.json"
     write_json(output_metadata, metadata)

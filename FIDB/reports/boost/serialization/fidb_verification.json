@@ -1,0 +1,1521 @@
+{
+  "architecture": "x86-64",
+  "compiler": "MSVC",
+  "compiler_spec": "windows",
+  "compiler_version": "19.34.31937 for x64",
+  "configuration": "Release",
+  "consumer": "FIDB/build/boost_consumers/serialization/serialization_detection.exe",
+  "direct_library_matches": [
+    {
+      "fid_name": "??$_Construct@$00PEBD@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEAAXQEBD_K@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400010E0",
+      "program_function": "_Construct<1,char_const*___ptr64>",
+      "score": 56.7400016784668,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$throw_exception@Varchive_exception@archive@boost@@@serialization@boost@@YAXAEBVarchive_exception@archive@1@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400011C0",
+      "program_function": "throw_exception<boost::archive::archive_exception>",
+      "score": 77.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$text_iarchive_impl@Vtext_iarchive@archive@boost@@@archive@boost@@MEAA@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140001440",
+      "program_function": "~text_iarchive_impl<boost::archive::text_iarchive>",
+      "score": 44.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$text_oarchive_impl@Vtext_oarchive@archive@boost@@@archive@boost@@MEAA@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140001470",
+      "program_function": "~text_oarchive_impl<boost::archive::text_oarchive>",
+      "score": 57.01000213623047,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$basic_text_iarchive@Vtext_iarchive@archive@boost@@@archive@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400016C0",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 29.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$basic_text_oarchive@Vtext_oarchive@archive@boost@@@archive@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140001700",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 38.02000045776367,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$basic_xml_oarchive@Vxml_oarchive@archive@boost@@@archive@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140001700",
+      "program_function": "FID_conflict:`scalar_deleting_destructor'",
+      "score": 38.02000045776367,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gextended_type_info_no_rtti_0@no_rtti_system@serialization@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140001790",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 20.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gextended_type_info_no_rtti_0@no_rtti_system@serialization@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400017D0",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 20.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$text_iarchive_impl@Vtext_iarchive@archive@boost@@@archive@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140001960",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 55.69000244140625,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$text_oarchive_impl@Vtext_oarchive@archive@boost@@@archive@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400019B0",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 68.69000244140625,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?vload@?$common_iarchive@Vtext_iarchive@archive@boost@@@detail@archive@boost@@EEAAXAEAVobject_id_type@34@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140002A40",
+      "program_function": "vload",
+      "score": 41.720001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?vload@?$common_iarchive@Vtext_iarchive@archive@boost@@@detail@archive@boost@@EEAAXAEAVclass_id_type@34@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140002A40",
+      "program_function": "vload",
+      "score": 41.720001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?vload@?$common_iarchive@Vtext_iarchive@archive@boost@@@detail@archive@boost@@EEAAXAEAUtracking_type@34@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140002A40",
+      "program_function": "vload",
+      "score": 41.720001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?vload@?$common_iarchive@Vtext_iarchive@archive@boost@@@detail@archive@boost@@EEAAXAEAVobject_id_type@34@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140002AF0",
+      "program_function": "vload",
+      "score": 41.720001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?vload@?$common_iarchive@Vtext_iarchive@archive@boost@@@detail@archive@boost@@EEAAXAEAVclass_id_type@34@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140002AF0",
+      "program_function": "vload",
+      "score": 41.720001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?vload@?$common_iarchive@Vtext_iarchive@archive@boost@@@detail@archive@boost@@EEAAXAEAUtracking_type@34@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140002AF0",
+      "program_function": "vload",
+      "score": 41.720001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?vload@?$common_iarchive@Vtext_iarchive@archive@boost@@@detail@archive@boost@@EEAAXAEAVobject_id_type@34@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140002B90",
+      "program_function": "vload",
+      "score": 41.720001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?vload@?$common_iarchive@Vtext_iarchive@archive@boost@@@detail@archive@boost@@EEAAXAEAVclass_id_type@34@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140002B90",
+      "program_function": "vload",
+      "score": 41.720001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?vload@?$common_iarchive@Vtext_iarchive@archive@boost@@@detail@archive@boost@@EEAAXAEAUtracking_type@34@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140002B90",
+      "program_function": "vload",
+      "score": 41.720001220703125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?vload@?$common_iarchive@Vtext_iarchive@archive@boost@@@detail@archive@boost@@EEAAXAEAVversion_type@34@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140002C30",
+      "program_function": "vload",
+      "score": 49.060001373291016,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_E?$codecvt_null@_W@archive@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140003250",
+      "program_function": "`vector_deleting_destructor'",
+      "score": 48.72999954223633,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?do_in@?$codecvt_null@_W@archive@boost@@EEBAHAEAU_Mbstatet@@PEBD1AEAPEBDPEA_W3AEAPEA_W@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400032F0",
+      "program_function": "do_in",
+      "score": 36.369998931884766,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?do_out@?$codecvt_null@_W@archive@boost@@EEBAHAEAU_Mbstatet@@PEB_W1AEAPEB_WPEAD3AEAPEAD@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140003360",
+      "program_function": "do_out",
+      "score": 33.369998931884766,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0archive_exception@archive@boost@@QEAA@AEBV012@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400033C0",
+      "program_function": "archive_exception",
+      "score": 76.44000244140625,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1archive_exception@archive@boost@@UEAA@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140003AD0",
+      "program_function": "~archive_exception",
+      "score": 15.029999732971191,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Garchive_exception@archive@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140003B20",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 35.04999923706055,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?append@archive_exception@archive@boost@@IEAAIIPEBD@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140003BA0",
+      "program_function": "append",
+      "score": 22.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Erase_tree@V?$allocator@U?$_Tree_node@Ucobject_type@basic_iarchive_impl@detail@archive@boost@@PEAX@std@@@std@@@?$_Tree_val@U?$_Tree_simple_types@Ucobject_type@basic_iarchive_impl@detail@archive@boost@@@std@@@std@@QEAAXAEAV?$allocator@U?$_Tree_node@Ucobject_type@basic_iarchive_impl@detail@archive@boost@@PEAX@std@@@1@PEAU?$_Tree_node@Ucobject_type@basic_iarchive_impl@detail@archive@boost@@PEAX@1@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400040A0",
+      "program_function": "_Erase_tree<>",
+      "score": 96.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Erase_tree@V?$allocator@U?$_Tree_node@Ucobject_type@basic_oarchive_impl@detail@archive@boost@@PEAX@std@@@std@@@?$_Tree_val@U?$_Tree_simple_types@Ucobject_type@basic_oarchive_impl@detail@archive@boost@@@std@@@std@@QEAAXAEAV?$allocator@U?$_Tree_node@Ucobject_type@basic_oarchive_impl@detail@archive@boost@@PEAX@std@@@1@PEAU?$_Tree_node@Ucobject_type@basic_oarchive_impl@detail@archive@boost@@PEAX@1@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400040A0",
+      "program_function": "_Erase_tree<>",
+      "score": 96.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Erase_tree@V?$allocator@U?$_Tree_node@Uaobject@basic_oarchive_impl@detail@archive@boost@@PEAX@std@@@std@@@?$_Tree_val@U?$_Tree_simple_types@Uaobject@basic_oarchive_impl@detail@archive@boost@@@std@@@std@@QEAAXAEAV?$allocator@U?$_Tree_node@Uaobject@basic_oarchive_impl@detail@archive@boost@@PEAX@std@@@1@PEAU?$_Tree_node@Uaobject@basic_oarchive_impl@detail@archive@boost@@PEAX@1@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400040A0",
+      "program_function": "_Erase_tree<>",
+      "score": 96.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Uninitialized_move@PEAVcobject_id@basic_iarchive_impl@detail@archive@boost@@V?$allocator@Vcobject_id@basic_iarchive_impl@detail@archive@boost@@@std@@@std@@YAPEAVcobject_id@basic_iarchive_impl@detail@archive@boost@@QEAV12345@0PEAV12345@AEAV?$allocator@Vcobject_id@basic_iarchive_impl@detail@archive@boost@@@0@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004100",
+      "program_function": "_Uninitialized_move<boost::archive::detail::basic_iarchive_impl::cobject_id*___ptr64,std::allocator<boost::archive::detail::basic_iarchive_impl::cobject_id>_>",
+      "score": 36.060001373291016,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0basic_iarchive@detail@archive@boost@@IEAA@I@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004170",
+      "program_function": "basic_iarchive",
+      "score": 92.44000244140625,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$_Tree@V?$_Tset_traits@Ucobject_type@basic_oarchive_impl@detail@archive@boost@@U?$less@Ucobject_type@basic_oarchive_impl@detail@archive@boost@@@std@@V?$allocator@Ucobject_type@basic_oarchive_impl@detail@archive@boost@@@7@$0A@@std@@@std@@QEAA@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004250",
+      "program_function": "~_Tree<>",
+      "score": 97.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$_Tree@V?$_Tset_traits@Uaobject@basic_oarchive_impl@detail@archive@boost@@U?$less@Uaobject@basic_oarchive_impl@detail@archive@boost@@@std@@V?$allocator@Uaobject@basic_oarchive_impl@detail@archive@boost@@@7@$0A@@std@@@std@@QEAA@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004250",
+      "program_function": "~_Tree<>",
+      "score": 97.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1basic_iarchive@detail@archive@boost@@UEAA@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004540",
+      "program_function": "~basic_iarchive",
+      "score": 52.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbasic_iarchive@detail@archive@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004580",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 23.360000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Insert_node@?$_Tree_val@U?$_Tree_simple_types@PEBVextended_type_info@serialization@boost@@@std@@@std@@QEAAPEAU?$_Tree_node@PEBVextended_type_info@serialization@boost@@PEAX@2@U?$_Tree_id@PEAU?$_Tree_node@PEBVextended_type_info@serialization@boost@@PEAX@std@@@2@QEAU32@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400045D0",
+      "program_function": "_Insert_node",
+      "score": 321.05999755859375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?deallocate@?$allocator@Uaobject@basic_iarchive_impl@detail@archive@boost@@@std@@QEAAXQEAUaobject@basic_iarchive_impl@detail@archive@boost@@_K@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004870",
+      "program_function": "FUN_140004870",
+      "score": 21.360000610351562,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?deallocate@?$allocator@Vcobject_id@basic_iarchive_impl@detail@archive@boost@@@std@@QEAAXQEAVcobject_id@basic_iarchive_impl@detail@archive@boost@@_K@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400048C0",
+      "program_function": "FUN_1400048c0",
+      "score": 22.030000686645508,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?load_object@basic_iarchive@detail@archive@boost@@QEAAXPEAXAEBVbasic_iserializer@234@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004920",
+      "program_function": "load_object",
+      "score": 98.66999816894531,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?load_object@basic_iarchive_impl@detail@archive@boost@@AEAAXAEAVbasic_iarchive@234@PEAXAEBVbasic_iserializer@234@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004940",
+      "program_function": "load_object",
+      "score": 180.86000061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?load_preamble@basic_iarchive_impl@detail@archive@boost@@AEAAXAEAVbasic_iarchive@234@AEAVcobject_id@1234@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004AC0",
+      "program_function": "load_preamble",
+      "score": 153.41000366210938,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Erase_tree@V?$allocator@U?$_Tree_node@PEBVbasic_serializer@detail@archive@boost@@PEAX@std@@@std@@@?$_Tree_val@U?$_Tree_simple_types@PEBVbasic_serializer@detail@archive@boost@@@std@@@std@@QEAAXAEAV?$allocator@U?$_Tree_node@PEBVbasic_serializer@detail@archive@boost@@PEAX@std@@@1@PEAU?$_Tree_node@PEBVbasic_serializer@detail@archive@boost@@PEAX@1@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004D00",
+      "program_function": "_Erase_tree<std::allocator<std::_Tree_node<boost::archive::detail::basic_serializer_const*___ptr64,void*___ptr64>_>_>",
+      "score": 96.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0extended_type_info@serialization@boost@@IEAA@IPEBD@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004D60",
+      "program_function": "extended_type_info",
+      "score": 19.34000015258789,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbasic_iserializer@detail@archive@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004DD0",
+      "program_function": "FUN_140004dd0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbasic_oserializer@detail@archive@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004DD0",
+      "program_function": "FUN_140004dd0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gextended_type_info_arg@detail@serialization@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004DD0",
+      "program_function": "FUN_140004dd0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gextended_type_info@serialization@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004DD0",
+      "program_function": "FUN_140004dd0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$concrete_parser@U?$alternative@V?$rule@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@classic@spirit@boost@@Unil_t@234@U5234@@classic@spirit@boost@@V1234@@classic@spirit@boost@@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@234@Unil_t@234@@impl@classic@spirit@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004DD0",
+      "program_function": "FUN_140004dd0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$concrete_parser@U?$sequence@V?$rule@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@classic@spirit@boost@@Unil_t@234@U5234@@classic@spirit@boost@@V1234@@classic@spirit@boost@@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@234@Unil_t@234@@impl@classic@spirit@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004DD0",
+      "program_function": "FUN_140004dd0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$concrete_parser@U?$kleene_star@U?$sequence@V?$rule@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@classic@spirit@boost@@Unil_t@234@U5234@@classic@spirit@boost@@V1234@@classic@spirit@boost@@@classic@spirit@boost@@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@234@Unil_t@234@@impl@classic@spirit@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004DD0",
+      "program_function": "FUN_140004dd0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$concrete_parser@V?$action@V?$rule@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@classic@spirit@boost@@Unil_t@234@U5234@@classic@spirit@boost@@U?$append_string@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$_String_const_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@2@@xml@archive@4@@classic@spirit@boost@@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@234@Unil_t@234@@impl@classic@spirit@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004DD0",
+      "program_function": "FUN_140004dd0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@V?$basic_chset@D@classic@spirit@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004DD0",
+      "program_function": "FUN_140004dd0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@V?$basic_chset@_W@classic@spirit@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004DD0",
+      "program_function": "FUN_140004dd0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Extract@?$_Tree_val@U?$_Tree_simple_types@PEBVextended_type_info@serialization@boost@@@std@@@std@@QEAAPEAU?$_Tree_node@PEBVextended_type_info@serialization@boost@@PEAX@2@V?$_Tree_unchecked_const_iterator@V?$_Tree_val@U?$_Tree_simple_types@PEBVextended_type_info@serialization@boost@@@std@@@std@@U_Iterator_base0@2@@2@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140004E00",
+      "program_function": "_Extract",
+      "score": 526.0899658203125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Lrotate@?$_Tree_val@U?$_Tree_simple_types@PEBVbasic_serializer@detail@archive@boost@@@std@@@std@@QEAAXPEAU?$_Tree_node@PEBVbasic_serializer@detail@archive@boost@@PEAX@2@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400051D0",
+      "program_function": "Lrotate",
+      "score": 313.3800048828125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Lrotate@?$_Tree_val@U?$_Tree_simple_types@PEBVextended_type_info@serialization@boost@@@std@@@std@@QEAAXPEAU?$_Tree_node@PEBVextended_type_info@serialization@boost@@PEAX@2@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400051D0",
+      "program_function": "Lrotate",
+      "score": 313.3800048828125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Lrotate@?$_Tree_val@U?$_Tree_simple_types@PEBVextended_type_info_typeid_0@typeid_system@serialization@boost@@@std@@@std@@QEAAXPEAU?$_Tree_node@PEBVextended_type_info_typeid_0@typeid_system@serialization@boost@@PEAX@2@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400051D0",
+      "program_function": "Lrotate",
+      "score": 313.3800048828125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Lrotate@?$_Tree_val@U?$_Tree_simple_types@PEBVvoid_caster@void_cast_detail@serialization@boost@@@std@@@std@@QEAAXPEAU?$_Tree_node@PEBVvoid_caster@void_cast_detail@serialization@boost@@PEAX@2@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400051D0",
+      "program_function": "Lrotate",
+      "score": 313.3800048828125,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Rrotate@?$_Tree_val@U?$_Tree_simple_types@PEBVbasic_serializer@detail@archive@boost@@@std@@@std@@QEAAXPEAU?$_Tree_node@PEBVbasic_serializer@detail@archive@boost@@PEAX@2@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005230",
+      "program_function": "Rrotate",
+      "score": 316.05999755859375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Rrotate@?$_Tree_val@U?$_Tree_simple_types@PEBVextended_type_info@serialization@boost@@@std@@@std@@QEAAXPEAU?$_Tree_node@PEBVextended_type_info@serialization@boost@@PEAX@2@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005230",
+      "program_function": "Rrotate",
+      "score": 316.05999755859375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Rrotate@?$_Tree_val@U?$_Tree_simple_types@PEBVextended_type_info_typeid_0@typeid_system@serialization@boost@@@std@@@std@@QEAAXPEAU?$_Tree_node@PEBVextended_type_info_typeid_0@typeid_system@serialization@boost@@PEAX@2@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005230",
+      "program_function": "Rrotate",
+      "score": 316.05999755859375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?_Rrotate@?$_Tree_val@U?$_Tree_simple_types@PEBVvoid_caster@void_cast_detail@serialization@boost@@@std@@@std@@QEAAXPEAU?$_Tree_node@PEBVvoid_caster@void_cast_detail@serialization@boost@@PEAX@2@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005230",
+      "program_function": "Rrotate",
+      "score": 316.05999755859375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$multiset@PEBVextended_type_info@serialization@boost@@Ukey_compare@detail@23@V?$allocator@PEBVextended_type_info@serialization@boost@@@std@@@std@@@serialization@boost@@CAAEAV?$multiset@PEBVextended_type_info@serialization@boost@@Ukey_compare@detail@23@V?$allocator@PEBVextended_type_info@serialization@boost@@@std@@@std@@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400052A0",
+      "program_function": "get_instance",
+      "score": 207.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?key_register@extended_type_info@serialization@boost@@IEBAXXZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005350",
+      "program_function": "key_register",
+      "score": 295.79998779296875,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?key_unregister@extended_type_info@serialization@boost@@IEBAXXZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005460",
+      "program_function": "key_unregister",
+      "score": 445.489990234375,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0extended_type_info_typeid_0@typeid_system@serialization@boost@@IEAA@PEBD@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400055E0",
+      "program_function": "extended_type_info_typeid_0",
+      "score": 21.350000381469727,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gextended_type_info_typeid_0@typeid_system@serialization@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005630",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 20.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$multiset@PEBVextended_type_info_typeid_0@typeid_system@serialization@boost@@Utype_compare@234@V?$allocator@PEBVextended_type_info_typeid_0@typeid_system@serialization@boost@@@std@@@std@@@serialization@boost@@CAAEAV?$multiset@PEBVextended_type_info_typeid_0@typeid_system@serialization@boost@@Utype_compare@234@V?$allocator@PEBVextended_type_info_typeid_0@typeid_system@serialization@boost@@@std@@@std@@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005680",
+      "program_function": "get_instance",
+      "score": 132.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?is_less_than@extended_type_info_typeid_0@typeid_system@serialization@boost@@UEBA_NAEBVextended_type_info@34@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005760",
+      "program_function": "is_less_than",
+      "score": 18.690000534057617,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?type_register@extended_type_info_typeid_0@typeid_system@serialization@boost@@IEAAXAEBVtype_info@@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005790",
+      "program_function": "type_register",
+      "score": 280.4599914550781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?type_unregister@extended_type_info_typeid_0@typeid_system@serialization@boost@@IEAAXXZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005890",
+      "program_function": "type_unregister",
+      "score": 370.41998291015625,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbasic_iserializer@detail@archive@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400059A0",
+      "program_function": "FUN_1400059a0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbasic_oserializer@detail@archive@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400059A0",
+      "program_function": "FUN_1400059a0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gextended_type_info_arg@detail@serialization@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400059A0",
+      "program_function": "FUN_1400059a0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gextended_type_info@serialization@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400059A0",
+      "program_function": "FUN_1400059a0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$concrete_parser@U?$alternative@V?$rule@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@classic@spirit@boost@@Unil_t@234@U5234@@classic@spirit@boost@@V1234@@classic@spirit@boost@@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@234@Unil_t@234@@impl@classic@spirit@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400059A0",
+      "program_function": "FUN_1400059a0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$concrete_parser@U?$sequence@V?$rule@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@classic@spirit@boost@@Unil_t@234@U5234@@classic@spirit@boost@@V1234@@classic@spirit@boost@@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@234@Unil_t@234@@impl@classic@spirit@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400059A0",
+      "program_function": "FUN_1400059a0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$concrete_parser@U?$kleene_star@U?$sequence@V?$rule@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@classic@spirit@boost@@Unil_t@234@U5234@@classic@spirit@boost@@V1234@@classic@spirit@boost@@@classic@spirit@boost@@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@234@Unil_t@234@@impl@classic@spirit@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400059A0",
+      "program_function": "FUN_1400059a0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$concrete_parser@V?$action@V?$rule@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@classic@spirit@boost@@Unil_t@234@U5234@@classic@spirit@boost@@U?$append_string@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$_String_const_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@2@@xml@archive@4@@classic@spirit@boost@@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@234@Unil_t@234@@impl@classic@spirit@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400059A0",
+      "program_function": "FUN_1400059a0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@V?$basic_chset@D@classic@spirit@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400059A0",
+      "program_function": "FUN_1400059a0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@V?$basic_chset@_W@classic@spirit@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400059A0",
+      "program_function": "FUN_1400059a0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$basic_text_iprimitive@V?$basic_istream@DU?$char_traits@D@std@@@std@@@archive@boost@@IEAA@AEAV?$basic_istream@DU?$char_traits@D@std@@@std@@_N@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400059D0",
+      "program_function": "basic_text_iprimitive<std::basic_istream<char,std::char_traits<char>_>_>",
+      "score": 136.47000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$basic_istream_locale_saver@DU?$char_traits@D@std@@@archive@boost@@QEAA@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005B70",
+      "program_function": "~basic_istream_locale_saver<char,std::char_traits<char>_>",
+      "score": 67.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$basic_text_iprimitive@V?$basic_istream@DU?$char_traits@D@std@@@std@@@archive@boost@@IEAA@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005BF0",
+      "program_function": "~basic_text_iprimitive<std::basic_istream<char,std::char_traits<char>_>_>",
+      "score": 92.70999908447266,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1locale@std@@QEAA@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005CA0",
+      "program_function": "~locale",
+      "score": 18.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$codecvt_null@D@archive@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005CD0",
+      "program_function": "FUN_140005cd0",
+      "score": 20.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$text_iarchive_impl@Vtext_iarchive@archive@boost@@@archive@boost@@IEAA@AEAV?$basic_istream@DU?$char_traits@D@std@@@std@@I@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005EB0",
+      "program_function": "text_iarchive_impl<boost::archive::text_iarchive>",
+      "score": 163.36000061035156,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$_Tree@V?$_Tset_traits@PEBVbasic_serializer@detail@archive@boost@@Utype_info_pointer_compare@basic_serializer_map@234@V?$allocator@PEBVbasic_serializer@detail@archive@boost@@@std@@$0A@@std@@@std@@QEAA@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005F00",
+      "program_function": "~_Tree<std::_Tset_traits<boost::archive::detail::basic_serializer_const*___ptr64,boost::archive::detail::basic_serializer_map::type_info_pointer_compare,std::allocator<boost::archive::detail::basic_serializer_const*___ptr64>,0>_>",
+      "score": 52.040000915527344,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vbinary_iarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vbinary_iarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005F70",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vbinary_oarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vbinary_oarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005F70",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vpolymorphic_iarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vpolymorphic_iarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005F70",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vpolymorphic_oarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vpolymorphic_oarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005F70",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vtext_iarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vtext_iarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005F70",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vtext_oarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vtext_oarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005F70",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vpolymorphic_text_iarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vpolymorphic_text_iarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005F70",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vpolymorphic_text_oarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vpolymorphic_text_oarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005F70",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vpolymorphic_binary_iarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vpolymorphic_binary_iarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005F70",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vpolymorphic_binary_oarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vpolymorphic_binary_oarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005F70",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vpolymorphic_xml_iarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vpolymorphic_xml_iarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005F70",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vpolymorphic_xml_oarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vpolymorphic_xml_oarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005F70",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vxml_iarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vxml_iarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005F70",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vxml_oarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vxml_oarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140005F70",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?load@?$text_iarchive_impl@Vtext_iarchive@archive@boost@@@archive@boost@@IEAAXAEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006240",
+      "program_function": "load",
+      "score": 103.74000549316406,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?resize@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAX_KD@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006470",
+      "program_function": "resize",
+      "score": 103.74000549316406,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?resize@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QEAAX_KD@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006470",
+      "program_function": "resize",
+      "score": 103.74000549316406,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Erase_tree@V?$allocator@U?$_Tree_node@Vobject_id_type@archive@boost@@PEAX@std@@@std@@@?$_Tree_val@U?$_Tree_simple_types@Vobject_id_type@archive@boost@@@std@@@std@@QEAAXAEAV?$allocator@U?$_Tree_node@Vobject_id_type@archive@boost@@PEAX@std@@@1@PEAU?$_Tree_node@Vobject_id_type@archive@boost@@PEAX@1@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006510",
+      "program_function": "_Erase_tree<>",
+      "score": 96.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0basic_oarchive@detail@archive@boost@@IEAA@I@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400066A0",
+      "program_function": "basic_oarchive",
+      "score": 101.79000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$_Tree@V?$_Tset_traits@Vobject_id_type@archive@boost@@U?$less@Vobject_id_type@archive@boost@@@std@@V?$allocator@Vobject_id_type@archive@boost@@@5@$0A@@std@@@std@@QEAA@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006780",
+      "program_function": "~_Tree<std::_Tset_traits<boost::archive::object_id_type,std::less<boost::archive::object_id_type>,std::allocator<boost::archive::object_id_type>,0>_>",
+      "score": 97.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1basic_oarchive@detail@archive@boost@@MEAA@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400067F0",
+      "program_function": "~basic_oarchive",
+      "score": 87.69999694824219,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbasic_oarchive@detail@archive@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006850",
+      "program_function": "`scalar_deleting_destructor'",
+      "score": 58.380001068115234,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbasic_iserializer@detail@archive@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006C10",
+      "program_function": "FUN_140006c10",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbasic_oserializer@detail@archive@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006C10",
+      "program_function": "FUN_140006c10",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gextended_type_info_arg@detail@serialization@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006C10",
+      "program_function": "FUN_140006c10",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gextended_type_info@serialization@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006C10",
+      "program_function": "FUN_140006c10",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$concrete_parser@U?$alternative@V?$rule@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@classic@spirit@boost@@Unil_t@234@U5234@@classic@spirit@boost@@V1234@@classic@spirit@boost@@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@234@Unil_t@234@@impl@classic@spirit@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006C10",
+      "program_function": "FUN_140006c10",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$concrete_parser@U?$sequence@V?$rule@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@classic@spirit@boost@@Unil_t@234@U5234@@classic@spirit@boost@@V1234@@classic@spirit@boost@@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@234@Unil_t@234@@impl@classic@spirit@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006C10",
+      "program_function": "FUN_140006c10",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$concrete_parser@U?$kleene_star@U?$sequence@V?$rule@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@classic@spirit@boost@@Unil_t@234@U5234@@classic@spirit@boost@@V1234@@classic@spirit@boost@@@classic@spirit@boost@@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@234@Unil_t@234@@impl@classic@spirit@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006C10",
+      "program_function": "FUN_140006c10",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$concrete_parser@V?$action@V?$rule@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@classic@spirit@boost@@Unil_t@234@U5234@@classic@spirit@boost@@U?$append_string@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$_String_const_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@2@@xml@archive@4@@classic@spirit@boost@@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@234@Unil_t@234@@impl@classic@spirit@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006C10",
+      "program_function": "FUN_140006c10",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@V?$basic_chset@D@classic@spirit@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006C10",
+      "program_function": "FUN_140006c10",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@V?$basic_chset@_W@classic@spirit@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006C10",
+      "program_function": "FUN_140006c10",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$endl@DU?$char_traits@D@std@@@std@@YAAEAV?$basic_ostream@DU?$char_traits@D@std@@@0@AEAV10@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006C40",
+      "program_function": "endl<char,std::char_traits<char>_>",
+      "score": 16.68000030517578,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$basic_text_oprimitive@V?$basic_ostream@DU?$char_traits@D@std@@@std@@@archive@boost@@IEAA@AEAV?$basic_ostream@DU?$char_traits@D@std@@@std@@_N@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006C80",
+      "program_function": "basic_text_oprimitive<std::basic_ostream<char,std::char_traits<char>_>_>",
+      "score": 137.47000122070312,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$basic_ostream_locale_saver@DU?$char_traits@D@std@@@archive@boost@@QEAA@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006E20",
+      "program_function": "~basic_ostream_locale_saver<char,std::char_traits<char>_>",
+      "score": 71.04000091552734,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1?$basic_text_oprimitive@V?$basic_ostream@DU?$char_traits@D@std@@@std@@@archive@boost@@IEAA@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006EA0",
+      "program_function": "~basic_text_oprimitive<std::basic_ostream<char,std::char_traits<char>_>_>",
+      "score": 96.70999908447266,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?put@?$basic_text_oprimitive@V?$basic_ostream@DU?$char_traits@D@std@@@std@@@archive@boost@@QEAAXD@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006F20",
+      "program_function": "put",
+      "score": 152.04000854492188,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$?6_K@?$interface_oarchive@Vtext_oarchive@archive@boost@@@detail@archive@boost@@QEAAAEAVtext_oarchive@23@AEB_K@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140006FA0",
+      "program_function": "operator<<<unsigned___int64>",
+      "score": 132.760009765625,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??$_Insert_string@DU?$char_traits@D@std@@_K@std@@YAAEAV?$basic_ostream@DU?$char_traits@D@std@@@0@AEAV10@QEBD_K@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007090",
+      "program_function": "_Insert_string<char,std::char_traits<char>,unsigned___int64>",
+      "score": 198.52999877929688,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??0?$text_oarchive_impl@Vtext_oarchive@archive@boost@@@archive@boost@@IEAA@AEAV?$basic_ostream@DU?$char_traits@D@std@@@std@@I@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007250",
+      "program_function": "text_oarchive_impl<boost::archive::text_oarchive>",
+      "score": 174.6999969482422,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??1sentry@?$basic_ostream@DU?$char_traits@D@std@@@std@@QEAA@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400072D0",
+      "program_function": "~sentry",
+      "score": 20.020000457763672,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vbinary_iarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vbinary_iarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007320",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vbinary_oarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vbinary_oarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007320",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vpolymorphic_iarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vpolymorphic_iarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007320",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vpolymorphic_oarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vpolymorphic_oarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007320",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vtext_iarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vtext_iarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007320",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vtext_oarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vtext_oarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007320",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vpolymorphic_text_iarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vpolymorphic_text_iarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007320",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vpolymorphic_text_oarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vpolymorphic_text_oarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007320",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vpolymorphic_binary_iarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vpolymorphic_binary_iarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007320",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vpolymorphic_binary_oarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vpolymorphic_binary_oarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007320",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vpolymorphic_xml_iarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vpolymorphic_xml_iarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007320",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vpolymorphic_xml_oarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vpolymorphic_xml_oarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007320",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vxml_iarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vxml_iarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007320",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?get_instance@?$singleton@V?$map@Vxml_oarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vxml_oarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007320",
+      "program_function": "get_instance",
+      "score": 32.0,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?newtoken@?$basic_text_oarchive@Vtext_oarchive@archive@boost@@@archive@boost@@IEAAXXZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400075F0",
+      "program_function": "newtoken",
+      "score": 54.04999923706055,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?save@?$text_oarchive_impl@Vtext_oarchive@archive@boost@@@archive@boost@@IEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007640",
+      "program_function": "save",
+      "score": 246.0800018310547,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "?BOOST_ARCHIVE_VERSION@archive@boost@@YA?AVlibrary_version_type@serialization@2@XZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x00000001400076F0",
+      "program_function": "BOOST_ARCHIVE_VERSION",
+      "score": 53.66999816894531,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbasic_iserializer@detail@archive@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007DC0",
+      "program_function": "FUN_140007dc0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gbasic_oserializer@detail@archive@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007DC0",
+      "program_function": "FUN_140007dc0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gextended_type_info_arg@detail@serialization@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007DC0",
+      "program_function": "FUN_140007dc0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_Gextended_type_info@serialization@boost@@MEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007DC0",
+      "program_function": "FUN_140007dc0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$concrete_parser@U?$alternative@V?$rule@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@classic@spirit@boost@@Unil_t@234@U5234@@classic@spirit@boost@@V1234@@classic@spirit@boost@@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@234@Unil_t@234@@impl@classic@spirit@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007DC0",
+      "program_function": "FUN_140007dc0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$concrete_parser@U?$sequence@V?$rule@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@classic@spirit@boost@@Unil_t@234@U5234@@classic@spirit@boost@@V1234@@classic@spirit@boost@@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@234@Unil_t@234@@impl@classic@spirit@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007DC0",
+      "program_function": "FUN_140007dc0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$concrete_parser@U?$kleene_star@U?$sequence@V?$rule@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@classic@spirit@boost@@Unil_t@234@U5234@@classic@spirit@boost@@V1234@@classic@spirit@boost@@@classic@spirit@boost@@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@234@Unil_t@234@@impl@classic@spirit@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007DC0",
+      "program_function": "FUN_140007dc0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$concrete_parser@V?$action@V?$rule@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@classic@spirit@boost@@Unil_t@234@U5234@@classic@spirit@boost@@U?$append_string@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$_String_const_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@2@@xml@archive@4@@classic@spirit@boost@@V?$scanner@V?$_String_iterator@V?$_String_val@U?$_Simple_types@D@std@@@std@@@std@@U?$scanner_policies@Uiteration_policy@classic@spirit@boost@@Umatch_policy@234@Uaction_policy@234@@classic@spirit@boost@@@234@Unil_t@234@@impl@classic@spirit@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007DC0",
+      "program_function": "FUN_140007dc0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@V?$basic_chset@D@classic@spirit@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007DC0",
+      "program_function": "FUN_140007dc0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??_G?$sp_counted_impl_p@V?$basic_chset@_W@classic@spirit@boost@@@detail@boost@@UEAAPEAXI@Z",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140007DC0",
+      "program_function": "FUN_140007dc0",
+      "score": 14.680000305175781,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??__Ft@?1??get_instance@?$singleton@V?$multiset@PEBVextended_type_info@serialization@boost@@Ukey_compare@detail@23@V?$allocator@PEBVextended_type_info@serialization@boost@@@std@@@std@@@serialization@boost@@CAAEAV?$multiset@PEBVextended_type_info@serialization@boost@@Ukey_compare@detail@23@V?$allocator@PEBVextended_type_info@serialization@boost@@@std@@@std@@XZ@YAXXZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140008EF0",
+      "program_function": "`dynamic_atexit_destructor_for_'t''",
+      "score": 49.37000274658203,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??__Ft@?1??get_instance@?$singleton@V?$multiset@PEBVextended_type_info_typeid_0@typeid_system@serialization@boost@@Utype_compare@234@V?$allocator@PEBVextended_type_info_typeid_0@typeid_system@serialization@boost@@@std@@@std@@@serialization@boost@@CAAEAV?$multiset@PEBVextended_type_info_typeid_0@typeid_system@serialization@boost@@Utype_compare@234@V?$allocator@PEBVextended_type_info_typeid_0@typeid_system@serialization@boost@@@std@@@std@@XZ@YAXXZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140008EF0",
+      "program_function": "`dynamic_atexit_destructor_for_'t''",
+      "score": 49.37000274658203,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??__Ft@?1??get_instance@?$singleton@V?$set@PEBVvoid_caster@void_cast_detail@serialization@boost@@Uvoid_caster_compare@234@V?$allocator@PEBVvoid_caster@void_cast_detail@serialization@boost@@@std@@@std@@@serialization@boost@@CAAEAV?$set@PEBVvoid_caster@void_cast_detail@serialization@boost@@Uvoid_caster_compare@234@V?$allocator@PEBVvoid_caster@void_cast_detail@serialization@boost@@@std@@@std@@XZ@YAXXZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140008EF0",
+      "program_function": "`dynamic_atexit_destructor_for_'t''",
+      "score": 49.37000274658203,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??__Ft@?1??get_instance@?$singleton@V?$multiset@PEBVextended_type_info@serialization@boost@@Ukey_compare@detail@23@V?$allocator@PEBVextended_type_info@serialization@boost@@@std@@@std@@@serialization@boost@@CAAEAV?$multiset@PEBVextended_type_info@serialization@boost@@Ukey_compare@detail@23@V?$allocator@PEBVextended_type_info@serialization@boost@@@std@@@std@@XZ@YAXXZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140008F60",
+      "program_function": "`dynamic_atexit_destructor_for_'t''",
+      "score": 49.37000274658203,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??__Ft@?1??get_instance@?$singleton@V?$multiset@PEBVextended_type_info_typeid_0@typeid_system@serialization@boost@@Utype_compare@234@V?$allocator@PEBVextended_type_info_typeid_0@typeid_system@serialization@boost@@@std@@@std@@@serialization@boost@@CAAEAV?$multiset@PEBVextended_type_info_typeid_0@typeid_system@serialization@boost@@Utype_compare@234@V?$allocator@PEBVextended_type_info_typeid_0@typeid_system@serialization@boost@@@std@@@std@@XZ@YAXXZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140008F60",
+      "program_function": "`dynamic_atexit_destructor_for_'t''",
+      "score": 49.37000274658203,
+      "version": "1.86.0"
+    },
+    {
+      "fid_name": "??__Ft@?1??get_instance@?$singleton@V?$set@PEBVvoid_caster@void_cast_detail@serialization@boost@@Uvoid_caster_compare@234@V?$allocator@PEBVvoid_caster@void_cast_detail@serialization@boost@@@std@@@std@@@serialization@boost@@CAAEAV?$set@PEBVvoid_caster@void_cast_detail@serialization@boost@@Uvoid_caster_compare@234@V?$allocator@PEBVvoid_caster@void_cast_detail@serialization@boost@@@std@@@std@@XZ@YAXXZ",
+      "library": "Boost.Serialization",
+      "program_entry_point": "0x0000000140008F60",
+      "program_function": "`dynamic_atexit_destructor_for_'t''",
+      "score": 49.37000274658203,
+      "version": "1.86.0"
+    }
+  ],
+  "expected_match_count": 21,
+  "expected_matches": {
+    "load": [
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: virtual void __cdecl boost::archive::detail::common_iarchive<class boost::archive::text_iarchive>::vload(struct boost::archive::tracking_type & __ptr64) __ptr64\n private: virtual void __cdecl boost::archive::detail::common_iarchive<class boost::archive::text_iarchive>::vload(class boost::archive::class_id_type & __ptr64) __ptr64\n private: virtual void __cdecl boost::archive::detail::common_iarchive<class boost::archive::text_iarchive>::vload(class boost::archive::object_id_type & __ptr64) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140002A40",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?vload@?$common_iarchive@Vtext_iarchive@archive@boost@@@detail@archive@boost@@EEAAXAEAUtracking_type@34@@Z",
+        "name": "vload",
+        "offset": 5368719936
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: virtual void __cdecl boost::archive::detail::common_iarchive<class boost::archive::text_iarchive>::vload(struct boost::archive::tracking_type & __ptr64) __ptr64\n private: virtual void __cdecl boost::archive::detail::common_iarchive<class boost::archive::text_iarchive>::vload(class boost::archive::class_id_type & __ptr64) __ptr64\n private: virtual void __cdecl boost::archive::detail::common_iarchive<class boost::archive::text_iarchive>::vload(class boost::archive::object_id_type & __ptr64) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140002AF0",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?vload@?$common_iarchive@Vtext_iarchive@archive@boost@@@detail@archive@boost@@EEAAXAEAUtracking_type@34@@Z",
+        "name": "vload",
+        "offset": 5368720112
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: virtual void __cdecl boost::archive::detail::common_iarchive<class boost::archive::text_iarchive>::vload(struct boost::archive::tracking_type & __ptr64) __ptr64\n private: virtual void __cdecl boost::archive::detail::common_iarchive<class boost::archive::text_iarchive>::vload(class boost::archive::class_id_type & __ptr64) __ptr64\n private: virtual void __cdecl boost::archive::detail::common_iarchive<class boost::archive::text_iarchive>::vload(class boost::archive::object_id_type & __ptr64) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140002B90",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?vload@?$common_iarchive@Vtext_iarchive@archive@boost@@@detail@archive@boost@@EEAAXAEAUtracking_type@34@@Z",
+        "name": "vload",
+        "offset": 5368720272
+      },
+      {
+        "comment": "Library Function - Single Match\n private: virtual void __cdecl boost::archive::detail::common_iarchive<class boost::archive::text_iarchive>::vload(class boost::archive::version_type & __ptr64) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140002C30",
+        "fid_bookmark": "Library Function - Single Match,  ?vload@?$common_iarchive@Vtext_iarchive@archive@boost@@@detail@archive@boost@@EEAAXAEAVversion_type@34@@Z",
+        "name": "vload",
+        "offset": 5368720432
+      },
+      {
+        "comment": "Library Function - Single Match\n public: void __cdecl boost::archive::detail::basic_iarchive::load_object(void * __ptr64,class boost::archive::detail::basic_iserializer const & __ptr64) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140004920",
+        "fid_bookmark": "Library Function - Single Match,  ?load_object@basic_iarchive@detail@archive@boost@@QEAAXPEAXAEBVbasic_iserializer@234@@Z",
+        "name": "load_object",
+        "offset": 5368727840
+      },
+      {
+        "comment": "Library Function - Single Match\n private: void __cdecl boost::archive::detail::basic_iarchive_impl::load_object(class boost::archive::detail::basic_iarchive & __ptr64,void * __ptr64,class boost::archive::detail::basic_iserializer const & __ptr64) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140004940",
+        "fid_bookmark": "Library Function - Single Match,  ?load_object@basic_iarchive_impl@detail@archive@boost@@AEAAXAEAVbasic_iarchive@234@PEAXAEBVbasic_iserializer@234@@Z",
+        "name": "load_object",
+        "offset": 5368727872
+      },
+      {
+        "comment": "Library Function - Single Match\n private: void __cdecl boost::archive::detail::basic_iarchive_impl::load_preamble(class boost::archive::detail::basic_iarchive & __ptr64,class boost::archive::detail::basic_iarchive_impl::cobject_id & __ptr64) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140004AC0",
+        "fid_bookmark": "Library Function - Single Match,  ?load_preamble@basic_iarchive_impl@detail@archive@boost@@AEAAXAEAVbasic_iarchive@234@AEAVcobject_id@1234@@Z",
+        "name": "load_preamble",
+        "offset": 5368728256
+      },
+      {
+        "comment": "Library Function - Single Match\n protected: void __cdecl boost::archive::text_iarchive_impl<class boost::archive::text_iarchive>::load(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > & __ptr64) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140006240",
+        "fid_bookmark": "Library Function - Single Match,  ?load@?$text_iarchive_impl@Vtext_iarchive@archive@boost@@@archive@boost@@IEAAXAEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+        "name": "load",
+        "offset": 5368734272
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n protected: void __cdecl boost::archive::basic_binary_iarchive<class boost::archive::binary_iarchive>::load_override(struct boost::archive::class_name_type & __ptr64) __ptr64\n protected: void __cdecl boost::archive::basic_text_iarchive<class boost::archive::text_iarchive>::load_override(struct boost::archive::class_name_type & __ptr64) __ptr64\n protected: void __cdecl boost::archive::text_iarchive_impl<class boost::archive::text_iarchive>::load_override(struct boost::archive::class_name_type & __ptr64) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140006330",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?load_override@?$basic_binary_iarchive@Vbinary_iarchive@archive@boost@@@archive@boost@@IEAAXAEAUclass_name_type@23@@Z",
+        "name": "load_override",
+        "offset": 5368734512
+      }
+    ],
+    "save": [
+      {
+        "comment": "Library Function - Single Match\n public: __cdecl boost::archive::basic_istream_locale_saver<char,struct std::char_traits<char> >::~basic_istream_locale_saver<char,struct std::char_traits<char> >(void) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140005B70",
+        "fid_bookmark": "Library Function - Single Match,  ??1?$basic_istream_locale_saver@DU?$char_traits@D@std@@@archive@boost@@QEAA@XZ",
+        "name": "~basic_istream_locale_saver<char,std::char_traits<char>_>",
+        "offset": 5368732528
+      },
+      {
+        "comment": "Library Function - Single Match\n public: __cdecl boost::archive::basic_ostream_locale_saver<char,struct std::char_traits<char> >::~basic_ostream_locale_saver<char,struct std::char_traits<char> >(void) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140006E20",
+        "fid_bookmark": "Library Function - Single Match,  ??1?$basic_ostream_locale_saver@DU?$char_traits@D@std@@@archive@boost@@QEAA@XZ",
+        "name": "~basic_ostream_locale_saver<char,std::char_traits<char>_>",
+        "offset": 5368737312
+      },
+      {
+        "comment": "Library Function - Single Match\n protected: void __cdecl boost::archive::text_oarchive_impl<class boost::archive::text_oarchive>::save(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const & __ptr64) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140007640",
+        "fid_bookmark": "Library Function - Single Match,  ?save@?$text_oarchive_impl@Vtext_oarchive@archive@boost@@@archive@boost@@IEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+        "name": "save",
+        "offset": 5368739392
+      }
+    ],
+    "text_oarchive": [
+      {
+        "comment": "Library Function - Single Match\n protected: virtual __cdecl boost::archive::text_oarchive_impl<class boost::archive::text_oarchive>::~text_oarchive_impl<class boost::archive::text_oarchive>(void) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140001470",
+        "fid_bookmark": "Library Function - Single Match,  ??1?$text_oarchive_impl@Vtext_oarchive@archive@boost@@@archive@boost@@MEAA@XZ",
+        "name": "~text_oarchive_impl<boost::archive::text_oarchive>",
+        "offset": 5368714352
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Different Base Names\n protected: virtual void * __ptr64 __cdecl boost::archive::basic_text_oarchive<class boost::archive::text_oarchive>::`scalar deleting destructor'(unsigned int) __ptr64\n protected: virtual void * __ptr64 __cdecl boost::archive::basic_xml_oarchive<class boost::archive::xml_oarchive>::`scalar deleting destructor'(unsigned int) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140001700",
+        "fid_bookmark": "Library Function - Multiple Matches, Different  ??_G?$basic_text_oarchive@Vtext_oarchive@archive@boost@@@archive@boost@@MEAAPEAXI@Z",
+        "name": "FID_conflict:`scalar_deleting_destructor'",
+        "offset": 5368715008
+      },
+      {
+        "comment": "Library Function - Single Match\n protected: virtual void * __ptr64 __cdecl boost::archive::text_oarchive_impl<class boost::archive::text_oarchive>::`scalar deleting destructor'(unsigned int) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x00000001400019B0",
+        "fid_bookmark": "Library Function - Single Match,  ??_G?$text_oarchive_impl@Vtext_oarchive@archive@boost@@@archive@boost@@MEAAPEAXI@Z",
+        "name": "`scalar_deleting_destructor'",
+        "offset": 5368715696
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: static class boost::archive::detail::extra_detail::map<class boost::archive::binary_iarchive> & __ptr64 __cdecl boost::serialization::singleton<class boost::archive::detail::extra_detail::map<class boost::archive::binary_iarchive> >::get_instance(void)\n private: static class boost::archive::detail::extra_detail::map<class boost::archive::binary_oarchive> & __ptr64 __cdecl boost::serialization::singleton<class boost::archive::detail::extra_detail::map<class boost::archive::binary_oarchive> >::get_instance(void)\n private: static class boost::archive::detail::extra_detail::map<class boost::archive::polymorphic_binary_iarchive> & __ptr64 __cdecl boost::serialization::singleton<class boost::archive::detail::extra_detail::map<class boost::archive::polymorphic_binary_iarchive> >::get_instance(void)\n private: static class boost::archive::detail::extra_detail::map<class boost::archive::polymorphic_binary_oarchive> & __ptr64 __cdecl boost::serialization::singleton<class boost::archive::detail::extra_detail::map<class boost::archive::polymorphic_binary_oarchive> >::get_instance(void)\n  14 names - too many to list\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140005F70",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?get_instance@?$singleton@V?$map@Vbinary_iarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vbinary_iarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+        "name": "get_instance",
+        "offset": 5368733552
+      },
+      {
+        "comment": "Library Function - Single Match\n public: class boost::archive::text_oarchive & __ptr64 __cdecl boost::archive::detail::interface_oarchive<class boost::archive::text_oarchive>::operator<<<unsigned __int64>(unsigned __int64 const & __ptr64) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140006FA0",
+        "fid_bookmark": "Library Function - Single Match,  ??$?6_K@?$interface_oarchive@Vtext_oarchive@archive@boost@@@detail@archive@boost@@QEAAAEAVtext_oarchive@23@AEB_K@Z",
+        "name": "operator<<<unsigned___int64>",
+        "offset": 5368737696
+      },
+      {
+        "comment": "Library Function - Single Match\n protected: __cdecl boost::archive::text_oarchive_impl<class boost::archive::text_oarchive>::text_oarchive_impl<class boost::archive::text_oarchive>(class std::basic_ostream<char,struct std::char_traits<char> > & __ptr64,unsigned int) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140007250",
+        "fid_bookmark": "Library Function - Single Match,  ??0?$text_oarchive_impl@Vtext_oarchive@archive@boost@@@archive@boost@@IEAA@AEAV?$basic_ostream@DU?$char_traits@D@std@@@std@@I@Z",
+        "name": "text_oarchive_impl<boost::archive::text_oarchive>",
+        "offset": 5368738384
+      },
+      {
+        "comment": "Library Function - Multiple Matches With Same Base Name\n private: static class boost::archive::detail::extra_detail::map<class boost::archive::binary_iarchive> & __ptr64 __cdecl boost::serialization::singleton<class boost::archive::detail::extra_detail::map<class boost::archive::binary_iarchive> >::get_instance(void)\n private: static class boost::archive::detail::extra_detail::map<class boost::archive::binary_oarchive> & __ptr64 __cdecl boost::serialization::singleton<class boost::archive::detail::extra_detail::map<class boost::archive::binary_oarchive> >::get_instance(void)\n private: static class boost::archive::detail::extra_detail::map<class boost::archive::polymorphic_binary_iarchive> & __ptr64 __cdecl boost::serialization::singleton<class boost::archive::detail::extra_detail::map<class boost::archive::polymorphic_binary_iarchive> >::get_instance(void)\n private: static class boost::archive::detail::extra_detail::map<class boost::archive::polymorphic_binary_oarchive> & __ptr64 __cdecl boost::serialization::singleton<class boost::archive::detail::extra_detail::map<class boost::archive::polymorphic_binary_oarchive> >::get_instance(void)\n  14 names - too many to list\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140007320",
+        "fid_bookmark": "Library Function - Multiple Matches, Same  ?get_instance@?$singleton@V?$map@Vbinary_iarchive@archive@boost@@@extra_detail@detail@archive@boost@@@serialization@boost@@CAAEAV?$map@Vbinary_iarchive@archive@boost@@@extra_detail@detail@archive@3@XZ",
+        "name": "get_instance",
+        "offset": 5368738592
+      },
+      {
+        "comment": "Library Function - Single Match\n protected: void __cdecl boost::archive::basic_text_oarchive<class boost::archive::text_oarchive>::newtoken(void) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x00000001400075F0",
+        "fid_bookmark": "Library Function - Single Match,  ?newtoken@?$basic_text_oarchive@Vtext_oarchive@archive@boost@@@archive@boost@@IEAAXXZ",
+        "name": "newtoken",
+        "offset": 5368739312
+      },
+      {
+        "comment": "Library Function - Single Match\n protected: void __cdecl boost::archive::text_oarchive_impl<class boost::archive::text_oarchive>::save(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const & __ptr64) __ptr64\n\nLibrary: Boost.Serialization 1.86.0 msvc-x86_64-release",
+        "entry_point": "0x0000000140007640",
+        "fid_bookmark": "Library Function - Single Match,  ?save@?$text_oarchive_impl@Vtext_oarchive@archive@boost@@@archive@boost@@IEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+        "name": "save",
+        "offset": 5368739392
+      }
+    ]
+  },
+  "fidb": {
+    "compiler_spec_filter": "windows",
+    "expected_function_records": [
+      "load",
+      "save",
+      "text_oarchive"
+    ],
+    "fidb_path": "FIDB/libraries/boost/serialization/1.86.0/boost-serialization-1.86.0-msvc-x86_64-release.fidb",
+    "function_record_count": 667,
+    "language_id": "x86:LE:64:default",
+    "library_count": 1,
+    "library_family": "Boost.Serialization",
+    "library_variant": "msvc-x86_64-release",
+    "library_version": "1.86.0",
+    "readable": true,
+    "source_language_filter": ""
+  },
+  "function_count": 338,
+  "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
+  "ghidra_version": "12.1.3",
+  "language_id": "x86:LE:64:default",
+  "library": "Boost.Serialization",
+  "library_family": "Boost.Serialization",
+  "linkage": "static",
+  "negative_control": {
+    "false_zlib_matches": [],
+    "map_offset": 5368718336,
+    "observed_rows": [
+      {
+        "comment": "",
+        "entry_point": "0x0000000140002400",
+        "fid_bookmark": "",
+        "name": "FUN_140002400",
+        "offset": 5368718336
+      }
+    ],
+    "symbol": "non_boost_control"
+  },
+  "pyghidra_version": "3.1.0",
+  "query_api": "Language compatibility overload",
+  "source_language_declared": "C++",
+  "stage": "verify",
+  "status": "PASS"
+}

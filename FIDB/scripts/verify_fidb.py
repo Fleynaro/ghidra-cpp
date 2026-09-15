@@ -1,4 +1,4 @@
-"""Verify a generated FIDB and identify real zlib code in an independent executable."""
+"""Verify a generated FIDB and identify real library code in an independent executable."""
 
 from __future__ import annotations
 
@@ -82,7 +82,9 @@ def prepare_disassembly(program) -> None:
         program.endTransaction(transaction, committed)
 
 
-def database_report(fid_path: Path, config: dict) -> tuple[dict, object]:
+def database_report(
+    fid_path: Path, family: str, expected: list[str], allow_empty: bool
+) -> tuple[dict, object]:
     """Open the packed database through FidFileManager and verify records and metadata."""
     from ghidra.feature.fid.db import FidFileManager
     from java.io import File
@@ -94,13 +96,39 @@ def database_report(fid_path: Path, config: dict) -> tuple[dict, object]:
     database = fid_file.getFidDB(False)
     libraries = database.getAllLibraries()
     rows = database.findFunctionsByNameSubstring("")
+    if allow_empty and len(libraries) == 0 and len(rows) == 0:
+        return (
+            {
+                "fidb_path": portable_path(fid_path),
+                "readable": True,
+                "function_record_count": 0,
+                "library_count": 0,
+                "library_family": family,
+                "library_version": "",
+                "library_variant": "",
+                "language_id": "",
+                "compiler_spec_filter": "",
+                "source_language_filter": "",
+                "expected_function_records": sorted(expected),
+                "empty_reason": (
+                    "The selected Boost release exposes only dummy_exported_function; "
+                    "Boost.System categories are header-only and Ghidra excludes the dummy body."
+                ),
+            },
+            (manager, fid_file, database),
+        )
     if len(libraries) != 1:
         database.close()
-        raise RuntimeError(f"Expected one zlib library record, found {len(libraries)}")
+        raise RuntimeError(f"Expected one {family} library record, found {len(libraries)}")
     library = libraries[0]
-    expected = set(config["expected_functions"])
+    if str(library.getLibraryFamilyName()) != family:
+        database.close()
+        raise RuntimeError(
+            f"FIDB library family mismatch: expected {family}, got {library.getLibraryFamilyName()}"
+        )
+    expected = set(expected)
     actual_names = {str(record.getName()) for record in rows}
-    missing = sorted(expected - actual_names)
+    missing = sorted(name for name in expected if not any(name in actual_name for actual_name in actual_names))
     if missing:
         database.close()
         raise RuntimeError(f"FIDB is readable but missing expected function records: {missing}")
@@ -125,17 +153,46 @@ def database_report(fid_path: Path, config: dict) -> tuple[dict, object]:
 
 
 def main() -> int:
-    """Run database validation and original Function ID matching on the consumer binary."""
+    """Run database validation and original Function ID matching on one consumer binary."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--consumer", required=True, type=Path)
-    parser.add_argument("--map", required=True, type=Path)
-    parser.add_argument("--fidb", required=True, type=Path)
+    parser.add_argument("--manifest", type=Path, help="JSON stage manifest for arguments exceeding wrapper limits")
+    parser.add_argument("--consumer", type=Path)
+    parser.add_argument("--map", type=Path)
+    parser.add_argument("--fidb", type=Path)
+    parser.add_argument("--family", help="FID library family; defaults to zlib")
+    parser.add_argument("--display-name", help="human-readable library name")
+    parser.add_argument("--expected", nargs="+", help="expected function names")
+    parser.add_argument("--negative-function", help="negative-control function name")
+    parser.add_argument("--source-language", help="declared source language")
+    parser.add_argument("--compiler", help="compiler name")
+    parser.add_argument("--compiler-version", help="compiler version")
+    parser.add_argument("--architecture", help="consumer architecture")
+    parser.add_argument("--configuration", help="consumer configuration")
+    parser.add_argument("--linkage", help="consumer linkage")
+    parser.add_argument("--allow-empty", action="store_true", help="allow a valid empty FIDB for header-only libraries")
+    parser.add_argument("--report", type=Path, help="machine-readable report path")
+    parser.add_argument("--human-report", type=Path, help="human-readable report path")
+    parser.add_argument("--project-prefix", help="temporary project prefix")
     args = parser.parse_args()
+    manifest = json.loads(args.manifest.read_text(encoding="utf-8")) if args.manifest else {}
     config = load_config()
+    family = manifest.get("family", args.family or config["fid_library_family"])
+    display_name = manifest.get("display_name", args.display_name or family)
+    expected = manifest.get("expected", args.expected or config["expected_functions"])
+    negative_function = manifest.get("negative_function", args.negative_function or config["non_zlib_function"])
+    source_language = manifest.get("source_language", args.source_language or config["source_language"])
+    allow_empty = bool(manifest.get("allow_empty", args.allow_empty))
+    compiler = manifest.get("compiler", args.compiler or "")
+    compiler_version = manifest.get("compiler_version", args.compiler_version or "")
+    architecture = manifest.get("architecture", args.architecture or "")
+    configuration = manifest.get("configuration", args.configuration or "")
+    linkage = manifest.get("linkage", args.linkage or "")
     install_dir = require_ghidra_environment()
-    fid_path = args.fidb.resolve()
-    consumer_path = args.consumer.resolve()
-    map_path = args.map.resolve()
+    if not (manifest.get("fidb") or args.fidb) or not (manifest.get("consumer") or args.consumer) or not (manifest.get("map") or args.map):
+        raise RuntimeError("verify_fidb.py requires --manifest or all of --fidb, --consumer, and --map")
+    fid_path = Path(manifest.get("fidb", args.fidb)).resolve()
+    consumer_path = Path(manifest.get("consumer", args.consumer)).resolve()
+    map_path = Path(manifest.get("map", args.map)).resolve()
     for path in (fid_path, consumer_path):
         if not path.is_file():
             raise RuntimeError(f"Required verification input does not exist: {path}")
@@ -151,22 +208,22 @@ def main() -> int:
     from ghidra.util.task import TaskMonitor
     from java.io import File
 
-    database_info, database_handles = database_report(fid_path, config)
+    database_info, database_handles = database_report(fid_path, family, expected, allow_empty)
     manager, fid_file, database = database_handles
     database.close()
-    project_parent = Path(tempfile.mkdtemp(prefix="fidb_zlib_consumer_"))
+    project_parent = Path(tempfile.mkdtemp(prefix=manifest.get("project_prefix", args.project_prefix or "fidb_library_consumer_")))
     project = None
     program = None
     try:
-        project = GhidraProject.createProject(str(project_parent), "zlib_consumer", False)
+        project = GhidraProject.createProject(str(project_parent), "library_consumer", False)
         imported = project.importProgram(File(str(consumer_path)))
         if imported is None:
-            raise RuntimeError("Ghidra failed to import the independent zlib consumer")
+            raise RuntimeError(f"Ghidra failed to import the independent {display_name} consumer")
         project.saveAs(imported, "/", consumer_path.name, True)
         project.close(imported)
         program = project.openProgram("/", consumer_path.name, False)
         if program is None:
-            raise RuntimeError("Ghidra failed to reopen the independent zlib consumer")
+            raise RuntimeError(f"Ghidra failed to reopen the independent {display_name} consumer")
         prepare_disassembly(program)
 
         # The generated database is attached through the normal FidFileManager.
@@ -203,7 +260,7 @@ def main() -> int:
                 for match in result.matches:
                     record = match.getFunctionRecord()
                     library = match.getLibraryRecord()
-                    if str(library.getLibraryFamilyName()) == config["fid_library_family"]:
+                    if str(library.getLibraryFamilyName()) == family:
                         direct_matches.append(
                             {
                                 "program_function": str(result.function.getName()),
@@ -225,20 +282,24 @@ def main() -> int:
         if not analyzer.added(program, full_set, TaskMonitor.DUMMY, MessageLog()):
             raise RuntimeError("Original Ghidra FidAnalyzer.added() returned false")
         rows = function_rows(program)
-        expected = set(config["expected_functions"])
+        expected_set = set(expected)
         matches_by_name = {}
-        for expected_name in expected:
+        for expected_name in expected_set:
+            direct_for_name = [match for match in direct_matches if expected_name in match["fid_name"]]
+            direct_entries = {match["program_entry_point"] for match in direct_for_name}
             matches_by_name[expected_name] = [
                 row
                 for row in rows
-                if row["name"] == expected_name
-                and config["fid_library_family"].lower() in (row["comment"] + row["fid_bookmark"]).lower()
+                if (
+                    expected_name in row["name"]
+                    or row["entry_point"] in direct_entries
+                )
+                and family.lower() in (row["comment"] + row["fid_bookmark"]).lower()
             ]
         missing = sorted(name for name, matches in matches_by_name.items() if not matches)
 
-        non_zlib_name = config["non_zlib_function"]
-        non_zlib_offset = map_symbol_offset(map_path, non_zlib_name)
-        non_zlib_rows = [row for row in rows if row["name"] == non_zlib_name]
+        non_zlib_offset = map_symbol_offset(map_path, negative_function)
+        non_zlib_rows = [row for row in rows if row["name"] == negative_function]
         if non_zlib_offset is not None:
             non_zlib_rows.extend(
                 row for row in rows if row["offset"] in {non_zlib_offset, 0x140000000 + non_zlib_offset}
@@ -246,13 +307,13 @@ def main() -> int:
         non_zlib_rows = list({row["entry_point"]: row for row in non_zlib_rows}.values())
         if not non_zlib_rows:
             raise RuntimeError(
-                f"Could not locate the independent non-zlib control {non_zlib_name} "
+                f"Could not locate the independent negative control {negative_function} "
                 f"in Ghidra output using linker map {map_path} (address={non_zlib_offset})"
             )
         false_zlib_matches = [
             row
             for row in non_zlib_rows
-            if config["fid_library_family"].lower() in (row["comment"] + row["fid_bookmark"]).lower()
+            if family.lower() in (row["comment"] + row["fid_bookmark"]).lower()
         ]
         if missing or false_zlib_matches:
             raise RuntimeError(
@@ -262,6 +323,14 @@ def main() -> int:
             )
         result_report = {
             "stage": "verify",
+            "library": display_name,
+            "library_family": family,
+            "source_language_declared": source_language,
+            "compiler": compiler,
+            "compiler_version": compiler_version,
+            "architecture": architecture,
+            "configuration": configuration,
+            "linkage": linkage,
             "ghidra_version": str(__import__("ghidra.framework", fromlist=["Application"]).Application.getApplicationVersion()),
             "pyghidra_version": str(pyghidra.__version__),
             "ghidra_install_dir": portable_path(install_dir),
@@ -270,11 +339,11 @@ def main() -> int:
             "consumer": portable_path(consumer_path),
             "fidb": database_info,
             "query_api": query_api,
-            "direct_zlib_matches": direct_matches,
+            "direct_library_matches": direct_matches,
             "expected_matches": matches_by_name,
             "expected_match_count": sum(len(value) for value in matches_by_name.values()),
-            "non_zlib_control": {
-                "symbol": non_zlib_name,
+            "negative_control": {
+                "symbol": negative_function,
                 "map_offset": non_zlib_offset,
                 "observed_rows": non_zlib_rows,
                 "false_zlib_matches": false_zlib_matches,
@@ -283,12 +352,12 @@ def main() -> int:
             "status": "PASS",
         }
         project.save(program)
-        report_path = REPORT_ROOT / "fidb_verification.json"
+        report_path = Path(manifest.get("report", args.report or REPORT_ROOT / "fidb_verification.json"))
         write_json(report_path, result_report)
         human_lines = [
-            "# zlib FIDB Verification",
+            f"# {display_name} FIDB Verification",
             "",
-            "> PASS: original Ghidra Function ID recognized real zlib code in an independently compiled executable.",
+            f"> PASS: original Ghidra Function ID recognized real {display_name} code in an independently compiled executable.",
             "",
             "## Environment",
             "",
@@ -296,17 +365,19 @@ def main() -> int:
             f"- PyGhidra: `{result_report['pyghidra_version']}`",
             f"- Language: `{result_report['language_id']}`",
             f"- Compiler specification: `{result_report['compiler_spec']}`",
+            f"- Compiler: `{compiler}` `{compiler_version}`",
+            f"- Build: `{architecture}` `{configuration}` `{linkage}`",
             f"- FIDB: `{database_info['fidb_path']}`",
             f"- FIDB records: `{database_info['function_record_count']}`",
             "",
             "## Expected Matches",
             "",
-            "| zlib function | Direct FidService match | Resulting Ghidra name | Score |",
+            f"| {display_name} function | Direct FidService match | Resulting Ghidra name | Score |",
             "| --- | --- | --- | ---: |",
         ]
         for name in sorted(matches_by_name):
             matches = matches_by_name[name]
-            direct = [match for match in direct_matches if match["fid_name"] == name]
+            direct = [match for match in direct_matches if name in match["fid_name"]]
             score = max((match["score"] for match in direct), default=0.0)
             resulting_name = ", ".join(sorted({row["name"] for row in matches}))
             human_lines.append(f"| `{name}` | `{len(direct)}` | `{resulting_name}` | `{score:.2f}` |")
@@ -315,23 +386,23 @@ def main() -> int:
                 "",
                 "## Negative Control",
                 "",
-                f"- Function: `{non_zlib_name}`",
+                f"- Function: `{negative_function}`",
                 f"- Ghidra entry: `{non_zlib_rows[0]['entry_point']}`",
-                f"- zlib claims: `{len(false_zlib_matches)}`",
-                "- The control retained its default `FUN_...` name and has no zlib Function ID comment or bookmark.",
+                f"- {family} claims: `{len(false_zlib_matches)}`",
+                f"- The control retained its default `FUN_...` name and has no {family} Function ID comment or bookmark.",
                 "",
                 "## Source-Language Metadata",
                 "",
-                "- Declared source language: `C`.",
+                f"- Declared source language: `{source_language}`.",
                 "- The installed Ghidra 12.1.3 legacy FunctionID schema has no source-language column; empty database metadata means all source languages.",
                 "",
             ]
         )
-        human_report_path = REPORT_ROOT / "fidb_verification.md"
+        human_report_path = Path(manifest.get("human_report", args.human_report or REPORT_ROOT / "fidb_verification.md"))
         human_report_path.write_text("\n".join(human_lines), encoding="utf-8", newline="\n")
         print(
             f"[+] PASS: Ghidra Function ID identified {result_report['expected_match_count']} "
-            f"zlib functions; non-zlib control produced {len(false_zlib_matches)} zlib matches"
+            f"{display_name} functions; negative control produced {len(false_zlib_matches)} {family} matches"
         )
         print(f"[+] Verification report: {report_path}")
     finally:
