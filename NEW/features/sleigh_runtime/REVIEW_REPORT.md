@@ -6,14 +6,39 @@
 - [x] Compared flow and context contracts with [`Instruction.java`](../../../Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/model/listing/Instruction.java) and [`ProcessorContext.java`](../../../Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/model/lang/ProcessorContext.java).
 - [x] Reviewer: Kilo.
 - [x] Review date: 2026-09-15.
-- [x] Review type: strict read-only source audit; no implementation or configuration changes were made.
+- [x] Review type: source audit plus measured performance investigation and implementation validation.
 - [x] Recommendations target the runtime/API boundary, not analyzer-local heuristics.
 
 ## Findings
 
 ### Critical
 
-No findings.
+#### SLEIGH-CRITICAL-001: SLA table construction is repeated for every test-created decoder
+
+- [x] Remediation complete.
+- Severity: critical.
+- Title: the runtime reparses and rebuilds the immutable compiled SLA symbol/pattern tables for every `Decoder` construction.
+- Source: [`sleigh_runtime_adapter.cppm:746-895`](sleigh_runtime_adapter.cppm#L746-L895), symbols `SharedSleighRuntime` and `Decoder::Implementation`, and [`src/sleigh.cppm:646-684`](src/sleigh.cppm#L646-L684), symbols `ghidra::Sleigh::attach`, `reset`, and `initialize`.
+- Affected component: decoder construction, all consumers that create short-lived decoders, SLA loading, table allocation, and test setup.
+- Technical evidence: a profiled Debug build (`SLEIGH_RUNTIME_PROFILE=ON`) ran the complete executable with `--gtest_color=no`; phase scopes were placed around file reads, decompression, SLA table decoding, parser-cache construction, reset/context setup, assembly, p-code, and public-result materialization. The pre-change `sleigh_runtime_tests` executable registers 31 GoogleTest cases, while CTest registers 43 project-level tests; all 31 runtime cases passed.
+- Baseline: the unmodified executable completed 31/31 tests in 19.096 seconds wall time; GoogleTest reported 19.852 seconds of test time on the direct baseline run. Individual x86 decode tests took approximately 0.60-0.83 seconds, while the constructor-only path test took 0.855 seconds.
+- Measured phase totals across the profiled suite:
+  - `sla_table_decode`: 29 calls, 12,187.82 ms total, 420.27 ms average, 23,378,856 allocations and 913,450,560 allocated bytes.
+  - `decoder_constructor`: 30 calls, 12,743.49 ms total, 424.78 ms average, 23,624,253 allocations and 1,054,894,333 allocated bytes.
+  - `sla_decompression`: 29 calls, 482.26 ms total, 16.63 ms average, 235,779 allocations and 126,369,272 allocated bytes.
+  - `sla_io`: 29 calls, 13.65 ms total, 0.47 ms average, 58 allocations and 13,717,742 allocated bytes.
+  - `parser_cache_construction`: 76 calls, 2.92 ms total, 0.04 ms average, 20,596 allocations and 2,559,072 allocated bytes.
+  - `decode_reset_and_context`: 47 calls, 30.44 ms total, 0.65 ms average, 18,068 allocations and 1,847,320 allocated bytes.
+  - `assembly_decode`, `pcode_decode`, and `result_materialization`: 47, 46, and 46 calls respectively, totaling 1.58 ms, 3.05 ms, and 39.68 ms. These are not the bottleneck.
+- Expected behavior: immutable compiled SLA data should be loaded and table-built once per unchanged specification, while each decoder retains independent instruction bytes, context, parser state, and public result ownership.
+- Actual behavior: each of the 30 valid decoder constructions repeats the full symbol/pattern table build; `.sla` I/O is less than 0.2% of constructor time, decompression is about 3.8%, and table construction is about 95.6% of constructor time. The repeated parse creates approximately 23.4 million Debug CRT allocations for the x86/ARM test setup alone.
+- Impact: short-lived decoder usage spends nearly all suite time reconstructing identical immutable architecture metadata instead of decoding instructions. This prevents the requested 5-10 second target even though actual assembly and p-code decoding are sub-millisecond phases.
+- Reproduction or failure scenario: run `NEW\\build\\features\\sleigh_runtime\\tests\\sleigh_runtime_tests.exe --gtest_color=no` before optimization, or create multiple `Decoder("x86-64.sla")` instances sequentially; each construction emits a new `Sleigh::initialize` table decode and repeats the allocation burst.
+- Root cause: `Decoder::Implementation` owns a fresh `ghidra::Sleigh` and calls `initialize(sla_path)` for every instance. The legacy `Sleigh::initialize` path parses and materializes the complete SLA symbol tree when `isInitialized()` is false.
+- Recommended fix: cache the immutable parsed SLA runtime per normalized specification path and bind each decoder to independent `ByteLoadImage` and `ContextInternal` state. Reuse parser storage where the bound state is unchanged, invalidate only mutable parse state between calls, and serialize access to a shared legacy translator if the legacy object remains mutable.
+- Regression risks: stale cache entries if a specification file changes, cross-decoder state leakage, concurrent decode races, and parser-cache reuse under different processor contexts. Key cache entries by file identity/version and retain an explicit lock around shared mutable legacy operations; verify context isolation, move semantics, missing-file diagnostics, x86/ARM results, and malformed input.
+- Relevant tests or validation: [`tests/sleigh_runtime_tests.cppm`](tests/sleigh_runtime_tests.cppm) covers x86/ARM decoding, context isolation, malformed input, path resolution, moved-from behavior, and independent decoder state. The profiling run preserved the pre-change checked-out test list and passed all 31 tests; final validation passed all 32 current executable tests.
+- Remediation evidence: immutable SLA runtimes are now cached by normalized path, size, and modification timestamp in [`sleigh_runtime_adapter.cppm`](sleigh_runtime_adapter.cppm); each decoder keeps independent image/context objects and shared legacy access is serialized. [`src/sleigh.cppm`](src/sleigh.cppm) retains parser storage across compatible resets, and [`src/globalcontext.cppm`](src/globalcontext.cppm) clears context values without re-registering fields. The post-optimization profile loaded each of the two specifications once, and the final module executable passed 32/32 tests in 0.785 seconds of GoogleTest time. The full CTest integration run passed all 43 registered project tests, including `sleigh_runtime_tests`, in 23.26 seconds.
 
 ### High
 
@@ -91,7 +116,11 @@ No findings.
 
 - [x] `git diff --check` completed without whitespace errors.
 - [x] `ctest --test-dir NEW/build -N` listed `sleigh_runtime_tests` and dependent consumers.
-- [ ] Runtime build/test execution was not performed because this was a strict read-only audit and execution may write logs or fixtures.
+- [x] `NEW\\features\\sleigh_runtime\\build.bat` built the formatted module and passed `sleigh_runtime_tests`.
+- [x] Direct `sleigh_runtime_tests.exe --gtest_color=no` completed 32/32 tests with 0 failures and 785 ms reported test time.
+- [x] `NEW\\build.bat all` completed the full build and all 43 registered CTest tests passed; `sleigh_runtime_tests` passed within that run.
+- [x] `NEW\\features\\sleigh_runtime\\format.bat` formatted the module successfully.
+- [ ] `NEW\\features\\sleigh_runtime\\tidy.bat --check` completed with a tooling failure: clang-tidy cannot parse the generated MSVC `.ifc` plus source compilation command and reports multi-source `/Fo` errors for existing module units; no source diagnostic was emitted for the modified implementation units.
 
 ## Unresolved Questions And Residual Risks
 
@@ -100,5 +129,5 @@ No findings.
 
 ## Follow-Up Decision
 
-- [ ] No fixes were authorized or applied.
-- [ ] Highest-priority Sleigh finding for remediation is SLEIGH-HIGH-001.
+- [x] SLEIGH-CRITICAL-001 was authorized by the optimization request and remediated without weakening decoding coverage.
+- [ ] Remaining highest-priority behavioral finding is SLEIGH-HIGH-001; it was not part of this performance change.

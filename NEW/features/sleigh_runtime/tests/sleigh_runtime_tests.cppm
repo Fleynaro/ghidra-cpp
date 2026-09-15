@@ -743,6 +743,30 @@ TEST(SleighRuntime, AppliesProcessorContextPerDecode) {
     EXPECT_EQ(legacy->length, 1U);
 }
 
+/// Verifies that separate decoder instances retain independent context and byte-image state
+/// even though their immutable SLA tables are shared by the runtime cache.
+TEST(SleighRuntime, KeepsIndependentDecoderState) {
+    auto long_decoder = make_decoder();
+    auto legacy_decoder = make_decoder();
+    // 48 8b d9 - MOV RBX,RCX in 64-bit mode, and DEC in legacy mode.
+    const std::array<std::uint8_t, 3> bytes{0x48, 0x8b, 0xd9};
+    const auto long_mode = long_decoder.decode(0x140000600ULL, bytes, x86_64_context());
+    const sleigh_runtime::ProcessorContext legacy_context{
+        {{"addrsize", 1}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 0}}};
+    const auto legacy = legacy_decoder.decode(0x140000600ULL, bytes, legacy_context);
+    const auto long_mode_again = long_decoder.decode(0x140000600ULL, bytes, x86_64_context());
+
+    ASSERT_TRUE(long_mode.has_value()) << long_mode.error().message;
+    ASSERT_TRUE(legacy.has_value()) << legacy.error().message;
+    ASSERT_TRUE(long_mode_again.has_value()) << long_mode_again.error().message;
+    EXPECT_EQ(long_mode->mnemonic, "MOV");
+    EXPECT_EQ(long_mode->length, 3U);
+    EXPECT_EQ(legacy->mnemonic, "DEC");
+    EXPECT_EQ(legacy->length, 1U);
+    EXPECT_EQ(long_mode_again->mnemonic, "MOV");
+    EXPECT_EQ(long_mode_again->length, 3U);
+}
+
 /// Checks representative instruction families and exact opcode order from the reference vectors.
 TEST(SleighRuntime, DecodesReferenceInstructionFamilies) {
     struct Vector {

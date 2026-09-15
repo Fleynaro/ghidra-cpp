@@ -672,6 +672,19 @@ public:
     }
     virtual ~ContextInternal(void) {}
 
+    /// Clears address-specific values and defaults while retaining registered fields for reuse.
+    // Ghidra reference: Ghidra/Features/Decompiler/src/decompile/cpp/globalcontext.cc,
+    // ContextInternal database/default-value lifecycle.
+    void reset(void) {
+        database.clear();
+        trackbase.clear();
+        FreeArray& defaults = database.defaultValue();
+        for (int4 index = 0; index < size; ++index) {
+            defaults.array[index] = 0;
+            defaults.mask[index] = 0;
+        }
+    }
+
     virtual int4 getContextSize(void) const {
         return size;
     }
@@ -823,6 +836,16 @@ public:
     void allowSet(bool val) {
         allowset = val;
     } ///< Toggle whether setContext() calls are ignored
+
+    /// Invalidates the cached address range after a context database reset.
+    // Ghidra reference: Ghidra/Features/Decompiler/src/decompile/cpp/globalcontext.cc,
+    // ContextCache cached-range invariant.
+    void invalidate(void) {
+        curspace = (AddrSpace*)0;
+        first = 0;
+        last = 0;
+        context = (const uintm*)0;
+    }
 
     /// Check if the address is in the current valid range. If it is, return the cached
     /// blob. Otherwise, make a call to the database and cache a new block and valid range.

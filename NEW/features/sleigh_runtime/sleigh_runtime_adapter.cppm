@@ -742,6 +742,63 @@ constexpr std::array<std::string_view, 75> opcode_names{"",
                                                         "LZCOUNT",
                                                         "SPULL"};
 
+/// Owns one immutable parsed SLA runtime and serializes its mutable decode state.
+class SharedSleighRuntime final {
+public:
+    /// Loads the SLA tables once and retains bootstrap state for the shared translator lifetime.
+    explicit SharedSleighRuntime(const std::filesystem::path& path)
+        : bootstrap_image_(), bootstrap_context_(std::make_unique<ghidra::ContextInternal>()),
+          translator_(std::make_unique<ghidra::Sleigh>(&bootstrap_image_, bootstrap_context_.get())) {
+        translator_->initialize(path.string());
+    }
+
+    /// Releases the shared parsed runtime and its bootstrap objects.
+    ~SharedSleighRuntime() = default;
+
+    /// Prevents copying the shared owner of mutable legacy translator state.
+    SharedSleighRuntime(const SharedSleighRuntime&) = delete;
+
+    /// Prevents copying the shared owner of mutable legacy translator state.
+    SharedSleighRuntime& operator=(const SharedSleighRuntime&) = delete;
+
+    std::mutex mutex;               ///< Serializes rebinding and decoding through the shared legacy translator.
+    ByteLoadImage bootstrap_image_; ///< Keeps the initial translator image alive until process teardown.
+    std::unique_ptr<ghidra::ContextInternal> bootstrap_context_; ///< Keeps initial registered context storage alive.
+    std::unique_ptr<ghidra::Sleigh> translator_; ///< Owns immutable SLA tables and mutable parser state.
+};
+
+/// Forms a cache key that changes when the normalized SLA file changes on disk.
+std::string specification_cache_key(const std::filesystem::path& path) {
+    std::error_code error;
+    std::filesystem::path normalized = std::filesystem::weakly_canonical(path, error);
+    if (error)
+        normalized = std::filesystem::absolute(path, error);
+    if (error)
+        throw std::runtime_error("Unable to normalize SLA path: " + path.string());
+
+    const auto size = std::filesystem::file_size(normalized, error);
+    if (error)
+        throw std::runtime_error("Unable to inspect SLA file: " + normalized.string());
+    const auto modified = std::filesystem::last_write_time(normalized, error);
+    if (error)
+        throw std::runtime_error("Unable to inspect SLA timestamp: " + normalized.string());
+    return normalized.generic_string() + '|' + std::to_string(size) + '|' +
+           std::to_string(modified.time_since_epoch().count());
+}
+
+/// Returns the process-wide immutable SLA runtime for one unchanged specification file.
+std::shared_ptr<SharedSleighRuntime> shared_sleigh_runtime(const std::filesystem::path& path) {
+    static std::mutex cache_mutex;
+    static std::unordered_map<std::string, std::shared_ptr<SharedSleighRuntime>> cache;
+    const std::string key = specification_cache_key(path);
+    std::scoped_lock lock(cache_mutex);
+    if (const auto found = cache.find(key); found != cache.end())
+        return found->second;
+    auto runtime = std::make_shared<SharedSleighRuntime>(path);
+    cache.emplace(key, runtime);
+    return runtime;
+}
+
 } // namespace
 
 /// Returns the module-owned directory containing checked-in compiled SLA specifications.
@@ -757,18 +814,20 @@ std::filesystem::path resolve_sla_path(std::filesystem::path sla_path) {
     return default_specification_directory() / std::move(sla_path);
 }
 
-/// Holds the legacy runtime objects and their ownership order.
+/// Holds decoder-local input/context state and a reference to the shared legacy runtime.
 class Decoder::Implementation {
 public:
     /// Constructs an implementation and loads the compiled specification once.
     explicit Implementation(std::filesystem::path path)
         : sla_path_(resolve_sla_path(std::move(path))), image_(), context_(std::make_unique<ghidra::ContextInternal>()),
-          translator_(std::make_unique<ghidra::Sleigh>(&image_, context_.get())) {
+          runtime_() {
         if (!std::filesystem::is_regular_file(sla_path_)) {
             throw std::runtime_error("SLA file does not exist: " + sla_path_.string());
         }
         try {
-            initialize_translator();
+            runtime_ = shared_sleigh_runtime(sla_path_);
+            std::scoped_lock lock(runtime_->mutex);
+            runtime_->translator_->attach(&image_, context_.get());
         } catch (const ghidra::LowlevelError& error) {
             throw std::runtime_error(error.explain);
         } catch (const ghidra::DecoderError& error) {
@@ -787,36 +846,37 @@ public:
         }
 
         try {
+            std::scoped_lock runtime_lock(runtime_->mutex);
+            ghidra::Sleigh& translator = *runtime_->translator_;
             image_.set_bytes(address, bytes);
-            context_ = std::make_unique<ghidra::ContextInternal>();
-            translator_->reset(&image_, context_.get());
-            initialize_translator();
+            context_->reset();
+            translator.reset(&image_, context_.get());
             for (const ContextValue& value : processor_context.values) {
                 context_->setVariableDefault(value.name, value.value);
             }
 
-            const ghidra::Address instruction_address(translator_->getDefaultCodeSpace(), address);
+            const ghidra::Address instruction_address(translator.getDefaultCodeSpace(), address);
             AssemblyCapture assembly;
-            const int length = translator_->printAssembly(assembly, instruction_address);
+            const int length = translator.printAssembly(assembly, instruction_address);
             if (length <= 0 || static_cast<std::size_t>(length) > bytes.size()) {
                 return std::unexpected(DecodeError{"Instruction bytes end before the decoded instruction"});
             }
 
             PcodeCapture pcode;
-            translator_->oneInstruction(pcode, instruction_address);
+            translator.oneInstruction(pcode, instruction_address);
 
             Instruction result;
             result.address = address;
             result.length = static_cast<std::size_t>(length);
             result.bytes.assign(bytes.begin(), bytes.begin() + static_cast<std::ptrdiff_t>(length));
-            result.is_x86 = is_x86_translator(*translator_);
+            result.is_x86 = is_x86_translator(translator);
             result.mnemonic = assembly.mnemonic();
             result.assembly = assembly.body();
             for (std::string operand : split_operands(assembly.body())) {
                 result.operands.push_back(classify_operand(std::move(operand)));
             }
-            auto* parser = translator_->getParserContextForInstruction(instruction_address);
-            materialize_hash_metadata(*translator_, parser, result.operands, result.instruction_mask);
+            auto* parser = translator.getParserContextForInstruction(instruction_address);
+            materialize_hash_metadata(translator, parser, result.operands, result.instruction_mask);
             result.pcode = std::move(pcode).take_operations();
             result.flow = find_flow(result.pcode);
             return result;
@@ -830,17 +890,10 @@ public:
     }
 
 private:
-    /// Initializes or refreshes the legacy parser cache from the binary SLA file.
-    void initialize_translator() {
-        // Ghidra reference: Ghidra/Features/Decompiler/src/decompile/cpp/sleigh.cc
-        // Sleigh::initialize() owns FormatDecode and calls SleighBase::decode().
-        translator_->initialize(sla_path_.string());
-    }
-
     std::filesystem::path sla_path_;
     ByteLoadImage image_;
     std::unique_ptr<ghidra::ContextInternal> context_;
-    std::unique_ptr<ghidra::Sleigh> translator_;
+    std::shared_ptr<SharedSleighRuntime> runtime_;
 };
 
 /// Loads a compiled binary SLA specification.

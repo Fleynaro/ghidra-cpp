@@ -219,6 +219,20 @@ public:
     } ///< Constructor
     /// Releases cached parser contexts and their lookup views.
     ~DisassemblyCache(void) = default;
+
+    /// Discards parsed instruction state while retaining allocated parser storage.
+    // Ghidra reference: Ghidra/Features/Decompiler/src/decompile/cpp/sleigh.cc,
+    // DisassemblyCache parser-window reuse.
+    void reset(void) {
+        nextfree = 0;
+        for (const auto& context : contexts) {
+            context->setAddr(Address());
+            context->setParserState(ParserContext::uninitialized);
+        }
+        if (!contexts.empty())
+            std::fill(hashtable.begin(), hashtable.end(), contexts.front().get());
+    }
+
     ParserContext* getParserContext(const Address& addr) {
         int4 hashindex = ((int4)addr.getOffset()) & mask;
         ParserContext* res = hashtable[hashindex];
@@ -494,6 +508,21 @@ class Sleigh : public SleighBase {
         discache.reset();
         cache.reset();
     } ///< Delete the context and disassembly caches
+
+    /// Constructs the parser cache using the immutable SLA configuration.
+    // Ghidra reference: Ghidra/Features/Decompiler/src/decompile/cpp/sleigh.cc,
+    // Sleigh::initialize parser cache sizing.
+    void initializeDisassemblyCache(void) {
+        uint4 parser_cachesize = 2;
+        uint4 parser_windowsize = 32;
+        if ((maxdelayslotbytes > 1) || (unique_allocatemask != 0)) {
+            parser_cachesize = 8;
+            parser_windowsize = 256;
+        }
+        discache = std::make_unique<DisassemblyCache>(this, cache.get(), getConstantSpace(), parser_cachesize,
+                                                      parser_windowsize);
+    }
+
 protected:
     ParserContext* obtainContext(const Address& addr, ParserContext::parse_state state) const {
         ParserContext* pos = discache->getParserContext(addr);
@@ -610,14 +639,40 @@ public:
         : SleighBase(), loader(ld), context_db(c_db), cache(std::make_unique<ContextCache>(c_db)), discache(nullptr) {
     } ///< Constructor
     virtual ~Sleigh(void) = default; ///< Destructor
-    void reset(SleighLoadImage* ld, ContextDatabase* c_db) {
+
+    /// Binds a loaded SLA runtime to a new image and registered context database.
+    // Ghidra reference: Ghidra/Features/Decompiler/src/decompile/cpp/sleigh.cc,
+    // Sleigh::reset plus context registration for a new program.
+    void attach(SleighLoadImage* ld, ContextDatabase* c_db) {
         clearForDelete();
         pcode_cache.clear();
         loader = ld;
         context_db = c_db;
         cache = std::make_unique<ContextCache>(c_db);
-        discache.reset();
-    } ///< Reset the engine for a new program
+        reregisterContext();
+        initializeDisassemblyCache();
+    }
+
+    /// Resets mutable decode state while retaining the parsed SLA symbol tables.
+    // Ghidra reference: Ghidra/Features/Decompiler/src/decompile/cpp/sleigh.cc,
+    // Sleigh::reset loader/context rebinding.
+    void reset(SleighLoadImage* ld, ContextDatabase* c_db) {
+        if ((loader == ld) && (context_db == c_db) && (discache != nullptr)) {
+            pcode_cache.clear();
+            cache->invalidate();
+            discache->reset();
+            return;
+        }
+        clearForDelete();
+        pcode_cache.clear();
+        loader = ld;
+        context_db = c_db;
+        cache = std::make_unique<ContextCache>(c_db);
+        initializeDisassemblyCache();
+    }
+    /// Loads and materializes the SLA tables, then creates the mutable parser cache.
+    // Ghidra reference: Ghidra/Features/Decompiler/src/decompile/cpp/sleigh.cc,
+    // Sleigh::initialize and FormatDecode table loading.
     virtual void initialize(const string& slaFilename) {
         if (!isInitialized()) { // Initialize the base if not already
             sla::FormatDecode decoder(this);
@@ -629,14 +684,7 @@ public:
             decode(decoder);
         } else
             reregisterContext();
-        uint4 parser_cachesize = 2;
-        uint4 parser_windowsize = 32;
-        if ((maxdelayslotbytes > 1) || (unique_allocatemask != 0)) {
-            parser_cachesize = 8;
-            parser_windowsize = 256;
-        }
-        discache = std::make_unique<DisassemblyCache>(this, cache.get(), getConstantSpace(), parser_cachesize,
-                                                      parser_windowsize);
+        initializeDisassemblyCache();
     }
     virtual void registerContext(const string& name, int4 sbit, int4 ebit) {
         context_db->registerVariable(name, sbit, ebit);
