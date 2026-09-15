@@ -23,7 +23,7 @@ export import :loadimage;
 
 export namespace ghidra {
 
-class LoadImage;
+class SleighLoadImage;
 
 /// \brief Class for describing a relative p-code branch destination
 ///
@@ -476,7 +476,7 @@ public:
 
 /// \brief A full SLEIGH engine
 ///
-/// Its provided with a LoadImage of the bytes to be disassembled and
+/// Its provided with a SleighLoadImage of the bytes to be disassembled and
 /// a ContextDatabase.
 ///
 /// Assembly is produced via the printAssembly() method, provided with an
@@ -485,7 +485,7 @@ public:
 /// P-code is produced via the oneInstruction() method, provided with a PcodeEmit
 /// object and an Address.
 class Sleigh : public SleighBase {
-    LoadImage* loader;                                  ///< The mapped bytes in the program
+    SleighLoadImage* loader;                            ///< The mapped bytes in the program
     ContextDatabase* context_db;                        ///< Database of context values steering disassembly
     std::unique_ptr<ContextCache> cache;                ///< Owned cache of recently used context values
     mutable std::unique_ptr<DisassemblyCache> discache; ///< Owned cache of recently parsed instructions
@@ -606,11 +606,11 @@ protected:
         pos.setParserState(ParserContext::pcode);
     } ///< Prepare the parse tree for p-code generation
 public:
-    Sleigh(LoadImage* ld, ContextDatabase* c_db)
+    Sleigh(SleighLoadImage* ld, ContextDatabase* c_db)
         : SleighBase(), loader(ld), context_db(c_db), cache(std::make_unique<ContextCache>(c_db)), discache(nullptr) {
     } ///< Constructor
     virtual ~Sleigh(void) = default; ///< Destructor
-    void reset(LoadImage* ld, ContextDatabase* c_db) {
+    void reset(SleighLoadImage* ld, ContextDatabase* c_db) {
         clearForDelete();
         pcode_cache.clear();
         loader = ld;

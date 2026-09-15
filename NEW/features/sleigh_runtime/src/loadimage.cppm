@@ -29,19 +29,24 @@ struct DataUnavailError : public LowlevelError {
     explicit DataUnavailError(const string& message) : LowlevelError(message) {}
 };
 
-/// Supplies instruction bytes to the decoder.
+/// Supplies instruction bytes to the standalone decoder.
 ///
 /// The full Ghidra loader API also exposed symbols, sections, raw-file
 /// ownership, and readonly ranges. None of those concepts participate in a
 /// compiled `.sla` decode, so this runtime keeps only the four operations used
 /// by `Sleigh` and its in-memory adapter.
-class LoadImage {
+///
+/// The distinct name is intentional: the decompiler port also defines
+/// `ghidra::LoadImage`, and both static libraries can be linked into one
+/// executable. Keeping this reduced contract separate avoids an ODR and weak
+/// virtual-destructor collision on MSVC.
+class SleighLoadImage {
 public:
     /// Creates an image byte-source contract.
-    LoadImage() = default;
+    SleighLoadImage() = default;
 
     /// Destroys the polymorphic image interface.
-    virtual ~LoadImage() = default;
+    virtual ~SleighLoadImage() = default;
 
     /// Fills `ptr` with `size` bytes beginning at `addr`.
     virtual void loadFill(uint1* ptr, int4 size, const Address& addr) = 0;

@@ -77,10 +77,10 @@ private:
     std::vector<PcodeOp> operations_;
 };
 
-/// Stores a bounded instruction byte window for the Ghidra LoadImage interface.
+/// Stores a bounded instruction byte window for the standalone SleighLoadImage interface.
 // Ghidra reference: Ghidra/Features/Decompiler/src/decompile/cpp/loadimage.hh
 // LoadImage::loadFill().
-class ByteLoadImage final : public ghidra::LoadImage {
+class ByteLoadImage final : public ghidra::SleighLoadImage {
 public:
     /// Creates an image whose bytes are supplied by the public decoder call.
     ByteLoadImage() = default;
