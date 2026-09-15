@@ -204,7 +204,7 @@ Other confirmed duplication that the final tree must account for:
 - Fixture loaders are repeated across shared analyzer support, aggregate integration tests, PDB tests, and decompiler-analyzer tests. The final test infrastructure should define one project fixture/artifact resolver, while keeping feature-specific fixture contents and tests separate.
 - Decompiler data/architecture/provider tests repeat architecture/register/context builders. Those builders should become test-only shared fixtures, not production service dependencies.
 
-The PE boundary is deliberately different from the original Ghidra loader boundary. Current `pe_loader::PeLoader` is a checked parser/value loader. It does not perform original `PeLoader.java` side effects such as creating a `Program`, creating `MemoryBlock` objects, adding labels/external symbols/entry-point functions, applying relocations to program state, or negotiating load specs. In the final system those effects are separate command/event handlers over `LoadResult`; the parser remains reusable and testable.
+The PE boundary is deliberately different from the original Ghidra loader boundary. Current `pe_loader::PeLoader` is a checked parser/value loader. It does not perform original `PeLoader.java` side effects such as creating a `Program`, creating `MemoryBlock` objects, adding labels/external symbols/entry-point functions, applying relocations to program state, or negotiating load specs. In the final system those effects are separate command/event handlers over `PeLoadResult`; the parser remains reusable and testable.
 
 ## 3. Architectural Shape
 
@@ -259,6 +259,8 @@ The dependency direction is downward toward stable values and contracts. Runtime
 | `bindings/python`, `javascript`, `go` | Language adaptation | C++ facade or generated C ABI | Runtime internals, services directly |
 | `apps/*` | User interaction and process entry points | Public C++ facade | Projection storage internals, mutable service state |
 
+MVP composition exception: existing analyzer/FID CMake targets may link concrete `NewGhidra::*` feature targets while the migration is in progress, as shown in the dependency graph. Those links are private composition details and must not appear in `core/contracts`, public result types, or persistence code. The final optional-service inversion remains deferred under MAJOR-005.
+
 ### 3.2 Value versus entity versus service
 
 - A **value** is copied or shared as immutable data and is safe to serialize. Examples: `Address`, `AddressRange`, `StorageLocation`, `Instruction`, `Reference`, `FunctionSnapshot`, and `DataTypeDescriptor`.
@@ -277,7 +279,7 @@ All primary declarations use one class/struct per `.cppm` module, following the 
 
 | File/module | Type | Required design |
 | --- | --- | --- |
-| `core/domain/identifiers.cppm` / `ghidra.core.identifiers` | `ProjectId`, `ArtifactId`, `EntityId`, `CommandId`, `EventId`, `CorrelationId`, `CausationId`, `Revision` | Strong wrappers over UUID/128-bit or canonical string values. They are serializable, comparable, and never raw strings in public contracts. `Revision` is a monotonically increasing project event-log position. |
+| `core/domain/identifiers.cppm` / `ghidra.core.identifiers` | `ProjectId`, `ArtifactId`, `EntityId`, `CommandId`, `EventId`, `CorrelationId`, `CausationId`, `AnalysisRunId`, `Revision` | Strong wrappers over UUID/128-bit or canonical string values. They are serializable, comparable, and never raw strings in public contracts. `Revision` is a monotonically increasing project event-log position. |
 | `core/domain/diagnostics.cppm` / `ghidra.core.diagnostics` | `Severity`, `Diagnostic`, `DiagnosticCode`, `Error` | Value-semantic error information with stable code, English message, optional source location, and remediation hint. `std::expected<T, Error>` is the normal operation result; exceptions are reserved for programming errors and unrecoverable resource construction. |
 | `core/domain/bytes.cppm` / `ghidra.core.bytes` | `Byte`, `Bytes`, `BytesView` | `Byte` is `std::uint8_t`; `Bytes` owns a vector; `BytesView` is a non-owning span with an explicit lifetime precondition. Bytes are serialized only where needed; p-code does not own duplicate image bytes unless the projection policy requests it. |
 
@@ -330,7 +332,7 @@ The original `Instruction.java` distinguishes parsed bytes, instruction length, 
 
 | File/module | Type | Required design |
 | --- | --- | --- |
-| `core/domain/binary.cppm` / `ghidra.core.binary` | `BinaryIdentity`, `BinaryArtifact` | Canonical path/display name, format, size, content hash, architecture hint, and primary-artifact flag. The artifact is a project input reference, not ownership of a mutable file stream. |
+| `core/domain/binary.cppm` / `ghidra.core.binary` | `BinaryIdentity`, `BinaryArtifact`, `ResourceSetIdentity` | Canonical path/display name, format, size, SHA-256 content hash, architecture hint, primary-artifact flag, and the ordered identity of all resources used by an operation. The artifact is a project input reference, not ownership of a mutable file stream. |
 | `core/domain/memory_region.cppm` / `ghidra.core.memory_region` | `MemoryRegion`, `MemoryPermissions` | Address range, name, read/write/execute, initialized/header/file-backed flags, source artifact range, section identity, and provenance. PE section-specific fields remain in the PE service details; this generic value is used by all loaders and providers. |
 | `core/domain/symbol.cppm` / `ghidra.core.symbol` | `SymbolId`, `Symbol`, `SymbolSource`, `NamespaceId` | Address or external identity, name, namespace, kind, primary flag, source (`default`, `import`, `pdb`, `analysis`, `user`, `fid`), and optional source record. Symbol renaming is an event, not in-place mutation. |
 | `core/domain/reference.cppm` / `ghidra.core.reference` | `ReferenceId`, `Reference`, `ReferenceKind` | Source and target addresses/entities, operand index, primary/source flags, flow override, stack offset, external/entry-point classification, and provenance. A stable reference ID is needed for replace/remove events. |
@@ -383,16 +385,16 @@ template<class T>
 using Result = std::expected<T, core::Error>;
 
 struct CancellationToken;                 // read-only cancellation query
-struct ProgressSink;                      // optional, thread-safe progress reporting
+struct OperationControl;                  // owned cancellation/progress/completion state
 struct OperationContext {
     core::ProjectId project;
     core::Revision read_revision;
     CancellationToken cancellation;
-    ProgressSink* progress;               // non-owning, may be null
+    std::shared_ptr<OperationControl> operation;
 };
 ```
 
-`Task<T>` is a coroutine-returning runtime handle declared by the task contract and implemented by `runtime/workers`. A task owns its result and does not borrow a project snapshot after suspension. Any `string_view`, span, or raw pointer in a service result is valid only for the duration documented by the corresponding synchronous call.
+`Task<T>` is a coroutine-returning runtime handle declared by the task contract and implemented by `runtime/workers`. `OperationControl` owns the bounded progress channel and cancellation/completion state; services never retain a caller-owned progress pointer. A task owns its result and does not borrow a project snapshot after suspension. Any `string_view`, span, or raw pointer in a service result is valid only for the duration documented by the corresponding synchronous call.
 
 ### 5.2 Providers versus services
 
@@ -420,7 +422,7 @@ The final distinction is strict:
 
 The final set intentionally does not include `IFunctionProvider`, `IInstructionProvider`, `IDataProvider`, and similar interfaces if they only duplicate `IProjectQuery`. A separate provider is justified only when it supplies a different capability or lifecycle, such as external memory, immutable architecture resources, or a FID database.
 
-Contract-local transport values have explicit ownership: `OperationContext`, `ExecutionMode`, `WorkPriority`, `CancellationToken`, `ProgressSink`, and `Task<T>` are declared by `core/contracts/operation.cppm`; `DecodeRequest`/`DecodeBatchRequest` by `pcode_decoder.cppm`; `LoadOptions`/`PeLoadResult` by `pe_loader.cppm`; `DecompileRequest` and nested provider roles by `decompiler.cppm`; `AnalyzerDescriptor`/`AnalysisSnapshot`/`AnalyzerResult` by `analyzer.cppm`; `CommandPayload`/`MutationCommand`/`CommandResult`/`CommandResponse` by `command.cppm`; and `AppendResult`/`EventStream` by `event_store.cppm`. `EventDraft`, `EventEnvelope`, `CommittedEvent`, and `EventBatch` are owned by `core/events/event.cppm` and imported by the persistence/bus contracts. No signature is allowed to rely on an implementation-only runtime type.
+Contract-local transport values have explicit ownership: `OperationContext`, `ExecutionMode`, `WorkPriority`, `CancellationToken`, `OperationControl`, and `Task<T>` are declared by `core/contracts/operation.cppm`; `DecodeRequest`/`DecodeBatchRequest` by `pcode_decoder.cppm`; `LoadOptions`/`PeLoadResult` by `pe_loader.cppm`; `DecompileRequest` and nested provider roles by `decompiler.cppm`; `AnalyzerDescriptor`/`AnalysisSnapshot`/`ImageSnapshot`/`ProjectRecords`/`AnalyzerResult` by `analyzer.cppm`; `CommandPayload`/`MutationCommand`/`CommandResult`/`CommandResponse` by `command.cppm`; and `AppendResult`/`EventStream` by `event_store.cppm`. `EventDraft`, `EventEnvelope`, `CommittedEvent`, and `EventBatch` are owned by `core/events/event.cppm` and imported by the persistence/bus contracts. No signature is allowed to rely on an implementation-only runtime type.
 
 ### 5.3 Exact command/result shape
 
@@ -489,7 +491,7 @@ The native classes may preserve the original `ghidra` namespace for port fidelit
 
 The current NEW build has not yet restored the original native target composition. `NEW/features/sleigh_runtime/CMakeLists.txt` makes its internal native modules private and `SharedSleighRuntime` owns a mutable `ghidra::Sleigh`, `ghidra::ContextInternal`, `ByteLoadImage`, and decoder state protected by a mutex. `NEW/features/decompiler` ports the decompiler core but does not compile the native Sleigh implementation modules into that target; its frontend links separately against `NewGhidra::SleighRuntime`. The final shared translation target must therefore consolidate the common `CORE` semantics without sharing one mutable `SharedSleighRuntime` object across tasks.
 
-The current bridge classes are explicit migration anchors: `ProviderTranslate : ghidra::Translate`, `ProviderLoadImage : ghidra::LoadImage`, `ProviderArchitecture : ghidra::Architecture`, and `SleighPcodeProvider` convert `sleigh_runtime::Decoder`/`Instruction`/`ProcessorContext` into native `ghidra::Address`, `AddrSpace`, `VarnodeData`, and `PcodeEmit`. They become the implementation of `services/decompiler/provider_adapters.cppm`. A final decoder resource is immutable/shared, but each worker receives a decoder lease or worker-local native state; a native `Architecture`/`Funcdata` session remains owned by one decompiler task.
+The current bridge classes are explicit migration anchors: `ProviderTranslate : ghidra::Translate`, `ProviderLoadImage : ghidra::LoadImage`, `ProviderArchitecture : ghidra::Architecture`, and `SleighPcodeProvider` convert `sleigh_runtime::Decoder`/`Instruction`/`ProcessorContext` into native `ghidra::Address`, `AddrSpace`, `VarnodeData`, and `PcodeEmit`. They become the implementation of `services/decompiler/provider_adapters.cppm`. **MVP:** the immutable SLA metadata may be shared, but native decoder access is serialized by one project mutex; a native `Architecture`/`Funcdata` session remains owned by one decompiler task.
 
 ### 6.2 Sleigh service
 
@@ -502,7 +504,7 @@ Responsibilities:
 - Translate one bounded byte window into a canonical `core::Instruction` synchronously.
 - Translate a batch/range through the shared worker pool asynchronously.
 - Preserve original assembly, operand objects, instruction masks, p-code, flow kind, delay-slot behavior, context values, and decode errors.
-- Provide a per-worker decoder lease or serialized access to stateful native caches.
+- **MVP:** use one project-scoped decoder instance protected by a mutex; do not claim parallel Sleigh decoding yet. The future worker-local decoder pool is deferred until a benchmark and a reentrant native resource split justify it.
 
 Synchronous contract:
 
@@ -739,20 +741,20 @@ Practical scheduling policy:
 
 1. Use a bounded central priority queue protected by a mutex and condition variable, with deterministic sequence ordering.
 2. Use lower numeric priority for urgent interactive work, preserving the Ghidra convention where appropriate.
-3. Apply per-project and per-category concurrency quotas so a large GTA5 batch cannot consume every worker.
-4. Use fair dequeueing among projects at the same effective priority. A simple rotating project bucket is sufficient; a distributed scheduler is not needed.
+3. **MVP:** do not implement per-project/category quotas or rotating fairness buckets. There is one bounded queue and one project analysis lane; quota/fairness policy is deferred until multiple simultaneous projects are a measured use case.
+4. Dequeue by effective priority and enqueue sequence. No distributed scheduler is needed.
 5. Use `std::stop_token`/`CancellationToken` for cooperative cancellation. The service checks at bounded loops and before expensive native calls.
 6. Limit queued bytes/results for bulk Sleigh and decompiler tasks. Backpressure returns a clear `ResourceExhausted` error rather than unbounded memory growth.
 7. Keep projection writes out of worker threads except through a single project commit path.
 
-Suggested default concurrency is `max(1, hardware_concurrency - 1)`, configurable per runtime. A project may reserve a small interactive slot so UI queries and one-function decompilation remain responsive while bulk analysis runs.
+Suggested default concurrency is `max(1, hardware_concurrency - 1)`, configurable per runtime. The MVP has no reserved interactive slot; synchronous query operations remain outside the worker queue and expensive operations use ordinary priority ordering.
 
 Native resource thread safety is explicit:
 
 - `LoadedPeImage` and architecture descriptors are immutable and shareable.
-- The current `sleigh_runtime::Decoder` owns stateful native caches. Do not assume it is reentrant. Use one decoder lease per worker, a thread-local decoder constructed from an immutable SLA resource, or a mutex-protected single decoder for cheap synchronous use.
+- The current `sleigh_runtime::Decoder` owns stateful native caches and is not assumed reentrant. **MVP:** use one project-scoped decoder protected by a mutex. This is a deliberate throughput limit, not a promise of scalable parallel bulk decode.
 - Native decompiler `Architecture`/`Funcdata` instances are per decompilation task. Never share a mutable native `Architecture` between concurrent decompilations.
-- Parsed read-only FID database handles may be shared only after tests prove concurrent reads. Otherwise use worker-local read handles over shared mapped bytes.
+- Parsed read-only FID database handles are treated as non-reentrant in the MVP and queried under a resource mutex. Sharing/parallel database reads require explicit thread-safety tests in a later release.
 
 ```mermaid
 flowchart LR
@@ -762,7 +764,7 @@ flowchart LR
     P --> S1[Bulk Sleigh batch]
     P --> A1[Analyzer read phase]
     P --> U1[Interactive task]
-    Q[Per-project fairness and quotas] --> P
+    Q[Optional future quotas] --> P
     C[Cancellation and backpressure] --> P
 ```
 
@@ -832,7 +834,7 @@ sequenceDiagram
     Decoder-->>Caller: Result<core::Instruction>
 ```
 
-The one-instruction path is synchronous only when the caller already has a bounded byte window and the service can acquire a decoder lease without waiting behind a bulk operation. It returns a value and does not persist anything by itself.
+The one-instruction path is synchronous only when the caller already has a bounded byte window and can acquire the project decoder mutex. It returns a value and does not persist anything by itself. Bulk decode is queued but serialized at the decoder boundary in the MVP.
 
 ```mermaid
 sequenceDiagram
@@ -858,6 +860,34 @@ sequenceDiagram
 ```
 
 The decompiler task never holds a mutable projection pointer across suspension and never writes a projection table directly. A text-only request can return with no event; structured recovered signatures, switch facts, or user-requested artifacts use the normal command/event commit path.
+
+### 8.5 MVP task and project lifetime
+
+Every queued operation owns a shared `OperationState` until it reaches a terminal status:
+
+```text
+OperationState {
+    task_id;
+    project_id;
+    project_generation;
+    stop_source;
+    bounded_progress_queue;
+    status;                 // queued, running, committed, cancelled, failed, rejected
+    result/promise;
+}
+```
+
+The progress queue is owned by the operation state; `OperationContext` does not contain a raw pointer to a caller-owned progress sink. `TaskHandle` is an observer/awaiter. Dropping it requests cancellation in the MVP; the runtime still retains the operation state until the worker exits. There is no detached task API in the MVP.
+
+`ProjectSession` owns the task registry and has a monotonically increasing `project_generation`. The close protocol is:
+
+1. Transition `Ready` to `Closing` and increment the generation.
+2. Reject new commands and request cancellation for all registered operations.
+3. Allow active native calls to reach a documented cancellation boundary.
+4. Enter the project commit lane and reject any proposal whose project is not `Ready` or whose generation is stale.
+5. Flush the event log and projection checkpoint, release resource leases, remove task registrations, and transition to `Closed`.
+
+A proposal that reaches the commit lane before closing may commit and is included in the close flush. A proposal that reaches it after generation/state validation fails with `ProjectClosed` and appends no events. No worker owns a raw `Project*`; it holds an operation state and a shared immutable snapshot/resource lease. Runtime shutdown closes projects first, waits for their task registries, and only then stops the shared worker pool.
 
 ## 9. Commands, Events, Event Bus, and Store
 
@@ -886,39 +916,51 @@ Final modules are grouped by domain:
 - `core/events/analysis_events.cppm`: FID matches, facts, bookmarks, analyzer run status, diagnostics.
 - `core/events/type_events.cppm`: data-type declarations/assignments/archive applications.
 
-Initial event payloads should include at least:
+### 9.2.1 MVP event closure and mutation semantics
+
+The MVP deliberately uses seven state events plus project/run lifecycle events rather than one event for every setter. Each state event has a typed payload and a common `StateChangeHeader`:
 
 ```text
-ProjectCreated
-PrimaryArtifactRegistered
-BinaryLoaded
-MemoryRegionsMapped
-RelocationsDiscovered
-ExternalSymbolsDiscovered
-InstructionsDecodedBatch
-DataDefinedBatch
-ReferencesDiscoveredBatch
-FunctionCreated
-FunctionBodyChanged
-FunctionRemoved
-FunctionRenamed
-FunctionSignatureChanged
-FunctionFlagsChanged
-FlowOverrideChanged
-SymbolAdded
-SymbolRenamed
-FunctionIdMatched
-ConstantFactAdded
-SwitchFactAdded
-BookmarkAdded
-DataTypeDefined
-DataTypeAssigned
-AnalysisRunStarted
-AnalysisRunCompleted
-AnalysisDiagnosticRecorded
+StateChangeHeader {
+    scope;                 // address range, entity set, or project scope
+    producer;              // user, pe_loader, analyzer:<id>, fid, pdb, decompiler
+    source_priority;
+    analysis_run_id;       // absent for project/user input changes
+    generation;             // producer+scope generation
+    idempotency_key;
+    operation;             // upsert, replace_scope, remove, invalidate
+}
 ```
 
-Batch events are required for a huge binary. A batch contains ordered records, a range/partition identity, producer service, and an idempotency key. It is still one persistent fact that a deterministic batch was applied; the event is not a hidden collection of independent non-durable operations.
+The closed MVP event set is:
+
+| Event | Authoritative state reconstructed | Update/delete/invalidation semantics |
+| --- | --- | --- |
+| `ProjectCreated` | Project identity, schema, initial configuration | One immutable creation record; later configuration/resource changes use `ProjectInputsChanged`. |
+| `ProjectInputsChanged` | Primary artifact and all required/optional resource identities | `upsert` replaces the manifest entry by resource kind; a removed resource is explicitly marked unavailable. Existing projections remain readable, but re-analysis is rejected until the exact required resource set is restored. |
+| `MemoryStateChanged` | Memory regions, relocations, imported/exported/external image metadata | `upsert`/`remove` by stable entity ID; `replace_scope` replaces one loader-owned image scope, never user-created analysis records. |
+| `ListingStateChanged` | Instructions, data objects, references, and flow overrides | Payload contains typed upserts and explicit removed IDs. `replace_scope` retires only records from the same producer and analysis generation; user flow overrides are not removed by a derived decode batch. |
+| `FunctionStateChanged` | Function identity, body, CFG, name, signature, flags, stack variables, thunk/no-return state | Full function snapshot upsert is the MVP update operation. Removal is an explicit ID list. A new snapshot supersedes the previous entity revision; it does not create a second function at the same entry. |
+| `SymbolStateChanged` | Internal/external symbols, aliases, namespaces, PDB/import/FID/user names | Upsert by stable symbol ID and explicit removed IDs. Source priority prevents a lower-priority derived symbol from overwriting a user/trusted symbol; rename is an upsert with `supersedes_symbol_id` where identity changes. |
+| `TypeStateChanged` | Data types, archive identity, data assignments, PDB type records | Type upsert/replacement is keyed by `DataTypeId`; assignments have explicit removed/replaced IDs. Archive/type records are invalidated rather than silently deleted when a source disappears. |
+| `AnalysisStateChanged` | Strings, bookmarks, constants, switches, candidate starts, address tables, embedded media, PDB evidence, and other derived facts | Upserts/removals are scoped by producer, analysis run, and entity. `replace_scope` retires the previous derived generation; `invalidate` records why a fact is no longer active. These records are current projection state, not separate event types. |
+| `AnalysisRunStateChanged` | Run start, terminal status, cancellation/failure, diagnostics, and committed batch checkpoint | Only lifecycle/checkpoint records are persisted, not every progress tick. A cancelled run retains already committed state and marks uncommitted proposals discarded. |
+
+For every state event, the projection applies operations in this order: validate project/generation, apply removals/invalidation, apply upserts, advance affected entity revisions, then checkpoint the event. `replace_scope` is the MVP supersession mechanism: it retires the prior generation in that producer/scope partition without physically deleting its event history. `invalidate` is used when provenance matters; `remove` is used for explicit user/entity deletion. Replaying the same event ID is a no-op.
+
+The current `AnalysisContext` collections map as follows:
+
+| Current collection/state | MVP event or status |
+| --- | --- |
+| `image_`, memory regions, relocations, imports/exports | `ProjectInputsChanged`, `MemoryStateChanged` |
+| `instructions_`, `data_`, `references_` | `ListingStateChanged` |
+| `functions_`, function signatures, stack variables, flags, body/CFG | `FunctionStateChanged` |
+| `symbols_`, external entries, PDB symbols | `SymbolStateChanged` |
+| `data_archives_`, PDB types, data assignments | `TypeStateChanged` |
+| `constant_facts_`, potential starts/properties, bookmarks, strings, address tables, embedded media | `AnalysisStateChanged` |
+| `pending_events_`, `function_creation_stack_`, `next_event_sequence_`, `total_disassembled_` | Transient scheduler/run state; never replayed as domain facts |
+
+Batch events are required for a huge binary. A batch contains ordered records, scope/partition, producer, generation, and an idempotency key. A batch is one atomic persistent state change, not a hidden collection of independent non-durable operations.
 
 ### 9.3 Event envelope
 
@@ -930,7 +972,7 @@ The initial envelope should contain:
 | `global_sequence` | Yes | Total order within one project log and replay position. Assigned by the store. |
 | `project_id` | Yes | Prevent accidental cross-project application. |
 | `aggregate_kind`/`aggregate_id` | Yes | Identifies function, instruction batch, artifact, or project entity affected. |
-| `aggregate_revision` | Yes for entity mutations | Optimistic concurrency and conflict diagnostics. |
+| `aggregate_revision` | Optional in MVP; entity revision later | MVP uses the project `global_sequence`/`base_revision` as the single conflict token. Per-entity revisions are retained as payload metadata when available but are not required for commit. |
 | `event_type` | Yes | Stable codec lookup key, not a C++ RTTI name. |
 | `schema_version` | Yes | Payload migrations. |
 | `created_at` | Yes | Audit/history; replay does not use wall-clock time for behavior. |
@@ -984,12 +1026,12 @@ A projection rebuild starts from an empty projection, reads events in global seq
 
 - ordered per-project subscribers;
 - bounded queues and backpressure;
-- a projection subscriber with highest delivery guarantee;
-- analysis scheduler subscriber that may coalesce trigger hints after durable commit;
+- **no projection subscriber:** the project commit coordinator is the sole projection applier;
+- an analysis scheduler subscriber that may coalesce trigger hints after the projection checkpoint is current;
 - UI/public API subscribers that may receive a lossy/coalesced view;
 - no request/response semantics.
 
-The bus must not be used as a replacement for the dispatcher or event store. If a subscriber is offline, it resumes from its last projection/event checkpoint rather than relying on an in-memory notification.
+The bus must not be used as a replacement for the dispatcher or event store. If a non-projection subscriber is offline, it resumes from its last event checkpoint rather than relying on an in-memory notification. Projection replay is initiated directly by `ProjectSession`/`ProjectionCoordinator`, never by the bus.
 
 ## 10. Projection and Storage
 
@@ -1096,7 +1138,7 @@ Final modules:
     diagnostics/                 # optional exported reports/logs
 ```
 
-The project may reference an external primary `.exe` path, but it must record a content hash and size. If reproducibility is required, the artifact can be copied into `artifacts/`; this is a policy choice in `ProjectConfig`, not a hidden assumption.
+The project may reference an external primary `.exe` path, but it must record a SHA-256 content hash and size. In the MVP, the path is only a locator and is never an identity. A portable project copies the artifact/resources into content-addressed project storage; a history-only project may reference external files but cannot re-analyze when an exact resource is unavailable or mismatched.
 
 ### 11.3 Lifecycle
 
@@ -1123,7 +1165,7 @@ Open sequence:
 1. Read and validate `project.json`.
 2. Create/open the event store and validate the final log frame.
 3. Load the primary artifact through `IPELoader` and verify configured hash if present.
-4. Emit or verify `PrimaryArtifactRegistered`, `BinaryLoaded`, `MemoryRegionsMapped`, relocation, and external-symbol history. Initial import is an idempotent command.
+4. Emit or verify `ProjectInputsChanged` and `MemoryStateChanged` history. Initial import is an idempotent command.
 5. Open or rebuild `projection.sqlite`.
 6. Resolve mandatory language/SLA/compiler-spec resources from configured paths/resource IDs.
 7. Construct immutable project architecture and image providers.
@@ -1133,7 +1175,33 @@ Open sequence:
 
 `ProjectSession` owns service instances and resource leases. It does not expose them as mutable public objects. Close cancels queued work, waits for active tasks to reach a safe cancellation point, flushes event/projection stores, releases resource leases, and then transitions to `Closed`.
 
-### 11.4 Preloading policy
+### 11.4.1 MVP resource identity and reproducibility
+
+Every resource used to create or extend project state has this persisted identity:
+
+```text
+ResourceIdentity {
+    kind;                    // primary_executable, sla, compiler_spec, fidb, pdb, gdt, ...
+    logical_id;              // language/compiler/database identity where available
+    sha256;
+    byte_size;
+    format_version;
+    producer_or_parser_version;
+    required;
+    managed_location;        // optional project-relative content-addressed path
+}
+```
+
+`ResourceSetIdentity` is a deterministic hash of the ordered resource identities plus the project analysis-contract version. `ProjectInputsChanged` records the manifest and `AnalysisRunStateChanged` records the resource-set identity used by that run. The executable, SLA, compiler specification, FID database, PDB, and data archive are checked according to `required`; a path, timestamp, or file name alone never satisfies the check.
+
+The MVP supports two explicit modes:
+
+- `portable`: required resources are copied under `artifacts/` or `resources/` using content-addressed names and are available for replay/re-analysis;
+- `history_only`: external resources may be referenced, but projection replay is the only permitted operation when a resource is missing/mismatched. Decode, FID, decompiler, and analyzer commands fail with `ResourceUnavailable` or `ResourceMismatch` rather than silently opening a different file.
+
+Replay of already committed events does not require the executable/SLA because event payloads contain the state needed by the projection. Any operation that computes new state must verify the exact `ResourceSetIdentity` before it starts.
+
+### 11.5 Preloading policy
 
 | Resource | Default policy | Failure policy |
 | --- | --- | --- |
@@ -1145,7 +1213,7 @@ Open sequence:
 | PDB/debug resources | Lazy or analyzer-triggered | Analyzer diagnostic; project remains usable. |
 | Decompiler caches | Lazy | Cache miss recomputes; cache corruption is recoverable. |
 
-The current analyzer-side FID cache uses path, size, and modification time. The final resource manager should add content hash when affordable and invalidate immutable handles on path/metadata/hash changes.
+The current analyzer-side FID cache uses path, size, and modification time. The MVP resource manager must replace that cache key with `ResourceIdentity.sha256` plus format/producer version before a database is accepted for a project; path/stat-only cache hits are not valid for re-analysis.
 
 ## 12. Analyzer Orchestration
 
@@ -1172,9 +1240,9 @@ struct AnalyzerDescriptor {
     ExecutionMode preferred_mode;          // sync inner work or queued
     AnalysisScope scope;                    // entity, range, project
     RunPolicy policy;                       // incremental, one_time, repeatable
+    ExecutionClass execution_class;         // MVP: serial_mutating or read_only
     bool supports_removals;
     bool mutates_project;
-    std::size_t max_parallelism;
 };
 ```
 
@@ -1183,23 +1251,52 @@ The dependency graph is a DAG. Priorities retain deterministic ordering within a
 ### 12.3 Scheduler algorithm
 
 ```text
-1. Receive committed event batch at project revision R.
+1. Receive a committed event batch at project revision R.
 2. Convert typed events to trigger records with entity/range IDs.
 3. Coalesce only equivalent trigger records; retain event IDs and earliest sequence.
 4. Mark analyzers dirty according to trigger and scope.
 5. Admit analyzers whose prerequisites are complete for the relevant revision.
-6. Select ready work by lower priority, then stable ID, then enqueue sequence.
-7. Capture an immutable AnalysisSnapshot at revision R.
-8. Run read-only analyzer work on the shared pool.
-9. Validate returned MutationCommands against R and service contracts.
-10. Append resulting domain events as one command/analysis transaction.
-11. Apply projection and publish the committed event batch.
-12. Mark the analyzer checkpoint and schedule downstream triggers.
-13. On cancellation, stop future work but retain committed events and projection state.
-14. On conflict, discard only the uncommitted proposal and retry from a fresh snapshot within a bounded retry policy.
+6. Select one ready analyzer by lower priority, stable ID, then enqueue sequence.
+7. Capture an owned immutable `AnalysisSnapshot` at the current projection revision.
+8. Run that analyzer. Expensive read-only inner work may use the shared pool, but only one project analyzer proposal is in flight in the MVP.
+9. Validate the proposal's base revision and command payloads.
+10. Append and apply the complete proposal as one commit-lane transaction, or reject it without partial events.
+11. Mark the analyzer checkpoint and schedule downstream triggers only after projection apply.
+12. On cancellation, stop future work but retain committed events and projection state.
+13. On a revision conflict, discard the proposal and recapture/retry once; a second conflict becomes a diagnostic and leaves the analyzer dirty for explicit retry.
 ```
 
-The current manager coalesces by event kind and `removed` flag and often runs analyzers that scan all functions. The final trigger carries affected entity IDs and ranges so analyzers can be incremental, but each analyzer may still request a full scan when original Ghidra behavior requires it.
+The current manager coalesces by event kind and `removed` flag and often runs analyzers that scan all functions. The final trigger carries affected entity IDs and ranges so analyzers can be incremental, but each analyzer may still request a full scan when original Ghidra behavior requires it. The MVP intentionally does not run two mutating analyzers concurrently and does not commit by worker completion order. This retains the current order-sensitive behavior with a small, deterministic scheduler rather than introducing fine-grained conflict tracking.
+
+### 12.3.1 MVP snapshot and proposal contract
+
+`AnalysisSnapshot` means an **owned, immutable, revision-stamped DTO bundle**, not a historical SQLite view and not a live pointer into the projection:
+
+```cpp
+struct AnalysisSnapshot {
+    ProjectId project;
+    Revision revision;
+    AnalysisScope scope;
+    ResourceSetIdentity resources;
+    std::shared_ptr<const ImageSnapshot> image;
+    ProjectRecords records;                 // copied requested instructions/functions/etc.
+};
+
+struct AnalyzerProposal {
+    std::string analyzer_id;
+    AnalysisRunId run;
+    Revision base_revision;
+    AnalysisScope scope;
+    std::vector<MutationCommand> commands;
+    std::vector<Diagnostic> diagnostics;
+};
+```
+
+Capture opens one read transaction on the current projection, copies the requested scope and its dependent records, then closes the transaction before expensive native work begins. The snapshot owns the copied values and holds an immutable artifact/resource lease identified by `ResourceSetIdentity`; it never holds a SQLite connection across a task suspension. The MVP provides no arbitrary historical query and no promise that an unselected entity is visible in the snapshot.
+
+Read-your-writes is defined narrowly. A single analyzer may use a private `AnalysisWorkset` overlay initialized from the snapshot; its own proposed updates are visible to subsequent operations in that analyzer. The overlay is discarded on conflict/cancellation. A later analyzer sees those changes only after the proposal is committed, projected, and a new snapshot is captured. User commands and other project mutations enter the same project commit lane, so a proposal based on an older revision is rejected rather than merged implicitly.
+
+The proposal precondition is intentionally coarse for the MVP: `base_revision` must equal the project revision at commit. There is no per-entity read/write conflict graph yet. Every command in one proposal is validated first and then appended/applied atomically; one invalid command rejects the whole proposal. The deterministic order is therefore: project commit-lane order, then analyzer priority, stable analyzer ID, and enqueue sequence. Fine-grained conflict sets, commutative parallel analyzers, and historical snapshot queries are deferred.
 
 ### 12.4 Analyzer pipeline
 
@@ -1257,9 +1354,9 @@ sequenceDiagram
     API->>Runtime: CreateProject/OpenProject command
     Runtime->>Project: create session and validate config
     Project->>PE: load primary artifact
-    PE-->>Project: LoadResult and immutable image
-    Project->>Store: PrimaryArtifactRegistered / BinaryLoaded
-    Project->>Store: MemoryRegionsMapped / relocations / externals
+    PE-->>Project: PeLoadResult and immutable image
+    Project->>Store: ProjectInputsChanged
+    Project->>Store: MemoryStateChanged
     Store->>Projection: apply committed load events
     Projection-->>Project: checkpoint advanced
     Project-->>API: project loading task/status
@@ -1325,6 +1422,8 @@ sequenceDiagram
     Scheduler->>Store: significant fact changes
     Store->>Projection: apply
 ```
+
+The diagram shows service work that may be queued independently, not concurrent project mutation. In the MVP, the scheduler admits one mutating analyzer at a time; FID/decompiler/Sleigh worker results become a single proposal and return through the project commit lane before the next order-sensitive analyzer is admitted.
 
 ### 13.4 User commands
 
@@ -1798,7 +1897,7 @@ The catalog below is the implementation blueprint for the most important final c
 | `StorageLocation` | `core/domain/storage_location.cppm` | Varnode/storage triple | Domain only; immutable | P-code/signature blobs | `pcoderaw.hh` `VarnodeData`; Java `Varnode.java` | `NEW/features/sleigh_runtime/sleigh_runtime.cppm` `Varnode`, `NEW/features/decompiler/src/decompiler.cppm` `Storage` |
 | `PcodeOp` | `core/domain/pcode.cppm` | Canonical operation with output/input storage | Domain only; immutable | Instruction p-code blob | `PcodeOpRaw`, `PcodeOp`, `translate.hh` | `NEW/features/sleigh_runtime/sleigh_runtime.cppm` `PcodeOp`, `NEW/features/decompiler/src/decompiler.cppm` `PcodeOperation` |
 | `Instruction` | `core/domain/instruction.cppm` | Complete decoded instruction snapshot | Domain plus p-code/flow/operand; immutable | `instructions` projection, optional batch event | `Instruction.java`, Sleigh instruction prototype classes | `NEW/features/sleigh_runtime/sleigh_runtime.cppm` `Instruction`, `NEW/features/decompiler/src/decompiler.cppm` `Instruction` |
-| `MemoryRegion` | `core/domain/memory_region.cppm` | Generic mapped memory permissions/range | Domain only; immutable | `MemoryRegionsMapped` and table | Java `MemoryBlock`/`Memory`; native `LoadImageSection` | `NEW/features/pe_loader/src/pe_loader.cppm` `MemoryRegion` |
+| `MemoryRegion` | `core/domain/memory_region.cppm` | Generic mapped memory permissions/range | Domain only; immutable | `MemoryStateChanged` and table | Java `MemoryBlock`/`Memory`; native `LoadImageSection` | `NEW/features/pe_loader/src/pe_loader.cppm` `MemoryRegion` |
 | `FunctionSnapshot` | `core/domain/function.cppm` | Function body/CFG/name/signature view | Domain values; immutable | Function/body/signature events and tables | Java `Function.java`, `FunctionManager.java` | `NEW/features/analyzers/shared/src/analyzer_types.cppm` `Function` |
 | `Reference` | `core/domain/reference.cppm` | Stable source-target relation and provenance | Domain values; immutable | Reference events/table | Java `Reference.java`, `ReferenceManager.java` | `NEW/features/analyzers/shared/src/analyzer_types.cppm` `Reference` |
 | `InstructionReference` | `core/domain/instruction_reference.cppm` | Operand/flow-specific reference fact used to derive references | Domain values; immutable | Included in reference batch events or instruction projection | Java `Instruction.getReferencesFrom()`/`ReferenceManager`; native flow emitters | Sleigh `FlowInfo`, analyzer reference creation helpers |
@@ -1848,7 +1947,7 @@ The catalog below is the implementation blueprint for the most important final c
 | `DataType`/`DataTypeManager` | Decompiler `TypeDescription`, analyzer PDB records | Core descriptor graph plus type projection/service | Do not build a full manager in core initially. |
 | `Memory`/`MemoryBlock` | `pe::LoadedPeImage`, `MemoryRegion` | `IMemoryProvider`, generic core `MemoryRegion`, PE details | Immutable image and projection mapping. |
 | `PeLoader` and PE format classes | `NEW/features/pe_loader/src/pe_loader.cppm` | `services/pe_loader` | Preserve checked parser and PE-specific details. |
-| `Sleigh`/`SleighBase`/`Translate` | `NEW/features/sleigh_runtime` | `services/sleigh` + shared native engine | One SLA resource, per-worker decoder access. |
+| `Sleigh`/`SleighBase`/`Translate` | `NEW/features/sleigh_runtime` | `services/sleigh` + shared native engine | One SLA resource, one mutex-protected project decoder in MVP; worker-local pool deferred. |
 | Sleigh native `types.cppm` and `compression.cppm` | `NEW/features/sleigh_runtime/src/types.cppm`, `compression.cppm`, re-exported by `internal.cppm` | `services/translation_engine/native/types.cppm` and `services/sleigh/native/compression.cppm` | `types` preserves shared native word-size aliases; compression remains SLA-specific because `slaformat.cppm` imports it. |
 | Native `Architecture`/`Funcdata`/`Flow` | `NEW/features/decompiler/src/*.cppm` | `services/decompiler/native` | Remain service-specific, sharing native translation substrate. |
 | `FidDB`/`FidProgramSeeker` | `NEW/features/function_id` | `services/function_id` and `runtime/resources/fid_cache` | FID resources warm at project open; queries use shared pool. |
@@ -1866,7 +1965,7 @@ The catalog below is the implementation blueprint for the most important final c
 | --- | --- | --- | --- |
 | Core values | Call/result/event | Immutable after construction | Freely copied/shared. |
 | Loaded PE image | Project | Immutable | Concurrent reads. |
-| SLA/compiler resource | Runtime/project cache | Immutable resource plus controlled decoder leases | Share metadata; native decoder state is leased or worker-local. |
+| SLA/compiler resource | Runtime/project cache | Immutable metadata plus one project-scoped mutex-protected decoder in MVP | Share metadata; do not assume native decoder reentrancy. |
 | FID database | Runtime/project cache | Read-only after open | Concurrent only if implementation proves it; otherwise worker-local views. |
 | Native decompiler session | One task | Mutable internal | Never shared between tasks. |
 | Event store writer | One project | Append-only | One logical writer; append batches atomically. |
@@ -1877,13 +1976,13 @@ The catalog below is the implementation blueprint for the most important final c
 
 ### 19.2 Concurrent command interaction
 
-Two read-only commands may run concurrently against the same projection revision. Two mutating commands do not directly race: the event writer serializes commit and checks `expected_revision`. A command prepared against a stale revision returns `Conflict` and can be retried from a fresh snapshot if its policy allows.
+Two read-only commands may run concurrently against the same current projection revision. All project mutations, including user commands and analyzer proposals, pass through one project commit lane. A proposal prepared against a stale revision returns `Conflict`; the MVP does not merge unrelated entity changes or maintain a fine-grained conflict graph.
 
-Analysis tasks are optimistic readers. They may run concurrently when their descriptors permit it, but they do not mutate the projection. Their commands are committed serially. This keeps event order deterministic and avoids locking a giant in-memory model.
+The MVP permits only one mutating analyzer execution/proposal per project. Expensive decompiler/FID/Sleigh work may execute on the shared pool against owned snapshots, but any resulting mutation waits for the same commit lane. This preserves order-sensitive Ghidra behavior and makes event order deterministic without implementing parallel analyzer scheduling.
 
 ### 19.3 Event ordering
 
-One project has one total global event sequence. The event store assigns it at commit. Worker completion order is not event order; a scheduler must either commit according to deterministic task order or accept completion order as the recorded history. For reproducible analysis, use deterministic admission and stable result ordering within a batch. Event payloads include correlation/causation so non-deterministic completion can still be diagnosed.
+One project has one total global event sequence. The event store assigns it at commit. Worker completion order is not event order; the MVP scheduler commits only the next proposal admitted by its deterministic queue, so worker completion cannot reorder mutating analyzers. Event payloads include correlation/causation so asynchronous task timing can still be diagnosed.
 
 ### 19.4 Cancellation
 
@@ -1895,6 +1994,8 @@ Cancellation is cooperative:
 - do not erase events already appended;
 - record run cancellation status;
 - preserve all committed mutations so replay and later incremental analysis remain consistent.
+- reject proposals created by a stale project generation;
+- release native/resource leases before `Closed` is reported.
 
 This deliberately corrects the current behavior where cancellation clears `AnalysisContext::pending_events_` while earlier direct mutations remain. In the final architecture, committed mutations always have their event history; only uncommitted proposals are discarded.
 
@@ -1974,7 +2075,7 @@ The event payload should preserve source service, confidence/score, revision, an
 
 ### 21.5 Shared worker pool
 
-**Decision:** one runtime-owned bounded pool with project/service quotas.
+**Decision:** one runtime-owned bounded pool with a simple priority/sequence queue; MVP analyzer work has one serial project lane and no quota/fairness subsystem.
 
 **Reason:** Ghidra's `AutoAnalysisManager` already describes a shared analysis pool, and separate service pools oversubscribe CPU and complicate cancellation.
 
@@ -1982,7 +2083,7 @@ The event payload should preserve source service, confidence/score, revision, an
 
 **Rejected because:** starvation/oversubscription and unnecessary process boundaries; native service instances remain isolated without separate pools.
 
-**Consequences:** scheduler must implement fairness and quota metadata.
+**Consequences:** the MVP is straightforward but a long bulk task can reduce responsiveness; quotas, fair multi-project scheduling, and an interactive reservation are deferred until measured need.
 
 ### 21.6 Command versus event
 
@@ -2006,7 +2107,7 @@ The event payload should preserve source service, confidence/score, revision, an
 
 **Rejected because:** sole projection storage loses replay/audit; custom database increases scope; RDF is intentionally future work.
 
-**Consequences:** schema/event versioning and projection rebuild tooling are mandatory.
+**Consequences:** schema/event versioning and projection rebuild tooling are mandatory. In the MVP, `ProjectSession`/`ProjectionCoordinator` applies the projection synchronously after event append and before event-bus publication; the bus is never an alternative projection writer.
 
 ### 21.8 Project location
 
@@ -2028,6 +2129,8 @@ The event payload should preserve source service, confidence/score, revision, an
 
 **Rejected because:** feature library becomes a framework dependency and business logic leaks into runtime.
 
+**MVP consequence:** runtime owns one deterministic scheduler lane per project; moving analyzer code to service directories does not require concurrent analyzer execution.
+
 ### 21.10 Public C++ API
 
 **Decision:** `bindings/cpp` is a facade above runtime; internals depend only on core/contracts.
@@ -2048,11 +2151,33 @@ The event payload should preserve source service, confidence/score, revision, an
 
 **Rejected because:** JSON volume/performance, custom scope, conflating history/current view, and premature knowledge-graph dependency.
 
+## MVP Decisions and Deferred Review Findings
+
+The MVP deliberately fixes correctness boundaries that affect replay or data loss and defers scalability/abstraction work that can be added without changing the event contract.
+
+| Finding | MVP decision | Consequence / accepted risk |
+| --- | --- | --- |
+| MAJOR-001: event-log growth/compaction | **Defer.** Keep the append-only log, deterministic batch events, and current projection. Do not implement compaction or event snapshots yet. | Repeated full re-analysis can grow `events.log`; MVP accepts this while GTA5-scale batch sizing and real usage are measured. No event deletion API is allowed, so future compaction can be added safely. |
+| MAJOR-002: analyzer snapshot/commit/order semantics | **Fix now.** One mutating analyzer proposal in flight per project; owned snapshot at revision `R`; private local overlay; all-or-nothing commit through one lane; coarse `base_revision == current_revision` conflict check; deterministic priority/ID/enqueue ordering; one retry, then diagnostic. | No parallel mutating analyzers or fine-grained conflict merging in MVP, but current order-sensitive behavior is deterministic and stale proposals cannot corrupt state. |
+| MAJOR-003: projection versus event bus ownership | **Fix now.** `ProjectSession`/`ProjectionCoordinator` is the sole projection applier. `IEventStore` only appends/reads; `EventBus` only publishes after projection checkpoint. | There is one commit path and no duplicate projection subscriber. A crash between log append and projection apply is recovered by replay on open. |
+| MAJOR-004: event schema completeness | **Fix now.** Use the closed state-event set in section 9.2.1 with explicit upsert, replace-scope, remove, invalidate, generation, supersession, and idempotency semantics. | The MVP avoids dozens of setter events while preserving current authoritative/derived collections and all meaningful update/delete/invalidation behavior. |
+| MAJOR-005: concrete service dependency direction | **Defer broad inversion.** MVP CMake targets may link existing concrete feature libraries and compatibility adapters. Services still cannot write the event log/projection or expose concrete storage types through contracts. | The build graph remains less pure during migration, but no algorithm rewrite is required. Full dependency inversion is a later target-state cleanup. |
+| MAJOR-006: overly broad core/domain | **Defer full narrowing.** Do not create a `Program`/database in core and do not add more domain types until at least two services need them. Existing FID/decompiler DTOs remain provisional contract values behind adapters. | Core may temporarily contain more DTOs than the minimal kernel, but it remains value-oriented and has no service logic, persistence, or global mutable state. |
+| MAJOR-007: parallel decoder/resource strategy | **Constrain minimally.** MVP uses one project decoder protected by a mutex; the worker pool can queue bulk work but cannot execute native decode concurrently. | Throughput is limited, but native state races are avoided. A decoder pool is deferred until profiling proves it necessary. |
+| MAJOR-008: artifact/resource reproducibility | **Fix now.** Persist SHA-256, size, format/schema version, logical ID, producer/parser version, required flag, and ordered `ResourceSetIdentity` for the executable, SLA/compiler spec, FID/PDB/GDT resources, and each analysis run. | Re-analysis fails explicitly on missing/mismatched resources; replay of already committed events remains possible in history-only mode. |
+| MAJOR-009: snapshot semantics | **Fix now.** `AnalysisSnapshot` is an owned DTO copied from one projection read transaction at revision `R`, with immutable image/resource handles and explicit scope. It is not a live DB view or arbitrary historical query. | Snapshot capture copies data and may cost memory, but it is simple, implementable, and safe across task suspension. |
+| MAJOR-010: multi-process project locking | **Defer.** MVP supports one open `ProjectSession` per project per process and documents concurrent process access as unsupported. | A second process may receive `ProjectAlreadyOpen` only when coordinated through the same runtime; OS file locking is a future hardening item. |
+| MAJOR-011: async task/project lifetime | **Fix now.** Project generation, owned operation state, cooperative cancellation, close barrier, commit-lane state/generation validation, and no detached tasks. | Close waits for active tasks and rejects stale proposals, preventing use-after-close and commit-after-close. |
+
+These MVP decisions supersede any earlier target-state wording that suggests parallel mutating analyzers, a projection event-bus subscriber, per-worker decoder leases, or implicit path/timestamp resource identity.
+
+The current repository has no `runtime`, `ProjectSession`, event store, projection, dispatcher, or task-lifetime implementation yet. The existing `AutoAnalysisManager`/`AnalysisContext` path is already effectively serial and remains the compatibility implementation during migration. This decision pass therefore requires no source-code change: adding a partial event/snapshot layer without its commit coordinator would make the current implementation less coherent. The first implementation slice must introduce the MVP coordinator, event closure, and snapshot/proposal adapters together.
+
 ## Open Questions
 
 These questions do not invalidate the architecture, but must be resolved during implementation with measurements or source study:
 
-1. Which exact SLA/compiler-spec resource representation should be immutable/shared, and how should per-worker native `Sleigh` instances be constructed without reparsing the full file?
+1. Which exact SLA/compiler-spec resource representation should be immutable/shared, and how should a future worker-local native `Sleigh` pool be constructed without reparsing the full file? The MVP uses one mutex-protected decoder.
 2. Are current FID database query objects safe for concurrent reads? If not, should each worker open a read-only handle or should the database format be memory-mapped behind a synchronized query adapter?
 3. Which decompiler native objects can be reused safely across requests? The safe baseline is one `Architecture`/`Funcdata` session per task.
 4. Should p-code be normalized into SQLite rows or stored as canonical compressed blobs with an in-memory decode cache? Benchmark GTA5-scale query patterns before committing to a physical schema.
@@ -2061,7 +2186,7 @@ These questions do not invalidate the architecture, but must be resolved during 
 7. How should external libraries, forwarded exports, overlays, and multiple address spaces be represented in the initial PE projection while preserving the one-primary-executable Project assumption?
 8. What exact public C++ ABI policy is needed before selecting pybind11, Node-API, or a Go C shim? Keep the C++ module API source-stable first; freeze ABI later.
 9. Should decompiler text/results be cached as projection data, a derived cache, or both? Cache invalidation must use function/prototype/p-code/type revisions.
-10. Which analyzers can safely run concurrently at snapshot level, and which need serialized project-wide ordering because their original behavior depends on immediate previous mutations?
+10. Which analyzers can safely run concurrently in a future release? The MVP serializes all mutating analyzer proposals and treats current ordering as authoritative.
 
 ## Risks
 
@@ -2073,8 +2198,8 @@ These questions do not invalidate the architecture, but must be resolved during 
 | Event volume is too large for GTA5.exe | Slow import/replay or disk exhaustion | Use deterministic batch events and compact p-code blobs; benchmark with real-size fixtures; keep projection rebuild streaming. |
 | Event and projection revisions diverge | Incorrect reopen or analyzer scheduling | Append before publish, one writer, idempotent event IDs, checkpoint after apply, and crash/replay tests. |
 | Analyzer proposals are stale when committed | Lost updates or invalid references | Include read revision, expected entity revisions, validation, bounded conflict retry, and diagnostics. |
-| Shared pool starvation | UI/decompiler responsiveness degrades during analysis | Per-project/category quotas, an interactive reservation, bounded queues, cancellation, and fair scheduling. |
-| Stateful native engines are used concurrently | Data races or corrupted caches | Explicit resource leases, worker-local decoders, per-task decompiler architecture, thread-safety tests. |
+| Shared pool starvation | UI/decompiler responsiveness degrades during analysis | MVP uses a bounded priority/sequence queue and one serial analyzer lane; quotas/fairness are deferred, while cancellation and backpressure remain required. |
+| Stateful native engines are used concurrently | Data races or corrupted caches | MVP serializes the project decoder with a mutex and gives each decompiler task its own native `Architecture`/`Funcdata`; decoder pools are deferred. |
 | Current analyzers depend on direct mutation ordering | Behavior changes during migration | First wrap existing mutators as event-producing adapters, compare fingerprints/events, then migrate one analyzer family at a time. |
 | Text parsing remains the only decompiler integration | Weak structured projection and fragile switch analysis | Add structured decompiler result types while retaining text compatibility artifacts. |
 | FID preloading delays project readiness excessively | Poor user experience | Make warm-up policy configurable, report progress, permit lazy optional DBs, and preserve deterministic query order. |
@@ -2101,14 +2226,15 @@ The following order minimizes architectural risk while preserving a working buil
 2. Create core contracts and adapters from current `sleigh_runtime`, PE, decompiler, and analyzer types. Keep compatibility conversions temporarily, but establish one canonical direction.
 3. Extract the duplicated native translation modules into one target and make both Sleigh and Decompiler link it. Compare all existing focused tests.
 4. Move PE/FID/Sleigh/decompiler public facades to service targets without changing algorithm behavior.
-5. Implement runtime workers, cancellation, progress, and dispatcher. Replace direct FID `std::async` with pool submission.
-6. Implement event envelope, codec, append-only log, recovery, and replay tests.
-7. Implement SQLite projection and a projection fingerprint/replay test against the current analyzer final-state fingerprint.
-8. Implement `Project` open/close/resource lifecycle and initial `LoadPrimaryBinary` command.
-9. Move analyzer registry/scheduling into runtime while initially adapting analyzers to a compatibility `AnalysisSnapshot`/mutation bridge.
-10. Migrate disassembly, reference, data, function, symbol, and bookmark mutations to typed commands/events.
-11. Migrate FID, PDB, signatures, decompiler parameter/switch, stack, and type mutations after structured domain values are complete.
-12. Add public C++ facade, CLI integration, and future binding scaffolding only after runtime contracts are stable.
-13. Add full GTA5-scale integration, cancellation/reopen/replay, concurrent-reader, deterministic-order, and resource-starvation tests.
+5. Implement runtime workers, owned operation state, cancellation, close generation, and dispatcher. Replace direct FID `std::async` with pool submission while keeping non-reentrant resources serialized.
+6. Implement the closed MVP event envelope/state-event codecs, append-only log, and recovery tests.
+7. Implement the `ProjectSession`/`ProjectionCoordinator` commit lane: append drafts, apply projection, checkpoint, then publish non-projection bus notifications.
+8. Implement SQLite projection and a projection fingerprint/replay test against the current analyzer final-state fingerprint.
+9. Implement `Project` open/close/resource manifest validation and initial `LoadPrimaryBinary` command.
+10. Move analyzer registry/scheduling into runtime while initially adapting analyzers to the owned `AnalysisSnapshot`/private-overlay/proposal bridge.
+11. Migrate disassembly, reference, data, function, symbol, and bookmark mutations to typed commands/events.
+12. Migrate FID, PDB, signatures, decompiler parameter/switch, stack, and type mutations after structured domain values are complete.
+13. Add public C++ facade, CLI integration, and future binding scaffolding only after runtime contracts are stable.
+14. Add full GTA5-scale integration, cancellation/reopen/replay, deterministic-order, and resource-identity tests; defer multi-process and parallel-decoder tests until their features are intentionally introduced.
 
 This sequence is intentionally incremental. It does not authorize code changes in this research task; it defines the order for a later implementation agent.
