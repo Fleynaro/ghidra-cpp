@@ -14,6 +14,7 @@ else()
 endif()
 
 add_subdirectory(shared)
+add_subdirectory(tests)
 
 set(ANALYZER_NAMES
     aggressive_instruction_finder

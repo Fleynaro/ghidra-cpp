@@ -38,3 +38,23 @@ TEST(DecompilerSwitchAnalysis, RecoversFixtureSwitchTargets) {
             actual.insert(reference.target);
     EXPECT_EQ(actual, expected);
 }
+
+/// Verifies that one unsupported integration body cannot escape switch
+/// recovery and prevent later functions from being considered.
+TEST(DecompilerSwitchAnalysis, IsolatesUnsupportedIntegrationBodies) {
+    const auto path = std::filesystem::path(ANALYZER_FIXTURE_DIR) / "tests" / "data" / "test_analyzers_integration.exe";
+    auto image = pe::PeLoader::load_file(path);
+    ASSERT_TRUE(image.has_value()) << image.error().message;
+    ghidra::analyzer::AnalysisContext context(std::move(*image), "x86-64.sla");
+    context.options().decompiler_switch_analysis = true;
+    for (const auto& exported : context.image().exported_symbols()) {
+        if (!exported.forwarded && context.image().is_executable(exported.address_va)) {
+            static_cast<void>(context.disassemble_flow(exported.address_va));
+            static_cast<void>(context.create_function(exported.address_va));
+        }
+    }
+    ghidra::analyzer::DecompilerSwitchAnalysisAnalyzer analyzer;
+    ghidra::analyzer::CancellationToken cancellation;
+    EXPECT_NO_THROW(analyzer.analyze(context, {}, cancellation));
+    EXPECT_FALSE(context.functions().empty());
+}

@@ -26,6 +26,7 @@ decode instructions itself.
 - Each concrete analyzer source is an independent exported module, such as [`constant_propagation/src/constant_propagation.cppm`](constant_propagation/src/constant_propagation.cppm) exporting `analyzer_constant_propagation`; consumers must import the feature module rather than relying on `analyzer` to expose concrete classes.
 - Each implemented analyzer owns its Google Test module under its own `tests/` directory; for example [`disassemble_entry_points/tests/disassemble_entry_points_tests.cppm`](disassemble_entry_points/tests/disassemble_entry_points_tests.cppm). Function body/CFG tests are the documented exception because Ghidra creates bodies synchronously in shared `AnalysisContext`; they live under [`shared/tests/function_body_tests.cppm`](shared/tests/function_body_tests.cppm).
 - Each analyzer directory contains its own `src/` when implemented, `CMakeLists.txt`, `build.bat`, and `tests/data/` for executable fixtures and Ghidra golden reports. Additional fixture sets can be added as files or subdirectories there.
+- [`tests/`](tests/) is the additional aggregate end-to-end test. Its one rich PE fixture is analyzed through all 34 registrations, and [`tests/run_ghidra.py`](tests/run_ghidra.py) generates a bounded development oracle that is never read by the native test.
 
 Run `build.bat` from this directory for the focused analyzer build and test. Use `build.bat --no-test` for a compile-only check and `build.bat --clean` only when a clean rebuild is required.
 
@@ -106,3 +107,14 @@ unresolved architecture - specific p - code operations remain unknown.The x86 - 
     direct - call function creation / CFG, shared bodies, pattern constraints, scalar filtering, imports,
     removal / end lifecycle, registry behavior, event generation, priority order, downstream scheduling, stack,
     constant, data, and no - return analysis.
+
+## Aggregate Integration
+
+[`tests/analyzer_global_integration_tests.cppm`](tests/analyzer_global_integration_tests.cppm)
+registers the complete builtin registry through `AutoAnalysisManager`, enables
+the supported native options, and checks cross-phase function, stack,
+reference, string, media, resource, external, switch, no-return, symbol, and
+repeat-analysis invariants. The fixture and its generated resource/PDB inputs
+are documented in [`tests/data/README.md`](tests/data/README.md). PDB providers
+remain registered but are intentionally no-input phases in this raw listing;
+their positive provider behavior remains in the focused tests.

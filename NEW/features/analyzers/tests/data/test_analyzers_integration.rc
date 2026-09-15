@@ -1,0 +1,26 @@
+#include <winres.h>
+#include "resource.h"
+
+LANGUAGE 9, 1
+
+STRINGTABLE
+BEGIN
+    IDS_GREETING "Engine resource greeting"
+    IDS_SECOND "Engine resource second string"
+END
+
+IDD_ENGINE_DIALOG DIALOGEX 0, 0, 160, 60
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Engine Resource Dialog"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT "Resource-backed engine", -1, 8, 8, 140, 12
+END
+
+IDR_ENGINE_MENU MENU
+BEGIN
+    POPUP "Engine"
+    BEGIN
+        MENUITEM "Resource action", 401
+    END
+END

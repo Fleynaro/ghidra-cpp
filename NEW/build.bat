@@ -199,8 +199,13 @@ if /I "%MODE%"=="x86_constant_reference" (
     goto mode_selected
 )
 if /I "%MODE%"=="analyzer" (
-    set "BUILD_TARGET=analyzer_aggressive_instruction_finder_tests analyzer_apply_data_archives_tests analyzer_ascii_strings_tests analyzer_call_convention_id_tests analyzer_call_fixup_installer_tests analyzer_condense_filler_bytes_tests analyzer_create_address_tables_tests analyzer_decompiler_parameter_id_tests analyzer_decompiler_switch_analysis_tests analyzer_demangler_microsoft_tests analyzer_disassemble_entry_points_tests analyzer_embedded_media_tests analyzer_external_entry_references_tests analyzer_function_id_tests analyzer_function_start_search_tests analyzer_non_returning_functions_tests analyzer_pdb_msdia_tests analyzer_pdb_universal_tests analyzer_reference_tests analyzer_scalar_operand_references_tests analyzer_shared_return_calls_tests analyzer_shared_function_body_tests analyzer_stack_tests analyzer_subroutine_references_tests analyzer_variadic_tests analyzer_winparams_tests analyzer_windows_resource_reference_tests analyzer_x86_constant_reference_tests analyzer_constant_propagation_tests analyzer_data_reference_tests"
-    set "TEST_FILTER=^analyzer_(aggressive_instruction_finder|apply_data_archives|ascii_strings|call_convention_id|call_fixup_installer|condense_filler_bytes|create_address_tables|decompiler_parameter_id|decompiler_switch_analysis|demangler_microsoft|disassemble_entry_points|embedded_media|external_entry_references|function_id|function_start_search|non_returning_functions|pdb_msdia|pdb_universal|reference|scalar_operand_references|shared_return_calls|shared_function_body|stack|subroutine_references|variadic_function_signature_override|windows_pe_x86_propagate_external_parameters|windows_resource_reference|x86_constant_reference|constant_propagation|data_reference)_tests$"
+    set "BUILD_TARGET=analyzer_aggressive_instruction_finder_tests analyzer_apply_data_archives_tests analyzer_ascii_strings_tests analyzer_call_convention_id_tests analyzer_call_fixup_installer_tests analyzer_condense_filler_bytes_tests analyzer_create_address_tables_tests analyzer_decompiler_parameter_id_tests analyzer_decompiler_switch_analysis_tests analyzer_demangler_microsoft_tests analyzer_disassemble_entry_points_tests analyzer_embedded_media_tests analyzer_external_entry_references_tests analyzer_function_id_tests analyzer_function_start_search_tests analyzer_non_returning_functions_tests analyzer_pdb_msdia_tests analyzer_pdb_universal_tests analyzer_reference_tests analyzer_scalar_operand_references_tests analyzer_shared_return_calls_tests analyzer_shared_function_body_tests analyzer_stack_tests analyzer_subroutine_references_tests analyzer_variadic_tests analyzer_winparams_tests analyzer_windows_resource_reference_tests analyzer_x86_constant_reference_tests analyzer_constant_propagation_tests analyzer_data_reference_tests analyzer_global_integration_tests"
+    set "TEST_FILTER=^analyzer_(aggressive_instruction_finder|apply_data_archives|ascii_strings|call_convention_id|call_fixup_installer|condense_filler_bytes|create_address_tables|decompiler_parameter_id|decompiler_switch_analysis|demangler_microsoft|disassemble_entry_points|embedded_media|external_entry_references|function_id|function_start_search|non_returning_functions|pdb_msdia|pdb_universal|reference|scalar_operand_references|shared_return_calls|shared_function_body|stack|subroutine_references|variadic_function_signature_override|windows_pe_x86_propagate_external_parameters|windows_resource_reference|x86_constant_reference|constant_propagation|data_reference|global_integration)_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="analyzer_global_integration" (
+    set "BUILD_TARGET=analyzer_global_integration_tests"
+    set "TEST_FILTER=^analyzer_global_integration_tests$"
     goto mode_selected
 )
 goto usage
@@ -251,6 +256,7 @@ if "%RUN_TESTS%"=="0" (
      if /I "%MODE%"=="windows_pe_x86_propagate_external_parameters" set "BUILD_TARGET=analyzer_winparams"
     if /I "%MODE%"=="windows_resource_reference" set "BUILD_TARGET=analyzer_windows_resource_reference"
     if /I "%MODE%"=="x86_constant_reference" set "BUILD_TARGET=analyzer_x86_constant_reference"
+    if /I "%MODE%"=="analyzer_global_integration" set "BUILD_TARGET=analyzer_global_integration_tests"
     if /I "%MODE%"=="shared" set "BUILD_TARGET=analyzer_shared"
 )
 
@@ -311,7 +317,7 @@ endlocal
 exit /b 0
 
 :usage
-echo Usage: build.bat [app^|hello^|sleigh^|pe^|function_id^|decompiler^|analyzer^|shared_function_body^|all] [--no-test] [--clean]
+echo Usage: build.bat [app^|hello^|sleigh^|pe^|function_id^|decompiler^|analyzer^|analyzer_global_integration^|shared_function_body^|all] [--no-test] [--clean]
 echo.
 echo Default mode: all. The build directory is preserved for fast incremental builds.
 echo Use a module mode to build and test only that module.

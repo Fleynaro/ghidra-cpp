@@ -35,3 +35,23 @@ TEST(DecompilerParameterId, PreservesCompletedState) {
     analyzer.analyze(context, {}, cancellation);
     EXPECT_EQ(context.function_at(0x140001000ULL)->parameters, before);
 }
+
+/// Verifies that an unsupported integration body is skipped without escaping
+/// the parameter-identification analyzer's best-effort boundary.
+TEST(DecompilerParameterId, IsolatesUnsupportedIntegrationBodies) {
+    const auto path = std::filesystem::path(ANALYZER_FIXTURE_DIR) / "tests" / "data" / "test_analyzers_integration.exe";
+    auto image = pe::PeLoader::load_file(path);
+    ASSERT_TRUE(image.has_value()) << image.error().message;
+    ghidra::analyzer::AnalysisContext context(std::move(*image), "x86-64.sla");
+    context.options().decompiler_parameter_id = true;
+    for (const auto& exported : context.image().exported_symbols()) {
+        if (!exported.forwarded && context.image().is_executable(exported.address_va)) {
+            static_cast<void>(context.disassemble_flow(exported.address_va));
+            static_cast<void>(context.create_function(exported.address_va));
+        }
+    }
+    ghidra::analyzer::DecompilerParameterIdAnalyzer analyzer;
+    ghidra::analyzer::CancellationToken cancellation;
+    EXPECT_NO_THROW(analyzer.analyze(context, {}, cancellation));
+    EXPECT_FALSE(context.functions().empty());
+}

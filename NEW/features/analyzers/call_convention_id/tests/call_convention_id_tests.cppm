@@ -32,3 +32,23 @@ TEST(CallConventionId, DoesNotInventConventionWhenFrontendOmitsOne) {
     EXPECT_TRUE(function->calling_convention == "default" || function->calling_convention == "__fastcall");
     EXPECT_EQ(function->parameters.size(), 3U);
 }
+
+/// Verifies that one unsupported native body cannot escape the convention
+/// analyzer and abort processing of the remaining integration functions.
+TEST(CallConventionId, IsolatesUnsupportedIntegrationBodies) {
+    const auto path = std::filesystem::path(ANALYZER_FIXTURE_DIR) / "tests" / "data" / "test_analyzers_integration.exe";
+    auto image = pe::PeLoader::load_file(path);
+    ASSERT_TRUE(image.has_value()) << image.error().message;
+    ghidra::analyzer::AnalysisContext context(std::move(*image), "x86-64.sla");
+    context.options().call_convention_id = true;
+    for (const auto& exported : context.image().exported_symbols()) {
+        if (!exported.forwarded && context.image().is_executable(exported.address_va)) {
+            static_cast<void>(context.disassemble_flow(exported.address_va));
+            static_cast<void>(context.create_function(exported.address_va));
+        }
+    }
+    ghidra::analyzer::CallConventionIdAnalyzer analyzer;
+    ghidra::analyzer::CancellationToken cancellation;
+    EXPECT_NO_THROW(analyzer.analyze(context, {}, cancellation));
+    EXPECT_FALSE(context.functions().empty());
+}

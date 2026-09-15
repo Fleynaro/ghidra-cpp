@@ -145,8 +145,16 @@ void DecompilerParameterIdAnalyzer::analyze(AnalysisContext& context, std::span<
         if (cancellation.is_cancelled())
             return;
         const auto* function = context.function_at(entry);
-        if (function && has_decompilation(context, *function))
-            static_cast<void>(context.set_parameter_id_complete(entry));
+        if (!function)
+            continue;
+        try {
+            if (has_decompilation(context, *function))
+                static_cast<void>(context.set_parameter_id_complete(entry));
+        } catch (...) {
+            // A single unsupported native body must not prevent parameter
+            // identification for every other function in the aggregate run.
+            continue;
+        }
     }
 }
 

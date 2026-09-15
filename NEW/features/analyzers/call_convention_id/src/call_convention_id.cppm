@@ -241,13 +241,20 @@ void CallConventionIdAnalyzer::analyze(AnalysisContext& context, std::span<const
         const auto* function = context.function_at(entry);
         if (!function)
             continue;
-        const auto result = decompile(context, *function);
-        if (!result)
+        try {
+            const auto result = decompile(context, *function);
+            if (!result)
+                continue;
+            const auto convention = identify_calling_convention(result->c_source);
+            if (convention && *convention != "default")
+                static_cast<void>(context.set_function_signature(entry, *convention, function->return_type,
+                                                                 function->parameters, function->variadic, true));
+        } catch (...) {
+            // One malformed or unsupported native function must not abort the
+            // aggregate run. The Java analyzer skips a failed decompiler task;
+            // preserve that isolation while allowing later functions to run.
             continue;
-        const auto convention = identify_calling_convention(result->c_source);
-        if (convention && *convention != "default")
-            static_cast<void>(context.set_function_signature(entry, *convention, function->return_type,
-                                                             function->parameters, function->variadic, true));
+        }
     }
 }
 

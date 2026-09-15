@@ -215,46 +215,53 @@ void DecompilerSwitchAnalysisAnalyzer::analyze(AnalysisContext& context, std::sp
         const auto* function = context.function_at(entry);
         if (!function)
             continue;
-        const auto result = decompile(context, *function);
-        if (!result || result->c_source.find("switch") == std::string::npos)
-            continue;
-        for (const auto& instruction : result->raw_instructions) {
-            if (instruction.address == 0U)
+        try {
+            const auto result = decompile(context, *function);
+            if (!result || result->c_source.find("switch") == std::string::npos)
                 continue;
-            const auto decoded = context.instructions().find(instruction.address);
-            if (decoded == context.instructions().end() ||
-                decoded->second.instruction.flow.kind != sleigh_runtime::FlowKind::indirect_branch)
-                continue;
-            const auto expected_case_count = [&] {
-                std::size_t count = 0;
-                for (std::size_t position = result->c_source.find("case "); position != std::string::npos;
-                     position = result->c_source.find("case ", position + 5U))
-                    ++count;
-                if (count == 0U) {
-                    const std::regex dense_range(R"([<]\s*([0-9]+))");
-                    std::smatch match;
-                    const std::string source(result->c_source);
-                    if (std::regex_search(source, match, dense_range)) {
-                        std::size_t value = 0;
-                        const auto text = match[1].str();
-                        const auto parsed = std::from_chars(text.data(), text.data() + text.size(), value, 10);
-                        if (parsed.ec == std::errc{})
-                            count = value;
+            for (const auto& instruction : result->raw_instructions) {
+                if (instruction.address == 0U)
+                    continue;
+                const auto decoded = context.instructions().find(instruction.address);
+                if (decoded == context.instructions().end() ||
+                    decoded->second.instruction.flow.kind != sleigh_runtime::FlowKind::indirect_branch)
+                    continue;
+                const auto expected_case_count = [&] {
+                    std::size_t count = 0;
+                    for (std::size_t position = result->c_source.find("case "); position != std::string::npos;
+                         position = result->c_source.find("case ", position + 5U))
+                        ++count;
+                    if (count == 0U) {
+                        const std::regex dense_range(R"([<]\s*([0-9]+))");
+                        std::smatch match;
+                        const std::string source(result->c_source);
+                        if (std::regex_search(source, match, dense_range)) {
+                            std::size_t value = 0;
+                            const auto text = match[1].str();
+                            const auto parsed = std::from_chars(text.data(), text.data() + text.size(), value, 10);
+                            if (parsed.ec == std::errc{})
+                                count = value;
+                        }
                     }
+                    return count;
+                }();
+                const auto targets =
+                    switch_targets(context, *function, *result, instruction.address, expected_case_count);
+                for (const Address target : targets)
+                    static_cast<void>(context.add_reference(
+                        Reference{instruction.address, target, ReferenceKind::computed_jump, std::nullopt, std::nullopt,
+                                  FlowOverride::none, true, std::nullopt, std::nullopt, std::nullopt}));
+                if (!targets.empty()) {
+                    static_cast<void>(
+                        context.add_symbol(SymbolRecord{instruction.address, {}, "switchD", {}, "label", false, true}));
+                    static_cast<void>(context.set_switch_recovered(entry));
                 }
-                return count;
-            }();
-            const auto targets = switch_targets(context, *function, *result, instruction.address, expected_case_count);
-            for (const Address target : targets)
-                static_cast<void>(context.add_reference(
-                    Reference{instruction.address, target, ReferenceKind::computed_jump, std::nullopt, std::nullopt,
-                              FlowOverride::none, true, std::nullopt, std::nullopt, std::nullopt}));
-            if (!targets.empty()) {
-                static_cast<void>(
-                    context.add_symbol(SymbolRecord{instruction.address, {}, "switchD", {}, "label", false, true}));
-                static_cast<void>(context.set_switch_recovered(entry));
+                break;
             }
-            break;
+        } catch (...) {
+            // Native decompilation is intentionally best-effort. Unsupported
+            // bodies are skipped without aborting later switch candidates.
+            continue;
         }
     }
 }
