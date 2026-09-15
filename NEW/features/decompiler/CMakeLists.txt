@@ -94,6 +94,19 @@ list(TRANSFORM NEW_GHIDRA_DECOMPILER_IMPLEMENTATION_MODULES
 add_library(new_ghidra_decompiler STATIC)
 add_library(NewGhidra::Decompiler ALIAS new_ghidra_decompiler)
 
+# The CLI intentionally keeps the user-facing name
+# ``new_ghidra_decompiler.exe`` below.  Give the static engine archive and its
+# MSVC compiler PDB distinct names so Ninja cannot make the executable import
+# library or linker PDB collide with this library during a parallel build.
+set_target_properties(new_ghidra_decompiler PROPERTIES
+    ARCHIVE_OUTPUT_NAME "new_ghidra_decompiler_engine"
+)
+if(MSVC)
+    set_target_properties(new_ghidra_decompiler PROPERTIES
+        COMPILE_PDB_NAME "new_ghidra_decompiler_engine"
+    )
+endif()
+
 target_sources(new_ghidra_decompiler
     PUBLIC
         FILE_SET cxx_modules TYPE CXX_MODULES
