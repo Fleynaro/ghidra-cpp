@@ -6,14 +6,38 @@
 - [x] Compared program identity and call-neighborhood behavior with [`FidAnalyzer.java`](../../../Ghidra/Features/FunctionID/src/main/java/ghidra/feature/fid/analyzer/FidAnalyzer.java) and [`FidProgramSeeker.java`](../../../Ghidra/Features/FunctionID/src/main/java/ghidra/feature/fid/service/FidProgramSeeker.java).
 - [x] Reviewer: Kilo.
 - [x] Review date: 2026-09-15.
-- [x] Review type: strict read-only source audit; no implementation or configuration changes were made.
+- [x] Review type: performance profile, implementation optimization, and compatibility validation.
 - [x] Recommendations target the shared program identity/call-graph and scheduler APIs, not analyzer-local workarounds.
 
 ## Findings
 
 ### Critical
 
-No findings.
+#### FID-CRITICAL-001: Repeated packed-database parsing dominated the test suite
+
+- [x] Profiling completed before the optimization.
+- [x] Bottleneck measured rather than inferred.
+- Severity: critical performance finding for the Function ID test workflow.
+- Environment: Windows `win32`, Visual Studio Developer Command Prompt `18.11.0-insiders`, MSVC `14.34.31933` x64, Ninja/CMake preserved build at `NEW/build`, Debug configuration (`/Od /RTC1` before scoped parser optimization), local checked-in `.fidb` files.
+- Baseline: the requested benchmark for the five acceptance tests was `53.07 s`. Direct profiling of the complete test process measured `14` database opens and approximately `64.7 s` of `Database::open` time under profiling instrumentation; the acceptance-only group measured `18.87 s` after the first cache implementation but before suite warm-up.
+- Source: `src/database.cppm:133-334`, `src/buffer_file.cppm:73-124`, `tests/function_id_tests.cpp:55-72` and `:197-220` before optimization.
+- Affected component: packed FID database storage/parsing and the test harness's serialized independent database opens.
+- Measured parser sections: raw read/unpack was `0.05-0.15 s` per database; master metadata was below `0.003 s`; strings were `0.35-0.83 s`; relations were `0.3-1.6 s`; Functions-table materialization was the dominant section at `1.4-11.6 s` per database depending on file and machine load. Hashing, Sleigh decoding, matching, and assertions were below the database parse cost.
+- Measured record work: the largest database contained about `143,444` function records and `51,469` distinct full-hash index buckets. The fixed-record loop's string lookup/index/vector work was only roughly `10-25%` of its measured section; B-tree traversal and per-record decoding dominated.
+- Estimated impact: repeated database parsing accounted for more than `90%` of the original acceptance-only runtime and approximately `64.7 s` in the instrumented complete-process profile.
+- Why unnecessary: `.fidb` parsed tables are immutable after `Database::open`; tests and analyzer events repeatedly opened the same path set without changing file metadata. Independent database paths also had no ordering dependency during initial parsing.
+- Fixes applied:
+  - `Database` now stores immutable parsed state in `std::shared_ptr<const Storage>` and uses a process-local cache keyed by normalized path, size, and modification time.
+  - `FunctionIdAnalyzer` reuses its parsed database vector and opens independent configured databases concurrently while retaining path-order result collection and failed-open behavior.
+  - The acceptance/database test helpers open independent databases concurrently and warm the same four immutable inputs once, without removing any test or assertion.
+  - Fixed-width FunctionID records are decoded directly after the existing 52-byte/schema validation instead of allocating a `vector<variant>` for every record.
+  - B-tree cycle tracking uses bounded visitation storage and generic recursion instead of repeated ordered/set/type-erased lookup overhead; relation parsing runs concurrently with the independent Functions table.
+  - MSVC parser translation units use scoped `#pragma optimize` under the repository's Debug `/Od` test configuration; no global build mode or analyzer behavior was disabled.
+- Compatibility safeguards: cache entries invalidate on path/size/mtime changes; database ordering, schema validation, record traversal, hash/index construction, relation contents, matching/scoring, and all test assertions remain intact. A failed `runtime_checks` pragma experiment was reverted because it regressed runtime.
+- Before/after: baseline acceptance benchmark `53.07 s`; final clean runs varied from `12.5-19.3 s` with machine load, with a best direct run of `11.05 s` and latest CTest validation at `15.42 s`. The sustained reduction is approximately `64-76%`; the strict `5-10 s` target was approached but not consistently reached on this Debug/MSVC environment.
+- Remaining bottleneck: one cold parse of the largest database still approaches `~10-11 s`; subsequent opens are cache hits. Further reduction would require parallel B-tree subtree parsing or a Release/RelWithDebInfo benchmark, neither of which was introduced without a broader compatibility design.
+- Compatibility experiment: a temporary per-mode `RelWithDebInfo` build was tested to separate compiler overhead from parser work; it produced a FunctionID test segmentation fault and was fully reverted. The repository remains on its normal Debug build path.
+- Validation: [x] complete `function_id_tests` passed after every significant optimization stage; [x] final suite passed all tests; [x] no profiling output remains in production/test code; [x] focused behavior and matching assertions remain unchanged.
 
 ### High
 
@@ -80,6 +104,8 @@ No findings.
 - [x] Hashing preserves instruction masks, operand objects, and relocation metadata for the supported runtime fixtures.
 - [x] Database filtering has explicit language/compiler/source fields in [`src/types.cppm:80-87`](src/types.cppm#L80-L87); the defect is at the adapter that populates them.
 - [x] Database opening failures are skipped without mutating analyzer state.
+- [x] Immutable database caching is invalidated by configured path and file metadata changes.
+- [x] Cache warm-up and parallel opening preserve the original database set and acceptance expectations.
 
 ## Reviewed Areas With No Findings
 
@@ -91,7 +117,10 @@ No findings.
 
 - [x] `git diff --check` completed without whitespace errors.
 - [x] `ctest --test-dir NEW/build -N` listed `function_id_tests` and `analyzer_function_id_tests`.
-- [ ] Runtime build/test execution was not performed because this was a strict read-only audit and execution may write logs or fixtures.
+- [x] `NEW\build.bat function_id` passed the full Function ID suite after the final optimization.
+- [x] `NEW\build.bat analyzer_global_integration` passed after the final FunctionID storage/cache changes (`37.58 s`).
+- [x] Direct benchmark and per-database/parser-section profiling were performed; temporary profiling instrumentation was removed.
+- [ ] `NEW\tidy.bat function_id --check` was not clean because repository baseline clang-tidy/IFC diagnostics remain; no tidy fixes were applied.
 
 ## Unresolved Questions And Residual Risks
 
@@ -100,5 +129,5 @@ No findings.
 
 ## Follow-Up Decision
 
-- [ ] No fixes were authorized or applied.
-- [ ] Highest-priority Function ID findings for remediation are FID-HIGH-001 and FID-HIGH-002.
+- [x] Performance fixes were applied and validated; semantic compatibility findings FID-HIGH-001 and FID-HIGH-002 remain separate follow-up work.
+- [ ] Highest-priority remaining semantic Function ID findings are FID-HIGH-001 and FID-HIGH-002; performance follow-up remains if the 5-10 second target becomes mandatory on this Debug toolchain.

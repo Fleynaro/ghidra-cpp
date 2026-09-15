@@ -7,6 +7,10 @@ import std;
 import :parse_exception;
 import :types;
 
+#if defined(_MSC_VER)
+#pragma optimize("gty", on)
+#endif
+
 // Ghidra references:
 // Framework/DB/src/main/java/db/buffers/BufferFile.java,
 // Framework/DB/src/main/java/db/buffers/LocalBufferFile.java,
@@ -452,3 +456,7 @@ inline std::uint64_t inferior_relation_key(std::uint64_t superior_full_hash, std
 }
 
 } // namespace fid::detail
+
+#if defined(_MSC_VER)
+#pragma optimize("", off)
+#endif

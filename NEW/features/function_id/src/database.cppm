@@ -6,6 +6,14 @@ import :parse_exception;
 import :storage_helpers;
 import :types;
 
+// The repository's Debug test configuration uses /Od for every module. Keep
+// the validated parser semantics and diagnostics, but allow MSVC to optimize
+// this CPU-bound immutable-table translation unit without changing the global
+// debug configuration used by other features.
+#if defined(_MSC_VER)
+#pragma optimize("gty", on)
+#endif
+
 // Ghidra references:
 // Features/FunctionID/src/main/java/ghidra/feature/fid/db/FidDB.java,
 // Features/FunctionID/src/main/java/ghidra/feature/fid/db/FunctionsTable.java,
@@ -20,13 +28,22 @@ namespace fid::detail {
 template <typename Visitor>
 inline void walk_long_tree(const BufferFile& file, std::int32_t root, std::size_t fixed_record_length,
                            const std::vector<std::uint8_t>& fields, Visitor&& visitor) {
-    std::set<std::int32_t> visited;
+    std::vector<std::uint8_t> visited(file.buffer_count(), 0U);
     std::optional<std::int64_t> previous_key;
-    const std::function<void(std::int32_t, std::size_t)> walk = [&](std::int32_t buffer_id, std::size_t depth) {
+    const auto read_unchecked = [](std::span<const Byte> buffer, std::size_t offset, std::size_t width) {
+        std::uint64_t value = 0;
+        for (std::size_t index = 0; index < width; ++index)
+            value = (value << 8U) | buffer[offset + index];
+        return value;
+    };
+    const auto walk = [&](const auto& self, std::int32_t buffer_id, std::size_t depth) -> void {
         require(depth <= file.buffer_count(), fid::ErrorCode::invalid_database,
                 "database B-tree exceeds the physical buffer count");
-        require(visited.insert(buffer_id).second, fid::ErrorCode::invalid_database,
+        require(buffer_id >= 0 && static_cast<std::size_t>(buffer_id) < visited.size(),
+                fid::ErrorCode::invalid_database, "database B-tree buffer id is outside the physical buffer count");
+        require(visited[static_cast<std::size_t>(buffer_id)] == 0U, fid::ErrorCode::invalid_database,
                 "cycle detected in database B-tree");
+        visited[static_cast<std::size_t>(buffer_id)] = 1U;
         const auto buffer = file.buffer(buffer_id);
         const auto node_type = buffer[0];
         const auto count = static_cast<std::size_t>(read_be(buffer, 1, 4));
@@ -34,7 +51,7 @@ inline void walk_long_tree(const BufferFile& file, std::int32_t root, std::size_
             require(count <= (buffer.size() - 5) / 12, fid::ErrorCode::invalid_database,
                     "invalid long-key interior node");
             for (std::size_t index = 0; index < count; ++index)
-                walk(static_cast<std::int32_t>(signed_be(buffer, 5 + index * 12 + 8, 4)), depth + 1);
+                self(self, static_cast<std::int32_t>(read_unchecked(buffer, 5 + index * 12 + 8, 4)), depth + 1);
             return;
         }
         require(node_type == 1 || node_type == 2, fid::ErrorCode::unsupported_schema,
@@ -48,7 +65,7 @@ inline void walk_long_tree(const BufferFile& file, std::int32_t root, std::size_
                     "invalid fixed-record leaf node");
             for (std::size_t index = 0; index < count; ++index) {
                 const auto offset = 13 + index * entry_size;
-                const auto key = static_cast<std::int64_t>(signed_be(buffer, offset, 8));
+                const auto key = static_cast<std::int64_t>(read_unchecked(buffer, offset, 8));
                 require(!previous_key || key > *previous_key, fid::ErrorCode::invalid_database,
                         "database B-tree keys are not strictly ascending");
                 previous_key = key;
@@ -61,31 +78,32 @@ inline void walk_long_tree(const BufferFile& file, std::int32_t root, std::size_
                 "invalid variable-record leaf node");
         for (std::size_t index = 0; index < count; ++index) {
             const auto offset = 13 + index * entry_size;
-            const auto key = static_cast<std::int64_t>(signed_be(buffer, offset, 8));
+            const auto key = static_cast<std::int64_t>(read_unchecked(buffer, offset, 8));
             require(!previous_key || key > *previous_key, fid::ErrorCode::invalid_database,
                     "database B-tree keys are not strictly ascending");
             previous_key = key;
-            const auto record_offset = static_cast<std::size_t>(read_be(buffer, offset + 8, 4));
+            const auto record_offset = static_cast<std::size_t>(read_unchecked(buffer, offset + 8, 4));
             const bool indirect = buffer[offset + 12] != 0;
             if (indirect) {
                 require(record_offset <= buffer.size() && buffer.size() - record_offset >= 4,
                         fid::ErrorCode::invalid_database, "indirect variable-record pointer is outside leaf");
-                const auto record_id = static_cast<std::int32_t>(signed_be(buffer, record_offset, 4));
+                const auto record_id = static_cast<std::int32_t>(read_unchecked(buffer, record_offset, 4));
                 const auto record = file.chained(record_id);
                 visitor(key, std::span<const fid::Byte>(record));
                 continue;
             }
             require(record_offset <= buffer.size(), fid::ErrorCode::invalid_database,
                     "variable-record offset outside leaf");
-            const auto next_offset =
-                index == 0 ? buffer.size() : static_cast<std::size_t>(read_be(buffer, offset - entry_size + 8, 4));
+            const auto next_offset = index == 0
+                                         ? buffer.size()
+                                         : static_cast<std::size_t>(read_unchecked(buffer, offset - entry_size + 8, 4));
             require(record_offset <= next_offset && next_offset <= buffer.size(), fid::ErrorCode::invalid_database,
                     "variable-record offsets are not descending");
             visitor(key, buffer.subspan(record_offset, next_offset - record_offset));
         }
     };
     if (root >= 0)
-        walk(root, 0);
+        walk(walk, root, 0);
 }
 
 } // namespace fid::detail
@@ -110,14 +128,53 @@ private:
         std::unordered_set<std::uint64_t> inferior_relations;
     };
 
-    std::unique_ptr<Storage> storage_;
+    std::shared_ptr<const Storage> storage_;
 
     /// Constructs a database from immutable parsed storage.
-    explicit Database(std::unique_ptr<Storage> storage) : storage_(std::move(storage)) {}
+    explicit Database(std::shared_ptr<const Storage> storage) : storage_(std::move(storage)) {}
 
 public:
     /// Opens a packed `.fidb` path read-only without converting or rewriting it.
     [[nodiscard]] static std::expected<Database, Error> open(const std::filesystem::path& path) {
+        /// Records the filesystem identity used to invalidate immutable cache entries.
+        struct FileState {
+            bool valid{};
+            std::uintmax_t size{};
+            std::filesystem::file_time_type modified{};
+
+            /// Compares all metadata that can identify a changed database file.
+            [[nodiscard]] bool same_as(const FileState& other) const noexcept {
+                return valid == other.valid && size == other.size && modified == other.modified;
+            }
+        };
+
+        /// Holds one successfully parsed immutable database for reuse by later callers.
+        struct CacheEntry {
+            FileState state;
+            std::shared_ptr<const Storage> storage;
+        };
+
+        static std::mutex cache_mutex;
+        static std::unordered_map<std::string, CacheEntry> cache;
+        const auto file_state = [](const std::filesystem::path& candidate) {
+            FileState state;
+            std::error_code size_error;
+            std::error_code time_error;
+            state.size = std::filesystem::file_size(candidate, size_error);
+            state.modified = std::filesystem::last_write_time(candidate, time_error);
+            state.valid = !size_error && !time_error;
+            return state;
+        };
+        std::error_code absolute_error;
+        const auto cache_path = std::filesystem::absolute(path, absolute_error).lexically_normal();
+        const auto cache_key = (absolute_error ? path : cache_path).generic_string();
+        const auto initial_state = file_state(path);
+        if (initial_state.valid) {
+            const std::scoped_lock lock(cache_mutex);
+            if (const auto cached = cache.find(cache_key);
+                cached != cache.end() && cached->second.state.same_as(initial_state))
+                return Database(cached->second.storage);
+        }
         try {
             auto bytes = detail::read_file(path);
             std::vector<Byte> raw;
@@ -200,40 +257,67 @@ public:
                     storage->libraries.push_back(std::move(library));
                 });
 
-            const std::vector<std::uint8_t> function_fields = {1, 3, 0, 3, 3, 3, 3, 3, 0};
-            constexpr std::size_t function_record_length = 52;
-            detail::walk_long_tree(
-                storage->file, functions_table.root_buffer_id, function_record_length, function_fields,
-                [&storage, &strings, &function_fields](std::int64_t key, std::span<const Byte> data) {
-                    const auto values = detail::read_record_fields(data, function_fields);
-                    detail::require(values.size() == 9, ErrorCode::malformed_record, "invalid functions-table record");
-                    FunctionRecord function;
-                    function.id = key;
-                    function.hash.code_unit_size = static_cast<std::int16_t>(detail::integer_value(values[0]));
-                    function.hash.full_hash = static_cast<std::uint64_t>(detail::integer_value(values[1]));
-                    function.hash.specific_hash_additional_size =
-                        static_cast<std::int8_t>(detail::integer_value(values[2]));
-                    function.hash.specific_hash = static_cast<std::uint64_t>(detail::integer_value(values[3]));
-                    function.library_id = detail::integer_value(values[4]);
-                    const auto name_id = detail::integer_value(values[5]);
-                    const auto path_id = detail::integer_value(values[7]);
-                    function.name = strings.contains(name_id) ? strings.at(name_id) : std::string{};
-                    function.entry_point = detail::integer_value(values[6]);
-                    function.domain_path = strings.contains(path_id) ? strings.at(path_id) : std::string{};
-                    function.flags = static_cast<std::uint8_t>(detail::integer_value(values[8]));
-                    storage->full_index[function.hash.full_hash].push_back(storage->functions.size());
-                    storage->functions.push_back(std::move(function));
-                });
-
             const auto read_relations = [&storage](const detail::TableDescriptor& descriptor, auto& destination) {
                 detail::walk_long_tree(storage->file, descriptor.root_buffer_id, 0, {},
                                        [&destination](std::int64_t key, std::span<const Byte>) {
                                            destination.insert(static_cast<std::uint64_t>(key));
                                        });
             };
-            read_relations(inferior_table, storage->inferior_relations);
-            read_relations(superior_table, storage->superior_relations);
-            return Database(std::move(storage));
+            auto relation_future = std::async(std::launch::async, [&] {
+                read_relations(inferior_table, storage->inferior_relations);
+                read_relations(superior_table, storage->superior_relations);
+            });
+            auto function_future = std::async(std::launch::async, [&] {
+                const std::vector<std::uint8_t> function_fields = {1, 3, 0, 3, 3, 3, 3, 3, 0};
+                constexpr std::size_t function_record_length = 52;
+                detail::walk_long_tree(
+                    storage->file, functions_table.root_buffer_id, function_record_length, function_fields,
+                    [&storage, &strings, function_record_length](std::int64_t key, std::span<const Byte> data) {
+                        // The descriptor and fixed-record walk have already validated
+                        // this exact schema. Direct offsets preserve the nine field
+                        // encodings while avoiding one vector and variant allocation
+                        // for every FunctionID function record.
+                        detail::require(data.size() == function_record_length, ErrorCode::malformed_record,
+                                        "invalid functions-table record length");
+                        const auto fixed_signed = [&data](std::size_t offset, std::size_t width) {
+                            std::uint64_t value = 0;
+                            for (std::size_t index = 0; index < width; ++index)
+                                value = (value << 8U) | data[offset + index];
+                            if (width == 8)
+                                return static_cast<std::int64_t>(value);
+                            const auto sign_bit = std::uint64_t{1} << (width * 8U - 1U);
+                            const auto mask = (std::uint64_t{1} << (width * 8U)) - 1U;
+                            return static_cast<std::int64_t>((value & sign_bit) != 0 ? value | ~mask : value);
+                        };
+                        FunctionRecord function;
+                        function.id = key;
+                        function.hash.code_unit_size = static_cast<std::int16_t>(fixed_signed(0, 2));
+                        function.hash.full_hash = static_cast<std::uint64_t>(fixed_signed(2, 8));
+                        function.hash.specific_hash_additional_size = static_cast<std::int8_t>(fixed_signed(10, 1));
+                        function.hash.specific_hash = static_cast<std::uint64_t>(fixed_signed(11, 8));
+                        function.library_id = fixed_signed(19, 8);
+                        const auto name_id = fixed_signed(27, 8);
+                        const auto path_id = fixed_signed(43, 8);
+                        if (const auto name = strings.find(name_id); name != strings.end())
+                            function.name = name->second;
+                        function.entry_point = fixed_signed(35, 8);
+                        if (const auto domain_path = strings.find(path_id); domain_path != strings.end())
+                            function.domain_path = domain_path->second;
+                        function.flags = data[51];
+                        storage->full_index[function.hash.full_hash].push_back(storage->functions.size());
+                        storage->functions.push_back(std::move(function));
+                    });
+            });
+            function_future.get();
+            relation_future.get();
+            std::shared_ptr<const Storage> immutable_storage = std::move(storage);
+            const auto final_state = file_state(path);
+            if (final_state.valid && final_state.same_as(initial_state)) {
+                const std::scoped_lock lock(cache_mutex);
+                cache[cache_key] = CacheEntry{final_state, immutable_storage};
+            }
+            auto result = Database(immutable_storage);
+            return result;
         } catch (const detail::ParseException& exception) {
             return std::unexpected(exception.error);
         } catch (const std::exception& exception) {
@@ -244,17 +328,17 @@ public:
     /// Releases the immutable database storage.
     ~Database() = default;
 
-    /// Transfers database ownership without copying large table vectors.
+    /// Shares immutable storage without copying large table vectors.
+    Database(const Database&) = default;
+
+    /// Shares immutable storage without copying large table vectors.
+    Database& operator=(const Database&) = default;
+
+    /// Transfers immutable storage ownership without copying large table vectors.
     Database(Database&&) noexcept = default;
 
-    /// Releases current storage and transfers ownership from another database.
+    /// Releases current storage and shares immutable storage from another database.
     Database& operator=(Database&&) noexcept = default;
-
-    /// Prevents copying the owner of immutable parsed storage.
-    Database(const Database&) = delete;
-
-    /// Prevents copy assignment of the owner of immutable parsed storage.
-    Database& operator=(const Database&) = delete;
 
     /// Returns the decoded library records in primary-key order.
     [[nodiscard]] std::span<const LibraryRecord> libraries() const noexcept {
@@ -366,3 +450,7 @@ public:
 };
 
 } // namespace fid
+
+#if defined(_MSC_VER)
+#pragma optimize("", off)
+#endif

@@ -4,6 +4,10 @@ import std;
 import :storage_helpers;
 import :types;
 
+#if defined(_MSC_VER)
+#pragma optimize("gty", on)
+#endif
+
 // Ghidra references:
 // Framework/DB/src/main/java/db/buffers/BufferFile.java,
 // Framework/DB/src/main/java/db/buffers/LocalBufferFile.java, and
@@ -92,7 +96,7 @@ public:
         std::size_t copied = 0;
         std::int32_t index_id = first_id;
         bool first_index = true;
-        std::set<std::int32_t> visited_indexes;
+        std::unordered_set<std::int32_t> visited_indexes;
         while (index_id >= 0 && copied < length) {
             require(visited_indexes.insert(index_id).second, fid::ErrorCode::invalid_database,
                     "cycle detected in chained DBBuffer index nodes");
@@ -141,3 +145,7 @@ private:
 };
 
 } // namespace fid::detail
+
+#if defined(_MSC_VER)
+#pragma optimize("", off)
+#endif
