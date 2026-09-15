@@ -1,0 +1,25 @@
+{
+  "zlib_version": "1.3.1",
+  "zlib_archive_url": "https://zlib.net/fossils/zlib-1.3.1.tar.gz",
+  "zlib_archive_sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+  "architecture": "x86-64",
+  "ghidra_language_id": "x86:LE:64:default",
+  "ghidra_compiler_spec": "windows",
+  "source_language": "C",
+  "compiler": "MSVC",
+  "configuration": "Release",
+  "linkage": "static",
+  "msvc_architecture": "x64",
+  "zlib_makefile": "win32/Makefile.msc",
+  "zlib_cflags": "-nologo -MD -W3 -O2 -Oy- -Zi -Fd\"zlib\"",
+  "zlib_warning_flags": "-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE",
+  "fid_library_family": "zlib",
+  "fid_library_variant": "msvc-x86_64-release",
+  "expected_functions": [
+    "adler32_z",
+    "compress",
+    "crc32_z",
+    "uncompress"
+  ],
+  "non_zlib_function": "non_zlib_control"
+}

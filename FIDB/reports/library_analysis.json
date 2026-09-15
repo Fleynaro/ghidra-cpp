@@ -1,0 +1,1549 @@
+{
+  "expected_functions": [
+    "adler32_z",
+    "compress",
+    "crc32_z",
+    "uncompress"
+  ],
+  "ghidra_compiler_spec": "windows",
+  "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
+  "ghidra_language_id": "x86:LE:64:default",
+  "object_programs": [
+    {
+      "compiler_spec": "windows",
+      "function_count": 5,
+      "functions": [
+        {
+          "entry_point": "0x0000000000003A00",
+          "name": "adler32",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000003A10",
+          "name": "adler32_combine",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000003A20",
+          "name": "adler32_combine64",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000003A30",
+          "name": "adler32_combine_",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000003B10",
+          "name": "adler32_z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "adler32",
+        "adler32_combine",
+        "adler32_combine64",
+        "adler32_combine_",
+        "adler32_z"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "adler32.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 6,
+      "functions": [
+        {
+          "entry_point": "0x0000000000003500",
+          "name": "compress",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000003600",
+          "name": "compress2",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000003700",
+          "name": "compressBound",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000004830",
+          "name": "deflate",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000004838",
+          "name": "deflateEnd",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000004840",
+          "name": "deflateInit_",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "compress",
+        "compress2",
+        "compressBound",
+        "deflate",
+        "deflateEnd",
+        "deflateInit_"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "compress.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 9,
+      "functions": [
+        {
+          "entry_point": "0x0000000000007410",
+          "name": "crc32",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000007420",
+          "name": "crc32_combine",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000007490",
+          "name": "crc32_combine64",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000007500",
+          "name": "crc32_combine_gen",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000007510",
+          "name": "crc32_combine_gen64",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000007520",
+          "name": "crc32_combine_op",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000007560",
+          "name": "crc32_z",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000007A90",
+          "name": "get_crc_table",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000007AE0",
+          "name": "x2nmodp",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "crc32",
+        "crc32_combine",
+        "crc32_combine64",
+        "crc32_combine_gen",
+        "crc32_combine_gen64",
+        "crc32_combine_op",
+        "crc32_z",
+        "get_crc_table",
+        "x2nmodp"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "crc32.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 33,
+      "functions": [
+        {
+          "entry_point": "0x0000000000009100",
+          "name": "deflate_stored",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000009FC0",
+          "name": "deflate",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000AA20",
+          "name": "deflateBound",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000ABE0",
+          "name": "deflateCopy",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000AE20",
+          "name": "deflateEnd",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000AF10",
+          "name": "deflateGetDictionary",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000AFE0",
+          "name": "deflateInit2_",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000B270",
+          "name": "deflateInit_",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000B2B0",
+          "name": "deflateParams",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000B480",
+          "name": "deflatePending",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000B500",
+          "name": "deflatePrime",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000B630",
+          "name": "deflateReset",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000B7D0",
+          "name": "deflateResetKeep",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000B8D0",
+          "name": "deflateSetDictionary",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000BB20",
+          "name": "deflateSetHeader",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000BBF0",
+          "name": "deflateTune",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000BC70",
+          "name": "deflate_huff",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000BEC0",
+          "name": "deflate_rle",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000C260",
+          "name": "fill_window",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000C4E0",
+          "name": "flush_pending",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000C610",
+          "name": "longest_match",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000C800",
+          "name": "read_buf",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000C8A0",
+          "name": "slide_hash",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000DDF8",
+          "name": "adler32",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000DE00",
+          "name": "crc32",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000DE08",
+          "name": "zcalloc",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000DE18",
+          "name": "_tr_init",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000DE20",
+          "name": "_tr_flush_block",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000DE28",
+          "name": "_tr_flush_bits",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000DE30",
+          "name": "_tr_align",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000DE38",
+          "name": "_tr_stored_block",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000DE40",
+          "name": "memcpy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000DE48",
+          "name": "memset",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "_tr_align",
+        "_tr_flush_bits",
+        "_tr_flush_block",
+        "_tr_init",
+        "_tr_stored_block",
+        "adler32",
+        "crc32",
+        "deflate",
+        "deflateBound",
+        "deflateCopy",
+        "deflateEnd",
+        "deflateGetDictionary",
+        "deflateInit2_",
+        "deflateInit_",
+        "deflateParams",
+        "deflatePending",
+        "deflatePrime",
+        "deflateReset",
+        "deflateResetKeep",
+        "deflateSetDictionary",
+        "deflateSetHeader",
+        "deflateTune",
+        "deflate_huff",
+        "deflate_rle",
+        "deflate_stored",
+        "fill_window",
+        "flush_pending",
+        "longest_match",
+        "memcpy",
+        "memset",
+        "read_buf",
+        "slide_hash",
+        "zcalloc"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "deflate.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 3,
+      "functions": [
+        {
+          "entry_point": "0x0000000000003500",
+          "name": "gzclose",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000004520",
+          "name": "gzclose_r",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000004528",
+          "name": "gzclose_w",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "gzclose",
+        "gzclose_r",
+        "gzclose_w"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "gzclose.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 22,
+      "functions": [
+        {
+          "entry_point": "0x0000000000005E00",
+          "name": "__local_stdio_printf_options",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000005E10",
+          "name": "gz_error",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000005F20",
+          "name": "gz_intmax",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000005F30",
+          "name": "gz_open",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000062A0",
+          "name": "gz_reset",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006300",
+          "name": "gzbuffer",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006340",
+          "name": "gzclearerr",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000063A0",
+          "name": "gzdopen",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006430",
+          "name": "gzeof",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006450",
+          "name": "gzerror",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000064A0",
+          "name": "gzoffset",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006510",
+          "name": "gzoffset64",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006570",
+          "name": "gzopen",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006580",
+          "name": "gzopen64",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006590",
+          "name": "gzopen_w",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000065A0",
+          "name": "gzrewind",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006600",
+          "name": "gzseek",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006630",
+          "name": "gzseek64",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000067B0",
+          "name": "gztell",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006810",
+          "name": "gztell64",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006850",
+          "name": "snprintf",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000068B0",
+          "name": "vsnprintf",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "__local_stdio_printf_options",
+        "gz_error",
+        "gz_intmax",
+        "gz_open",
+        "gz_reset",
+        "gzbuffer",
+        "gzclearerr",
+        "gzdopen",
+        "gzeof",
+        "gzerror",
+        "gzoffset",
+        "gzoffset64",
+        "gzopen",
+        "gzopen64",
+        "gzopen_w",
+        "gzrewind",
+        "gzseek",
+        "gzseek64",
+        "gztell",
+        "gztell64",
+        "snprintf",
+        "vsnprintf"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "gzlib.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 22,
+      "functions": [
+        {
+          "entry_point": "0x0000000000005800",
+          "name": "gz_avail",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000005890",
+          "name": "gz_decomp",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000059F0",
+          "name": "gz_fetch",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000005AA0",
+          "name": "gz_load",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000005B50",
+          "name": "gz_look",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000005D10",
+          "name": "gz_read",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000005EA0",
+          "name": "gz_skip",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000005FB0",
+          "name": "gzclose_r",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006060",
+          "name": "gzdirect",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000060A0",
+          "name": "gzfread",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006120",
+          "name": "gzgetc",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000061A0",
+          "name": "gzgetc_",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006210",
+          "name": "gzgets",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006350",
+          "name": "gzread",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000063C0",
+          "name": "gzungetc",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000007700",
+          "name": "inflate",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000007708",
+          "name": "inflateEnd",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000007710",
+          "name": "inflateReset",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000007718",
+          "name": "inflateInit2_",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000007748",
+          "name": "gz_error",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000007750",
+          "name": "memchr",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000007758",
+          "name": "memcpy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "gz_avail",
+        "gz_decomp",
+        "gz_error",
+        "gz_fetch",
+        "gz_load",
+        "gz_look",
+        "gz_read",
+        "gz_skip",
+        "gzclose_r",
+        "gzdirect",
+        "gzfread",
+        "gzgetc",
+        "gzgetc_",
+        "gzgets",
+        "gzread",
+        "gzungetc",
+        "inflate",
+        "inflateEnd",
+        "inflateInit2_",
+        "inflateReset",
+        "memchr",
+        "memcpy"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "gzread.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 24,
+      "functions": [
+        {
+          "entry_point": "0x0000000000005A00",
+          "name": "__local_stdio_printf_options",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000005A10",
+          "name": "gz_comp",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000005BD0",
+          "name": "gz_init",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000005CF0",
+          "name": "gz_write",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000005E30",
+          "name": "gz_zero",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006040",
+          "name": "gzclose_w",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006110",
+          "name": "gzflush",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006180",
+          "name": "gzfwrite",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006200",
+          "name": "gzprintf",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006230",
+          "name": "gzputc",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006300",
+          "name": "gzputs",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006390",
+          "name": "gzsetparams",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006450",
+          "name": "gzvprintf",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000065E0",
+          "name": "gzwrite",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006630",
+          "name": "vsnprintf",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000007968",
+          "name": "deflate",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000007970",
+          "name": "deflateEnd",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000007978",
+          "name": "deflateReset",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000007980",
+          "name": "deflateParams",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000007988",
+          "name": "deflateInit2_",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000079B8",
+          "name": "gz_error",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000079C0",
+          "name": "memcpy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000079C8",
+          "name": "memmove",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000079D0",
+          "name": "memset",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "__local_stdio_printf_options",
+        "deflate",
+        "deflateEnd",
+        "deflateInit2_",
+        "deflateParams",
+        "deflateReset",
+        "gz_comp",
+        "gz_error",
+        "gz_init",
+        "gz_write",
+        "gz_zero",
+        "gzclose_w",
+        "gzflush",
+        "gzfwrite",
+        "gzprintf",
+        "gzputc",
+        "gzputs",
+        "gzsetparams",
+        "gzvprintf",
+        "gzwrite",
+        "memcpy",
+        "memmove",
+        "memset",
+        "vsnprintf"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "gzwrite.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 7,
+      "functions": [
+        {
+          "entry_point": "0x0000000000005730",
+          "name": "inflateBack",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006610",
+          "name": "inflateBackEnd",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000006660",
+          "name": "inflateBackInit_",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000078B0",
+          "name": "zcalloc",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000078C0",
+          "name": "inflate_table",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000078C8",
+          "name": "inflate_fast",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000078D0",
+          "name": "memcpy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "inflateBack",
+        "inflateBackEnd",
+        "inflateBackInit_",
+        "inflate_fast",
+        "inflate_table",
+        "memcpy",
+        "zcalloc"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "infback.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 1,
+      "functions": [
+        {
+          "entry_point": "0x0000000000003F00",
+          "name": "inflate_fast",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "inflate_fast"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "inffast.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 27,
+      "functions": [
+        {
+          "entry_point": "0x0000000000008B30",
+          "name": "inflate",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000A3C0",
+          "name": "inflateCodesUsed",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000A410",
+          "name": "inflateCopy",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000A600",
+          "name": "inflateEnd",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000A680",
+          "name": "inflateGetDictionary",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000A730",
+          "name": "inflateGetHeader",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000A780",
+          "name": "inflateInit2_",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000AA10",
+          "name": "inflateInit_",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000AA20",
+          "name": "inflateMark",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000AAA0",
+          "name": "inflatePrime",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000AB20",
+          "name": "inflateReset",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000AC30",
+          "name": "inflateReset2",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000AD00",
+          "name": "inflateResetKeep",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000ADC0",
+          "name": "inflateSetDictionary",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000AEF0",
+          "name": "inflateSync",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000B0B0",
+          "name": "inflateSyncPoint",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000B100",
+          "name": "inflateUndermine",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000B150",
+          "name": "inflateValidate",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000B1B0",
+          "name": "syncsearch",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000B220",
+          "name": "updatewindow",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000C5E0",
+          "name": "adler32",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000C5E8",
+          "name": "crc32",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000C5F0",
+          "name": "zcalloc",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000C5F8",
+          "name": "zcfree",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000C600",
+          "name": "inflate_table",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000C608",
+          "name": "inflate_fast",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000C610",
+          "name": "memcpy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "adler32",
+        "crc32",
+        "inflate",
+        "inflateCodesUsed",
+        "inflateCopy",
+        "inflateEnd",
+        "inflateGetDictionary",
+        "inflateGetHeader",
+        "inflateInit2_",
+        "inflateInit_",
+        "inflateMark",
+        "inflatePrime",
+        "inflateReset",
+        "inflateReset2",
+        "inflateResetKeep",
+        "inflateSetDictionary",
+        "inflateSync",
+        "inflateSyncPoint",
+        "inflateUndermine",
+        "inflateValidate",
+        "inflate_fast",
+        "inflate_table",
+        "memcpy",
+        "syncsearch",
+        "updatewindow",
+        "zcalloc",
+        "zcfree"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "inflate.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 3,
+      "functions": [
+        {
+          "entry_point": "0x0000000000004100",
+          "name": "inflate_table",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000005770",
+          "name": "__report_rangecheckfailure",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x0000000000005780",
+          "name": "__security_check_cookie",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "__report_rangecheckfailure",
+        "__security_check_cookie",
+        "inflate_table"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "inftrees.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 19,
+      "functions": [
+        {
+          "entry_point": "0x0000000000007200",
+          "name": "_tr_align",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000072F0",
+          "name": "_tr_flush_bits",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000007300",
+          "name": "_tr_flush_block",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000007670",
+          "name": "_tr_init",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000076E0",
+          "name": "_tr_stored_block",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000007830",
+          "name": "_tr_tally",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000007900",
+          "name": "bi_flush",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000079A0",
+          "name": "bi_windup",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000007AD0",
+          "name": "build_tree",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000007D10",
+          "name": "compress_block",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000081F0",
+          "name": "gen_bitlen",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000008400",
+          "name": "gen_codes",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000008550",
+          "name": "init_block",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000008720",
+          "name": "pqdownheap",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000008810",
+          "name": "scan_tree",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000008920",
+          "name": "send_all_trees",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000008BC0",
+          "name": "send_tree",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x000000000000A418",
+          "name": "__security_check_cookie",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x000000000000A420",
+          "name": "memcpy",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "__security_check_cookie",
+        "_tr_align",
+        "_tr_flush_bits",
+        "_tr_flush_block",
+        "_tr_init",
+        "_tr_stored_block",
+        "_tr_tally",
+        "bi_flush",
+        "bi_windup",
+        "build_tree",
+        "compress_block",
+        "gen_bitlen",
+        "gen_codes",
+        "init_block",
+        "memcpy",
+        "pqdownheap",
+        "scan_tree",
+        "send_all_trees",
+        "send_tree"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "trees.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 5,
+      "functions": [
+        {
+          "entry_point": "0x0000000000003500",
+          "name": "uncompress",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000003660",
+          "name": "uncompress2",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x00000000000048A0",
+          "name": "inflate",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000048A8",
+          "name": "inflateEnd",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        },
+        {
+          "entry_point": "0x00000000000048B0",
+          "name": "inflateInit_",
+          "symbol_source": "DEFAULT",
+          "thunk": true
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "inflate",
+        "inflateEnd",
+        "inflateInit_",
+        "uncompress",
+        "uncompress2"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "uncompr.obj",
+      "source_languages": []
+    },
+    {
+      "compiler_spec": "windows",
+      "function_count": 5,
+      "functions": [
+        {
+          "entry_point": "0x0000000000003B00",
+          "name": "zError",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000003B30",
+          "name": "zcalloc",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000003B40",
+          "name": "zcfree",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000003B50",
+          "name": "zlibCompileFlags",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        },
+        {
+          "entry_point": "0x0000000000003B60",
+          "name": "zlibVersion",
+          "symbol_source": "IMPORTED",
+          "thunk": false
+        }
+      ],
+      "language_id": "x86:LE:64:default",
+      "named_functions": [
+        "zError",
+        "zcalloc",
+        "zcfree",
+        "zlibCompileFlags",
+        "zlibVersion"
+      ],
+      "prescript_stderr": "",
+      "prescript_stdout": "",
+      "program": "zutil.obj",
+      "source_languages": []
+    }
+  ],
+  "project_name": "zlib_library",
+  "project_parent": "FIDB/build/ghidra_library_project",
+  "stage": "analyze",
+  "total_functions": 191
+}

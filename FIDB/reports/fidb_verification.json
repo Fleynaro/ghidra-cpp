@@ -1,0 +1,381 @@
+{
+  "compiler_spec": "windows",
+  "consumer": "FIDB/build/consumer/zlib_detection.exe",
+  "direct_zlib_matches": [
+    {
+      "fid_name": "compress",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140001550",
+      "program_function": "compress",
+      "score": 897.760009765625,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "uncompress",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140001670",
+      "program_function": "uncompress",
+      "score": 155.79000854492188,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "adler32_z",
+      "library": "zlib",
+      "program_entry_point": "0x00000001400017E0",
+      "program_function": "adler32_z",
+      "score": 251.25,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "crc32_z",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140001AD0",
+      "program_function": "crc32_z",
+      "score": 282.0,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "deflate_stored",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140001F80",
+      "program_function": "deflate_stored",
+      "score": 1312.0799560546875,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "deflate",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140002E40",
+      "program_function": "deflate",
+      "score": 1658.0,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "deflateEnd",
+      "library": "zlib",
+      "program_entry_point": "0x00000001400038A0",
+      "program_function": "deflateEnd",
+      "score": 324.79998779296875,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "deflateInit2_",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140003990",
+      "program_function": "deflateInit2_",
+      "score": 395.9700012207031,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "deflateInit_",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140003C20",
+      "program_function": "deflateInit_",
+      "score": 251.6999969482422,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "deflateReset",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140003C60",
+      "program_function": "deflateReset",
+      "score": 322.54998779296875,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "deflate_huff",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140003E00",
+      "program_function": "deflate_huff",
+      "score": 1291.530029296875,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "deflate_rle",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140004050",
+      "program_function": "deflate_rle",
+      "score": 1412.300048828125,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "fill_window",
+      "library": "zlib",
+      "program_entry_point": "0x00000001400043F0",
+      "program_function": "fill_window",
+      "score": 614.5899658203125,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "flush_pending",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140004670",
+      "program_function": "flush_pending",
+      "score": 1460.0699462890625,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "longest_match",
+      "library": "zlib",
+      "program_entry_point": "0x00000001400046F0",
+      "program_function": "longest_match",
+      "score": 150.82000732421875,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "read_buf",
+      "library": "zlib",
+      "program_entry_point": "0x00000001400048B0",
+      "program_function": "read_buf",
+      "score": 538.0700073242188,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "inflateEnd",
+      "library": "zlib",
+      "program_entry_point": "0x00000001400061E0",
+      "program_function": "inflateEnd",
+      "score": 128.0,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "inflateInit2_",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140006260",
+      "program_function": "inflateInit2_",
+      "score": 172.0,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "inflateInit_",
+      "library": "zlib",
+      "program_entry_point": "0x00000001400064F0",
+      "program_function": "inflateInit_",
+      "score": 266.66998291015625,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "updatewindow",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140006500",
+      "program_function": "updatewindow",
+      "score": 108.79000091552734,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "_tr_align",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140006630",
+      "program_function": "_tr_align",
+      "score": 832.0800170898438,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "_tr_flush_block",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140006730",
+      "program_function": "_tr_flush_block",
+      "score": 1395.9599609375,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "_tr_init",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140006AA0",
+      "program_function": "_tr_init",
+      "score": 175.6699981689453,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "_tr_stored_block",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140006B10",
+      "program_function": "_tr_stored_block",
+      "score": 1379.8299560546875,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "bi_flush",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140006C60",
+      "program_function": "bi_flush",
+      "score": 88.05000305175781,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "bi_windup",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140006CE0",
+      "program_function": "bi_windup",
+      "score": 225.02999877929688,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "build_tree",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140006D40",
+      "program_function": "build_tree",
+      "score": 631.5,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "compress_block",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140006F80",
+      "program_function": "compress_block",
+      "score": 453.0,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "gen_bitlen",
+      "library": "zlib",
+      "program_entry_point": "0x00000001400073E0",
+      "program_function": "gen_bitlen",
+      "score": 292.52001953125,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "gen_codes",
+      "library": "zlib",
+      "program_entry_point": "0x00000001400075F0",
+      "program_function": "gen_codes",
+      "score": 246.13999938964844,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "init_block",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140007740",
+      "program_function": "init_block",
+      "score": 277.3500061035156,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "pqdownheap",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140007910",
+      "program_function": "pqdownheap",
+      "score": 192.0800018310547,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "scan_tree",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140007A00",
+      "program_function": "scan_tree",
+      "score": 282.41998291015625,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "send_all_trees",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140007B10",
+      "program_function": "send_all_trees",
+      "score": 717.8800048828125,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "send_tree",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140007DB0",
+      "program_function": "send_tree",
+      "score": 563.0899658203125,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "inflate_table",
+      "library": "zlib",
+      "program_entry_point": "0x0000000140008320",
+      "program_function": "inflate_table",
+      "score": 460.0899963378906,
+      "version": "1.3.1"
+    },
+    {
+      "fid_name": "inflate_fast",
+      "library": "zlib",
+      "program_entry_point": "0x00000001400088C0",
+      "program_function": "inflate_fast",
+      "score": 452.0899963378906,
+      "version": "1.3.1"
+    }
+  ],
+  "expected_match_count": 4,
+  "expected_matches": {
+    "adler32_z": [
+      {
+        "comment": "Library Function - Single Match\n adler32_z\n\nLibraries: Visual Studio 2019 Release, zlib 1.3.1 msvc-x86_64-release",
+        "entry_point": "0x00000001400017E0",
+        "fid_bookmark": "Library Function - Single Match,  adler32_z",
+        "name": "adler32_z",
+        "offset": 5368715232
+      }
+    ],
+    "compress": [
+      {
+        "comment": "Library Function - Single Match\n compress\n\nLibrary: zlib 1.3.1 msvc-x86_64-release",
+        "entry_point": "0x0000000140001550",
+        "fid_bookmark": "Library Function - Single Match,  compress",
+        "name": "compress",
+        "offset": 5368714576
+      }
+    ],
+    "crc32_z": [
+      {
+        "comment": "Library Function - Single Match\n crc32_z\n\nLibrary: zlib 1.3.1 msvc-x86_64-release",
+        "entry_point": "0x0000000140001AD0",
+        "fid_bookmark": "Library Function - Single Match,  crc32_z",
+        "name": "crc32_z",
+        "offset": 5368715984
+      }
+    ],
+    "uncompress": [
+      {
+        "comment": "Library Function - Single Match\n uncompress\n\nLibrary: zlib 1.3.1 msvc-x86_64-release",
+        "entry_point": "0x0000000140001670",
+        "fid_bookmark": "Library Function - Single Match,  uncompress",
+        "name": "uncompress",
+        "offset": 5368714864
+      }
+    ]
+  },
+  "fidb": {
+    "compiler_spec_filter": "windows",
+    "expected_function_records": [
+      "adler32_z",
+      "compress",
+      "crc32_z",
+      "uncompress"
+    ],
+    "fidb_path": "FIDB/libraries/zlib/1.3.1/zlib-1.3.1-msvc-x86_64-release.fidb",
+    "function_record_count": 123,
+    "language_id": "x86:LE:64:default",
+    "library_count": 1,
+    "library_family": "zlib",
+    "library_variant": "msvc-x86_64-release",
+    "library_version": "1.3.1",
+    "readable": true,
+    "source_language_filter": ""
+  },
+  "function_count": 147,
+  "ghidra_install_dir": "$GHIDRA_INSTALL_DIR",
+  "ghidra_version": "12.1.3",
+  "language_id": "x86:LE:64:default",
+  "non_zlib_control": {
+    "false_zlib_matches": [],
+    "map_offset": 5368713696,
+    "observed_rows": [
+      {
+        "comment": "",
+        "entry_point": "0x00000001400011E0",
+        "fid_bookmark": "",
+        "name": "FUN_1400011e0",
+        "offset": 5368713696
+      }
+    ],
+    "symbol": "non_zlib_control"
+  },
+  "pyghidra_version": "3.1.0",
+  "query_api": "Language compatibility overload",
+  "stage": "verify",
+  "status": "PASS"
+}
