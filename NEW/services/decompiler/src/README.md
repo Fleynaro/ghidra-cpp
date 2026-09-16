@@ -21,11 +21,14 @@ which is applied by [`decompiler_impl.cppm`](decompiler_impl.cppm) before native
 The x86 long-double and forced integer-format coverage is implemented in
 [`../tests/decompiler_datatests.cppm`](../tests/decompiler_datatests.cppm).
 
-`DecompilationResult` also exposes the native Clang XML markup and value-owned
+Set `FunctionDescription::capture_provenance` to request the additional
+viewer-oriented artifacts. `DecompilationResult` then exposes the native Clang XML markup, stable
+[`ClangMarkupNodeProvenance`](decompiler.cppm) IDs, value-owned
 [`PcodeOpProvenance`](decompiler.cppm) / [`VarnodeProvenance`](decompiler.cppm)
-snapshots. `decompiler_impl.cppm` captures these from the original
-`EmitMarkup`/`Funcdata` graph, preserving `opref`/`varref` joins to originating
-instruction addresses. The bidirectional contract is exercised by
+snapshots, and the direct [`InstructionProvenance`](decompiler.cppm) reverse
+index. `decompiler_impl.cppm` captures these from the original
+`EmitMarkup`/`Funcdata` graph, preserving `opref`/`varref` joins to complete
+Pcode operation sets and originating instruction addresses. The bidirectional contract is exercised by
 [`../tests/provenance_mapping_tests.cppm`](../tests/provenance_mapping_tests.cppm),
 which uses real x86-64 Sleigh decoding and checks nested fields, loops,
 conditionals, switch cases, calls, locals, parameters, and arithmetic.
