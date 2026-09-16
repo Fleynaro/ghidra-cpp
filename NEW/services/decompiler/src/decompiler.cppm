@@ -523,6 +523,74 @@ struct FunctionDescription {
     std::string name = "function";
     std::uint64_t entry = 0;
     std::uint64_t end = 0;
+    /// Requests Clang markup, stable node IDs, and reverse provenance indexes.
+    /// Disabled by default so callers that only need legacy artifacts avoid the
+    /// additional markup serialization pass.
+    bool capture_provenance = false;
+};
+
+/// Captures one native Varnode identity used by high-level Clang markup.
+///
+/// The `create_index` is the same identity emitted as the original Ghidra
+/// `ATTRIB_VARREF` by `EmitMarkup::tagVariable`, `tagField`, and related
+/// methods.  The snapshot is value-owned so callers can inspect provenance
+/// after the native Funcdata graph remains private to the Decompiler.
+struct VarnodeProvenance {
+    std::uint32_t create_index = 0;
+    std::string space;
+    std::uint64_t offset = 0;
+    std::uint32_t size = 0;
+    std::optional<std::uint64_t> defining_op;
+    std::string high_variable_name;
+    std::vector<std::uint64_t> clang_node_ids;
+};
+
+/// Captures one analyzed native PcodeOp and its Varnode edges.
+///
+/// `sequence` is the native `SeqNum::uniq` value emitted as `ATTRIB_OPREF` by
+/// the original Ghidra markup emitter.  `address` is the originating machine
+/// instruction address stored in the same native PcodeOp sequence number.
+struct PcodeOpProvenance {
+    std::uint64_t sequence = 0;
+    std::string opcode;
+    std::uint32_t opcode_value = 0;
+    std::string address_space;
+    std::uint64_t address = 0;
+    std::optional<std::uint32_t> output_varnode;
+    std::vector<std::uint32_t> input_varnodes;
+    std::vector<std::uint64_t> clang_node_ids;
+};
+
+/// Captures one stable, selectable or structural node in the native Clang markup tree.
+///
+/// `id` is stable for the lifetime of one `DecompilationResult` and is suitable
+/// for a viewer's click target. `operation_refs` contains the complete set of
+/// PcodeOp sequence IDs collected for the nearest statement, not just a
+/// preferred single anchor. `originating_addresses` is derived from those
+/// operations and is intentionally retained as a set because one source node
+/// can span multiple machine instructions.
+struct ClangMarkupNodeProvenance {
+    std::uint64_t id = 0;
+    std::string element;
+    std::string content;
+    bool selectable = false;
+    std::optional<std::uint64_t> parent_id;
+    std::optional<std::uint64_t> statement_id;
+    std::optional<std::uint32_t> varnode_ref;
+    std::optional<std::int64_t> field_offset;
+    /// Preserves the emitter's preferred single anchor when one exists.
+    std::optional<std::uint64_t> primary_operation_ref;
+    std::vector<std::uint64_t> operation_refs;
+    std::vector<std::uint64_t> originating_addresses;
+};
+
+/// Provides a direct reverse index from one originating ASM address to native operations and markup nodes.
+struct InstructionProvenance {
+    std::string address_space;
+    std::uint64_t address = 0;
+    std::uint32_t length = 0;
+    std::vector<std::uint64_t> pcode_operations;
+    std::vector<std::uint64_t> clang_node_ids;
 };
 
 /// Supplies additional function bodies that may be called or inlined by a root function.
@@ -544,6 +612,16 @@ struct DecompilationResult {
     std::string control_flow;
     std::string ast;
     std::string c_source;
+    /// XML Clang markup emitted by the native `EmitMarkup` path.
+    std::string clang_markup;
+    /// Structured Clang nodes with stable per-result IDs and complete origins.
+    std::vector<ClangMarkupNodeProvenance> clang_nodes;
+    /// Post-analysis native PcodeOps keyed by the markup `opref` sequence.
+    std::vector<PcodeOpProvenance> pcode_provenance;
+    /// Native Varnodes keyed by the markup `varref` creation index.
+    std::vector<VarnodeProvenance> varnode_provenance;
+    /// Direct reverse index from originating ASM addresses to PcodeOps and nodes.
+    std::vector<InstructionProvenance> instruction_provenance;
 };
 
 /// Provides sparse immutable bytes for tests, loaders, and decoder adapters.

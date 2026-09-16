@@ -1,3 +1,7 @@
+module;
+
+#include <pugixml.hpp>
+
 module decompiler;
 import std;
 import ghidra.decompiler;
@@ -251,6 +255,269 @@ static void validate_provider_pcode_arity(const PcodeOperation& operation) {
         default:
             throw ghidra::BadDataError("Provider p-code opcode has no native arity contract: " +
                                        std::to_string(opcode_value(operation.opcode)));
+    }
+}
+
+/// Copies the live native Funcdata provenance graph into stable value records.
+///
+/// Original sources: `Ghidra/Features/Decompiler/src/decompile/cpp/funcdata.cc`
+/// (`Funcdata::beginOpAll`, `Funcdata::beginLoc`) and
+/// `Ghidra/Features/Decompiler/src/decompile/cpp/prettyprint.cc`
+/// (`EmitMarkup::tagVariable`, `EmitMarkup::tagOp`).  The sequence time is
+/// deliberately retained because it is the cross-representation key used by
+/// Clang markup `opref` attributes.
+static void capture_native_provenance(const ghidra::Funcdata& data, DecompilationResult& result) {
+    result.pcode_provenance.clear();
+    result.varnode_provenance.clear();
+
+    for (auto iter = data.beginLoc(); iter != data.endLoc(); ++iter) {
+        const ghidra::Varnode* varnode = *iter;
+        VarnodeProvenance snapshot;
+        snapshot.create_index = varnode->getCreateIndex();
+        snapshot.space = varnode->getSpace() == nullptr ? std::string{} : varnode->getSpace()->getName();
+        snapshot.offset = varnode->getOffset();
+        snapshot.size = static_cast<std::uint32_t>(varnode->getSize());
+        if (const ghidra::PcodeOp* definition = varnode->getDef(); definition != nullptr) {
+            snapshot.defining_op = definition->getTime();
+        }
+        if (!varnode->isFree()) {
+            // Some transient SSA Varnodes intentionally have no HighVariable;
+            // the native accessor reports that state with LowlevelError rather
+            // than a nullable result, so provenance capture must not alter
+            // successful decompilation of those graphs.
+            try {
+                ghidra::HighVariable* high = varnode->getHigh();
+                if (high != nullptr) {
+                    if (ghidra::Symbol* symbol = high->getSymbol(); symbol != nullptr) {
+                        snapshot.high_variable_name = symbol->getName();
+                    }
+                }
+            } catch (const ghidra::LowlevelError&) {
+                snapshot.high_variable_name.clear();
+            }
+        }
+        result.varnode_provenance.push_back(std::move(snapshot));
+    }
+
+    for (auto iter = data.beginOpAll(); iter != data.endOpAll(); ++iter) {
+        const ghidra::PcodeOp* operation = iter->second;
+        PcodeOpProvenance snapshot;
+        snapshot.sequence = operation->getTime();
+        snapshot.opcode = operation->getOpName();
+        snapshot.opcode_value = static_cast<std::uint32_t>(operation->code());
+        snapshot.address_space =
+            operation->getAddr().getSpace() == nullptr ? std::string{} : operation->getAddr().getSpace()->getName();
+        snapshot.address = operation->getAddr().getOffset();
+        if (const ghidra::Varnode* output = operation->getOut(); output != nullptr) {
+            snapshot.output_varnode = output->getCreateIndex();
+        }
+        for (ghidra::int4 slot = 0; slot < operation->numInput(); ++slot) {
+            snapshot.input_varnodes.push_back(operation->getIn(slot)->getCreateIndex());
+        }
+        result.pcode_provenance.push_back(std::move(snapshot));
+    }
+}
+
+/// Reads one signed markup integer while accepting the decimal and hexadecimal
+/// forms emitted by the native XML encoder.
+static std::optional<std::int64_t> read_markup_signed(const pugi::xml_node& node, const char* name) {
+    const pugi::xml_attribute attribute = node.attribute(name);
+    if (!attribute) {
+        return std::nullopt;
+    }
+    try {
+        std::size_t consumed = 0;
+        const std::string value = attribute.as_string();
+        const std::int64_t parsed = std::stoll(value, &consumed, 0);
+        if (consumed != value.size()) {
+            return std::nullopt;
+        }
+        return parsed;
+    } catch (const std::exception&) {
+        return std::nullopt;
+    }
+}
+
+/// Reads one unsigned markup reference such as `opref` or `varref`.
+static std::optional<std::uint64_t> read_markup_unsigned(const pugi::xml_node& node, const char* name) {
+    const pugi::xml_attribute attribute = node.attribute(name);
+    if (!attribute) {
+        return std::nullopt;
+    }
+    try {
+        std::size_t consumed = 0;
+        const std::string value = attribute.as_string();
+        const std::uint64_t parsed = std::stoull(value, &consumed, 0);
+        if (consumed != value.size()) {
+            return std::nullopt;
+        }
+        return parsed;
+    } catch (const std::exception&) {
+        return std::nullopt;
+    }
+}
+
+/// Appends one identity to a small deterministic provenance set.
+template <typename Value> static void append_unique(std::vector<Value>& values, const Value& value) {
+    if (!std::ranges::contains(values, value)) {
+        values.push_back(value);
+    }
+}
+
+/// Identifies markup elements that a viewer can present as clickable tokens.
+static bool is_selectable_markup_element(std::string_view element) {
+    return element == "variable" || element == "field" || element == "bitfield" || element == "op" ||
+           element == "funcname" || element == "value" || element == "syntax" || element == "type" ||
+           element == "label" || element == "comment" || element == "return_type";
+}
+
+/// Recursively snapshots the native markup tree and returns all operation
+/// references below the current element. The returned set lets the caller
+/// associate every token in a statement with all of that statement's PcodeOps.
+static std::vector<std::uint64_t>
+collect_markup_tree(const pugi::xml_node& xml_node, std::optional<std::uint64_t> parent_id,
+                    std::optional<std::uint64_t> inherited_statement_id, std::vector<ClangMarkupNodeProvenance>& nodes,
+                    std::unordered_map<std::uint64_t, std::vector<std::uint64_t>>& statement_operations) {
+    const std::uint64_t node_id = nodes.size();
+    const bool statement = std::string_view(xml_node.name()) == "statement";
+    const std::optional<std::uint64_t> statement_id = statement ? std::optional{node_id} : inherited_statement_id;
+    ClangMarkupNodeProvenance node;
+    node.id = node_id;
+    node.element = xml_node.name();
+    node.content = xml_node.attribute("content").as_string();
+    if (node.content.empty()) {
+        node.content = xml_node.text().as_string();
+    }
+    node.selectable = is_selectable_markup_element(node.element);
+    node.parent_id = parent_id;
+    node.statement_id = statement_id;
+    if (const std::optional<std::uint64_t> varnode = read_markup_unsigned(xml_node, "varref"); varnode) {
+        node.varnode_ref = static_cast<std::uint32_t>(*varnode);
+    }
+    node.field_offset = read_markup_signed(xml_node, "off");
+    if (const std::optional<std::uint64_t> operation = read_markup_unsigned(xml_node, "opref"); operation) {
+        node.primary_operation_ref = *operation;
+        node.operation_refs.push_back(*operation);
+    }
+    nodes.push_back(std::move(node));
+
+    std::vector<std::uint64_t> subtree_operations = nodes.back().operation_refs;
+    for (pugi::xml_node child = xml_node.first_child(); child; child = child.next_sibling()) {
+        if (child.type() != pugi::node_element) {
+            continue;
+        }
+        const std::vector<std::uint64_t> child_operations =
+            collect_markup_tree(child, node_id, statement_id, nodes, statement_operations);
+        for (const std::uint64_t operation : child_operations) {
+            append_unique(subtree_operations, operation);
+        }
+    }
+    if (statement) {
+        statement_operations.emplace(node_id, subtree_operations);
+    }
+    return subtree_operations;
+}
+
+/// Converts native Clang XML markup into stable node records and complete
+/// Pcode/ASM reverse indexes for the viewer-facing result.
+static void capture_structured_clang_provenance(DecompilationResult& result) {
+    result.clang_nodes.clear();
+    result.instruction_provenance.clear();
+    for (PcodeOpProvenance& operation : result.pcode_provenance) {
+        operation.clang_node_ids.clear();
+        const auto decoded_instruction =
+            std::ranges::find_if(result.raw_instructions, [&operation](const Instruction& candidate) {
+                return candidate.address == operation.address;
+            });
+        const std::uint32_t instruction_length = decoded_instruction == result.raw_instructions.end()
+                                                     ? 0
+                                                     : static_cast<std::uint32_t>(decoded_instruction->length);
+        auto instruction =
+            std::ranges::find_if(result.instruction_provenance, [&operation](const InstructionProvenance& candidate) {
+                return candidate.address_space == operation.address_space && candidate.address == operation.address;
+            });
+        if (instruction == result.instruction_provenance.end()) {
+            result.instruction_provenance.push_back(InstructionProvenance{
+                operation.address_space, operation.address, instruction_length, {operation.sequence}, {}});
+        } else {
+            append_unique(instruction->pcode_operations, operation.sequence);
+        }
+    }
+    std::ranges::sort(result.instruction_provenance,
+                      [](const InstructionProvenance& left, const InstructionProvenance& right) {
+                          if (left.address_space != right.address_space) {
+                              return left.address_space < right.address_space;
+                          }
+                          return left.address < right.address;
+                      });
+    for (VarnodeProvenance& varnode : result.varnode_provenance) {
+        varnode.clang_node_ids.clear();
+    }
+
+    pugi::xml_document document;
+    const pugi::xml_parse_result parsed = document.load_string(result.clang_markup.c_str());
+    if (!parsed) {
+        throw ghidra::LowlevelError("Native Clang markup could not be parsed: " + std::string(parsed.description()));
+    }
+    std::unordered_map<std::uint64_t, std::vector<std::uint64_t>> statement_operations;
+    for (pugi::xml_node child = document.first_child(); child; child = child.next_sibling()) {
+        if (child.type() == pugi::node_element) {
+            collect_markup_tree(child, std::nullopt, std::nullopt, result.clang_nodes, statement_operations);
+        }
+    }
+    for (ClangMarkupNodeProvenance& node : result.clang_nodes) {
+        if (node.statement_id.has_value()) {
+            node.operation_refs = statement_operations.at(*node.statement_id);
+        }
+    }
+
+    // The original emitter annotates the case value, while the visible `case`
+    // keyword is a syntax token. Link that syntax token to its adjacent value
+    // so either part of a case label has deterministic viewer provenance.
+    for (std::size_t index = 0; index < result.clang_nodes.size(); ++index) {
+        ClangMarkupNodeProvenance& node = result.clang_nodes[index];
+        if (node.element != "syntax" || (node.content != "case" && node.content != "default") ||
+            !node.operation_refs.empty()) {
+            continue;
+        }
+        for (std::size_t candidate = index + 1; candidate < result.clang_nodes.size(); ++candidate) {
+            const ClangMarkupNodeProvenance& value = result.clang_nodes[candidate];
+            if (value.parent_id == node.parent_id && value.element == "value" && !value.operation_refs.empty()) {
+                node.operation_refs = value.operation_refs;
+                break;
+            }
+        }
+    }
+
+    for (ClangMarkupNodeProvenance& node : result.clang_nodes) {
+        for (const std::uint64_t sequence : node.operation_refs) {
+            const auto operation =
+                std::ranges::find_if(result.pcode_provenance, [sequence](const PcodeOpProvenance& candidate) {
+                    return candidate.sequence == sequence;
+                });
+            if (operation == result.pcode_provenance.end()) {
+                continue;
+            }
+            append_unique(operation->clang_node_ids, node.id);
+            append_unique(node.originating_addresses, operation->address);
+            const auto instruction = std::ranges::find_if(
+                result.instruction_provenance, [&operation](const InstructionProvenance& candidate) {
+                    return candidate.address_space == operation->address_space &&
+                           candidate.address == operation->address;
+                });
+            if (instruction != result.instruction_provenance.end()) {
+                append_unique(instruction->clang_node_ids, node.id);
+            }
+        }
+        if (node.varnode_ref.has_value()) {
+            const auto varnode =
+                std::ranges::find_if(result.varnode_provenance, [&node](const VarnodeProvenance& candidate) {
+                    return candidate.create_index == *node.varnode_ref;
+                });
+            if (varnode != result.varnode_provenance.end()) {
+                append_unique(varnode->clang_node_ids, node.id);
+            }
+        }
     }
 }
 
@@ -2352,6 +2619,7 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
     std::ostringstream ast;
     data->printLocalRange(ast);
     result.ast = ast.str();
+    detail::capture_native_provenance(*data, result);
     std::ostringstream c_output;
     // Provider declarations are source-level metadata rather than native
     // engine objects. Emit each supplied declaration once before the function
@@ -2366,9 +2634,31 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
         }
     }
     state_->architecture->print->setOutputStream(&c_output);
+    state_->architecture->print->setMarkup(false);
     state_->architecture->print->setFlat(false);
     state_->architecture->print->docFunction(data);
     result.c_source = c_output.str();
+    if (!function.capture_provenance) {
+        return result;
+    }
+
+    // Emit the same function through the original Clang XML markup path after
+    // plain output has been captured.  Use a fresh native printer so the
+    // existing architecture-owned printer retains its established lifecycle;
+    // `EmitMarkup` writes the authoritative `varref`/`opref` edges and no
+    // C-text parsing is involved in this snapshot.
+    std::ostringstream markup_output;
+    std::unique_ptr<ghidra::PrintLanguage> markup_print(
+        ghidra::PrintLanguageCapability::getDefault()->buildLanguage(state_->architecture.get()));
+    markup_print->initializeFromArchitecture();
+    markup_print->adjustTypeOperators();
+    markup_print->setOutputStream(&markup_output);
+    markup_print->setMarkup(true);
+    markup_print->setPackedOutput(false);
+    markup_print->setFlat(false);
+    markup_print->docFunction(data);
+    result.clang_markup = markup_output.str();
+    detail::capture_structured_clang_provenance(result);
     return result;
 }
 

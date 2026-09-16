@@ -100,7 +100,8 @@ target_sources(new_ghidra_decompiler_frontend
 )
 target_include_directories(new_ghidra_decompiler_frontend PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_compile_features(new_ghidra_decompiler_frontend PUBLIC cxx_std_23)
-target_link_libraries(new_ghidra_decompiler_frontend PUBLIC NewGhidra::Core NewGhidra::Decompiler NewGhidra::SleighRuntime)
+target_link_libraries(new_ghidra_decompiler_frontend PUBLIC NewGhidra::Core NewGhidra::Decompiler NewGhidra::SleighRuntime
+                                                            PRIVATE pugixml::pugixml)
 
 add_executable(decompiler_cli cli/decompiler_cli.cppm)
 set_target_properties(decompiler_cli PROPERTIES OUTPUT_NAME "new_ghidra_decompiler")
