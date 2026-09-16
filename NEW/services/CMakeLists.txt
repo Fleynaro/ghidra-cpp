@@ -5,6 +5,7 @@ add_subdirectory(sleigh)
 add_subdirectory(function_id)
 add_subdirectory(decompiler)
 add_subdirectory(analyzers)
+add_subdirectory(debugger)
 
 if(BUILD_TESTING)
     add_subdirectory(tests)
@@ -20,4 +21,5 @@ add_dependencies(new_ghidra_services
     new_ghidra_decompiler_frontend
     analyzer
     new_ghidra_analyzer_services
+    new_ghidra_win_dbg_eng
 )

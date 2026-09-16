@@ -6,6 +6,7 @@ target_sources(new_ghidra_cpp_bindings PUBLIC
         cpp/commands.cppm
         cpp/queries.cppm
         cpp/results.cppm
+        cpp/debugger.cppm
 )
 add_library(NewGhidra::CppBindings ALIAS new_ghidra_cpp_bindings)
 target_link_libraries(new_ghidra_cpp_bindings PUBLIC NewGhidra::RuntimeProject)

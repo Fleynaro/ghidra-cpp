@@ -18,6 +18,7 @@ if /I "%MODE%"=="sleigh" set "SOURCE_DIR=%SCRIPT_DIR%services\sleigh"
 if /I "%MODE%"=="pe" set "SOURCE_DIR=%SCRIPT_DIR%services\pe_loader"
 if /I "%MODE%"=="function_id" set "SOURCE_DIR=%SCRIPT_DIR%services\function_id"
 if /I "%MODE%"=="decompiler" set "SOURCE_DIR=%SCRIPT_DIR%services\decompiler"
+if /I "%MODE%"=="debugger" set "SOURCE_DIR=%SCRIPT_DIR%services\debugger"
 if /I "%MODE%"=="analyzer" set "SOURCE_DIR=%SCRIPT_DIR%services\analyzers"
 if /I "%MODE%"=="core" set "SOURCE_DIR=%SCRIPT_DIR%core"
 if /I "%MODE%"=="runtime" set "SOURCE_DIR=%SCRIPT_DIR%runtime"
@@ -88,7 +89,7 @@ endlocal
 exit /b 0
 
 :usage
-echo Usage: tidy.bat [all^|hello^|sleigh^|pe^|function_id^|decompiler^|analyzer^|core^|runtime^|services^|tests^|bindings] [--check]
+echo Usage: tidy.bat [all^|hello^|sleigh^|pe^|function_id^|decompiler^|debugger^|analyzer^|core^|runtime^|services^|tests^|bindings] [--check]
 echo.
 echo Default mode: all. Without --check, clang-tidy applies fixes.
 echo Use --check to analyze files without modifying source files.

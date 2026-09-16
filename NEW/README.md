@@ -9,6 +9,7 @@
 - [`runtime/README.md`](runtime/README.md) documents workers, persistence, projections, scheduling, and lifecycle.
 - [`services/README.md`](services/README.md) documents migrated feature services and their tests.
 - [`bindings/cpp/README.md`](bindings/cpp/README.md) documents the native C++ facade. Python, JavaScript, and Go bindings are out of scope.
+- [`services/debugger/win_dbg_eng/README.md`](services/debugger/win_dbg_eng/README.md) documents the generic debugger contract adapter and dedicated DbgEng engine thread.
 - [`tests/README.md`](tests/README.md) documents root integration and replay tests.
 
 ## Build

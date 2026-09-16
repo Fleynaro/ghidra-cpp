@@ -15,6 +15,7 @@ The implementation now uses the conceptual service-platform tree. The historical
 - `NEW/services/function_id` contains the autonomous FID parser, hasher, query implementation, and tests.
 - `NEW/services/pe_loader` contains the substantial value-oriented PE model/parser and service contract adapter.
 - `NEW/services/analyzers` contains all migrated analyzer ports and fixtures; orchestration is owned by `NEW/runtime/analysis`.
+- `NEW/services/debugger/win_dbg_eng` implements the generic debugger contract for Windows DbgEng while keeping its engine thread and native callbacks private.
 - `NEW/core`, `NEW/services`, `NEW/runtime`, and `NEW/bindings` are the active architectural layers.
 - `NEW/services/analyzers/shared/src/analyzer_context.cppm` remains an internal compatibility context for the migrated parity suite; new runtime-facing services use canonical snapshots/contracts.
 
@@ -270,6 +271,29 @@ MVP composition exception: existing analyzer/FID CMake targets may link concrete
 - A **provider** is a passive source of read-only data or an adapter to an external resource. Examples: image bytes, architecture metadata, a read-only FID database, and a project query view.
 - A **service** performs an operation. Examples: loading a PE, decoding instructions, decompiling a function, matching a Function ID, or running an analyzer.
 - A **runtime component** owns infrastructure and scheduling. It should not decide what a Function ID match means or how a p-code rule works.
+
+### 3.3 Debugger service boundary
+
+The debugger follows the same dependency direction but has an additional
+thread-affinity boundary. [`core/domain/debugger.cppm`](core/domain/debugger.cppm)
+contains backend-neutral process, thread, register, memory, stack, module,
+breakpoint, watchpoint, exception, state, and event values. The interface in
+[`core/contracts/debugger.cppm`](core/contracts/debugger.cppm) returns the
+existing `Task<Result<T>>` for launch, attach, continue, pause, and stepping
+operations; immediate inspection is still marshalled synchronously when a
+backend requires it.
+
+[`services/debugger/win_dbg_eng/win_dbg_eng.cppm`](services/debugger/win_dbg_eng/win_dbg_eng.cppm)
+is an implementation adapter, not part of the core model. It creates and
+releases DbgEng interfaces on one dedicated `std::jthread`, queues every native
+call to that thread, sets execution status, and completes pending tasks only
+after the same thread returns from bounded `WaitForEvent` calls. Native event
+callbacks capture immutable data and enqueue generic events; they do not invoke
+analysis or decompilation. The C++ facade in
+[`bindings/cpp/debugger.cppm`](bindings/cpp/debugger.cppm) accepts any
+`IDebugger` implementation and therefore does not depend on DbgEng. See the
+backend's [`GHIDRA_PORT.md`](services/debugger/win_dbg_eng/GHIDRA_PORT.md) for
+DbgEng limitations, step-out mapping, lifetime rules, and test evidence.
 
 ## 4. Canonical Core Domain
 

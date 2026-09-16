@@ -83,6 +83,11 @@ if /I "%MODE%"=="decompiler" (
     set "TEST_FILTER=^(decompiler_tests|native_paramstore_tests|native_circlerange_tests|native_funcproto_tests|decompiler_architecture_tests|metadata_provider_tests|decompiler_cli_help)$"
     goto mode_selected
 )
+if /I "%MODE%"=="debugger" (
+    set "BUILD_TARGET=win_dbg_eng_tests"
+    set "TEST_FILTER=^win_dbg_eng_tests$"
+    goto mode_selected
+)
 if /I "%MODE%"=="constant_propagation" (
     set "BUILD_TARGET=analyzer_constant_propagation analyzer_constant_propagation_tests"
     set "TEST_FILTER=^analyzer_constant_propagation_tests$"
@@ -268,6 +273,7 @@ if "%RUN_TESTS%"=="0" (
     if /I "%MODE%"=="pe" set "BUILD_TARGET=pe_loader"
     if /I "%MODE%"=="function_id" set "BUILD_TARGET=function_id function_id_cli"
     if /I "%MODE%"=="decompiler" set "BUILD_TARGET=new_ghidra_decompiler_frontend decompiler_cli"
+    if /I "%MODE%"=="debugger" set "BUILD_TARGET=new_ghidra_win_dbg_eng"
     if /I "%MODE%"=="analyzer" set "BUILD_TARGET=analyzer"
     if /I "%MODE%"=="constant_propagation" set "BUILD_TARGET=analyzer_constant_propagation"
     if /I "%MODE%"=="data_reference" set "BUILD_TARGET=analyzer_data_reference"
@@ -360,7 +366,7 @@ endlocal
 exit /b 0
 
 :usage
-echo Usage: build.bat [app^|hello^|sleigh^|pe^|function_id^|decompiler^|analyzer^|analyzer_global_integration^|shared_function_body^|all] [--no-test] [--clean]
+echo Usage: build.bat [app^|hello^|sleigh^|pe^|function_id^|decompiler^|debugger^|analyzer^|analyzer_global_integration^|shared_function_body^|all] [--no-test] [--clean]
 echo.
 echo Default mode: all. The build directory is preserved for fast incremental builds.
 echo Use a module mode to build and test only that module.
