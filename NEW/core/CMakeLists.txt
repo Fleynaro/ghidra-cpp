@@ -30,6 +30,7 @@ set(NEW_GHIDRA_CORE_MODULES
     domain/analysis_fact.cppm
     domain/architecture.cppm
     domain/processor_context.cppm
+    domain/decoded_instruction.cppm
     domain/variable.cppm
     domain/function_id.cppm
     domain/decompilation.cppm

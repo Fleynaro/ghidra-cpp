@@ -1,41 +1,24 @@
 export module decompiler;
 
 import std;
+export import ghidra.core;
 
 export namespace newghidra::decompiler {
 
-/// Describes one concrete p-code storage location supplied by a provider.
-struct Storage {
-    std::string space;
-    std::uint64_t offset = 0;
-    std::uint32_t size = 0;
-};
+/// Re-exports the canonical storage value used by p-code and ABI boundaries.
+using Storage = ghidra::core::StorageLocation;
 
-/// Describes one p-code operation before it is materialized in the native engine.
-struct PcodeOperation {
-    std::uint32_t opcode = 0;
-    std::optional<Storage> output;
-    std::vector<Storage> inputs;
-    /// Names the address space targeted by LOAD/STORE. The public provider
-    /// contract keeps the target space here; `inputs` contain the address and
-    /// value operands. A legacy constant-space selector is also accepted when
-    /// it is the first input and encodes the same target space.
-    std::optional<std::string> memory_space;
-};
+/// Re-exports the canonical p-code operation used by Sleigh and decompiler providers.
+using PcodeOperation = ghidra::core::PcodeOp;
 
-/// Describes one decoded instruction and its raw p-code sequence.
-struct Instruction {
-    std::uint64_t address = 0;
-    std::size_t length = 0;
-    std::string mnemonic;
-    std::string assembly;
-    std::vector<PcodeOperation> pcode;
-};
+/// Re-exports the canonical opcode enumeration used by provider operations.
+using PcodeOpcode = ghidra::core::PcodeOpcode;
 
-/// Carries a provider failure without exposing any decoder implementation type.
-struct ProviderError {
-    std::string message;
-};
+/// Re-exports the canonical decoder snapshot shared by Sleigh and the native frontend.
+using Instruction = ghidra::core::DecodedInstruction;
+
+/// Re-exports the canonical decoder failure value.
+using ProviderError = ghidra::core::DecodeError;
 
 /// Selects the integer representation used by the native C printer.
 ///

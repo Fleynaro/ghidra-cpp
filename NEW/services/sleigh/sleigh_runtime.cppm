@@ -2,192 +2,23 @@
 // public API does not depend on textual standard-header inclusion.
 export module sleigh_runtime;
 import std;
+export import ghidra.core;
 
 export namespace sleigh_runtime {
 
-/// Identifies the semantic class of a decoded assembly operand.
-enum class OperandKind : std::uint8_t {
-    unknown,
-    register_value,
-    immediate,
-    memory,
-    address,
-};
-
-/// Describes one operand as printed by the compiled Sleigh constructor.
-struct Operand {
-    std::string text;
-    OperandKind kind = OperandKind::unknown;
-    std::optional<std::uint64_t> value;
-
-    /// Objects emitted by the original Sleigh operand representation walker.
-    struct HashObject {
-        enum class Kind : std::uint8_t { scalar, register_value, address };
-        Kind kind{Kind::scalar};
-        std::int64_t value{};
-        bool whole_scalar{};
-        bool address_scalar{};
-        bool relocated{};
-    };
-    /// Exact instruction-byte mask associated with this operand value.
-    std::vector<std::uint8_t> value_mask;
-    /// Exact Scalar/Register/Address objects returned by getOpObjects().
-    std::vector<HashObject> hash_objects;
-};
-
-/// Identifies a concrete p-code storage location.
-struct Varnode {
-    std::string space;
-    std::uint64_t offset = 0;
-    std::uint32_t size = 0;
-
-    /// Compares the complete storage identity of two varnodes.
-    friend bool operator==(const Varnode&, const Varnode&) = default;
-};
-
-/// The p-code operation identifier used by the Sleigh specification.
-enum class PcodeOpcode : std::uint8_t {
-    copy = 1,
-    load = 2,
-    store = 3,
-    branch = 4,
-    cbranch = 5,
-    branch_ind = 6,
-    call = 7,
-    call_ind = 8,
-    call_other = 9,
-    return_op = 10,
-    int_equal = 11,
-    int_not_equal = 12,
-    int_sless = 13,
-    int_sless_equal = 14,
-    int_less = 15,
-    int_less_equal = 16,
-    int_zext = 17,
-    int_sext = 18,
-    int_add = 19,
-    int_sub = 20,
-    int_carry = 21,
-    int_scarry = 22,
-    int_sborrow = 23,
-    int_two_comp = 24,
-    int_negate = 25,
-    int_xor = 26,
-    int_and = 27,
-    int_or = 28,
-    int_left = 29,
-    int_right = 30,
-    int_sright = 31,
-    int_mult = 32,
-    int_div = 33,
-    int_sdiv = 34,
-    int_rem = 35,
-    int_srem = 36,
-    bool_negate = 37,
-    bool_xor = 38,
-    bool_and = 39,
-    bool_or = 40,
-    float_equal = 41,
-    float_not_equal = 42,
-    float_less = 43,
-    float_less_equal = 44,
-    float_nan = 46,
-    float_add = 47,
-    float_div = 48,
-    float_mult = 49,
-    float_sub = 50,
-    float_neg = 51,
-    float_abs = 52,
-    float_sqrt = 53,
-    float_int_to_float = 54,
-    float_float_to_float = 55,
-    float_trunc = 56,
-    float_ceil = 57,
-    float_floor = 58,
-    float_round = 59,
-    multiequal = 60,
-    indirect = 61,
-    piece = 62,
-    subpiece = 63,
-    cast = 64,
-    ptradd = 65,
-    ptrsub = 66,
-    segment_op = 67,
-    cpool_ref = 68,
-    new_op = 69,
-    insert = 70,
-    zpull = 71,
-    popcount = 72,
-    lzcount = 73,
-    spull = 74,
-};
-
-/// Describes control-flow semantics emitted for the instruction.
-enum class FlowKind : std::uint8_t {
-    none,
-    branch,
-    conditional_branch,
-    conditional_call,
-    call,
-    indirect_branch,
-    indirect_call,
-    return_op,
-};
-
-/// Represents one materialized p-code operation.
-struct PcodeOp {
-    PcodeOpcode opcode = PcodeOpcode::copy;
-    std::optional<Varnode> output;
-    std::vector<Varnode> inputs;
-    // LOAD/STORE preserve the target address-space name separately from the
-    // legacy constant selector used by native Ghidra p-code.
-    std::optional<std::string> memory_space;
-    // Source operand provenance is optional because legacy SLA records do not
-    // carry the Java OperandObject association used by
-    // Ghidra/Features/Base/src/main/java/ghidra/program/util/SymbolicPropogator.java.
-    std::optional<std::size_t> source_operand;
-};
-
-/// Represents one control-flow effect discovered in the materialized p-code.
-struct FlowInfo {
-    FlowKind kind = FlowKind::none;
-    std::optional<Varnode> target;
-    bool has_fallthrough = true;
-    bool terminal = false;
-};
-
-/// Supplies one low-level processor context value by its Sleigh field name.
-struct ContextValue {
-    std::string name;
-    std::uint64_t value = 0;
-};
-
-/// Supplies low-level processor context values by their Sleigh field names.
-struct ProcessorContext {
-    std::vector<ContextValue> values;
-};
-
-/// The complete result of decoding one machine instruction.
-struct Instruction {
-    std::uint64_t address = 0;
-    std::size_t length = 0;
-    /// Exact machine-code bytes consumed by the matched Sleigh constructor.
-    std::vector<std::uint8_t> bytes;
-    std::string mnemonic;
-    std::string assembly;
-    std::vector<Operand> operands;
-    /// Mask returned by InstructionPrototype.getInstructionMask().
-    std::vector<std::uint8_t> instruction_mask;
-    /// True when the owning Sleigh specification is an x86 language.
-    bool is_x86{};
-    FlowInfo flow;
-    std::vector<PcodeOp> pcode;
-};
-
-/// Describes a decode failure without exposing legacy Ghidra exception types.
-struct DecodeError {
-    std::string message;
-};
+/// Re-exports the canonical decoder value vocabulary without defining runtime-local DTOs.
+using OperandKind = ghidra::core::OperandKind;
+using Operand = ghidra::core::DecodedOperand;
+using Varnode = ghidra::core::StorageLocation;
+using PcodeOpcode = ghidra::core::PcodeOpcode;
+using PcodeOp = ghidra::core::PcodeOp;
+using FlowKind = ghidra::core::FlowKind;
+using FlowInfo = ghidra::core::DecodedFlowInfo;
+using ProcessorContext = ghidra::core::ProcessorContext;
+/// Preserves the pair-based context fixture spelling without defining a runtime DTO.
+using ContextValue = std::pair<std::string, std::uint64_t>;
+using Instruction = ghidra::core::DecodedInstruction;
+using DecodeError = ghidra::core::DecodeError;
 
 /// Owns a compiled SLA runtime and decodes bounded instruction windows.
 class Decoder final {

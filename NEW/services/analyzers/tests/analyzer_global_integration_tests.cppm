@@ -177,7 +177,7 @@ struct AnalysisFingerprint {
     }
     for (const auto& fact : context.constant_facts()) {
         std::ostringstream row;
-        row << std::hex << fact.instruction << ':' << fact.location.space << ':' << fact.location.offset << ':'
+        row << std::hex << fact.instruction << ':' << fact.location.space.name() << ':' << fact.location.offset << ':'
             << fact.value << ':' << fact.path_stable << ':' << fact.function_entry;
         result.constants.push_back(row.str());
     }

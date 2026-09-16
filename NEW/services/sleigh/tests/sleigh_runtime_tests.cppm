@@ -3,6 +3,14 @@ import std;
 
 import sleigh_runtime;
 
+static_assert(std::is_same_v<sleigh_runtime::Instruction, ghidra::core::DecodedInstruction>);
+static_assert(std::is_same_v<sleigh_runtime::Operand, ghidra::core::DecodedOperand>);
+static_assert(std::is_same_v<sleigh_runtime::Varnode, ghidra::core::StorageLocation>);
+static_assert(std::is_same_v<sleigh_runtime::PcodeOp, ghidra::core::PcodeOp>);
+static_assert(std::is_same_v<sleigh_runtime::PcodeOpcode, ghidra::core::PcodeOpcode>);
+static_assert(std::is_same_v<sleigh_runtime::FlowInfo, ghidra::core::DecodedFlowInfo>);
+static_assert(std::is_same_v<sleigh_runtime::ProcessorContext, ghidra::core::ProcessorContext>);
+
 namespace {
 
 /// Creates the decoder from the module-local compiled x86-64 specification.

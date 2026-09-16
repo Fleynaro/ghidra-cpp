@@ -133,7 +133,7 @@ public:
                             mask_end = index + 1;
                         }
                     }
-                    for (const auto& decoded_object : decoded_operand.hash_objects) {
+                    for (const auto& decoded_object : decoded_operand.objects) {
                         const auto relocated = [&]() {
                             if (mask_begin == decoded_operand.value_mask.size())
                                 return decoded_object.relocated;

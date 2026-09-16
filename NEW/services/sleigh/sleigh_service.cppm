@@ -31,7 +31,7 @@ public:
         try {
             sleigh_runtime::ProcessorContext context;
             for (const auto& [name, value] : request.context.values)
-                context.values.push_back(sleigh_runtime::ContextValue{name, value});
+                context.values.push_back({name, value});
             auto decoded = decoder_->decode(request.address.offset, request.bytes.view(), context);
             if (!decoded)
                 return std::unexpected(core::Error::make(core::DiagnosticCode::parse_failure, decoded.error().message));
@@ -102,7 +102,7 @@ private:
             converted.text = operand.text;
             converted.kind = static_cast<core::OperandKind>(operand.kind);
             converted.value_mask = operand.value_mask;
-            for (const auto& object : operand.hash_objects)
+            for (const auto& object : operand.objects)
                 converted.objects.push_back(core::OperandObject{static_cast<core::OperandObject::Kind>(object.kind),
                                                                 object.value, object.whole_scalar,
                                                                 object.address_scalar, object.relocated});
@@ -113,8 +113,7 @@ private:
         }
         result.flow.kind = static_cast<core::FlowKind>(source.flow.kind);
         if (source.flow.target)
-            result.flow.target =
-                core::Address{core::AddressSpaceId{source.flow.target->space}, source.flow.target->offset};
+            result.flow.target = core::Address{source.flow.target->space, source.flow.target->offset};
         result.flow.has_fallthrough = source.flow.has_fallthrough;
         result.flow.terminal = source.flow.terminal;
         for (std::size_t index = 0; index < source.pcode.size(); ++index) {
@@ -122,15 +121,12 @@ private:
             core::PcodeOp converted;
             converted.opcode = static_cast<core::PcodeOpcode>(operation.opcode);
             converted.sequence_index = index;
-            converted.memory_space =
-                operation.memory_space ? std::optional{core::AddressSpaceId{*operation.memory_space}} : std::nullopt;
+            converted.memory_space = operation.memory_space;
             converted.source_operand = operation.source_operand;
             if (operation.output)
-                converted.output = core::StorageLocation{core::AddressSpaceId{operation.output->space},
-                                                         operation.output->offset, operation.output->size};
+                converted.output = *operation.output;
             for (const auto& input : operation.inputs)
-                converted.inputs.push_back(
-                    core::StorageLocation{core::AddressSpaceId{input.space}, input.offset, input.size});
+                converted.inputs.push_back(input);
             result.pcode.operations.push_back(std::move(converted));
         }
         return result;

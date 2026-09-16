@@ -652,9 +652,9 @@ void materialize_hash_metadata(const ghidra::Sleigh& translator, ghidra::ParserC
         for (const auto& handle : handles) {
             if (x86)
                 append_hash_handle(translator, parser->getAddr(), handle, whole_scalar, address_scalar,
-                                   operand.hash_objects);
+                                   operand.objects);
             else
-                append_generic_hash_handle(translator, handle, whole_scalar, address_scalar, operand.hash_objects);
+                append_generic_hash_handle(translator, handle, whole_scalar, address_scalar, operand.objects);
         }
         operands.push_back(std::move(operand));
     }
@@ -851,8 +851,8 @@ public:
             image_.set_bytes(address, bytes);
             context_->reset();
             translator.reset(&image_, context_.get());
-            for (const ContextValue& value : processor_context.values) {
-                context_->setVariableDefault(value.name, value.value);
+            for (const auto& [name, value] : processor_context.values) {
+                context_->setVariableDefault(name, value);
             }
 
             const ghidra::Address instruction_address(translator.getDefaultCodeSpace(), address);

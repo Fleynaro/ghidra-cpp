@@ -109,7 +109,7 @@ Options parse_options(int argc, char* argv[]) {
 
 /// Formats a concrete p-code varnode for stable console output.
 std::string format_varnode(const sleigh_runtime::Varnode& varnode) {
-    return std::format("{}[0x{:x}:{}]", varnode.space, varnode.offset, varnode.size);
+    return std::format("{}[0x{:x}:{}]", varnode.space.name(), varnode.offset, varnode.size);
 }
 
 /// Formats one p-code operation as an assignment-like textual expression.

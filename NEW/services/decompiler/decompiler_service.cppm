@@ -57,9 +57,8 @@ public:
         result.assembly = decoded->assembly;
         for (const auto& operation : decoded->pcode.operations) {
             newghidra::decompiler::PcodeOperation converted;
-            converted.opcode = static_cast<std::uint32_t>(operation.opcode);
-            converted.memory_space =
-                operation.memory_space ? std::optional{operation.memory_space->name()} : std::nullopt;
+            converted.opcode = operation.opcode;
+            converted.memory_space = operation.memory_space;
             if (operation.output)
                 converted.output = newghidra::decompiler::Storage{operation.output->space.name(),
                                                                   operation.output->offset, operation.output->size};

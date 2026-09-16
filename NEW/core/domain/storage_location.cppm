@@ -11,6 +11,17 @@ struct StorageLocation {
     std::uint64_t offset{};
     std::uint32_t size{};
 
+    /// Constructs an empty location for incremental decoder materialization.
+    StorageLocation() = default;
+
+    /// Constructs a storage location from a stable address-space name.
+    StorageLocation(std::string space_name, std::uint64_t storage_offset, std::uint32_t storage_size)
+        : space(std::move(space_name)), offset(storage_offset), size(storage_size) {}
+
+    /// Constructs a storage location from an existing domain address-space identifier.
+    StorageLocation(AddressSpaceId storage_space, std::uint64_t storage_offset, std::uint32_t storage_size)
+        : space(std::move(storage_space)), offset(storage_offset), size(storage_size) {}
+
     /// Compares the complete storage identity.
     friend bool operator==(const StorageLocation&, const StorageLocation&) = default;
 };

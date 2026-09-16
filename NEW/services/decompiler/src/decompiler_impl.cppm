@@ -10,6 +10,11 @@ import sleigh_runtime;
 namespace newghidra::decompiler {
 namespace detail {
 
+/// Returns the stable numeric encoding of a canonical p-code opcode.
+[[nodiscard]] constexpr std::uint32_t opcode_value(ghidra::core::PcodeOpcode opcode) noexcept {
+    return std::to_underlying(opcode);
+}
+
 /// Checks one provider storage record before it is converted to native
 /// VarnodeData. Non-empty spaces and non-zero, non-wrapping ranges are
 /// required because the native engine cannot represent malformed varnodes.
@@ -22,7 +27,8 @@ static void validate_storage(const Storage& storage, std::string_view context) {
     }
     // Constant-space offsets are values, not byte addresses, and may use the
     // full uint64 range without making the represented varnode wrap.
-    if (storage.space != "const" && storage.offset > std::numeric_limits<std::uint64_t>::max() - (storage.size - 1U)) {
+    if (storage.space.name() != "const" &&
+        storage.offset > std::numeric_limits<std::uint64_t>::max() - (storage.size - 1U)) {
         throw ghidra::BadDataError(std::string(context) + " address range overflows");
     }
 }
@@ -46,7 +52,8 @@ static void validate_instruction(const Instruction& instruction, std::uint64_t r
         throw ghidra::BadDataError("Provider returned an invalid instruction length or overflowing address");
     }
     for (const PcodeOperation& operation : instruction.pcode) {
-        if (operation.opcode == 0 || operation.opcode >= static_cast<std::uint32_t>(ghidra::CPUI_MAX)) {
+        if (opcode_value(operation.opcode) == 0 ||
+            opcode_value(operation.opcode) >= static_cast<std::uint32_t>(ghidra::CPUI_MAX)) {
             throw ghidra::BadDataError("Provider returned an invalid p-code opcode");
         }
         validate_provider_pcode_arity(operation);
@@ -67,7 +74,7 @@ static void validate_instruction(const Instruction& instruction, std::uint64_t r
 /// selector is accepted without dropping a real constant address.
 static bool has_matching_memory_selector(const PcodeOperation& operation, ghidra::AddrSpace* memory_space,
                                          const ghidra::Translate* translator) {
-    if (operation.inputs.empty() || operation.inputs.front().space != "const") {
+    if (operation.inputs.empty() || operation.inputs.front().space.name() != "const") {
         return false;
     }
     const ghidra::Address encoded_space = translator->createConstFromSpace(memory_space);
@@ -113,7 +120,9 @@ static std::vector<Storage> provider_storage_sequence(const std::optional<Storag
 /// Original indexing boundary: `Ghidra/Features/Decompiler/src/decompile/cpp/funcdata.cc`,
 /// `PcodeEmitFd::dump`, and `translate.cc`, `PcodeEmit::dump` callers.
 static void validate_provider_pcode_arity(const PcodeOperation& operation) {
-    const auto opname = [&] { return std::string(ghidra::get_opname(static_cast<ghidra::OpCode>(operation.opcode))); };
+    const auto opname = [&] {
+        return std::string(ghidra::get_opname(static_cast<ghidra::OpCode>(opcode_value(operation.opcode))));
+    };
     const auto fail_exact = [&](std::size_t expected) {
         if (operation.inputs.size() != expected) {
             throw ghidra::BadDataError("Provider p-code " + opname() + " has " +
@@ -137,7 +146,7 @@ static void validate_provider_pcode_arity(const PcodeOperation& operation) {
             return;
         }
         if (operation.inputs.size() == native && !operation.inputs.front().space.empty() &&
-            operation.inputs.front().space == "const") {
+            operation.inputs.front().space.name() == "const") {
             return;
         }
         throw ghidra::BadDataError("Provider p-code " + opname() + " has " + std::to_string(operation.inputs.size()) +
@@ -145,7 +154,7 @@ static void validate_provider_pcode_arity(const PcodeOperation& operation) {
                                    std::to_string(native) + " operands with a leading constant-space selector");
     };
 
-    switch (static_cast<ghidra::OpCode>(operation.opcode)) {
+    switch (static_cast<ghidra::OpCode>(opcode_value(operation.opcode))) {
         case ghidra::CPUI_COPY:
             fail_exact(1);
             break;
@@ -241,8 +250,26 @@ static void validate_provider_pcode_arity(const PcodeOperation& operation) {
             break;
         default:
             throw ghidra::BadDataError("Provider p-code opcode has no native arity contract: " +
-                                       std::to_string(operation.opcode));
+                                       std::to_string(opcode_value(operation.opcode)));
     }
+}
+
+/// Normalizes native Sleigh LOAD/STORE selector operands into the shared provider contract.
+///
+/// The runtime retains the native constant-space selector as provenance. The
+/// decompiler frontend materializes that selector itself from `memory_space`,
+/// so it removes only the leading selector while retaining real constants.
+[[nodiscard]] static PcodeOperation normalize_sleigh_operation(const PcodeOperation& operation) {
+    PcodeOperation normalized = operation;
+    std::size_t first_input = 0;
+    if (operation.memory_space.has_value() &&
+        (operation.opcode == PcodeOpcode::load || operation.opcode == PcodeOpcode::store) &&
+        !operation.inputs.empty() && operation.inputs.front().space.name() == "const") {
+        first_input = 1;
+    }
+    normalized.inputs.assign(operation.inputs.begin() + static_cast<std::ptrdiff_t>(first_input),
+                             operation.inputs.end());
+    return normalized;
 }
 
 /// Converts a provider storage sequence into a native parameter address. The
@@ -263,9 +290,10 @@ static ghidra::ParameterPieces make_provider_storage(ghidra::Architecture* archi
     native_pieces.reserve(storage.size());
     for (const Storage& piece : storage) {
         validate_storage(piece, context);
-        ghidra::AddrSpace* space = architecture->getSpaceByName(piece.space);
+        ghidra::AddrSpace* space = architecture->getSpaceByName(piece.space.name());
         if (space == nullptr) {
-            throw std::runtime_error(std::string(context) + " references an unknown storage space: " + piece.space);
+            throw std::runtime_error(std::string(context) +
+                                     " references an unknown storage space: " + piece.space.name());
         }
         validate_space_range(piece, space, context);
         native_pieces.push_back(ghidra::VarnodeData{space, piece.offset, static_cast<ghidra::uint4>(piece.size)});
@@ -330,10 +358,10 @@ public:
         setDefaultDataSpace(getSpaceByName(data_space_name_)->getIndex());
 
         for (const RegisterDescription& register_description : description.registers) {
-            ghidra::AddrSpace* space = getSpaceByName(register_description.location.space);
+            ghidra::AddrSpace* space = getSpaceByName(register_description.location.space.name());
             if (space == nullptr) {
                 throw std::invalid_argument("Register references an unknown address space: " +
-                                            register_description.location.space);
+                                            register_description.location.space.name());
             }
             validate_storage(register_description.location, "Register description");
             validate_space_range(register_description.location, space, "Register description");
@@ -415,16 +443,16 @@ public:
         }
         validate_instruction(*result, address.getOffset());
         const bool has_call = std::any_of(result->pcode.begin(), result->pcode.end(), [](const PcodeOperation& op) {
-            return op.opcode == static_cast<ghidra::uint4>(ghidra::CPUI_CALL) ||
-                   op.opcode == static_cast<ghidra::uint4>(ghidra::CPUI_CALLIND);
+            return opcode_value(op.opcode) == static_cast<ghidra::uint4>(ghidra::CPUI_CALL) ||
+                   opcode_value(op.opcode) == static_cast<ghidra::uint4>(ghidra::CPUI_CALLIND);
         });
         for (const PcodeOperation& operation : result->pcode) {
             // x86 CALL semantics materialize the return PC as a STORE before
             // the CALL op. The native compiler specification models this
             // location as the function return-address effect; discard only
             // that exact synthetic store so it cannot become a user local.
-            if (has_call && operation.opcode == static_cast<ghidra::uint4>(ghidra::CPUI_STORE) &&
-                !operation.inputs.empty() && operation.inputs.back().space == "const" &&
+            if (has_call && opcode_value(operation.opcode) == static_cast<ghidra::uint4>(ghidra::CPUI_STORE) &&
+                !operation.inputs.empty() && operation.inputs.back().space.name() == "const" &&
                 address.getOffset() <= std::numeric_limits<std::uint64_t>::max() - result->length &&
                 operation.inputs.back().offset == address.getOffset() + result->length) {
                 continue;
@@ -432,11 +460,12 @@ public:
             std::vector<ghidra::VarnodeData> inputs;
             std::size_t input_index = 0;
             if (operation.memory_space.has_value() &&
-                (operation.opcode == static_cast<ghidra::uint4>(ghidra::CPUI_LOAD) ||
-                 operation.opcode == static_cast<ghidra::uint4>(ghidra::CPUI_STORE))) {
-                ghidra::AddrSpace* memory_space = getSpaceByName(*operation.memory_space);
+                (opcode_value(operation.opcode) == static_cast<ghidra::uint4>(ghidra::CPUI_LOAD) ||
+                 opcode_value(operation.opcode) == static_cast<ghidra::uint4>(ghidra::CPUI_STORE))) {
+                ghidra::AddrSpace* memory_space = getSpaceByName(operation.memory_space->name());
                 if (memory_space == nullptr) {
-                    throw ghidra::BadDataError("P-code references an unknown memory space: " + *operation.memory_space);
+                    throw ghidra::BadDataError("P-code references an unknown memory space: " +
+                                               operation.memory_space->name());
                 }
                 // The original PcodeEmitFd::dump implementation treats the
                 // first input as a native varnode before creating the PcodeOp.
@@ -444,11 +473,11 @@ public:
                 // mismatch becomes a diagnostic, not an array access; see
                 // `funcdata.cc`, `PcodeEmitFd::dump`.
                 if (operation.inputs.size() ==
-                        (operation.opcode == static_cast<ghidra::uint4>(ghidra::CPUI_LOAD) ? 2U : 3U) &&
+                        (opcode_value(operation.opcode) == static_cast<ghidra::uint4>(ghidra::CPUI_LOAD) ? 2U : 3U) &&
                     !has_matching_memory_selector(operation, memory_space, this)) {
                     throw ghidra::BadDataError(
                         "Provider p-code " +
-                        std::string(ghidra::get_opname(static_cast<ghidra::OpCode>(operation.opcode))) +
+                        std::string(ghidra::get_opname(static_cast<ghidra::OpCode>(opcode_value(operation.opcode)))) +
                         " has a legacy selector for a different memory space");
                 }
                 const ghidra::Address encoded_space = createConstFromSpace(memory_space);
@@ -468,7 +497,7 @@ public:
                 output = materialize(*operation.output);
                 output_pointer = &output;
             }
-            emit.dump(address, static_cast<ghidra::OpCode>(operation.opcode), output_pointer,
+            emit.dump(address, static_cast<ghidra::OpCode>(opcode_value(operation.opcode)), output_pointer,
                       inputs.empty() ? nullptr : inputs.data(), static_cast<ghidra::int4>(inputs.size()));
         }
         return static_cast<ghidra::int4>(result->length);
@@ -489,9 +518,9 @@ private:
     /// Converts one public storage record into the native storage triple.
     ghidra::VarnodeData materialize(const Storage& storage) const {
         validate_storage(storage, "P-code storage");
-        ghidra::AddrSpace* space = getSpaceByName(storage.space);
+        ghidra::AddrSpace* space = getSpaceByName(storage.space.name());
         if (space == nullptr) {
-            throw ghidra::BadDataError("P-code references an unknown address space: " + storage.space);
+            throw ghidra::BadDataError("P-code references an unknown address space: " + storage.space.name());
         }
         validate_space_range(storage, space, "P-code storage");
         return ghidra::VarnodeData{space, storage.offset, static_cast<ghidra::uint4>(storage.size)};
@@ -630,10 +659,10 @@ private:
             return context.output[varnode.index];
         }
         detail::validate_storage(varnode.storage, "Provider injection storage");
-        ghidra::AddrSpace* space = architecture_->getSpaceByName(varnode.storage.space);
+        ghidra::AddrSpace* space = architecture_->getSpaceByName(varnode.storage.space.name());
         if (space == nullptr) {
             throw ghidra::BadDataError("Provider injection references an unknown address space: " +
-                                       varnode.storage.space);
+                                       varnode.storage.space.name());
         }
         detail::validate_space_range(varnode.storage, space, "Provider injection storage");
         return ghidra::VarnodeData{space, varnode.storage.offset, static_cast<ghidra::uint4>(varnode.storage.size)};
@@ -1102,36 +1131,6 @@ private:
     AnalysisOptions analysis_options_;
     mutable std::ostringstream warnings_;
 };
-
-/// Converts one Sleigh runtime varnode into the provider value model.
-static Storage convert_storage(const sleigh_runtime::Varnode& value) {
-    return Storage{value.space, value.offset, value.size};
-}
-
-/// Converts one materialized Sleigh operation into the provider value model.
-static PcodeOperation convert_operation(const sleigh_runtime::PcodeOp& value) {
-    PcodeOperation result;
-    result.opcode = std::to_underlying(value.opcode);
-    if (value.output.has_value()) {
-        result.output = convert_storage(*value.output);
-    }
-    std::size_t first_input = 0;
-    if (value.memory_space.has_value() &&
-        (value.opcode == sleigh_runtime::PcodeOpcode::load || value.opcode == sleigh_runtime::PcodeOpcode::store) &&
-        !value.inputs.empty() && value.inputs.front().space == "const") {
-        // Sleigh's native LOAD/STORE encoding carries the target space as a
-        // leading constant selector. The provider contract carries that
-        // information in memory_space, so remove only this known selector and
-        // retain constant address operands that follow it.
-        first_input = 1;
-    }
-    for (std::size_t index = first_input; index < value.inputs.size(); ++index) {
-        const sleigh_runtime::Varnode& input = value.inputs[index];
-        result.inputs.push_back(convert_storage(input));
-    }
-    result.memory_space = value.memory_space;
-    return result;
-}
 
 /// Converts the provider display-format enum to the native decompiler encoding.
 ///
@@ -1693,10 +1692,10 @@ static void apply_provider_prototype(ghidra::Architecture* architecture, ghidra:
         function_prototype.setPieces(pieces);
         if (prototype.return_storage) {
             validate_storage(*prototype.return_storage, "Prototype return storage");
-            ghidra::AddrSpace* output_space = architecture->getSpaceByName(prototype.return_storage->space);
+            ghidra::AddrSpace* output_space = architecture->getSpaceByName(prototype.return_storage->space.name());
             if (output_space == nullptr) {
                 throw std::runtime_error("Prototype references an unknown return storage space: " +
-                                         prototype.return_storage->space);
+                                         prototype.return_storage->space.name());
             }
             validate_space_range(*prototype.return_storage, output_space, "Prototype return storage");
             ghidra::ParameterPieces output{};
@@ -1707,10 +1706,11 @@ static void apply_provider_prototype(ghidra::Architecture* architecture, ghidra:
         }
         if (prototype.hidden_return_storage) {
             validate_storage(*prototype.hidden_return_storage, "Prototype hidden return storage");
-            ghidra::AddrSpace* hidden_space = architecture->getSpaceByName(prototype.hidden_return_storage->space);
+            ghidra::AddrSpace* hidden_space =
+                architecture->getSpaceByName(prototype.hidden_return_storage->space.name());
             if (hidden_space == nullptr) {
                 throw std::runtime_error("Prototype references an unknown hidden return storage space: " +
-                                         prototype.hidden_return_storage->space);
+                                         prototype.hidden_return_storage->space.name());
             }
             validate_space_range(*prototype.hidden_return_storage, hidden_space, "Prototype hidden return storage");
             ghidra::ParameterPieces hidden{};
@@ -1731,10 +1731,10 @@ static void apply_provider_prototype(ghidra::Architecture* architecture, ghidra:
             parameter_storage.flags = ghidra::ParameterPieces::typelock | ghidra::ParameterPieces::namelock |
                                       ghidra::ParameterPieces::sizelock;
             validate_storage(*parameter.storage, "Prototype parameter storage");
-            ghidra::AddrSpace* parameter_space = architecture->getSpaceByName(parameter.storage->space);
+            ghidra::AddrSpace* parameter_space = architecture->getSpaceByName(parameter.storage->space.name());
             if (parameter_space == nullptr) {
                 throw std::runtime_error("Prototype references an unknown parameter storage space: " +
-                                         parameter.storage->space);
+                                         parameter.storage->space.name());
             }
             validate_space_range(*parameter.storage, parameter_space, "Prototype parameter storage");
             parameter_storage.addr = ghidra::Address(parameter_space, parameter.storage->offset);
@@ -1876,13 +1876,11 @@ std::expected<Instruction, ProviderError> SleighPcodeProvider::decode(std::uint6
     if (!decoded) {
         return std::unexpected(ProviderError{decoded.error().message});
     }
-    Instruction result;
-    result.address = decoded->address;
-    result.length = decoded->length;
-    result.mnemonic = decoded->mnemonic;
-    result.assembly = decoded->assembly;
-    for (const sleigh_runtime::PcodeOp& operation : decoded->pcode) {
-        result.pcode.push_back(detail::convert_operation(operation));
+    // Sleigh already returns the canonical decode snapshot. Normalize only the
+    // native selector encoding while keeping the same domain value types.
+    Instruction result = *decoded;
+    for (PcodeOperation& operation : result.pcode) {
+        operation = detail::normalize_sleigh_operation(operation);
     }
     if (result.length == 0 || result.length > bytes->size()) {
         return std::unexpected(ProviderError{"Sleigh decoder returned an instruction longer than its mapped window"});
@@ -2166,14 +2164,14 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
     for (const auto& [address, body] : decoded_bodies) {
         for (const Instruction& instruction : body) {
             for (const PcodeOperation& operation : instruction.pcode) {
-                if ((operation.opcode != static_cast<std::uint32_t>(ghidra::CPUI_CALL) &&
-                     operation.opcode != static_cast<std::uint32_t>(ghidra::CPUI_CALLIND)) ||
+                if ((detail::opcode_value(operation.opcode) != static_cast<std::uint32_t>(ghidra::CPUI_CALL) &&
+                     detail::opcode_value(operation.opcode) != static_cast<std::uint32_t>(ghidra::CPUI_CALLIND)) ||
                     operation.inputs.empty()) {
                     continue;
                 }
-                if (operation.opcode == static_cast<std::uint32_t>(ghidra::CPUI_CALLIND) &&
-                    operation.inputs.front().space != "const" &&
-                    operation.inputs.front().space != state_->description.code_space) {
+                if (detail::opcode_value(operation.opcode) == static_cast<std::uint32_t>(ghidra::CPUI_CALLIND) &&
+                    operation.inputs.front().space.name() != "const" &&
+                    operation.inputs.front().space.name() != state_->description.code_space) {
                     continue;
                 }
                 const std::uint64_t target = operation.inputs.front().offset;
@@ -2240,9 +2238,10 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
 
     if (state_->context.variables) {
         for (const VariableDescription& variable : state_->context.variables->variables_at(function.entry)) {
-            ghidra::AddrSpace* variable_space = state_->architecture->getSpaceByName(variable.storage.space);
+            ghidra::AddrSpace* variable_space = state_->architecture->getSpaceByName(variable.storage.space.name());
             if (variable_space == nullptr) {
-                throw std::runtime_error("Variable references an unknown storage space: " + variable.storage.space);
+                throw std::runtime_error("Variable references an unknown storage space: " +
+                                         variable.storage.space.name());
             }
             ghidra::Address variable_address(variable_space, variable.storage.offset);
             ghidra::Datatype* variable_type = detail::resolve_provider_type(
@@ -2317,7 +2316,7 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
         data->getScopeLocal()->applyTypeRecommendations();
         data->getScopeLocal()->recoverNameRecommendationsForSymbols();
         for (const VariableDescription& variable : state_->context.variables->variables_at(function.entry)) {
-            ghidra::AddrSpace* variable_space = state_->architecture->getSpaceByName(variable.storage.space);
+            ghidra::AddrSpace* variable_space = state_->architecture->getSpaceByName(variable.storage.space.name());
             if (variable_space == nullptr) {
                 continue;
             }

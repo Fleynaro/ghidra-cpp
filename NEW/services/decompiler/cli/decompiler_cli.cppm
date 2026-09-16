@@ -763,7 +763,7 @@ std::pair<std::uint64_t, std::vector<std::uint8_t>> make_image(const Options& op
 
 /// Formats one provider storage location for a readable raw-p-code listing.
 std::string format_storage(const Storage& storage) {
-    return std::format("{}[0x{:x}:{}]", storage.space, storage.offset, storage.size);
+    return std::format("{}[0x{:x}:{}]", storage.space.name(), storage.offset, storage.size);
 }
 
 /// Formats one materialized provider p-code operation.
@@ -772,12 +772,12 @@ std::string format_operation(const PcodeOperation& operation) {
     if (operation.output) {
         output << format_storage(*operation.output) << " = ";
     }
-    output << sleigh_runtime::opcode_name(static_cast<sleigh_runtime::PcodeOpcode>(operation.opcode));
+    output << sleigh_runtime::opcode_name(operation.opcode);
     for (const Storage& input : operation.inputs) {
         output << ' ' << format_storage(input);
     }
     if (operation.memory_space) {
-        output << " {" << *operation.memory_space << '}';
+        output << " {" << operation.memory_space->name() << '}';
     }
     return output.str();
 }

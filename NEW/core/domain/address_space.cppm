@@ -25,14 +25,37 @@ public:
     AddressSpaceId() = default;
 
     /// Constructs an identifier from a stable space name.
-    explicit AddressSpaceId(std::string name) : name_(std::move(name)) {}
+    AddressSpaceId(std::string name) : name_(std::move(name)) {}
 
     /// Returns the stable space name.
     [[nodiscard]] const std::string& name() const noexcept {
         return name_;
     }
 
+    /// Reports whether this identifier has no stable name.
+    [[nodiscard]] bool empty() const noexcept {
+        return name_.empty();
+    }
+
+    /// Allows legacy decoder formatting code to consume the canonical name without owning a second field.
+    operator std::string() const {
+        return name_;
+    }
+
+    /// Compares a canonical space identifier with a decoder-provided name.
+    friend bool operator==(const AddressSpaceId& id, std::string_view name) noexcept {
+        return id.name_ == name;
+    }
+
+    /// Compares a decoder-provided name with a canonical space identifier.
+    friend bool operator==(std::string_view name, const AddressSpaceId& id) noexcept {
+        return id == name;
+    }
+
     /// Compares space identifiers by name.
+    friend bool operator==(const AddressSpaceId&, const AddressSpaceId&) = default;
+
+    /// Orders space identifiers by name.
     friend auto operator<=>(const AddressSpaceId&, const AddressSpaceId&) = default;
 
 private:

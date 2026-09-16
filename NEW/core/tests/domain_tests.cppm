@@ -35,6 +35,25 @@ TEST(CoreDomainTest, AddressRangeSetNormalizesInclusiveRanges) {
     EXPECT_TRUE(ranges.contains(Address{AddressSpaceId{"register"}, 4}));
 }
 
+/// Verifies that the shared decoder snapshot preserves native p-code metadata while using canonical storage values.
+TEST(CoreDomainTest, DecodedInstructionRetainsSharedPcodeFacts) {
+    const StorageLocation register_value{"register", 8, 8};
+    const StorageLocation immediate{"const", 5, 8};
+    DecodedInstruction instruction;
+    instruction.address = 0x401000;
+    instruction.length = 3;
+    instruction.bytes = {0x48, 0x89, 0xc8};
+    instruction.operands.push_back(DecodedOperand{"rax", OperandKind::register_value, 8, {0xff}, {}});
+    instruction.pcode.push_back(PcodeOp{PcodeOpcode::copy, register_value, {immediate}, AddressSpaceId{"ram"}, 4, 0});
+
+    ASSERT_EQ(instruction.pcode.size(), 1U);
+    EXPECT_EQ(instruction.pcode.front().output, register_value);
+    EXPECT_EQ(instruction.pcode.front().inputs.front(), immediate);
+    EXPECT_EQ(instruction.pcode.front().memory_space->name(), "ram");
+    EXPECT_EQ(instruction.pcode.front().sequence_index, 4U);
+    EXPECT_EQ(instruction.pcode.front().source_operand, 0U);
+}
+
 /// Verifies that event payload fields escape separators and round-trip deterministically.
 TEST(CoreDomainTest, EventFieldsRoundTripEscapedValues) {
     const auto encoded = events::encode_fields({{"name", "a;b=c"}, {"space", "ram"}});

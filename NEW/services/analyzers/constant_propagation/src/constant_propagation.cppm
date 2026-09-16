@@ -20,7 +20,7 @@ namespace {
 
 /// Builds a stable map key for one p-code storage location.
 [[nodiscard]] std::string location_key(const sleigh_runtime::Varnode& location) {
-    return location.space + ":" + std::to_string(location.offset) + ":" + std::to_string(location.size);
+    return location.space.name() + ":" + std::to_string(location.offset) + ":" + std::to_string(location.size);
 }
 
 /// Truncates a value to the width of its p-code destination.
@@ -37,7 +37,7 @@ namespace {
                                                               const std::map<std::string, std::uint64_t>& memory,
                                                               const AnalysisContext& context) {
     const auto value_of = [&](const sleigh_runtime::Varnode& varnode) -> std::optional<std::uint64_t> {
-        if (varnode.space == "const") {
+        if (varnode.space.name() == "const") {
             return truncate_value(varnode.offset, varnode.size);
         }
         const auto value = values.find(location_key(varnode));
@@ -90,7 +90,8 @@ namespace {
         if (!address) {
             return std::nullopt;
         }
-        const auto key = (operation.memory_space.value_or("ram")) + ":" + std::to_string(*address);
+        const auto key = (operation.memory_space ? operation.memory_space->name() : std::string{"ram"}) + ":" +
+                         std::to_string(*address);
         if (const auto stored = memory.find(key); stored != memory.end()) {
             return stored->second;
         }
@@ -292,20 +293,22 @@ store_value(const sleigh_runtime::PcodeOp& operation, const std::map<std::string
     }
     const auto address = operation.inputs[operation.inputs.size() - 2];
     const auto value = operation.inputs.back();
-    const auto address_it = address.space == "const" ? std::optional<std::uint64_t>{address.offset}
-                                                     : [&]() -> std::optional<std::uint64_t> {
+    const auto address_it = address.space.name() == "const" ? std::optional<std::uint64_t>{address.offset}
+                                                            : [&]() -> std::optional<std::uint64_t> {
         const auto found = values.find(location_key(address));
         return found == values.end() ? std::nullopt : std::optional{found->second};
     }();
-    const auto value_it =
-        value.space == "const" ? std::optional<std::uint64_t>{value.offset} : [&]() -> std::optional<std::uint64_t> {
+    const auto value_it = value.space.name() == "const" ? std::optional<std::uint64_t>{value.offset}
+                                                        : [&]() -> std::optional<std::uint64_t> {
         const auto found = values.find(location_key(value));
         return found == values.end() ? std::nullopt : std::optional{found->second};
     }();
     if (!address_it || !value_it) {
         return std::nullopt;
     }
-    return std::pair{operation.memory_space.value_or("ram") + ":" + std::to_string(*address_it), *value_it};
+    return std::pair{(operation.memory_space ? operation.memory_space->name() : std::string{"ram"}) + ":" +
+                         std::to_string(*address_it),
+                     *value_it};
 }
 
 } // namespace

@@ -29,6 +29,7 @@ export import ghidra.core.data_object;
 export import ghidra.core.analysis_fact;
 export import ghidra.core.architecture;
 export import ghidra.core.processor_context;
+export import ghidra.core.decoded_instruction;
 export import ghidra.core.variable;
 export import ghidra.core.function_id;
 export import ghidra.core.decompilation;

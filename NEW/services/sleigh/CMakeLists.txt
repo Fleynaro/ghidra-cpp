@@ -13,7 +13,7 @@ target_sources(sleigh_runtime
 add_library(NewGhidra::SleighRuntime ALIAS sleigh_runtime)
 target_compile_features(sleigh_runtime PUBLIC cxx_std_23)
 target_compile_definitions(sleigh_runtime PUBLIC SLEIGH_RUNTIME_SPECIFICATION_DIR="${SLEIGH_RUNTIME_SPECIFICATION_DIR}")
-target_link_libraries(sleigh_runtime PUBLIC NewGhidra::Std PRIVATE ZLIB::ZLIB)
+target_link_libraries(sleigh_runtime PUBLIC NewGhidra::Core NewGhidra::Std PRIVATE ZLIB::ZLIB)
 
 add_executable(sleigh_runtime_decode cli/sleigh_runtime_decode.cppm)
 target_link_libraries(sleigh_runtime_decode PRIVATE NewGhidra::SleighRuntime)

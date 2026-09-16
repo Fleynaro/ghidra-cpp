@@ -60,20 +60,7 @@ public:
         const auto decoded = context_.decode(address);
         if (!decoded)
             return std::unexpected(newghidra::decompiler::ProviderError{decoded.error().message});
-        newghidra::decompiler::Instruction result{
-            decoded->address, decoded->length, decoded->mnemonic, decoded->assembly, {}};
-        for (const auto& operation : decoded->pcode) {
-            newghidra::decompiler::PcodeOperation converted;
-            converted.opcode = std::to_underlying(operation.opcode);
-            if (operation.output)
-                converted.output = newghidra::decompiler::Storage{operation.output->space, operation.output->offset,
-                                                                  operation.output->size};
-            converted.memory_space = operation.memory_space;
-            for (const auto& input : operation.inputs)
-                converted.inputs.push_back({input.space, input.offset, input.size});
-            result.pcode.push_back(std::move(converted));
-        }
-        return result;
+        return *decoded;
     }
 
 private:

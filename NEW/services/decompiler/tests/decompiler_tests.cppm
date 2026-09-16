@@ -9,6 +9,11 @@ import ghidra.decompiler;
 import sleigh_runtime;
 import std;
 
+static_assert(std::is_same_v<newghidra::decompiler::Storage, ghidra::core::StorageLocation>);
+static_assert(std::is_same_v<newghidra::decompiler::PcodeOperation, ghidra::core::PcodeOp>);
+static_assert(std::is_same_v<newghidra::decompiler::Instruction, ghidra::core::DecodedInstruction>);
+static_assert(std::is_same_v<newghidra::decompiler::PcodeOpcode, ghidra::core::PcodeOpcode>);
+
 namespace newghidra::decompiler::tests {
 
 /// Provides one deterministic instruction so the frontend can be tested independently of decoding.
@@ -270,8 +275,7 @@ TEST(DecompilerFrontend, MaterializesProviderPcodeAndFlow) {
 
         ASSERT_EQ(result.raw_instructions.size(), 1U);
         ASSERT_EQ(result.raw_instructions.front().pcode.size(), 2U);
-        EXPECT_EQ(result.raw_instructions.front().pcode.front().opcode,
-                  std::to_underlying(sleigh_runtime::PcodeOpcode::copy));
+        EXPECT_EQ(result.raw_instructions.front().pcode.front().opcode, sleigh_runtime::PcodeOpcode::copy);
         EXPECT_FALSE(result.raw_pcode.empty());
         EXPECT_FALSE(result.high_pcode.empty());
         EXPECT_EQ(result.c_source, "\nundefined8 __cdecl copy_one(void)\n\n{\n  return 7;\n}\n");
@@ -2447,7 +2451,7 @@ TEST(SleighProvider, DecodesX86BytesIntoProviderPcode) {
     ASSERT_FALSE(decoded->pcode.empty());
     for (const PcodeOperation& operation : decoded->pcode) {
         EXPECT_FALSE(operation.inputs.empty());
-        EXPECT_NE(operation.opcode, 0U);
+        EXPECT_NE(std::to_underlying(operation.opcode), 0U);
     }
 }
 
