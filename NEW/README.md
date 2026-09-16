@@ -11,6 +11,11 @@ This directory contains the initial C++23 rewrite workspace developed alongside 
 - [`src/main.cpp`](src/main.cpp) is the application entry point; with no arguments it runs the smoke case, and with `<pe.exe> <language.sla>` it runs the provider-backed analyzer pipeline.
 - [`features/README.md`](features/README.md) documents the feature library collection.
 - [`features/hello/README.md`](features/hello/README.md) documents the sample feature module.
+- [`core/README.md`](core/README.md) documents canonical domain values, contracts, and persistent event vocabulary.
+- [`runtime/README.md`](runtime/README.md) documents workers, event history, SQLite projections, analysis scheduling, and project lifecycle.
+- [`services/README.md`](services/README.md) documents PE, Sleigh, Function ID, decompiler, translation, and analyzer adapters.
+- [`bindings/README.md`](bindings/README.md) documents the native C++ facade; language bindings are intentionally deferred.
+- [`tests/README.md`](tests/README.md) documents root integration and replay coverage.
 - [`features/decompiler/README.md`](features/decompiler/README.md) documents the standalone native decompiler engine and provider boundary.
 
 ## Requirements
@@ -18,7 +23,7 @@ This directory contains the initial C++23 rewrite workspace developed alongside 
 - MSVC with C++23 support.
 - CMake 3.28 or newer (the provided script uses CMake 4.4.2 from vcpkg).
 - Ninja.
-- vcpkg with the dependencies declared in [`vcpkg.json`](vcpkg.json); manifest mode installs `gtest`, `pugixml`, and `zlib` for the selected triplet. The manifest pins the builtin baseline to the repository's verified local vcpkg checkout.
+- vcpkg with the dependencies declared in [`vcpkg.json`](vcpkg.json); manifest mode installs `gtest`, `pugixml`, `sqlite3`, and `zlib` for the selected triplet. The manifest pins the builtin baseline to the repository's verified local vcpkg checkout.
 
 Run `build.bat` from this directory for the complete build and test workflow. The script preserves the build directory, so later invocations are incremental:
 
@@ -33,6 +38,12 @@ Run `build.bat` from this directory for the complete build and test workflow. Th
 .\build.bat pe
 .\build.bat function_id
 .\build.bat hello
+.\build.bat core
+.\build.bat runtime
+.\build.bat services
+.\build.bat project
+.\build.bat integration
+.\build.bat replay
 
 # The same focused commands are available in each module directory.
 features\sleigh_runtime\build.bat
@@ -54,7 +65,7 @@ Run `build/new_ghidra_app.exe <pe.exe> <language.sla>` to load a PE through
 `features/pe_loader`, decode it through `features/sleigh_runtime`, and run all
 registered analyzers through `features/analyzers`.
 
-The decompiler implementation source selection is being restored as an explicit, reviewed list in [`features/decompiler/CMakeLists.txt`](features/decompiler/CMakeLists.txt), rather than a `CONFIGURE_DEPENDS` glob. That file and the decompiler modules are owned by the concurrent restoration work and were not changed here. The explicit list must remain synchronized with every restored implementation unit before the full build is considered complete; the current link diagnostics show that `src/fspec.cppm` is one required entry. Update [`features/decompiler/src/README.md`](features/decompiler/src/README.md) with the final source-list change.
+The decompiler implementation source selection is an explicit reviewed list in [`features/decompiler/CMakeLists.txt`](features/decompiler/CMakeLists.txt), including `src/fspec.cppm`. The service adapter in [`services/decompiler`](services/decompiler/README.md) consumes that tested native frontend through the canonical runtime contract.
 
 Run `format.bat` from this directory to format all C/C++ sources, including `features/sleigh_runtime/src/ghidra`.
 

@@ -28,6 +28,41 @@ if /I "%MODE%"=="hello" (
     set "TEST_FILTER=^hello_feature_tests$"
     goto mode_selected
 )
+if /I "%MODE%"=="core" (
+    set "BUILD_TARGET=core_domain_tests"
+    set "TEST_FILTER=^core_domain_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="runtime" (
+    set "BUILD_TARGET=new_ghidra_runtime_tests"
+    set "TEST_FILTER=^new_ghidra_runtime_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="services" (
+    set "BUILD_TARGET=new_ghidra_service_tests"
+    set "TEST_FILTER=^new_ghidra_service_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="project" (
+    set "BUILD_TARGET=new_ghidra_project_tests"
+    set "TEST_FILTER=^new_ghidra_project_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="integration" (
+    set "BUILD_TARGET=architecture_end_to_end_tests"
+    set "TEST_FILTER=^architecture_end_to_end_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="replay" (
+    set "BUILD_TARGET=architecture_replay_tests"
+    set "TEST_FILTER=^architecture_replay_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="bindings" (
+    set "BUILD_TARGET=new_ghidra_cpp_bindings"
+    set "TEST_FILTER=^$"
+    goto mode_selected
+)
 if /I "%MODE%"=="sleigh" (
     set "BUILD_TARGET=sleigh_runtime_tests"
     set "TEST_FILTER=^sleigh_runtime_tests$"
@@ -221,6 +256,13 @@ if /I "%~3"=="--clean" (
 
 if "%RUN_TESTS%"=="0" (
     if /I "%MODE%"=="hello" set "BUILD_TARGET=hello_feature"
+    if /I "%MODE%"=="core" set "BUILD_TARGET=new_ghidra_core"
+    if /I "%MODE%"=="runtime" set "BUILD_TARGET=new_ghidra_runtime"
+    if /I "%MODE%"=="services" set "BUILD_TARGET=new_ghidra_service_tests"
+    if /I "%MODE%"=="project" set "BUILD_TARGET=new_ghidra_runtime_project"
+    if /I "%MODE%"=="integration" set "BUILD_TARGET=architecture_end_to_end_tests"
+    if /I "%MODE%"=="replay" set "BUILD_TARGET=architecture_replay_tests"
+    if /I "%MODE%"=="bindings" set "BUILD_TARGET=new_ghidra_cpp_bindings"
     if /I "%MODE%"=="sleigh" set "BUILD_TARGET=sleigh_runtime"
     if /I "%MODE%"=="pe" set "BUILD_TARGET=pe_loader"
     if /I "%MODE%"=="function_id" set "BUILD_TARGET=function_id function_id_cli"

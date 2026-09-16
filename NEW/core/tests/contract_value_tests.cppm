@@ -1,0 +1,25 @@
+module;
+
+#include <gtest/gtest.h>
+
+export module ghidra.core.tests.contracts;
+
+import ghidra.core;
+import std;
+
+namespace ghidra::core::tests {
+namespace {
+
+/// Verifies cancellation and task values are independent of worker implementation details.
+TEST(CoreContractTest, OperationCancellationIsSharedByTokenCopies) {
+    contracts::OperationControl control;
+    const auto first = control.cancellation();
+    const auto second = control.cancellation();
+    EXPECT_FALSE(first.stop_requested());
+    control.request_cancel();
+    EXPECT_TRUE(first.stop_requested());
+    EXPECT_TRUE(second.stop_requested());
+}
+
+} // namespace
+} // namespace ghidra::core::tests

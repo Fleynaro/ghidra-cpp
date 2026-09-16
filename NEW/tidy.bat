@@ -19,6 +19,11 @@ if /I "%MODE%"=="pe" set "SOURCE_DIR=%SCRIPT_DIR%features\pe_loader"
 if /I "%MODE%"=="function_id" set "SOURCE_DIR=%SCRIPT_DIR%features\function_id"
 if /I "%MODE%"=="decompiler" set "SOURCE_DIR=%SCRIPT_DIR%features\decompiler"
 if /I "%MODE%"=="analyzer" set "SOURCE_DIR=%SCRIPT_DIR%features\analyzers"
+if /I "%MODE%"=="core" set "SOURCE_DIR=%SCRIPT_DIR%core"
+if /I "%MODE%"=="runtime" set "SOURCE_DIR=%SCRIPT_DIR%runtime"
+if /I "%MODE%"=="services" set "SOURCE_DIR=%SCRIPT_DIR%services"
+if /I "%MODE%"=="tests" set "SOURCE_DIR=%SCRIPT_DIR%tests"
+if /I "%MODE%"=="bindings" set "SOURCE_DIR=%SCRIPT_DIR%bindings"
 if not defined SOURCE_DIR goto usage
 
 set "BUILD_DIR=%SCRIPT_DIR%build"
@@ -50,7 +55,7 @@ if "%CHECK_ONLY%"=="1" (
 )
 echo Headers are analyzed when included by these translation units.
 for /r "%SOURCE_DIR%" %%F in (*.c *.cc *.cpp *.cxx *.cppm) do (
-    findstr /r /c:"^[ ]*import [A-Za-z_][A-Za-z0-9_]*;" "%%~fF" >nul 2>&1
+    findstr /r /c:"^[ ]*import " /c:"^[ ]*export import " "%%~fF" >nul 2>&1
     if not errorlevel 1 (
         echo SKIP: module consumer cannot be parsed by clang-tidy with MSVC .ifc files: "%%~fF".
         set /a SKIPPED_COUNT+=1
@@ -77,7 +82,7 @@ endlocal
 exit /b 0
 
 :usage
-echo Usage: tidy.bat [all^|hello^|sleigh^|pe^|function_id^|decompiler^|analyzer] [--check]
+echo Usage: tidy.bat [all^|hello^|sleigh^|pe^|function_id^|decompiler^|analyzer^|core^|runtime^|services^|tests^|bindings] [--check]
 echo.
 echo Default mode: all. Without --check, clang-tidy applies fixes.
 echo Use --check to analyze files without modifying source files.

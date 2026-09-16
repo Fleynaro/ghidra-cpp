@@ -1,0 +1,7 @@
+add_library(new_ghidra_pe_loader_service STATIC)
+target_sources(new_ghidra_pe_loader_service PUBLIC
+    FILE_SET cxx_modules TYPE CXX_MODULES FILES pe_loader_service.cppm
+)
+add_library(NewGhidra::PeLoaderService ALIAS new_ghidra_pe_loader_service)
+target_link_libraries(new_ghidra_pe_loader_service PUBLIC NewGhidra::Core pe_loader NewGhidra::TranslationEngine)
+target_compile_features(new_ghidra_pe_loader_service PUBLIC cxx_std_23)

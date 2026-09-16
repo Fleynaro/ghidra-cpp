@@ -1,0 +1,7 @@
+add_library(new_ghidra_decompiler_service STATIC)
+target_sources(new_ghidra_decompiler_service PUBLIC
+    FILE_SET cxx_modules TYPE CXX_MODULES FILES decompiler_service.cppm decompiler_types.cppm provider_adapters.cppm decompilation_result.cppm
+)
+add_library(NewGhidra::DecompilerService ALIAS new_ghidra_decompiler_service)
+target_link_libraries(new_ghidra_decompiler_service PUBLIC NewGhidra::Core NewGhidra::RuntimeWorkers NewGhidra::DecompilerFrontend)
+target_compile_features(new_ghidra_decompiler_service PUBLIC cxx_std_23)

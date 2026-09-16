@@ -10,7 +10,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(CTest)
 
+add_subdirectory(core)
+add_subdirectory(runtime)
 add_subdirectory(features)
+add_subdirectory(services)
+add_subdirectory(runtime/project)
+add_subdirectory(tests)
+add_subdirectory(bindings)
 
 add_executable(new_ghidra_app src/main.cpp)
 target_link_libraries(new_ghidra_app PRIVATE

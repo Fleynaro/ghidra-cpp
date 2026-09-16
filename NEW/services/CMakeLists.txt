@@ -1,0 +1,10 @@
+add_subdirectory(translation_engine)
+add_subdirectory(pe_loader)
+add_subdirectory(sleigh)
+add_subdirectory(function_id)
+add_subdirectory(decompiler)
+add_subdirectory(analyzers)
+
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()

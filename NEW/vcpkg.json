@@ -6,6 +6,7 @@
   "dependencies": [
     "gtest",
     "pugixml",
-    "zlib"
+    "zlib",
+    "sqlite3"
   ]
 }

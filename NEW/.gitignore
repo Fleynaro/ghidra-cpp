@@ -59,7 +59,6 @@ lcov.info
 # Test and runtime output
 *.log
 *.stackdump
-core
 core.*
 Testing/Temporary/
 

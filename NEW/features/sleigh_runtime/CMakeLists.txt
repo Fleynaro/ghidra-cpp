@@ -6,17 +6,6 @@ file(GLOB SLEIGH_RUNTIME_MODULES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cppm"
 )
 
-if(MSVC)
-    get_filename_component(SLEIGH_MSVC_ARCH_BIN "${CMAKE_CXX_COMPILER}" DIRECTORY)
-    get_filename_component(SLEIGH_MSVC_HOST_BIN "${SLEIGH_MSVC_ARCH_BIN}" DIRECTORY)
-    get_filename_component(SLEIGH_MSVC_BIN "${SLEIGH_MSVC_HOST_BIN}" DIRECTORY)
-    get_filename_component(SLEIGH_MSVC_TOOLSET "${SLEIGH_MSVC_BIN}" DIRECTORY)
-    set(SLEIGH_STD_MODULE "${SLEIGH_MSVC_TOOLSET}/modules/std.ixx")
-    if(NOT EXISTS "${SLEIGH_STD_MODULE}")
-        message(FATAL_ERROR "MSVC std module was not found at ${SLEIGH_STD_MODULE}")
-    endif()
-endif()
-
 add_library(sleigh_runtime STATIC)
 target_sources(sleigh_runtime
     PUBLIC
@@ -29,18 +18,10 @@ target_sources(sleigh_runtime
         FILES ${SLEIGH_RUNTIME_MODULES}
 )
 
-if(MSVC)
-    target_sources(sleigh_runtime
-        PUBLIC
-            FILE_SET msvc_std_modules TYPE CXX_MODULES
-            BASE_DIRS "${SLEIGH_MSVC_TOOLSET}/modules"
-            FILES "${SLEIGH_STD_MODULE}"
-    )
-endif()
-
 add_library(NewGhidra::SleighRuntime ALIAS sleigh_runtime)
 
 target_compile_features(sleigh_runtime PUBLIC cxx_std_23)
+target_link_libraries(sleigh_runtime PUBLIC NewGhidra::Std)
 target_compile_definitions(sleigh_runtime PUBLIC
     SLEIGH_RUNTIME_SPECIFICATION_DIR="${SLEIGH_RUNTIME_SPECIFICATION_DIR}"
 )
