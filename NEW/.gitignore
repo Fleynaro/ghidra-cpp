@@ -60,6 +60,7 @@ lcov.info
 *.log
 *.stackdump
 core.*
+!core/core.cppm
 Testing/Temporary/
 
 # Visual Studio and MSBuild
