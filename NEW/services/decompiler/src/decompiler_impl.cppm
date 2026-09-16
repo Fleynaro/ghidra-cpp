@@ -254,6 +254,66 @@ static void validate_provider_pcode_arity(const PcodeOperation& operation) {
     }
 }
 
+/// Copies the live native Funcdata provenance graph into stable value records.
+///
+/// Original sources: `Ghidra/Features/Decompiler/src/decompile/cpp/funcdata.cc`
+/// (`Funcdata::beginOpAll`, `Funcdata::beginLoc`) and
+/// `Ghidra/Features/Decompiler/src/decompile/cpp/prettyprint.cc`
+/// (`EmitMarkup::tagVariable`, `EmitMarkup::tagOp`).  The sequence time is
+/// deliberately retained because it is the cross-representation key used by
+/// Clang markup `opref` attributes.
+static void capture_native_provenance(const ghidra::Funcdata& data, DecompilationResult& result) {
+    result.pcode_provenance.clear();
+    result.varnode_provenance.clear();
+
+    for (auto iter = data.beginLoc(); iter != data.endLoc(); ++iter) {
+        const ghidra::Varnode* varnode = *iter;
+        VarnodeProvenance snapshot;
+        snapshot.create_index = varnode->getCreateIndex();
+        snapshot.space = varnode->getSpace() == nullptr ? std::string{} : varnode->getSpace()->getName();
+        snapshot.offset = varnode->getOffset();
+        snapshot.size = static_cast<std::uint32_t>(varnode->getSize());
+        if (const ghidra::PcodeOp* definition = varnode->getDef(); definition != nullptr) {
+            snapshot.defining_op = definition->getTime();
+        }
+        if (!varnode->isFree()) {
+            // Some transient SSA Varnodes intentionally have no HighVariable;
+            // the native accessor reports that state with LowlevelError rather
+            // than a nullable result, so provenance capture must not alter
+            // successful decompilation of those graphs.
+            try {
+                ghidra::HighVariable* high = varnode->getHigh();
+                if (high != nullptr) {
+                    if (ghidra::Symbol* symbol = high->getSymbol(); symbol != nullptr) {
+                        snapshot.high_variable_name = symbol->getName();
+                    }
+                }
+            } catch (const ghidra::LowlevelError&) {
+                snapshot.high_variable_name.clear();
+            }
+        }
+        result.varnode_provenance.push_back(std::move(snapshot));
+    }
+
+    for (auto iter = data.beginOpAll(); iter != data.endOpAll(); ++iter) {
+        const ghidra::PcodeOp* operation = iter->second;
+        PcodeOpProvenance snapshot;
+        snapshot.sequence = operation->getTime();
+        snapshot.opcode = operation->getOpName();
+        snapshot.opcode_value = static_cast<std::uint32_t>(operation->code());
+        snapshot.address_space =
+            operation->getAddr().getSpace() == nullptr ? std::string{} : operation->getAddr().getSpace()->getName();
+        snapshot.address = operation->getAddr().getOffset();
+        if (const ghidra::Varnode* output = operation->getOut(); output != nullptr) {
+            snapshot.output_varnode = output->getCreateIndex();
+        }
+        for (ghidra::int4 slot = 0; slot < operation->numInput(); ++slot) {
+            snapshot.input_varnodes.push_back(operation->getIn(slot)->getCreateIndex());
+        }
+        result.pcode_provenance.push_back(std::move(snapshot));
+    }
+}
+
 /// Normalizes native Sleigh LOAD/STORE selector operands into the shared provider contract.
 ///
 /// The runtime retains the native constant-space selector as provenance. The
@@ -2352,6 +2412,7 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
     std::ostringstream ast;
     data->printLocalRange(ast);
     result.ast = ast.str();
+    detail::capture_native_provenance(*data, result);
     std::ostringstream c_output;
     // Provider declarations are source-level metadata rather than native
     // engine objects. Emit each supplied declaration once before the function
@@ -2366,9 +2427,27 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
         }
     }
     state_->architecture->print->setOutputStream(&c_output);
+    state_->architecture->print->setMarkup(false);
     state_->architecture->print->setFlat(false);
     state_->architecture->print->docFunction(data);
     result.c_source = c_output.str();
+
+    // Emit the same function through the original Clang XML markup path after
+    // plain output has been captured.  Use a fresh native printer so the
+    // existing architecture-owned printer retains its established lifecycle;
+    // `EmitMarkup` writes the authoritative `varref`/`opref` edges and no
+    // C-text parsing is involved in this snapshot.
+    std::ostringstream markup_output;
+    std::unique_ptr<ghidra::PrintLanguage> markup_print(
+        ghidra::PrintLanguageCapability::getDefault()->buildLanguage(state_->architecture.get()));
+    markup_print->initializeFromArchitecture();
+    markup_print->adjustTypeOperators();
+    markup_print->setOutputStream(&markup_output);
+    markup_print->setMarkup(true);
+    markup_print->setPackedOutput(false);
+    markup_print->setFlat(false);
+    markup_print->docFunction(data);
+    result.clang_markup = markup_output.str();
     return result;
 }
 

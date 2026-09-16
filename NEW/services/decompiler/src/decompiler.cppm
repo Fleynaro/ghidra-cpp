@@ -525,6 +525,36 @@ struct FunctionDescription {
     std::uint64_t end = 0;
 };
 
+/// Captures one native Varnode identity used by high-level Clang markup.
+///
+/// The `create_index` is the same identity emitted as the original Ghidra
+/// `ATTRIB_VARREF` by `EmitMarkup::tagVariable`, `tagField`, and related
+/// methods.  The snapshot is value-owned so callers can inspect provenance
+/// after the native Funcdata graph remains private to the Decompiler.
+struct VarnodeProvenance {
+    std::uint32_t create_index = 0;
+    std::string space;
+    std::uint64_t offset = 0;
+    std::uint32_t size = 0;
+    std::optional<std::uint64_t> defining_op;
+    std::string high_variable_name;
+};
+
+/// Captures one analyzed native PcodeOp and its Varnode edges.
+///
+/// `sequence` is the native `SeqNum::uniq` value emitted as `ATTRIB_OPREF` by
+/// the original Ghidra markup emitter.  `address` is the originating machine
+/// instruction address stored in the same native PcodeOp sequence number.
+struct PcodeOpProvenance {
+    std::uint64_t sequence = 0;
+    std::string opcode;
+    std::uint32_t opcode_value = 0;
+    std::string address_space;
+    std::uint64_t address = 0;
+    std::optional<std::uint32_t> output_varnode;
+    std::vector<std::uint32_t> input_varnodes;
+};
+
 /// Supplies additional function bodies that may be called or inlined by a root function.
 class FunctionProvider {
 public:
@@ -544,6 +574,12 @@ struct DecompilationResult {
     std::string control_flow;
     std::string ast;
     std::string c_source;
+    /// XML Clang markup emitted by the native `EmitMarkup` path.
+    std::string clang_markup;
+    /// Post-analysis native PcodeOps keyed by the markup `opref` sequence.
+    std::vector<PcodeOpProvenance> pcode_provenance;
+    /// Native Varnodes keyed by the markup `varref` creation index.
+    std::vector<VarnodeProvenance> varnode_provenance;
 };
 
 /// Provides sparse immutable bytes for tests, loaders, and decoder adapters.
