@@ -422,6 +422,76 @@ static DecompilationResult call_result() {
     return decompile_sleigh(entry, bytes, 6, "caller", std::move(metadata));
 }
 
+/// Creates one integrated real x86-64 body combining an if/else guard, a
+/// counted loop, an indirect switch, nested member access, a direct call, a
+/// stack local, parameters, and arithmetic in one control-flow graph.
+static DecompilationResult integrated_result(bool capture_provenance = true) {
+    constexpr std::uint64_t entry = 0x560000;
+    constexpr std::size_t table_offset = 0x80;
+    constexpr std::size_t callee_offset = 0x200;
+    const std::vector<std::uint8_t> body{
+        0x85, 0xc9,                            // test ecx, ecx: if/else guard on count
+        0x74, 0x17,                            // jz else
+        0x89, 0x4c, 0x24, 0xfc,                // mov [rsp-4], ecx: local_counter
+        0x8b, 0x44, 0x24, 0xfc,                // loop: load local_counter
+        0x85, 0xc0,                            // test local_counter
+        0x7e, 0x09,                            // jle after_loop
+        0x83, 0xe8, 0x01,                      // sub local_counter, 1
+        0x89, 0x44, 0x24, 0xfc,                // store local_counter
+        0xeb, 0xef,                            // jump loop
+        0xeb, 0x05,                            // after_loop: skip else
+        0xb8, 0x00, 0x00, 0x00, 0x00,          // else: result = 0
+        0x83, 0xe2, 0x03,                      // and edx, 3: switch selector
+        0xff, 0x24, 0xd5, 0,    0,    0,    0, // jmp [rdx*8+table]
+        0x41, 0x8b, 0x41, 0x14,                // case 0: obj->field_0x10.field_0x4
+        0x41, 0x89, 0xc1,                      // pass field value in r9d
+        0xe8, 0xca, 0x01, 0x00, 0x00,          // call callee
+        0x01, 0xc8,                            // add eax, ecx
+        0xc3,                                  // return case 0
+        0x8b, 0xc1, 0x83, 0xe8, 0x02, 0xc3,    // case 1: count - 2
+        0x8b, 0xc1, 0x83, 0xc0, 0x03, 0xc3,    // case 2: count + 3
+        0x8b, 0xc1, 0x83, 0xc8, 0x04, 0xc3,    // case 3: count | 4
+    };
+    const std::vector<std::uint64_t> case_targets{entry + 0x2a, entry + 0x39, entry + 0x3f, entry + 0x45};
+    std::vector<std::uint8_t> image = body;
+    image.resize(table_offset, 0x90);
+    const std::uint32_t table_address = static_cast<std::uint32_t>(entry + table_offset);
+    for (unsigned byte = 0; byte < sizeof(table_address); ++byte) {
+        image[0x26 + byte] = static_cast<std::uint8_t>(table_address >> (byte * 8U));
+    }
+    for (const std::uint64_t target : case_targets) {
+        for (unsigned byte = 0; byte < sizeof(target); ++byte) {
+            image.push_back(static_cast<std::uint8_t>(target >> (byte * 8U)));
+        }
+    }
+    image.resize(callee_offset, 0x90);
+    image.insert(image.end(), {0xb8, 0x2a, 0x00, 0x00, 0x00, 0xc3}); // callee: return 42
+
+    PrototypeDescription prototype;
+    prototype.calling_convention = "__cdecl";
+    prototype.return_type = "int32";
+    prototype.return_storage = Storage{"register", 0, 4};
+    prototype.parameters = {
+        PrototypeParameterDescription{"count", "int32", Storage{"register", 8, 4}},
+        PrototypeParameterDescription{"obj", "Outer *", Storage{"register", 0x88, 8}},
+        PrototypeParameterDescription{"selector", "int32", Storage{"register", 0x10, 4}},
+        PrototypeParameterDescription{"value", "int32", Storage{"register", 0x80, 4}},
+    };
+    const std::uint64_t callee = entry + callee_offset;
+    PrototypeDescription callee_prototype = prototype;
+    callee_prototype.parameters = {
+        PrototypeParameterDescription{"field_value", "int32", Storage{"register", 0x88, 4}},
+    };
+    auto metadata = std::make_shared<Metadata>(
+        std::vector<SymbolDescription>{{entry, "integrated_control_flow", ""}, {callee, "callee", ""}}, nested_types(),
+        std::vector<std::pair<std::uint64_t, PrototypeDescription>>{{entry, prototype}, {callee, callee_prototype}},
+        std::vector<std::pair<std::uint64_t, std::vector<VariableDescription>>>{
+            {entry,
+             {VariableDescription{"local_counter", "int32", Storage{"stack", static_cast<std::uint64_t>(-4), 4}}}}});
+    return decompile_sleigh(entry, std::move(image), 0x4b, "integrated_control_flow", std::move(metadata),
+                            capture_provenance);
+}
+
 /// Verifies both directions for markup tokens, analyzed p-code, Varnodes, and
 /// original ASM addresses across all requested source constructs.
 /// Original markup contracts: `Ghidra/Features/Decompiler/src/decompile/cpp/prettyprint.cc`
@@ -539,6 +609,50 @@ TEST(DecompilerProvenance, BidirectionalSleighMarkupAndNativeGraph) {
     }
     expect_asm_to_pcode(called, std::array<std::uint64_t, 1>{0x540000});
     expect_asm_to_nodes(called, std::array<std::uint64_t, 1>{0x540000}, "callee");
+}
+
+/// Verifies all requested source constructs coexist in one real recovered
+/// function instead of only passing in isolated feature fixtures.
+TEST(DecompilerProvenance, IntegratedControlFlowFixture) {
+    ASSERT_NO_THROW(integrated_result(false));
+    const DecompilationResult result = integrated_result();
+    ASSERT_FALSE(result.clang_nodes.empty());
+    expect_provenance_integrity(result);
+
+    const std::vector<const ClangMarkupNodeProvenance*> if_nodes = nodes_with_element(result, "if", "op");
+    std::vector<const ClangMarkupNodeProvenance*> loop_nodes = nodes_with_element(result, "for", "op");
+    if (loop_nodes.empty()) {
+        loop_nodes = nodes_with_element(result, "while", "op");
+    }
+    const std::vector<const ClangMarkupNodeProvenance*> outer_fields =
+        nodes_with_element(result, "field_0x10", "field");
+    const std::vector<const ClangMarkupNodeProvenance*> inner_fields = nodes_with_element(result, "field_0x4", "field");
+    const std::vector<const ClangMarkupNodeProvenance*> calls = nodes_with_element(result, "callee", "funcname");
+    const std::vector<const ClangMarkupNodeProvenance*> locals =
+        nodes_with_element(result, "local_counter", "variable");
+    const std::vector<const ClangMarkupNodeProvenance*> cases = nodes_with_element(result, "", "value");
+
+    ASSERT_FALSE(if_nodes.empty());
+    ASSERT_FALSE(loop_nodes.empty());
+    ASSERT_FALSE(outer_fields.empty());
+    ASSERT_FALSE(inner_fields.empty());
+    ASSERT_FALSE(calls.empty());
+    ASSERT_FALSE(locals.empty());
+    ASSERT_GE(cases.size(), 2U);
+    for (const ClangMarkupNodeProvenance* node :
+         {if_nodes.front(), loop_nodes.front(), outer_fields.front(), inner_fields.front(), calls.front()}) {
+        expect_node_chain(result, *node);
+    }
+    for (const ClangMarkupNodeProvenance* node : locals) {
+        if (!node->operation_refs.empty()) {
+            expect_node_chain(result, *node);
+        }
+    }
+    expect_asm_to_pcode(result, std::array<std::uint64_t, 4>{0x560000, 0x560008, 0x560020, 0x56002a});
+    expect_asm_to_nodes(result, std::array<std::uint64_t, 1>{0x560000});
+    expect_asm_to_nodes(result, std::array<std::uint64_t, 1>{0x560020});
+    expect_asm_to_nodes(result, std::array<std::uint64_t, 1>{0x56002a});
+    expect_asm_to_nodes(result, std::array<std::uint64_t, 1>{0x560031}, "callee");
 }
 
 } // namespace newghidra::decompiler::provenance_tests

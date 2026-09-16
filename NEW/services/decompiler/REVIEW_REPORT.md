@@ -120,20 +120,20 @@ No findings.
 
 ### PROV-MEDIUM-005: The requested constructs are split across five functions rather than one integrated example
 
-- [ ] **Remediation status:** Open; integrated multi-construct fixture remains follow-up work.
+- [x] **Remediation status:** Fixed in the current working tree.
 - **Severity:** Medium.
 - **Title:** Cross-construct interactions are not covered by the provenance test.
 - **Source reference:** `tests/provenance_mapping_tests.cppm:386-516` (five fixture functions) and `:523-528` (five independent results).
 - **Affected component:** End-to-end provenance coverage for realistic decompiled functions.
-- **Technical evidence:** Nested member access, loop/local, if/else, switch, and call are each decompiled as separate compact functions. No one function combines a condition, loop, switch path, nested member access, call, locals, and arithmetic.
+- **Technical evidence before remediation:** Nested member access, loop/local, if/else, switch, and call were each decompiled as separate compact functions.
 - **Expected behavior:** At least one integrated fixture should exercise provenance when control-flow structuring and typed member/call propagation coexist, because those interactions are where token anchors and PcodeOp ownership commonly diverge.
-- **Actual behavior:** Each isolated fixture can pass while combined structuring or shared-expression cases remain untested.
+- **Actual behavior after remediation:** `IntegratedControlFlowFixture` decompiles one real x86-64 body containing the guard, loop, switch/cases, nested typed field load, call argument, local, parameters, and arithmetic, and checks both directions through the same markup graph.
 - **Impact:** The test does not establish that a viewer can navigate a realistic complex function or that operation IDs remain correct across nested blocks and multiple constructs in one markup document.
 - **Reproduction/failure scenario:** Add a member load inside a switch case inside a loop and a call in one branch. No current assertion exercises the resulting nested markup hierarchy or shared Pcode origins.
-- **Root cause:** The available existing fixtures isolate features, and the new test stopped at a fixture set rather than adding an integrated adaptation.
-- **Recommended fix:** Keep the focused fixtures, but add one adapted `switchmulti`/`switchhide`-style body with an outer loop/guard and typed member load/store plus a call, or port a single existing datatest with all required constructs.
+- **Root cause before remediation:** The available existing fixtures isolated features, and the test stopped at a fixture set rather than adding an integrated adaptation.
+- **Implemented fix:** Added an adapted integrated x86-64 body with an outer guard/loop, recovered indirect switch table, typed nested field access passed into a direct callee, locals, parameters, and arithmetic.
 - **Regression risks:** Integrated assembly must be validated against actual Sleigh control-flow recovery; do not weaken structural assertions to accommodate an invalid fixture.
-- **Relevant validation:** Full decompiler suite passes; this is an untested interaction gap.
+- **Relevant validation:** `IntegratedControlFlowFixture` and the complete decompiler suite pass.
 
 ## Low Findings
 
@@ -197,5 +197,5 @@ No findings.
 ## Final Follow-Up Decision
 
 - [x] The core reverse/forward provenance contract is now suitable as the Viewer integration baseline.
-- [ ] Add the integrated multi-construct fixture from `PROV-MEDIUM-005` before treating coverage as complete for complex real-world functions.
+- [x] The integrated multi-construct fixture from `PROV-MEDIUM-005` is now present and passing.
 - [x] No confirmed pre-existing runtime regression was found during this review; the findings are coverage and API-contract defects/risks that can allow Viewer mapping failures.
