@@ -30,6 +30,52 @@ private:
     std::shared_ptr<const core::contracts::IMemoryProvider> memory_;
 };
 
+/// Adapts the core decoder contract to the native decompiler p-code provider.
+class ContractPcodeProvider final : public newghidra::decompiler::PcodeProvider {
+public:
+    /// Retains canonical decoder and memory contracts for one native task.
+    ContractPcodeProvider(std::shared_ptr<const core::contracts::IPCodeDecoder> decoder,
+                          std::shared_ptr<const core::contracts::IMemoryProvider> memory)
+        : decoder_(std::move(decoder)), memory_(std::move(memory)) {}
+
+    /// Reads a bounded instruction through the core decoder and converts its p-code values.
+    [[nodiscard]] std::expected<newghidra::decompiler::Instruction, newghidra::decompiler::ProviderError>
+    decode(std::uint64_t address) const override {
+        auto bytes = memory_->read(core::Address{core::AddressSpaceId{"ram"}, address}, 16);
+        if (!bytes)
+            return std::unexpected(newghidra::decompiler::ProviderError{bytes.error().message});
+        core::contracts::DecodeRequest request;
+        request.address = core::Address{core::AddressSpaceId{"ram"}, address};
+        request.bytes = std::move(*bytes);
+        auto decoded = decoder_->decode(request);
+        if (!decoded)
+            return std::unexpected(newghidra::decompiler::ProviderError{decoded.error().message});
+        newghidra::decompiler::Instruction result;
+        result.address = address;
+        result.length = decoded->length;
+        result.mnemonic = decoded->mnemonic;
+        result.assembly = decoded->assembly;
+        for (const auto& operation : decoded->pcode.operations) {
+            newghidra::decompiler::PcodeOperation converted;
+            converted.opcode = static_cast<std::uint32_t>(operation.opcode);
+            converted.memory_space =
+                operation.memory_space ? std::optional{operation.memory_space->name()} : std::nullopt;
+            if (operation.output)
+                converted.output = newghidra::decompiler::Storage{operation.output->space.name(),
+                                                                  operation.output->offset, operation.output->size};
+            for (const auto& input : operation.inputs)
+                converted.inputs.push_back(
+                    newghidra::decompiler::Storage{input.space.name(), input.offset, input.size});
+            result.pcode.push_back(std::move(converted));
+        }
+        return result;
+    }
+
+private:
+    std::shared_ptr<const core::contracts::IPCodeDecoder> decoder_;
+    std::shared_ptr<const core::contracts::IMemoryProvider> memory_;
+};
+
 /// Adapts project query/memory values to the native decompiler provider frontend.
 class DecompilerService final : public core::contracts::IDecompiler {
 public:
@@ -60,12 +106,12 @@ public:
     [[nodiscard]] core::Result<core::Decompilation>
     decompile_now(const core::contracts::DecompileRequest& request) override {
         try {
-            auto legacy_memory =
-                std::make_shared<LegacyMemoryProvider>(request.providers.memory ? request.providers.memory : memory_);
-            auto legacy_pcode = std::make_shared<newghidra::decompiler::SleighPcodeProvider>(
-                sla_path_, legacy_memory,
-                std::vector<std::pair<std::string, std::uint64_t>>{
-                    {"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}});
+            const auto provider_memory = request.providers.memory ? request.providers.memory : memory_;
+            auto legacy_memory = std::make_shared<LegacyMemoryProvider>(provider_memory);
+            if (!request.providers.pcode)
+                return std::unexpected(core::Error::make(core::DiagnosticCode::resource_unavailable,
+                                                         "Decompiler requires an IPCodeDecoder contract"));
+            auto legacy_pcode = std::make_shared<ContractPcodeProvider>(request.providers.pcode, provider_memory);
             newghidra::decompiler::ArchitectureDescription architecture;
             architecture.name = "x86:LE:64:default:gcc";
             architecture.calling_convention = "__cdecl";

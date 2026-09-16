@@ -13,12 +13,12 @@ if /I "%MODE%"=="--check" (
 if /I "%~2"=="--check" set "CHECK_ONLY=1"
 
 if /I "%MODE%"=="all" set "SOURCE_DIR=%SCRIPT_DIR%"
-if /I "%MODE%"=="hello" set "SOURCE_DIR=%SCRIPT_DIR%features\hello"
-if /I "%MODE%"=="sleigh" set "SOURCE_DIR=%SCRIPT_DIR%features\sleigh_runtime"
-if /I "%MODE%"=="pe" set "SOURCE_DIR=%SCRIPT_DIR%features\pe_loader"
-if /I "%MODE%"=="function_id" set "SOURCE_DIR=%SCRIPT_DIR%features\function_id"
-if /I "%MODE%"=="decompiler" set "SOURCE_DIR=%SCRIPT_DIR%features\decompiler"
-if /I "%MODE%"=="analyzer" set "SOURCE_DIR=%SCRIPT_DIR%features\analyzers"
+if /I "%MODE%"=="hello" set "SOURCE_DIR=%SCRIPT_DIR%services\hello"
+if /I "%MODE%"=="sleigh" set "SOURCE_DIR=%SCRIPT_DIR%services\sleigh"
+if /I "%MODE%"=="pe" set "SOURCE_DIR=%SCRIPT_DIR%services\pe_loader"
+if /I "%MODE%"=="function_id" set "SOURCE_DIR=%SCRIPT_DIR%services\function_id"
+if /I "%MODE%"=="decompiler" set "SOURCE_DIR=%SCRIPT_DIR%services\decompiler"
+if /I "%MODE%"=="analyzer" set "SOURCE_DIR=%SCRIPT_DIR%services\analyzers"
 if /I "%MODE%"=="core" set "SOURCE_DIR=%SCRIPT_DIR%core"
 if /I "%MODE%"=="runtime" set "SOURCE_DIR=%SCRIPT_DIR%runtime"
 if /I "%MODE%"=="services" set "SOURCE_DIR=%SCRIPT_DIR%services"
@@ -55,20 +55,26 @@ if "%CHECK_ONLY%"=="1" (
 )
 echo Headers are analyzed when included by these translation units.
 for /r "%SOURCE_DIR%" %%F in (*.c *.cc *.cpp *.cxx *.cppm) do (
-    findstr /r /c:"^[ ]*import " /c:"^[ ]*export import " "%%~fF" >nul 2>&1
+    echo %%~fF | findstr /i /c:"tests\data" >nul 2>&1
     if not errorlevel 1 (
-        echo SKIP: module consumer cannot be parsed by clang-tidy with MSVC .ifc files: "%%~fF".
+        echo SKIP: test fixture source is not a production translation unit: "%%~fF".
         set /a SKIPPED_COUNT+=1
     ) else (
-        set /a FILE_COUNT+=1
-        if "%CHECK_ONLY%"=="1" (
-            clang-tidy "%%~fF" -p "%BUILD_DIR%" -quiet -extra-arg=-Wno-unused-command-line-argument
+        findstr /r /c:"^[ ]*import " /c:"^[ ]*export import " /c:"^[ ]*export module " "%%~fF" >nul 2>&1
+        if not errorlevel 1 (
+            echo SKIP: module consumer cannot be parsed by clang-tidy with MSVC .ifc files: "%%~fF".
+            set /a SKIPPED_COUNT+=1
         ) else (
-            clang-tidy "%%~fF" -p "%BUILD_DIR%" -fix -quiet -extra-arg=-Wno-unused-command-line-argument
-        )
-        if errorlevel 1 (
-            echo ERROR: clang-tidy failed for "%%~fF".
-            set /a ERROR_COUNT+=1
+            set /a FILE_COUNT+=1
+            if "%CHECK_ONLY%"=="1" (
+                clang-tidy "%%~fF" -p "%BUILD_DIR%" -quiet -extra-arg=-Wno-unused-command-line-argument
+            ) else (
+                clang-tidy "%%~fF" -p "%BUILD_DIR%" -fix -quiet -extra-arg=-Wno-unused-command-line-argument
+            )
+            if errorlevel 1 (
+                echo ERROR: clang-tidy failed for "%%~fF".
+                set /a ERROR_COUNT+=1
+            )
         )
     )
 )

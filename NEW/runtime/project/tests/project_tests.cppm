@@ -25,9 +25,9 @@ namespace {
 
 /// Exercises opening, PE loading, event-backed listing materialization, analysis, and native decompilation.
 TEST(ProjectRuntimeTest, RealExecutableCompletesNativePipeline) {
-    const auto fixture = std::filesystem::path(NEW_GHIDRA_PROJECT_FIXTURE_DIR) / "features" / "analyzers" / "tests" /
+    const auto fixture = std::filesystem::path(NEW_GHIDRA_PROJECT_FIXTURE_DIR) / "services" / "analyzers" / "tests" /
                          "data" / "test_analyzers_integration.exe";
-    const auto specification = std::filesystem::path(NEW_GHIDRA_PROJECT_FIXTURE_DIR) / "features" / "sleigh_runtime" /
+    const auto specification = std::filesystem::path(NEW_GHIDRA_PROJECT_FIXTURE_DIR) / "services" / "sleigh" /
                                "specifications" / "x86-64.sla";
     ProjectConfig config;
     config.id = core::ProjectId{"end-to-end-project"};

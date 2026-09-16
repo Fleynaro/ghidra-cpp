@@ -26,7 +26,7 @@ target_link_libraries(new_ghidra_runtime_project PUBLIC
 )
 target_compile_features(new_ghidra_runtime_project PUBLIC cxx_std_23)
 target_compile_definitions(new_ghidra_runtime_project PUBLIC
-    SLEIGH_RUNTIME_SPECIFICATION_DIR="${CMAKE_SOURCE_DIR}/features/sleigh_runtime/specifications"
+    SLEIGH_RUNTIME_SPECIFICATION_DIR="${CMAKE_SOURCE_DIR}/services/sleigh/specifications"
 )
 
 if(BUILD_TESTING)

@@ -15,7 +15,7 @@ namespace {
 
 /// Resolves the checked PE fixture used to prove the service boundary parses real input.
 [[nodiscard]] std::filesystem::path pe_fixture() {
-    return std::filesystem::path(NEW_GHIDRA_SERVICE_FIXTURE_DIR) / "features" / "pe_loader" / "tests" / "data" /
+    return std::filesystem::path(NEW_GHIDRA_SERVICE_FIXTURE_DIR) / "services" / "pe_loader" / "tests" / "data" /
            "test.exe";
 }
 
@@ -38,8 +38,8 @@ TEST(ServiceBoundaryTest, PeLoaderProducesCoreImageFacts) {
 TEST(ServiceBoundaryTest, SleighServiceProducesCanonicalInstruction) {
     auto pool =
         std::make_shared<ghidra::runtime::workers::WorkerPool>(ghidra::runtime::workers::WorkerPoolConfig{1, 8});
-    const auto path = std::filesystem::path(NEW_GHIDRA_SERVICE_FIXTURE_DIR) / "features" / "sleigh_runtime" /
-                      "specifications" / "x86-64.sla";
+    const auto path =
+        std::filesystem::path(NEW_GHIDRA_SERVICE_FIXTURE_DIR) / "services" / "sleigh" / "specifications" / "x86-64.sla";
     auto service = sleigh::SleighService::open(path, pool);
     ASSERT_TRUE(service) << (service ? "" : service.error().message);
     core::contracts::DecodeRequest request;

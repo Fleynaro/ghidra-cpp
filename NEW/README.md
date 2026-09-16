@@ -1,72 +1,35 @@
 # New C++23 Project
 
-This directory contains the initial C++23 rewrite workspace developed alongside the Java Ghidra project.
+`NEW` is the autonomous C++23 implementation. Feature code is owned by `services`; there is no parallel `features` build graph.
 
 ## Navigation
 
-- [`CMakeLists.txt`](CMakeLists.txt) defines the application, feature library, and tests.
-- [`build.bat`](build.bat) configures, builds, and runs tests with CMake, Ninja, and vcpkg. With no arguments it builds every target and runs every test.
-- [`format.bat`](format.bat) applies the repository `.clang-format` configuration to all C/C++ files under `NEW`, including the Ghidra runtime sources.
-- [`tidy.bat`](tidy.bat) applies the repository `.clang-tidy` checks and fixes to C/C++ translation units under `NEW`, including the Ghidra runtime sources; headers are analyzed through their including translation units.
-- [`src/main.cpp`](src/main.cpp) is the application entry point; with no arguments it runs the smoke case, and with `<pe.exe> <language.sla>` it runs the provider-backed analyzer pipeline.
-- [`features/README.md`](features/README.md) documents the feature library collection.
-- [`features/hello/README.md`](features/hello/README.md) documents the sample feature module.
-- [`core/README.md`](core/README.md) documents canonical domain values, contracts, and persistent event vocabulary.
-- [`runtime/README.md`](runtime/README.md) documents workers, event history, SQLite projections, analysis scheduling, and project lifecycle.
-- [`services/README.md`](services/README.md) documents PE, Sleigh, Function ID, decompiler, translation, and analyzer adapters.
-- [`bindings/README.md`](bindings/README.md) documents the native C++ facade; language bindings are intentionally deferred.
-- [`tests/README.md`](tests/README.md) documents root integration and replay coverage.
-- [`features/decompiler/README.md`](features/decompiler/README.md) documents the standalone native decompiler engine and provider boundary.
+- [`CMakeLists.txt`](CMakeLists.txt) defines core, runtime, services, bindings, application, and tests.
+- [`core/README.md`](core/README.md) documents canonical domain values, contracts, and events.
+- [`runtime/README.md`](runtime/README.md) documents workers, persistence, projections, scheduling, and lifecycle.
+- [`services/README.md`](services/README.md) documents migrated feature services and their tests.
+- [`bindings/cpp/README.md`](bindings/cpp/README.md) documents the native C++ facade. Python, JavaScript, and Go bindings are out of scope.
+- [`tests/README.md`](tests/README.md) documents root integration and replay tests.
 
-## Requirements
+## Build
 
-- MSVC with C++23 support.
-- CMake 3.28 or newer (the provided script uses CMake 4.4.2 from vcpkg).
-- Ninja.
-- vcpkg with the dependencies declared in [`vcpkg.json`](vcpkg.json); manifest mode installs `gtest`, `pugixml`, `sqlite3`, and `zlib` for the selected triplet. The manifest pins the builtin baseline to the repository's verified local vcpkg checkout.
-
-Run `build.bat` from this directory for the complete build and test workflow. The script preserves the build directory, so later invocations are incremental:
+Requirements are MSVC with C++23, CMake 3.28+, Ninja, vcpkg, and the packages in [`vcpkg.json`](vcpkg.json): GTest, pugixml, SQLite3, and zlib.
 
 ```powershell
-# Build and test every module and the application.
-.\build.bat
 .\build.bat all
-
-# Build and test one feature from the project root.
-.\build.bat sleigh
-.\build.bat decompiler
-.\build.bat pe
-.\build.bat function_id
-.\build.bat hello
 .\build.bat core
 .\build.bat runtime
 .\build.bat services
 .\build.bat project
 .\build.bat integration
 .\build.bat replay
-
-# The same focused commands are available in each module directory.
-features\sleigh_runtime\build.bat
-features\decompiler\build.bat
-features\pe_loader\build.bat
-features\function_id\build.bat
-features\hello\build.bat
-
-# Compile a feature without running tests.
 .\build.bat decompiler --no-test
-
-# Build every target and run every registered test.
-.\build.bat all
 ```
 
-Tests are enabled by default in every mode. Use `--no-test` only for a compile-only check, and `--clean` only when a clean rebuild is required. Both options can be passed to a module wrapper. The full generated test list can be inspected with `ctest --test-dir build -N`.
+The focused service modes preserve the existing names (`sleigh`, `pe`, `function_id`, `decompiler`, `hello`, and `analyzer`). Use `--no-test` only for compile-only checks and `--clean` only when the build graph changes. Inspect registered tests with `ctest --test-dir build -N`.
 
-Run `build/new_ghidra_app.exe <pe.exe> <language.sla>` to load a PE through
-`features/pe_loader`, decode it through `features/sleigh_runtime`, and run all
-registered analyzers through `features/analyzers`.
+The executable pipeline loads a PE through [`services/pe_loader`](services/pe_loader/README.md), decodes it through [`services/sleigh`](services/sleigh/README.md), schedules analyzer services through [`runtime/analysis`](runtime/analysis/README.md), and exposes decompilation through the native facade.
 
-The decompiler implementation source selection is an explicit reviewed list in [`features/decompiler/CMakeLists.txt`](features/decompiler/CMakeLists.txt), including `src/fspec.cppm`. The service adapter in [`services/decompiler`](services/decompiler/README.md) consumes that tested native frontend through the canonical runtime contract.
+The decompiler source list is explicit in [`services/decompiler/CMakeLists.txt`](services/decompiler/CMakeLists.txt), including `src/fspec.cppm`; its tests live in [`services/decompiler/tests`](services/decompiler/tests).
 
-Run `format.bat` from this directory to format all C/C++ sources, including `features/sleigh_runtime/src/ghidra`.
-
-Run `tidy.bat` to apply clang-tidy fixes using `build/compile_commands.json`. If build artifacts are missing, the script runs `build.bat` first. Module consumers importing C++20 modules are reported as skipped because clang-tidy cannot consume MSVC `.ifc` files.
+Run `format.bat` and `tidy.bat` from this directory to format and validate the migrated C++ modules. MSVC module consumers are reported as skipped by tidy because clang-tidy cannot consume `.ifc` files directly.

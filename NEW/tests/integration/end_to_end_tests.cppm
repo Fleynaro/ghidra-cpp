@@ -21,8 +21,8 @@ namespace workers = ghidra::runtime::workers;
 /// Runs the real executable through the project facade and verifies the cross-service pipeline.
 TEST(ArchitectureIntegrationTest, AnalyzerFixtureLoadsAnalyzesAndDecompiles) {
     const auto root = std::filesystem::path(NEW_GHIDRA_INTEGRATION_ROOT);
-    const auto fixture = root / "features" / "analyzers" / "tests" / "data" / "test_analyzers_integration.exe";
-    const auto sla = root / "features" / "sleigh_runtime" / "specifications" / "x86-64.sla";
+    const auto fixture = root / "services" / "analyzers" / "tests" / "data" / "test_analyzers_integration.exe";
+    const auto sla = root / "services" / "sleigh" / "specifications" / "x86-64.sla";
     const auto directory = std::filesystem::temp_directory_path() / "new-ghidra-architecture-integration";
     std::error_code error;
     std::filesystem::remove_all(directory, error);

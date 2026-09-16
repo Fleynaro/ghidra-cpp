@@ -24,8 +24,8 @@ if /I "%MODE%"=="all" (
 )
 if /I "%MODE%"=="app" goto mode_selected
 if /I "%MODE%"=="hello" (
-    set "BUILD_TARGET=hello_feature_tests"
-    set "TEST_FILTER=^hello_feature_tests$"
+    set "BUILD_TARGET=hello_service_tests"
+    set "TEST_FILTER=^hello_service_tests$"
     goto mode_selected
 )
 if /I "%MODE%"=="core" (
@@ -255,9 +255,10 @@ if /I "%~3"=="--clean" (
 )
 
 if "%RUN_TESTS%"=="0" (
-    if /I "%MODE%"=="hello" set "BUILD_TARGET=hello_feature"
+    if /I "%MODE%"=="hello" set "BUILD_TARGET=hello_service"
     if /I "%MODE%"=="core" set "BUILD_TARGET=new_ghidra_core"
     if /I "%MODE%"=="runtime" set "BUILD_TARGET=new_ghidra_runtime"
+    if /I "%MODE%"=="services" set "BUILD_TARGET=new_ghidra_services"
     if /I "%MODE%"=="services" set "BUILD_TARGET=new_ghidra_service_tests"
     if /I "%MODE%"=="project" set "BUILD_TARGET=new_ghidra_runtime_project"
     if /I "%MODE%"=="integration" set "BUILD_TARGET=architecture_end_to_end_tests"

@@ -30,9 +30,9 @@ No confirmed Critical finding was identified. The High findings below must still
 ### HIGH-001: Append-Only History Has No Growth or Supersession Strategy
 
 - [ ] **Remediation status:** Open.
-- **Reference:** [`ARCHITECTURE.md:26-27`](ARCHITECTURE.md), [`ARCHITECTURE.md:921-953`](ARCHITECTURE.md), [`ARCHITECTURE.md:1017-1044`](ARCHITECTURE.md); [`features/analyzers/shared/src/analyzer_context.cppm:437-461`](features/analyzers/shared/src/analyzer_context.cppm).
+- **Reference:** [`ARCHITECTURE.md:26-27`](ARCHITECTURE.md), [`ARCHITECTURE.md:921-953`](ARCHITECTURE.md), [`ARCHITECTURE.md:1017-1044`](ARCHITECTURE.md); [`services/analyzers/shared/src/analyzer_context.cppm:437-461`](services/analyzers/shared/src/analyzer_context.cppm).
 - **Affected component:** Event log, projection rebuild, repeated analysis.
-- **Technical evidence:** The design persists materialized instruction, reference, function, symbol, fact, and analysis changes in an append-only log. Batch framing is specified, but no snapshot, compaction, retention, or supersession protocol is specified. The current context owns large mutable collections, and [`features/analyzers/shared/src/analyzer_manager.cppm:247-297`](features/analyzers/shared/src/analyzer_manager.cppm) can revisit them during re-analysis.
+- **Technical evidence:** The design persists materialized instruction, reference, function, symbol, fact, and analysis changes in an append-only log. Batch framing is specified, but no snapshot, compaction, retention, or supersession protocol is specified. The current context owns large mutable collections, and [`services/analyzers/shared/src/analyzer_manager.cppm:247-297`](services/analyzers/shared/src/analyzer_manager.cppm) can revisit them during re-analysis.
 - **Expected behavior:** Storage and replay cost must remain operationally bounded for large binaries and repeated analysis while preserving an explicit audit policy.
 - **Actual behavior:** The architecture defines durable append and replay but no policy for old derived results, replacement, compaction, or run-level retention.
 - **Impact:** Disk use, backup size, replay time, and projection rebuild time can grow without bound; stale derived state can remain in history indefinitely.
@@ -45,7 +45,7 @@ No confirmed Critical finding was identified. The High findings below must still
 ### HIGH-002: Analyzer Snapshot and Commit Semantics Are Incomplete
 
 - [ ] **Remediation status:** Open.
-- **Reference:** [`ARCHITECTURE.md:644-672`](ARCHITECTURE.md), [`ARCHITECTURE.md:1185-1200`](ARCHITECTURE.md), [`ARCHITECTURE.md:2064`](ARCHITECTURE.md); [`features/analyzers/shared/src/analyzer_manager.cppm:205-222`](features/analyzers/shared/src/analyzer_manager.cppm).
+- **Reference:** [`ARCHITECTURE.md:644-672`](ARCHITECTURE.md), [`ARCHITECTURE.md:1185-1200`](ARCHITECTURE.md), [`ARCHITECTURE.md:2064`](ARCHITECTURE.md); [`services/analyzers/shared/src/analyzer_manager.cppm:205-222`](services/analyzers/shared/src/analyzer_manager.cppm).
 - **Affected component:** Analyzer scheduler, mutation proposals, deterministic compatibility.
 - **Technical evidence:** The target analyzer contract returns commands from an immutable snapshot, while the current manager invokes one analyzer, drains its events, and immediately schedules downstream work. The architecture does not define read-your-writes, proposal read sets, multi-entity atomicity, or the commit order for concurrent analyzers.
 - **Expected behavior:** Order-sensitive Ghidra behavior must be preserved while allowing only explicitly safe parallel work.
@@ -75,7 +75,7 @@ No confirmed Critical finding was identified. The High findings below must still
 ### HIGH-004: The Event Schema Is Not Closed Over Existing Mutable State
 
 - [ ] **Remediation status:** Open.
-- **Reference:** [`ARCHITECTURE.md:876-921`](ARCHITECTURE.md), [`ARCHITECTURE.md:1017-1044`](ARCHITECTURE.md); [`features/analyzers/shared/src/analyzer_context.cppm:437-461`](features/analyzers/shared/src/analyzer_context.cppm), [`features/analyzers/shared/src/analyzer_context.cppm:1012-1398`](features/analyzers/shared/src/analyzer_context.cppm).
+- **Reference:** [`ARCHITECTURE.md:876-921`](ARCHITECTURE.md), [`ARCHITECTURE.md:1017-1044`](ARCHITECTURE.md); [`services/analyzers/shared/src/analyzer_context.cppm:437-461`](services/analyzers/shared/src/analyzer_context.cppm), [`services/analyzers/shared/src/analyzer_context.cppm:1012-1398`](services/analyzers/shared/src/analyzer_context.cppm).
 - **Affected component:** Event payloads, replay, derived facts and projection tables.
 - **Technical evidence:** Current state includes strings, bookmarks, constants, external symbols, archives, address tables, embedded media, PDB records, candidate starts, stack variables, function flags, flow overrides, and signatures. The initial event list does not explicitly define all of their create/update/remove/replace behavior.
 - **Expected behavior:** Replay must reconstruct every authoritative current value, and derived values must have explicit invalidation or rebuild semantics.
@@ -90,7 +90,7 @@ No confirmed Critical finding was identified. The High findings below must still
 ### HIGH-005: Service Dependency Direction Contradicts the Layer Rules
 
 - [ ] **Remediation status:** Open.
-- **Reference:** [`ARCHITECTURE.md:251-260`](ARCHITECTURE.md), [`ARCHITECTURE.md:1450-1491`](ARCHITECTURE.md); [`features/analyzers/CMakeLists.txt:1-7`](features/analyzers/CMakeLists.txt), [`features/analyzers/CMakeLists.txt:56-60`](features/analyzers/CMakeLists.txt), [`features/function_id/CMakeLists.txt:25-27`](features/function_id/CMakeLists.txt).
+- **Reference:** [`ARCHITECTURE.md:251-260`](ARCHITECTURE.md), [`ARCHITECTURE.md:1450-1491`](ARCHITECTURE.md); [`services/analyzers/CMakeLists.txt:1-7`](services/analyzers/CMakeLists.txt), [`services/analyzers/CMakeLists.txt:56-60`](services/analyzers/CMakeLists.txt), [`services/function_id/CMakeLists.txt:25-27`](services/function_id/CMakeLists.txt).
 - **Affected component:** Build graph, optional services, runtime composition.
 - **Technical evidence:** The layer rules describe service contracts below runtime composition, but the graph contains `FID --> SL`, `AN --> SL`, `AN --> DEC`, and `AN --> PE`. The current analyzer shared library publicly links PE and Sleigh, and the aggregate analyzer links every analyzer library.
 - **Expected behavior:** Services should depend on stable contracts; concrete services should be connected by runtime composition or explicitly isolated adapters.
@@ -105,7 +105,7 @@ No confirmed Critical finding was identified. The High findings below must still
 ### HIGH-006: `core/domain` Is Too Broad to Remain a Stable Kernel
 
 - [ ] **Remediation status:** Open.
-- **Reference:** [`ARCHITECTURE.md:270-360`](ARCHITECTURE.md), [`ARCHITECTURE.md:421`](ARCHITECTURE.md); [`features/decompiler/src/decompiler.cppm:7-531`](features/decompiler/src/decompiler.cppm), [`features/analyzers/shared/src/analyzer_types.cppm:17-419`](features/analyzers/shared/src/analyzer_types.cppm).
+- **Reference:** [`ARCHITECTURE.md:270-360`](ARCHITECTURE.md), [`ARCHITECTURE.md:421`](ARCHITECTURE.md); [`services/decompiler/src/decompiler.cppm:7-531`](services/decompiler/src/decompiler.cppm), [`services/analyzers/shared/src/analyzer_types.cppm:17-419`](services/analyzers/shared/src/analyzer_types.cppm).
 - **Affected component:** Core API, public facade, cross-feature compile-time coupling.
 - **Technical evidence:** The proposed core owns full function snapshots, decompiler artifacts, FID scoring/options/results, type graphs, architecture details, variables, and analysis facts. The current project keeps these vocabularies in separate decompiler, analyzer, and Function ID modules.
 - **Expected behavior:** Core values should contain only semantics stable enough for multiple independent services and persistence consumers.
@@ -120,7 +120,7 @@ No confirmed Critical finding was identified. The High findings below must still
 ### HIGH-007: Decoder Resource Concurrency Is Not Specified for Bulk Work
 
 - [ ] **Remediation status:** Open.
-- **Reference:** [`ARCHITECTURE.md:490-520`](ARCHITECTURE.md), [`ARCHITECTURE.md:750-755`](ARCHITECTURE.md); [`features/sleigh_runtime/sleigh_runtime_adapter.cppm:745-768`](features/sleigh_runtime/sleigh_runtime_adapter.cppm), [`features/sleigh_runtime/sleigh_runtime_adapter.cppm:817-850`](features/sleigh_runtime/sleigh_runtime_adapter.cppm).
+- **Reference:** [`ARCHITECTURE.md:490-520`](ARCHITECTURE.md), [`ARCHITECTURE.md:750-755`](ARCHITECTURE.md); [`services/sleigh/sleigh_runtime_adapter.cppm:745-768`](services/sleigh/sleigh_runtime_adapter.cppm), [`services/sleigh/sleigh_runtime_adapter.cppm:817-850`](services/sleigh/sleigh_runtime_adapter.cppm).
 - **Affected component:** Sleigh resource manager, worker pool throughput, native parser safety.
 - **Technical evidence:** The current implementation shares one mutable `ghidra::Sleigh` per cached SLA and holds a mutex through the full decode. The architecture lists worker-local state, leases, and a mutex-protected decoder as alternatives but does not choose capacity or memory behavior.
 - **Expected behavior:** Bulk decoding must have a measured, bounded concurrency strategy that does not starve interactive decoding.
@@ -135,7 +135,7 @@ No confirmed Critical finding was identified. The High findings below must still
 ### HIGH-008: External Artifact and Resource Retention Weakens Reproducibility
 
 - [ ] **Remediation status:** Open.
-- **Reference:** [`ARCHITECTURE.md:1084-1099`](ARCHITECTURE.md), [`ARCHITECTURE.md:1121-1148`](ARCHITECTURE.md), [`ARCHITECTURE.md:2083-2093`](ARCHITECTURE.md); [`features/analyzers/shared/src/analyzer_context.cppm:437-475`](features/analyzers/shared/src/analyzer_context.cppm).
+- **Reference:** [`ARCHITECTURE.md:1084-1099`](ARCHITECTURE.md), [`ARCHITECTURE.md:1121-1148`](ARCHITECTURE.md), [`ARCHITECTURE.md:2083-2093`](ARCHITECTURE.md); [`services/analyzers/shared/src/analyzer_context.cppm:437-475`](services/analyzers/shared/src/analyzer_context.cppm).
 - **Affected component:** Project reopen, replay, re-analysis, resource manager.
 - **Technical evidence:** External executable references and optional managed copies are both allowed; the open path loads the artifact before replay. SLA, compiler, FID, PDB, and archive resources are not all required to have content hashes and version identities.
 - **Expected behavior:** The project must state whether it guarantees only historical projection access or deterministic re-analysis, and must enforce the required input identity for that mode.
@@ -197,7 +197,7 @@ No confirmed Critical finding was identified. The High findings below must still
 ### MEDIUM-001: Stable Address-Space and Entity Identity Encoding Is Not Defined
 
 - [ ] **Remediation status:** Open.
-- **Reference:** [`ARCHITECTURE.md:278-291`](ARCHITECTURE.md), [`ARCHITECTURE.md:313-324`](ARCHITECTURE.md), [`ARCHITECTURE.md:1028-1036`](ARCHITECTURE.md); [`features/analyzers/shared/src/analyzer_types.cppm:17-32`](features/analyzers/shared/src/analyzer_types.cppm).
+- **Reference:** [`ARCHITECTURE.md:278-291`](ARCHITECTURE.md), [`ARCHITECTURE.md:313-324`](ARCHITECTURE.md), [`ARCHITECTURE.md:1028-1036`](ARCHITECTURE.md); [`services/analyzers/shared/src/analyzer_types.cppm:17-32`](services/analyzers/shared/src/analyzer_types.cppm).
 - **Affected component:** Event keys, address spaces, instruction/function identity.
 - **Technical evidence:** Public values require stable space/entity IDs, but projection examples use `(space,address)` and the current model uses raw integer addresses. No deterministic ID derivation or delete/recreate policy is specified.
 - **Expected behavior:** Reopen, resource migration, and event replay must preserve logical identity.
@@ -227,7 +227,7 @@ No confirmed Critical finding was identified. The High findings below must still
 ### MEDIUM-003: Integration and Replay Test Ownership Is Not Fully Mapped to the Build
 
 - [ ] **Remediation status:** Open.
-- **Reference:** [`ARCHITECTURE.md:1681-1788`](ARCHITECTURE.md); [`CMakeLists.txt:11-25`](CMakeLists.txt), [`features/analyzers/tests/CMakeLists.txt:1-14`](features/analyzers/tests/CMakeLists.txt).
+- **Reference:** [`ARCHITECTURE.md:1681-1788`](ARCHITECTURE.md); [`CMakeLists.txt:11-25`](CMakeLists.txt), [`services/analyzers/tests/CMakeLists.txt:1-14`](services/analyzers/tests/CMakeLists.txt).
 - **Affected component:** Runtime/replay tests, CMake/CTest architecture.
 - **Technical evidence:** The target tree lists runtime and root integration/replay/fixture directories but does not assign CMake/CTest ownership or fixture manifests. The current root CMake only adds feature targets and one smoke test; current tests are feature-local.
 - **Expected behavior:** Event recovery, projection idempotence, snapshot consistency, shutdown, decoder concurrency, and scale behavior must have named targets and registered tests.
@@ -242,13 +242,13 @@ No confirmed Critical finding was identified. The High findings below must still
 ## Verified Strengths
 
 - [x] The current `AnalysisContext` is correctly identified as a large mutable seam that should not become the final public program model.
-- [x] Separating PE parsing from project/listing side effects preserves the reusable checked parser in [`features/pe_loader/src/pe_loader.cppm`](features/pe_loader/src/pe_loader.cppm).
+- [x] Separating PE parsing from project/listing side effects preserves the reusable checked parser in [`services/pe_loader/src/pe_loader.cppm`](services/pe_loader/src/pe_loader.cppm).
 - [x] Consolidating duplicated native translation classes is supported by the current Sleigh/decompiler modules and original shared native contracts.
 - [x] Per-task mutable native decompiler state and immutable project providers are sound ownership decisions.
 - [x] The command, transient response, persistent event, event-bus, and projection distinction is conceptually correct.
 - [x] A replaceable SQLite projection is a practical initial query model if services cannot access it directly.
 - [x] Retaining Ghidra-compatible numeric priorities while adding explicit prerequisites is a good compatibility baseline.
-- [x] Replacing current unbounded Function ID `std::async` work in [`features/function_id/src/database.cppm:260-318`](features/function_id/src/database.cppm) with runtime scheduling is directionally correct.
+- [x] Replacing current unbounded Function ID `std::async` work in [`services/function_id/src/database.cppm:260-318`](services/function_id/src/database.cppm) with runtime scheduling is directionally correct.
 - [x] Existing feature-local tests and port evidence should be preserved and supplemented with cross-boundary tests rather than replaced.
 
 ## Reviewed Areas With No Findings
