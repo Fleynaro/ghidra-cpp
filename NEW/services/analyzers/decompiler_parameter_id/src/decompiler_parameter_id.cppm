@@ -65,33 +65,7 @@ private:
 
 /// Creates the processor spaces and register facts required by x86-64.sla.
 [[nodiscard]] newghidra::decompiler::ArchitectureDescription architecture() {
-    newghidra::decompiler::ArchitectureDescription result;
-    result.name = "x86-64 parameter analysis";
-    result.spaces = {{"const", 8, 1, false, 0, 0, true},
-                     {"ram", 8, 1, false, 2, 0, true},
-                     {"register", 8, 1, false, 3, 0, true},
-                     {"unique", 8, 1, false, 4, 0, true}};
-    const auto registers = std::array{std::pair{std::string_view{"RAX"}, std::uint64_t{0x00}},
-                                      std::pair{std::string_view{"RCX"}, std::uint64_t{0x08}},
-                                      std::pair{std::string_view{"RDX"}, std::uint64_t{0x10}},
-                                      std::pair{std::string_view{"RBX"}, std::uint64_t{0x18}},
-                                      std::pair{std::string_view{"RSP"}, std::uint64_t{0x20}},
-                                      std::pair{std::string_view{"RBP"}, std::uint64_t{0x28}},
-                                      std::pair{std::string_view{"RSI"}, std::uint64_t{0x30}},
-                                      std::pair{std::string_view{"RDI"}, std::uint64_t{0x38}},
-                                      std::pair{std::string_view{"R8"}, std::uint64_t{0x40}},
-                                      std::pair{std::string_view{"R9"}, std::uint64_t{0x48}},
-                                      std::pair{std::string_view{"R10"}, std::uint64_t{0x50}},
-                                      std::pair{std::string_view{"R11"}, std::uint64_t{0x58}},
-                                      std::pair{std::string_view{"R12"}, std::uint64_t{0x60}},
-                                      std::pair{std::string_view{"R13"}, std::uint64_t{0x68}},
-                                      std::pair{std::string_view{"R14"}, std::uint64_t{0x70}},
-                                      std::pair{std::string_view{"R15"}, std::uint64_t{0x78}}};
-    for (const auto [name, offset] : registers)
-        result.registers.push_back({std::string(name), {"register", offset, 8}});
-    result.stack_register = "RSP";
-    result.pointer_size = 8;
-    return result;
+    return newghidra::decompiler::make_x86_64_architecture();
 }
 
 /// Returns the bounded end required by the native flow engine.

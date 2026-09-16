@@ -21,6 +21,11 @@ struct ArchitectureDescription {
     std::uint32_t instruction_alignment{1};
     std::vector<std::string> calling_conventions;
     std::vector<std::string> feature_flags;
+
+    /// Reports whether this canonical architecture declares a named address space.
+    [[nodiscard]] bool has_space(std::string_view name) const noexcept {
+        return std::ranges::any_of(spaces, [&](const auto& space) { return space.id.name() == name; });
+    }
 };
 
 /// Identifies a language resource independently of native SLA objects.

@@ -2,6 +2,7 @@ export module ghidra.core.contracts.memory_provider;
 
 import std;
 import ghidra.core.address;
+import ghidra.core.address_range;
 import ghidra.core.bytes;
 import ghidra.core.memory_region;
 import ghidra.core.diagnostics;
@@ -22,6 +23,12 @@ public:
 
     /// Returns immutable mapped-region snapshots.
     [[nodiscard]] virtual std::vector<MemoryRegion> regions() const = 0;
+
+    /// Returns ranges whose reads may have externally observable side effects.
+    /// Providers without volatile memory may return an empty set.
+    [[nodiscard]] virtual std::vector<AddressRange> volatile_ranges() const {
+        return {};
+    }
 };
 
 } // namespace ghidra::core::contracts

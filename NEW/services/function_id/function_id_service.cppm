@@ -28,15 +28,17 @@ public:
         return path_.generic_string();
     }
 
-    /// Returns the validated native database for service-local scoring.
-    [[nodiscard]] const fid::Database& database() const noexcept {
-        return database_;
-    }
-
     /// Returns candidates sharing a full hash while keeping database objects private.
     [[nodiscard]] core::Result<std::vector<core::FunctionIdCandidate>>
     query(const core::FunctionHashFamily& hashes) const override {
-        const auto records = database_.find_full_hash(std::stoull(hashes.full_hash, nullptr, 16));
+        std::uint64_t full_hash{};
+        try {
+            full_hash = std::stoull(hashes.full_hash, nullptr, 16);
+        } catch (const std::exception& error) {
+            return std::unexpected(core::Error::make(core::DiagnosticCode::invalid_argument,
+                                                     std::string("Function ID full hash is invalid: ") + error.what()));
+        }
+        const auto records = database_.find_full_hash(full_hash);
         std::vector<core::FunctionIdCandidate> result;
         result.reserve(records.size());
         for (const auto& record : records)
@@ -111,14 +113,10 @@ private:
         result.function = function.key;
         result.hashes.full_hash = to_hex(hash->full_hash);
         result.hashes.specific_hash = to_hex(hash->specific_hash);
-        fid::FunctionContext context{*hash, {}, {}};
-        fid::ProgramInfo program;
-        auto identified = database_->database().identify(context, program, static_cast<float>(options.label_threshold));
+        auto identified = database_->query(result.hashes);
         if (!identified)
-            return std::unexpected(core::Error::make(core::DiagnosticCode::unsupported, identified.error().message));
-        for (const auto& match : identified->matches)
-            result.candidates.push_back(core::FunctionIdCandidate{match.library.family_name, match.function.name,
-                                                                  match.overall_score(), database_->identity(), false});
+            return std::unexpected(identified.error());
+        result.candidates = std::move(*identified);
         if (!result.candidates.empty()) {
             result.selected = result.candidates.front();
             result.label_threshold_met = result.selected->score >= options.label_threshold;

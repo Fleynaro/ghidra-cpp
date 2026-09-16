@@ -1,6 +1,7 @@
 export module function_id:types;
 
 import std;
+import ghidra.core.operand;
 
 // Ported/adapted from Ghidra:
 // Features/FunctionID/src/main/java/ghidra/feature/fid/hash/FunctionRecord.java
@@ -32,22 +33,9 @@ struct Error {
     std::string message;
 };
 
-/// Identifies the object classes understood by the specific-hash algorithm.
-enum class OperandObjectKind : std::uint8_t {
-    scalar,
-    register_value,
-    address,
-};
-
-/// Supplies one Ghidra instruction operand object to the autonomous hasher.
-/// Scalar values are signed exactly as Ghidra's Scalar.getSignedValue() returns them.
-struct OperandObject {
-    OperandObjectKind kind{OperandObjectKind::scalar};
-    std::int64_t value{};
-    bool whole_scalar{true};
-    bool address_scalar{};
-    bool relocated{};
-};
+/// Reuses the canonical operand object facts while keeping FID-specific instruction masks local.
+using OperandObjectKind = ghidra::core::OperandObject::Kind;
+using OperandObject = ghidra::core::OperandObject;
 
 /// Describes one instruction in the order used by FunctionBodyFunctionExtentGenerator.
 /// The instruction mask and operand masks use the same byte ordering as the instruction bytes.

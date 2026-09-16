@@ -28,7 +28,11 @@ public:
             return std::unexpected(
                 Error::make(DiagnosticCode::invalid_argument, "Address must use the space:offset form"));
         std::uint64_t offset{};
-        const auto number = text.substr(separator + 1);
+        auto number = text.substr(separator + 1);
+        if (number.size() >= 2 && number[0] == '0' && (number[1] == 'x' || number[1] == 'X'))
+            number.remove_prefix(2);
+        if (number.empty())
+            return std::unexpected(Error::make(DiagnosticCode::invalid_argument, "Address offset is not hexadecimal"));
         const auto* first = number.data();
         const auto* last = first + number.size();
         const auto [end, error] = std::from_chars(first, last, offset, 16);

@@ -3,7 +3,7 @@ export module ghidra.core.contracts.pcode_decoder;
 import std;
 import ghidra.core.address;
 import ghidra.core.bytes;
-import ghidra.core.instruction;
+import ghidra.core.decoded_instruction;
 import ghidra.core.processor_context;
 import ghidra.core.contracts.operation;
 
@@ -23,7 +23,7 @@ struct DecodeBatchRequest {
 
 /// Returns address-ordered instructions from a batch operation.
 struct DecodeBatchResult {
-    std::vector<Instruction> instructions;
+    std::vector<DecodedInstruction> instructions;
 };
 
 /// Decodes machine bytes into canonical core values.
@@ -33,7 +33,7 @@ public:
     virtual ~IPCodeDecoder() = default;
 
     /// Decodes one instruction synchronously.
-    [[nodiscard]] virtual Result<Instruction> decode(const DecodeRequest& request) const = 0;
+    [[nodiscard]] virtual Result<DecodedInstruction> decode(const DecodeRequest& request) const = 0;
 
     /// Queues a bounded batch operation through the owning runtime.
     [[nodiscard]] virtual Task<Result<DecodeBatchResult>> decode_batch(const DecodeBatchRequest& request,

@@ -49,7 +49,11 @@ TEST(ServiceBoundaryTest, SleighServiceProducesCanonicalInstruction) {
     ASSERT_TRUE(decoded) << (decoded ? "" : decoded.error().message);
     EXPECT_EQ(decoded->length, 1U);
     EXPECT_FALSE(decoded->mnemonic.empty());
-    EXPECT_FALSE(decoded->pcode.operations.empty());
+    EXPECT_FALSE(decoded->pcode.empty());
+    const auto materialized = core::materialize_decoded_instruction(*decoded, request.address);
+    EXPECT_EQ(materialized.key.address, request.address);
+    EXPECT_EQ(materialized.key.entity.value(), "instruction-ram-4096");
+    EXPECT_EQ(materialized.pcode.instruction, request.address);
 }
 
 } // namespace

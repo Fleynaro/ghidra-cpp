@@ -26,7 +26,8 @@ public:
     }
 
     /// Decodes one bounded instruction while serializing access to native state.
-    [[nodiscard]] core::Result<core::Instruction> decode(const core::contracts::DecodeRequest& request) const override {
+    [[nodiscard]] core::Result<core::DecodedInstruction>
+    decode(const core::contracts::DecodeRequest& request) const override {
         std::scoped_lock lock(mutex_);
         try {
             sleigh_runtime::ProcessorContext context;
@@ -35,7 +36,7 @@ public:
             auto decoded = decoder_->decode(request.address.offset, request.bytes.view(), context);
             if (!decoded)
                 return std::unexpected(core::Error::make(core::DiagnosticCode::parse_failure, decoded.error().message));
-            return convert(*decoded, request.address);
+            return *decoded;
         } catch (const std::exception& error) {
             return std::unexpected(core::Error::make(core::DiagnosticCode::parse_failure,
                                                      std::string("Sleigh decode threw: ") + error.what()));
@@ -63,8 +64,7 @@ public:
                         return core::Result<core::contracts::DecodeBatchResult>{std::unexpected(decoded.error())};
                     result.instructions.push_back(std::move(*decoded));
                 }
-                std::ranges::sort(result.instructions, {},
-                                  [](const auto& instruction) { return instruction.key.address; });
+                std::ranges::sort(result.instructions, {}, [](const auto& instruction) { return instruction.address; });
                 return core::Result<core::contracts::DecodeBatchResult>{std::move(result)};
             });
         if (!submitted)
@@ -82,55 +82,6 @@ private:
     SleighService(std::filesystem::path path, std::shared_ptr<runtime::workers::WorkerPool> pool)
         : specification_path_(std::move(path)),
           decoder_(std::make_unique<sleigh_runtime::Decoder>(specification_path_)), pool_(std::move(pool)) {}
-
-    /// Converts a legacy Sleigh instruction and every observable field to core values.
-    [[nodiscard]] static core::Instruction convert(const sleigh_runtime::Instruction& source, core::Address address) {
-        core::Instruction result;
-        result.key =
-            core::InstructionKey{core::EntityId{core::make_identifier("instruction", address.offset)}, address};
-        result.length = source.length;
-        result.bytes = core::Bytes{source.bytes};
-        result.mnemonic = source.mnemonic;
-        result.assembly = source.assembly;
-        result.instruction_mask = source.instruction_mask;
-        result.architecture = source.is_x86 ? "x86" : "unknown";
-        result.provenance = "sleigh";
-        result.pcode.instruction = address;
-        for (std::size_t index = 0; index < source.operands.size(); ++index) {
-            const auto& operand = source.operands[index];
-            core::InstructionOperand converted;
-            converted.text = operand.text;
-            converted.kind = static_cast<core::OperandKind>(operand.kind);
-            converted.value_mask = operand.value_mask;
-            for (const auto& object : operand.objects)
-                converted.objects.push_back(core::OperandObject{static_cast<core::OperandObject::Kind>(object.kind),
-                                                                object.value, object.whole_scalar,
-                                                                object.address_scalar, object.relocated});
-            if (operand.value)
-                converted.scalar = core::Scalar{*operand.value, 64, false,
-                                                operand.kind == sleigh_runtime::OperandKind::address, false};
-            result.operands.push_back(std::move(converted));
-        }
-        result.flow.kind = static_cast<core::FlowKind>(source.flow.kind);
-        if (source.flow.target)
-            result.flow.target = core::Address{source.flow.target->space, source.flow.target->offset};
-        result.flow.has_fallthrough = source.flow.has_fallthrough;
-        result.flow.terminal = source.flow.terminal;
-        for (std::size_t index = 0; index < source.pcode.size(); ++index) {
-            const auto& operation = source.pcode[index];
-            core::PcodeOp converted;
-            converted.opcode = static_cast<core::PcodeOpcode>(operation.opcode);
-            converted.sequence_index = index;
-            converted.memory_space = operation.memory_space;
-            converted.source_operand = operation.source_operand;
-            if (operation.output)
-                converted.output = *operation.output;
-            for (const auto& input : operation.inputs)
-                converted.inputs.push_back(input);
-            result.pcode.operations.push_back(std::move(converted));
-        }
-        return result;
-    }
 
     std::filesystem::path specification_path_;
     std::unique_ptr<sleigh_runtime::Decoder> decoder_;

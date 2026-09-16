@@ -142,7 +142,9 @@ public:
             function.analysis_status = "decoded";
             function.instruction_starts.reserve(body->instructions.size());
             std::vector<core::events::EventDraft> listing;
-            for (const auto& instruction : body->instructions) {
+            for (const auto& decoded_instruction : body->instructions) {
+                const auto instruction = core::materialize_decoded_instruction(
+                    decoded_instruction, core::Address{entry->space, decoded_instruction.address});
                 listing.push_back(core::events::listing_state_changed(config_.id, instruction, correlation));
                 function.instruction_starts.push_back(instruction.key.address.offset);
                 const auto end = instruction.key.address.offset + instruction.length - 1;
@@ -211,7 +213,7 @@ public:
         request.function = *current;
         request.read_revision = projection_->checkpoint();
         request.providers = core::contracts::ProviderContext{
-            std::static_pointer_cast<const core::contracts::IPCodeDecoder>(decoder_), image_, projection_};
+            std::static_pointer_cast<const core::contracts::IPCodeDecoder>(decoder_), image_, projection_, architecture_};
         auto operation = std::make_shared<core::contracts::OperationControl>();
         return decompiler_->decompile(std::move(request),
                                       core::contracts::OperationContext{config_.id, projection_->checkpoint(),

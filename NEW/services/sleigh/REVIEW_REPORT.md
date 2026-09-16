@@ -8,6 +8,7 @@
 - [x] Review date: 2026-09-15.
 - [x] Review type: source audit plus measured performance investigation and implementation validation.
 - [x] Recommendations target the runtime/API boundary, not analyzer-local heuristics.
+- [x] Current core-contract boundary addendum reviewed; its detailed findings are recorded in [`../REVIEW_REPORT.md`](../REVIEW_REPORT.md) and [`../../core/contracts/REVIEW_REPORT.md`](../../core/contracts/REVIEW_REPORT.md).
 
 ## Findings
 
@@ -118,7 +119,7 @@ No findings.
 - [x] `ctest --test-dir NEW/build -N` listed `sleigh_runtime_tests` and dependent consumers.
 - [x] `NEW\\features\\sleigh_runtime\\build.bat` built the formatted module and passed `sleigh_runtime_tests`.
 - [x] Direct `sleigh_runtime_tests.exe --gtest_color=no` completed 32/32 tests with 0 failures and 785 ms reported test time.
-- [x] `NEW\\build.bat all` completed the full build and all 43 registered CTest tests passed; `sleigh_runtime_tests` passed within that run.
+- [x] `NEW\\build.bat all` completed the full build and all 49 registered CTest tests passed; `sleigh_runtime_tests` passed within that run.
 - [x] `NEW\\features\\sleigh_runtime\\format.bat` formatted the module successfully.
 - [ ] `NEW\\features\\sleigh_runtime\\tidy.bat --check` completed with a tooling failure: clang-tidy cannot parse the generated MSVC `.ifc` plus source compilation command and reports multi-source `/Fo` errors for existing module units; no source diagnostic was emitted for the modified implementation units.
 
@@ -130,4 +131,5 @@ No findings.
 ## Follow-Up Decision
 
 - [x] SLEIGH-CRITICAL-001 was authorized by the optimization request and remediated without weakening decoding coverage.
+- [x] The authorized domain follow-up now returns `core::DecodedInstruction` from `IPCodeDecoder` and centralizes promotion in `core::materialize_decoded_instruction()`.
 - [ ] Remaining highest-priority behavioral finding is SLEIGH-HIGH-001; it was not part of this performance change.

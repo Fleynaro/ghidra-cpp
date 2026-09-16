@@ -1,6 +1,7 @@
 export module ghidra.core.contracts.decompiler;
 
 import std;
+import ghidra.core.architecture;
 import ghidra.core.decompilation;
 import ghidra.core.diagnostics;
 import ghidra.core.function;
@@ -16,6 +17,8 @@ struct ProviderContext {
     std::shared_ptr<const IPCodeDecoder> pcode;
     std::shared_ptr<const IMemoryProvider> memory;
     std::shared_ptr<const IProjectQuery> project;
+    /// Supplies the same immutable architecture snapshot captured by analysis.
+    std::shared_ptr<const ArchitectureDescription> architecture;
 };
 
 /// Requests decompilation of one revision-stamped function snapshot.

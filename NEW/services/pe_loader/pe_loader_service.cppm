@@ -131,16 +131,50 @@ private:
         for (const auto& descriptor : image.imports())
             for (const auto& symbol : descriptor.symbols)
                 result.details.imports.push_back(descriptor.dll_name + "!" + symbol.name);
-        for (const auto& symbol : image.exported_symbols())
-            if (symbol.name)
+        for (const auto& symbol : image.exported_symbols()) {
+            if (symbol.name) {
                 result.details.exports.push_back(*symbol.name);
-        result.architecture.language_id =
-            result.details.machine == "x86-64" ? "x86:LE:64:default" : "x86:LE:32:default";
+                result.exported_symbols.push_back(
+                    core::Symbol{core::EntityId{core::make_identifier("export", symbol.ordinal)},
+                                 core::Address{core::AddressSpaceId{"ram"}, symbol.address_va},
+                                 {},
+                                 *symbol.name,
+                                 {},
+                                 core::SymbolKind::function,
+                                 true,
+                                 core::SymbolSource::default_name,
+                                 0,
+                                 std::nullopt});
+            }
+        }
+        std::size_t import_ordinal{};
+        for (const auto& descriptor : image.imports())
+            for (const auto& symbol : descriptor.symbols) {
+                const auto name =
+                    symbol.name.empty() ? "ordinal-" + std::to_string(symbol.ordinal.value_or(0)) : symbol.name;
+                result.imported_symbols.push_back(
+                    core::Symbol{core::EntityId{core::make_identifier("import", import_ordinal++)},
+                                 core::Address{core::AddressSpaceId{"ram"}, symbol.iat_slot_va},
+                                 descriptor.dll_name + "!" + name, name, descriptor.dll_name,
+                                 core::SymbolKind::external, true, core::SymbolSource::import, 0, std::nullopt});
+            }
+        const auto relocation_width = image.optional_header().pe32_plus ? 8U : 4U;
+        for (const auto& block : image.relocations())
+            for (const auto& entry : block.entries)
+                result.relocations.push_back(
+                    core::Relocation{core::Address{core::AddressSpaceId{"ram"}, entry.target_va}, relocation_width,
+                                     "IMAGE_REL_BASED_" + std::to_string(entry.type), 0, "pe_loader"});
+        result.architecture.language_id = result.details.machine == "x86-64" ? "x86:LE:64:default"
+                                          : result.details.machine == "x86"  ? "x86:LE:32:default"
+                                                                             : "unknown:LE:default";
         result.architecture.compiler_spec_id = "windows";
         result.architecture.architecture_id = result.details.machine;
         result.architecture.pointer_size = image.optional_header().pe32_plus ? 8 : 4;
+        result.architecture.code_space = core::AddressSpaceId{"ram"};
+        result.architecture.data_space = core::AddressSpaceId{"ram"};
         result.architecture.spaces.push_back(
-            core::AddressSpaceDescriptor{core::AddressSpaceId{"ram"}, core::AddressSpaceKind::ram, 64, 1,
+            core::AddressSpaceDescriptor{core::AddressSpaceId{"ram"}, core::AddressSpaceKind::ram,
+                                         static_cast<std::uint32_t>(result.architecture.pointer_size * 8U), 1,
                                          result.architecture.pointer_size, false, false, true});
         result.status =
             image.is_partial() ? core::contracts::PeParseStatus::partial : core::contracts::PeParseStatus::complete;

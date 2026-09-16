@@ -7,6 +7,7 @@
 - [x] Exact moved original paths resolved: `Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/disassembler/CallFixupAnalyzer.java`, `CallFixupChangeAnalyzer.java`, and `Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/clear/ClearFlowAndRepairCmd.java`.
 - [x] Read-only audit completed before remediation; subsequent changes are listed below.
 - [x] Required module-local detailed reports: [`ascii_strings/REVIEW_REPORT.md`](ascii_strings/REVIEW_REPORT.md), [`apply_data_archives/REVIEW_REPORT.md`](apply_data_archives/REVIEW_REPORT.md), [`demangler_microsoft/REVIEW_REPORT.md`](demangler_microsoft/REVIEW_REPORT.md), [`external_entry_references/REVIEW_REPORT.md`](external_entry_references/REVIEW_REPORT.md), [`call_fixup_installer/REVIEW_REPORT.md`](call_fixup_installer/REVIEW_REPORT.md), [`windows_resource_reference/REVIEW_REPORT.md`](windows_resource_reference/REVIEW_REPORT.md), [`windows_pe_x86_propagate_external_parameters/REVIEW_REPORT.md`](windows_pe_x86_propagate_external_parameters/REVIEW_REPORT.md), [`x86_constant_reference/REVIEW_REPORT.md`](x86_constant_reference/REVIEW_REPORT.md), and [`constant_propagation/REVIEW_REPORT.md`](constant_propagation/REVIEW_REPORT.md).
+- [x] Current core-contract boundary addendum reviewed; its detailed findings are recorded in [`../REVIEW_REPORT.md`](../REVIEW_REPORT.md) and [`../../core/contracts/REVIEW_REPORT.md`](../../core/contracts/REVIEW_REPORT.md).
 - [x] Validation status recorded honestly: no build, CTest, formatter, tidy, PyGhidra, or fixture compilation command was run because the request was read-only.
 
 ## Findings
@@ -164,3 +165,4 @@
 - [x] `NEW/services/analyzers/create_address_tables/REVIEW_REPORT.md` records the corrected pointer-per-entry expectation and incomplete Java algorithm.
 - [x] `NEW/services/analyzers/shared_return_calls/REVIEW_REPORT.md` records the lifecycle/options gaps.
 - [x] Shared, PE Loader, Sleigh Runtime, Decompiler, Function ID, and analyzer-module review reports remain linked from their module directories.
+- [x] The three decompiler-backed analyzer adapters now reuse `newghidra::decompiler::make_x86_64_architecture()`; the legacy mutable analyzer context/domain migration remains open.

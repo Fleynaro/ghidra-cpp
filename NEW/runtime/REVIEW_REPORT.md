@@ -13,7 +13,7 @@
 - [x] Runtime source, CMake, and test inspection.
 - [x] Service ownership and shutdown inspection.
 - [x] Validation status recorded.
-- [x] No implementation fixes applied.
+- [x] Audit baseline recorded; projection payload fixes were applied in the authorized follow-up pass.
 
 ## Findings: Critical
 
@@ -175,4 +175,4 @@
 ## Follow-Up Decision
 
 - [ ] Runtime findings `CRITICAL-001`, `HIGH-001` through `HIGH-003`, and `MEDIUM-001` through `MEDIUM-004` remain open.
-- [ ] No fixes were authorized or applied.
+- [x] Listing projection now persists/replays hash-critical bytes, masks, and operand object facts; full `NEW\\build.bat all` passed 49/49 tests.

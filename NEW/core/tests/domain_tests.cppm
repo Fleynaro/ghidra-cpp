@@ -35,6 +35,16 @@ TEST(CoreDomainTest, AddressRangeSetNormalizesInclusiveRanges) {
     EXPECT_TRUE(ranges.contains(Address{AddressSpaceId{"register"}, 4}));
 }
 
+/// Verifies that formatted addresses accepted by diagnostics also parse back into the same domain value.
+TEST(CoreDomainTest, AddressFactoryParsesFormattedHexOffsets) {
+    AddressFactory factory{
+        {AddressSpaceDescriptor{AddressSpaceId{"ram"}, AddressSpaceKind::ram, 64, 1, 8, false, false, true}}};
+    const Address original{AddressSpaceId{"ram"}, 0x140001000};
+    const auto parsed = factory.parse(format_address(original));
+    ASSERT_TRUE(parsed.has_value());
+    EXPECT_EQ(*parsed, original);
+}
+
 /// Verifies that the shared decoder snapshot preserves native p-code metadata while using canonical storage values.
 TEST(CoreDomainTest, DecodedInstructionRetainsSharedPcodeFacts) {
     const StorageLocation register_value{"register", 8, 8};

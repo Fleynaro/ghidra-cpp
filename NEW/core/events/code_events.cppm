@@ -4,8 +4,48 @@ import std;
 import ghidra.core.events.event;
 import ghidra.core.identifiers;
 import ghidra.core.instruction;
+import ghidra.core.operand;
 
 export namespace ghidra::core::events {
+
+/// Encodes binary instruction data into the delimiter-safe hexadecimal event representation.
+[[nodiscard]] inline std::string encode_hex(const std::vector<std::uint8_t>& bytes) {
+    std::string result;
+    result.reserve(bytes.size() * 2U);
+    constexpr std::array<char, 16> digits{'0', '1', '2', '3', '4', '5', '6', '7',
+                                          '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    for (const auto byte : bytes) {
+        result.push_back(digits[byte >> 4U]);
+        result.push_back(digits[byte & 0x0fU]);
+    }
+    return result;
+}
+
+/// Encodes operand object facts required for deterministic Function ID hashing.
+[[nodiscard]] inline std::string encode_operands(const std::vector<InstructionOperand>& operands) {
+    std::string result;
+    for (std::size_t operand_index = 0; operand_index < operands.size(); ++operand_index) {
+        if (operand_index != 0)
+            result.push_back(';');
+        const auto& operand = operands[operand_index];
+        result += std::to_string(std::to_underlying(operand.kind));
+        result.push_back(':');
+        result += operand.scalar ? std::to_string(operand.scalar->value) : "_";
+        result.push_back(':');
+        for (std::size_t object_index = 0; object_index < operand.objects.size(); ++object_index) {
+            if (object_index != 0)
+                result.push_back(',');
+            const auto& object = operand.objects[object_index];
+            result += std::to_string(std::to_underlying(object.kind));
+            result.push_back(':');
+            result += std::to_string(object.value);
+            result += object.whole_scalar ? ":1" : ":0";
+            result += object.address_scalar ? ":1" : ":0";
+            result += object.relocated ? ":1" : ":0";
+        }
+    }
+    return result;
+}
 
 /// Creates a compact instruction state event suitable for replay.
 [[nodiscard]] inline EventDraft listing_state_changed(const ProjectId& project, const Instruction& instruction,
@@ -24,7 +64,10 @@ export namespace ghidra::core::events {
                                      {"address", std::to_string(instruction.key.address.offset)},
                                      {"length", std::to_string(instruction.length)},
                                      {"mnemonic", instruction.mnemonic},
-                                     {"assembly", instruction.assembly}})};
+                                     {"assembly", instruction.assembly},
+                                     {"bytes", encode_hex(instruction.bytes.values())},
+                                     {"instruction_mask", encode_hex(instruction.instruction_mask)},
+                                     {"operands", encode_operands(instruction.operands)}})};
 }
 
 } // namespace ghidra::core::events

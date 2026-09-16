@@ -10,6 +10,88 @@ export namespace ghidra::runtime::projections {
 
 namespace core = ghidra::core;
 
+/// Decodes the hexadecimal byte representation persisted by ListingStateChanged.
+[[nodiscard]] core::Result<std::vector<std::uint8_t>> decode_hex(std::string_view encoded) {
+    if (encoded.size() % 2U != 0)
+        return std::unexpected(core::Error::make(core::DiagnosticCode::event_corrupt,
+                                                 "Listing event contains an odd-length hexadecimal field"));
+    std::vector<std::uint8_t> result;
+    result.reserve(encoded.size() / 2U);
+    const auto digit = [](char value) -> std::optional<std::uint8_t> {
+        if (value >= '0' && value <= '9')
+            return static_cast<std::uint8_t>(value - '0');
+        if (value >= 'a' && value <= 'f')
+            return static_cast<std::uint8_t>(value - 'a' + 10);
+        if (value >= 'A' && value <= 'F')
+            return static_cast<std::uint8_t>(value - 'A' + 10);
+        return std::nullopt;
+    };
+    for (std::size_t index = 0; index < encoded.size(); index += 2U) {
+        const auto high = digit(encoded[index]);
+        const auto low = digit(encoded[index + 1U]);
+        if (!high || !low)
+            return std::unexpected(core::Error::make(core::DiagnosticCode::event_corrupt,
+                                                     "Listing event contains invalid hexadecimal bytes"));
+        result.push_back(static_cast<std::uint8_t>((*high << 4U) | *low));
+    }
+    return result;
+}
+
+/// Splits a compact decimal field without allocating a second serialization format.
+[[nodiscard]] std::vector<std::string_view> split_field(std::string_view value, char separator) {
+    std::vector<std::string_view> result;
+    while (true) {
+        const auto position = value.find(separator);
+        result.push_back(value.substr(0, position));
+        if (position == std::string_view::npos)
+            return result;
+        value.remove_prefix(position + 1U);
+    }
+}
+
+/// Decodes operand object facts required by the Function ID hashing projection.
+[[nodiscard]] core::Result<std::vector<core::InstructionOperand>> decode_operands(std::string_view encoded) {
+    std::vector<core::InstructionOperand> result;
+    if (encoded.empty())
+        return result;
+    try {
+        for (const auto operand_text : split_field(encoded, ';')) {
+            const auto first_separator = operand_text.find(':');
+            const auto second_separator = first_separator == std::string_view::npos
+                                              ? std::string_view::npos
+                                              : operand_text.find(':', first_separator + 1U);
+            if (first_separator == std::string_view::npos || second_separator == std::string_view::npos)
+                return std::unexpected(core::Error::make(core::DiagnosticCode::event_corrupt,
+                                                         "Listing event contains an invalid operand field"));
+            const auto kind_field = operand_text.substr(0, first_separator);
+            const auto value_field = operand_text.substr(first_separator + 1U,
+                                                         second_separator - first_separator - 1U);
+            const auto objects_field = operand_text.substr(second_separator + 1U);
+            core::InstructionOperand operand;
+            operand.kind = static_cast<core::OperandKind>(std::stoul(std::string{kind_field}));
+            if (value_field != "_")
+                operand.scalar = core::Scalar{std::stoull(std::string{value_field}), 64, false,
+                                               operand.kind == core::OperandKind::address, false};
+            if (!objects_field.empty())
+                for (const auto object_text : split_field(objects_field, ',')) {
+                    const auto object = split_field(object_text, ':');
+                    if (object.size() != 5)
+                        return std::unexpected(core::Error::make(core::DiagnosticCode::event_corrupt,
+                                                                 "Listing event contains an invalid operand object"));
+                    operand.objects.push_back(core::OperandObject{
+                        static_cast<core::OperandObject::Kind>(std::stoul(std::string{object[0]})),
+                        std::stoll(std::string{object[1]}), object[2] == "1", object[3] == "1", object[4] == "1"});
+                }
+            result.push_back(std::move(operand));
+        }
+    } catch (const std::exception& error) {
+        return std::unexpected(core::Error::make(core::DiagnosticCode::event_corrupt,
+                                                 std::string("Listing event contains invalid operand numbers: ") +
+                                                     error.what()));
+    }
+    return result;
+}
+
 /// Materializes the current software model as immutable-copy query values.
 class SoftwareModelProjection final : public core::contracts::IProjection, public core::contracts::IProjectQuery {
 public:
@@ -214,6 +296,24 @@ private:
             instruction.key = core::InstructionKey{core::EntityId{std::move(*id)},
                                                    core::Address{core::AddressSpaceId{std::move(*space)}, *address}};
             instruction.length = static_cast<std::size_t>(*length);
+            if (fields.contains("bytes")) {
+                auto bytes = decode_hex(fields.at("bytes"));
+                if (!bytes)
+                    return std::unexpected(bytes.error());
+                instruction.bytes = core::Bytes{std::move(*bytes)};
+            }
+            if (fields.contains("instruction_mask")) {
+                auto mask = decode_hex(fields.at("instruction_mask"));
+                if (!mask)
+                    return std::unexpected(mask.error());
+                instruction.instruction_mask = std::move(*mask);
+            }
+            if (fields.contains("operands")) {
+                auto operands = decode_operands(fields.at("operands"));
+                if (!operands)
+                    return std::unexpected(operands.error());
+                instruction.operands = std::move(*operands);
+            }
             instruction.mnemonic = std::move(*mnemonic);
             instruction.assembly = std::move(*assembly);
             instruction.pcode.instruction = instruction.key.address;

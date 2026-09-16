@@ -8,6 +8,7 @@
 - [x] Review date: 2026-09-15.
 - [x] Review type: strict read-only source audit; no implementation or configuration changes were made.
 - [x] Recommendations target the public decompiler/result and commit boundaries, not analyzer-local workarounds.
+- [x] Current core-contract boundary addendum reviewed; its detailed findings are recorded in [`../REVIEW_REPORT.md`](../REVIEW_REPORT.md) and [`../../core/contracts/REVIEW_REPORT.md`](../../core/contracts/REVIEW_REPORT.md).
 
 ## Findings
 
@@ -91,7 +92,7 @@ No findings.
 
 - [x] `git diff --check` completed without whitespace errors.
 - [x] `ctest --test-dir NEW/build -N` listed decompiler engine, architecture, CLI, and parameter-ID tests.
-- [ ] Runtime build/test execution was not performed because this was a strict read-only audit and execution may write logs or fixture artifacts.
+- [x] `NEW\\build.bat all` completed successfully with 49/49 tests passing; tidy checks were limited by MSVC IFC parsing.
 
 ## Unresolved Questions And Residual Risks
 
@@ -100,5 +101,5 @@ No findings.
 
 ## Follow-Up Decision
 
-- [ ] No fixes were authorized or applied.
-- [ ] Highest-priority decompiler findings for remediation are DECOMP-HIGH-001 and DECOMP-HIGH-002.
+- [x] Architecture propagation, raw decoder boundary, memory-space selection, volatile ranges, option gating, and checked function-range handling were fixed in the authorized follow-up.
+- [ ] Remaining decompiler work: native structured result projection and source-priority policy.

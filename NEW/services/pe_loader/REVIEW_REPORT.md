@@ -8,6 +8,7 @@
 - [x] Review date: 2026-09-15.
 - [x] Review type: strict read-only source audit; no implementation or configuration changes were made.
 - [x] Validation included `git diff --check`, `GHIDRA_INSTALL_DIR` verification, and `ctest --test-dir NEW/build -N`.
+- [x] Current core-contract boundary addendum reviewed; its detailed findings are recorded in [`../REVIEW_REPORT.md`](../REVIEW_REPORT.md) and [`../../core/contracts/REVIEW_REPORT.md`](../../core/contracts/REVIEW_REPORT.md).
 
 ## Findings
 
@@ -74,7 +75,7 @@ No findings.
 
 - [x] `git diff --check` completed without whitespace errors.
 - [x] `ctest --test-dir NEW/build -N` listed `pe_loader_tests` and the dependent analyzer tests.
-- [ ] Runtime build/test execution was not performed because this audit was explicitly read-only and test execution may write logs or fixture artifacts.
+- [x] Runtime build/test execution completed in the authorized follow-up: `NEW\build.bat all`, 49/49 tests passed.
 
 ## Unresolved Questions And Residual Risks
 
@@ -83,5 +84,5 @@ No findings.
 
 ## Follow-Up Decision
 
-- [ ] No fixes were authorized or applied.
-- [ ] Highest-priority PE finding for remediation is PE-HIGH-001, followed by PE-MEDIUM-001.
+- [x] Structured symbols/relocations and PE32 width mapping were implemented; exhaustive machine mapping remains a residual risk.
+- [ ] Remaining PE follow-up: explicit external-space policy and malformed section-alignment fixtures.
