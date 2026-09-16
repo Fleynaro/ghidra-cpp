@@ -17,8 +17,12 @@
 // Used by debugger integration tests to verify reading and writing process memory.
 extern "C" __declspec(dllexport) volatile std::uint64_t g_debug_value = 0x1122334455667788ULL;
 
-// Written by the exception integration test to select the controlled fault path.
-constexpr std::uint64_t g_exception_trigger_value = 0xCAFEBABECAFEBABEULL;
+// Set to one by the pause test so the process remains runnable after its worker
+// barrier instead of exiting before an external break request is delivered.
+extern "C" __declspec(dllexport) volatile std::uint32_t g_debugger_hold{1U};
+
+// Set to one by the exception test to select the controlled non-continuable fault.
+extern "C" __declspec(dllexport) volatile std::uint32_t g_debugger_trigger_exception{};
 
 // Used to keep worker threads alive at a deterministic synchronization point.
 std::mutex g_worker_mutex;
@@ -80,6 +84,12 @@ extern "C" __declspec(noinline) void trigger_controlled_exception() {
     RaiseException(0xE0424242U, EXCEPTION_NONCONTINUABLE, 0, nullptr);
 }
 
+// Forces one deterministic post-loader stop so tests can resolve PDB symbols
+// without depending on incidental thread callback timing.
+extern "C" __declspec(noinline) void debugger_ready_break() {
+    DebugBreak();
+}
+
 int main() {
     g_heap_value = std::make_unique<std::uint64_t>(0xAABBCCDDEEFF0011ULL);
     std::vector<std::thread> workers;
@@ -95,10 +105,13 @@ int main() {
     // This marker makes manual launches understandable and is not used as a
     // timing primitive by the tests.
     std::cout << "DEBUGGER_READY" << std::endl;
+    debugger_ready_break();
     debugger_test_entry();
-    if (g_debug_value == g_exception_trigger_value)
+    if (g_debugger_trigger_exception == 1U)
         trigger_controlled_exception();
 
+    while (g_debugger_hold != 0U)
+        Sleep(1);
     g_release_workers.store(true, std::memory_order_release);
     g_worker_condition.notify_all();
     for (auto& worker : workers)

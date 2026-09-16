@@ -18,6 +18,7 @@ enum class DiagnosticCode : std::uint16_t {
     resource_mismatch,
     conflict,
     cancelled,
+    timeout,
     project_closed,
     queue_full,
     event_corrupt,

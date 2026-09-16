@@ -13,6 +13,8 @@ The implementation is a C++23 DbgEng service, not a copy of the original Python 
 
 - **Complete:** native interface ownership is isolated to [`win_dbg_eng.cppm`](win_dbg_eng.cppm), with a dedicated `std::jthread`; callers enqueue commands and never call DbgEng directly.
 - **Complete:** execution commands set execution status and are completed only after the engine thread returns from bounded `WaitForEvent` calls. The callback methods capture immutable data and return promptly.
+- **Complete:** the active wait has a configurable watchdog (`SessionOptions::operation_timeout`); the documented cross-thread `SetInterrupt` path wakes a blocked wait for pause, cancellation/shutdown, or timeout, while all other native calls remain on the engine thread.
+- **Complete:** only one execution waiter is admitted at a time, conflicting commands return a generic conflict error, and shutdown resolves queued/pending tasks before releasing native interfaces.
 - **Complete:** process/thread identity, register values, virtual memory, memory mappings, stack frames, modules, code breakpoints, data breakpoints, exceptions, and transient generic events are translated without native types crossing the contract.
 - **Intentionally different:** Ghidra's trace model has richer target-object and snapshot metadata. The current core contract returns immutable snapshots and a transient ordered event queue; persistence remains outside the debugger service.
 - **Intentionally different:** DbgEng has no universal step-out execution status. `step_out` installs a temporary breakpoint at the caller frame's return address and resumes until that breakpoint.

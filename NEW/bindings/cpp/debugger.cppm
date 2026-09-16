@@ -73,13 +73,57 @@ public:
         return session_->process();
     }
 
+    /// Selects the process context used by subsequent generic queries.
+    [[nodiscard]] core::Result<void> select_process(model::ProcessId process) {
+        return session_->select_process(std::move(process));
+    }
+
+    /// Returns the selected process identity.
+    [[nodiscard]] core::Result<model::ProcessId> current_process_id() const {
+        return session_->current_process_id();
+    }
+
     /// Returns copied thread snapshots.
     [[nodiscard]] core::Result<std::vector<model::Thread>> threads() const {
         return session_->threads();
     }
 
+    /// Selects the thread context used by register and stack queries.
+    [[nodiscard]] core::Result<void> select_thread(model::ThreadId thread) {
+        return session_->select_thread(std::move(thread));
+    }
+
+    /// Returns the selected thread identity.
+    [[nodiscard]] core::Result<model::ThreadId> current_thread() const {
+        return session_->current_thread();
+    }
+
+    /// Enumerates registers exposed by the selected thread context.
+    [[nodiscard]] core::Result<std::vector<model::Register>>
+    registers(std::optional<model::ThreadId> thread = std::nullopt) const {
+        return session_->registers(std::move(thread));
+    }
+
+    /// Reads one register value through the generic contract.
+    [[nodiscard]] core::Result<model::RegisterValue>
+    read_register(std::string_view name, std::optional<model::ThreadId> thread = std::nullopt) const {
+        return session_->read_register(name, std::move(thread));
+    }
+
+    /// Reads all register values through the generic contract.
+    [[nodiscard]] core::Result<std::vector<model::RegisterValue>>
+    read_registers(std::optional<model::ThreadId> thread = std::nullopt) const {
+        return session_->read_registers(std::move(thread));
+    }
+
+    /// Reads the selected thread instruction pointer.
+    [[nodiscard]] core::Result<core::Address>
+    instruction_pointer(std::optional<model::ThreadId> thread = std::nullopt) const {
+        return session_->instruction_pointer(std::move(thread));
+    }
+
     /// Reads target memory through the generic value API.
-    [[nodiscard]] core::Result<core::Bytes> read_memory(core::Address address, std::size_t size) const {
+    [[nodiscard]] core::Result<model::MemoryReadResult> read_memory(core::Address address, std::size_t size) const {
         return session_->read_memory(address, size);
     }
 
@@ -88,9 +132,78 @@ public:
         return session_->write_memory(address, bytes);
     }
 
+    /// Enumerates target memory mappings.
+    [[nodiscard]] core::Result<std::vector<model::MemoryRegion>> memory_regions() const {
+        return session_->memory_regions();
+    }
+
+    /// Walks the selected thread stack.
+    [[nodiscard]] core::Result<std::vector<model::StackFrame>>
+    stack_trace(std::optional<model::ThreadId> thread = std::nullopt, std::size_t maximum_frames = 64) const {
+        return session_->stack_trace(std::move(thread), maximum_frames);
+    }
+
+    /// Enumerates loaded target modules.
+    [[nodiscard]] core::Result<std::vector<model::Module>> modules() const {
+        return session_->modules();
+    }
+
+    /// Resolves a symbol/function name to a target address.
+    [[nodiscard]] core::Result<core::Address> resolve_symbol(std::string_view name) const {
+        return session_->resolve_symbol(name);
+    }
+
+    /// Installs a code breakpoint.
+    [[nodiscard]] core::Result<model::Breakpoint>
+    add_breakpoint(core::Address address, model::BreakpointKind kind = model::BreakpointKind::software,
+                   bool one_shot = false) {
+        return session_->add_breakpoint(address, kind, one_shot);
+    }
+
+    /// Enables or disables a code breakpoint.
+    [[nodiscard]] core::Result<void> enable_breakpoint(model::BreakpointId id, bool enabled) {
+        return session_->enable_breakpoint(id, enabled);
+    }
+
+    /// Removes a code breakpoint.
+    [[nodiscard]] core::Result<void> remove_breakpoint(model::BreakpointId id) {
+        return session_->remove_breakpoint(id);
+    }
+
+    /// Installs a data breakpoint/watchpoint.
+    [[nodiscard]] core::Result<model::Watchpoint> add_watchpoint(core::Address address, std::size_t size,
+                                                                 model::WatchpointAccess access) {
+        return session_->add_watchpoint(address, size, access);
+    }
+
+    /// Enables or disables a data breakpoint/watchpoint.
+    [[nodiscard]] core::Result<void> enable_watchpoint(model::WatchpointId id, bool enabled) {
+        return session_->enable_watchpoint(id, enabled);
+    }
+
+    /// Removes a data breakpoint/watchpoint.
+    [[nodiscard]] core::Result<void> remove_watchpoint(model::WatchpointId id) {
+        return session_->remove_watchpoint(id);
+    }
+
+    /// Detaches from the target without terminating it.
+    [[nodiscard]] core::Result<void> detach() {
+        return session_->detach();
+    }
+
+    /// Terminates the target through the generic session contract.
+    [[nodiscard]] core::Result<void> terminate() {
+        return session_->terminate();
+    }
+
     /// Drains translated debugger events.
     [[nodiscard]] core::Result<std::vector<model::DebugEvent>> poll_events() {
         return session_->poll_events();
+    }
+
+    /// Registers a generic event sink with the contract-defined callback lifetime.
+    [[nodiscard]] core::Result<void> set_event_sink(api::DebugEventSink sink) {
+        return session_->set_event_sink(std::move(sink));
     }
 
 private:

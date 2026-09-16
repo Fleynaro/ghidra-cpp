@@ -66,6 +66,12 @@ public:
     /// Enumerates all processes represented by the target connection.
     [[nodiscard]] virtual Result<std::vector<debugger::Process>> processes() const = 0;
 
+    /// Selects a process context for subsequent current-process queries.
+    [[nodiscard]] virtual Result<void> select_process(debugger::ProcessId process) = 0;
+
+    /// Returns the selected process identity.
+    [[nodiscard]] virtual Result<debugger::ProcessId> current_process_id() const = 0;
+
     /// Enumerates all threads in the current process.
     [[nodiscard]] virtual Result<std::vector<debugger::Thread>> threads() const = 0;
 
@@ -92,7 +98,7 @@ public:
     instruction_pointer(std::optional<debugger::ThreadId> thread = std::nullopt) const = 0;
 
     /// Reads target virtual memory while stopped or when the backend permits it.
-    [[nodiscard]] virtual Result<Bytes> read_memory(Address address, std::size_t size) const = 0;
+    [[nodiscard]] virtual Result<debugger::MemoryReadResult> read_memory(Address address, std::size_t size) const = 0;
 
     /// Writes target virtual memory while stopped or when the backend permits it.
     [[nodiscard]] virtual Result<void> write_memory(Address address, BytesView bytes) = 0;

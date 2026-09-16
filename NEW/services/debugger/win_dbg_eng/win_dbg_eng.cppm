@@ -177,16 +177,29 @@ public:
         const auto result = future.get();
         if (!result)
             throw std::runtime_error(result.error().message);
+#ifdef _WIN32
+        interrupt_ = std::jthread([this](std::stop_token stop) { interrupt_loop(stop); });
+#endif
     }
 
     /// Requests the engine thread to stop and releases DbgEng after all callbacks are unregistered.
     ~WinDbgEngSession() override {
         stopping_.store(true, std::memory_order_release);
         queue_condition_.notify_all();
+#ifdef _WIN32
+        request_interrupt();
+        interrupt_condition_.notify_all();
+#endif
         if (engine_.joinable()) {
             engine_.request_stop();
             engine_.join();
         }
+#ifdef _WIN32
+        if (interrupt_.joinable()) {
+            interrupt_.request_stop();
+            interrupt_.join();
+        }
+#endif
     }
 
     /// Prevents copying a thread-owning debugger session.
@@ -232,10 +245,13 @@ public:
 
     /// Requests a break and completes after the target has actually stopped.
     [[nodiscard]] api::Task<core::Result<model::StopReason>> pause(api::OperationContext context) override {
-        return enqueue_wait<model::StopReason>(
-            [this] { return begin_execution(detail::execution_break, model::StopReasonKind::pause); },
-            [](const model::StopReason& reason) -> core::Result<model::StopReason> { return reason; },
-            std::move(context));
+#ifdef _WIN32
+        if (state() == model::SessionState::running) {
+            pause_requested_hint_.store(true, std::memory_order_release);
+            request_interrupt();
+        }
+#endif
+        return enqueue_pause(std::move(context));
     }
 
     /// Requests a single instruction step into operation.
@@ -281,6 +297,17 @@ public:
     [[nodiscard]] core::Result<std::vector<model::Process>> processes() const override {
         auto* self = const_cast<WinDbgEngSession*>(this);
         return invoke_sync<std::vector<model::Process>>([self] { return self->processes_native(); });
+    }
+
+    /// Selects a process context through IDebugSystemObjects without exposing engine indexes.
+    [[nodiscard]] core::Result<void> select_process(model::ProcessId process) override {
+        return invoke_sync<void>([this, process] { return select_process_native(process); });
+    }
+
+    /// Returns the selected process identity.
+    [[nodiscard]] core::Result<model::ProcessId> current_process_id() const override {
+        auto* self = const_cast<WinDbgEngSession*>(this);
+        return invoke_sync<model::ProcessId>([self] { return self->current_process_id_native(); });
     }
 
     /// Enumerates all target threads without exposing DbgEng thread indexes.
@@ -332,9 +359,11 @@ public:
     }
 
     /// Reads target virtual memory through IDebugDataSpaces.
-    [[nodiscard]] core::Result<core::Bytes> read_memory(core::Address address, std::size_t size) const override {
+    [[nodiscard]] core::Result<model::MemoryReadResult> read_memory(core::Address address,
+                                                                    std::size_t size) const override {
         auto* self = const_cast<WinDbgEngSession*>(this);
-        return invoke_sync<core::Bytes>([self, address, size] { return self->read_memory_native(address, size); });
+        return invoke_sync<model::MemoryReadResult>(
+            [self, address, size] { return self->read_memory_native(address, size); });
     }
 
     /// Writes target virtual memory through IDebugDataSpaces.
@@ -429,11 +458,46 @@ public:
 private:
     using Command = std::function<void()>;
 
+    /// Couples a queued command with a rejection action used during shutdown.
+    struct QueuedCommand {
+        Command execute;
+        Command reject;
+    };
+
     /// Stores a pending wait operation until DbgEng returns from WaitForEvent.
     struct PendingWait {
         std::shared_ptr<api::OperationControl> control;
         std::function<void(const model::StopReason&)> complete;
+        std::function<void(core::Error)> fail;
     };
+
+    /// Creates the type-erased completion callback shared by execution and pause waiters.
+    template <class Value, class Finish>
+    [[nodiscard]] PendingWait make_pending_wait(std::shared_ptr<std::promise<core::Result<Value>>> promise,
+                                                std::shared_ptr<api::OperationControl> control, Finish finish) {
+        return PendingWait{
+            control,
+            [promise, control, finish = std::move(finish)](const model::StopReason& reason) mutable {
+                if (control->cancellation().stop_requested()) {
+                    control->set_status(api::OperationStatus::cancelled);
+                    promise->set_value(std::unexpected(
+                        core::Error::make(core::DiagnosticCode::cancelled, "Debugger operation was cancelled")));
+                    return;
+                }
+                try {
+                    auto result = finish(reason);
+                    control->set_status(result ? api::OperationStatus::completed : api::OperationStatus::failed);
+                    promise->set_value(std::move(result));
+                } catch (...) {
+                    control->set_status(api::OperationStatus::failed);
+                    promise->set_exception(std::current_exception());
+                }
+            },
+            [promise, control](core::Error error) mutable {
+                control->set_status(api::OperationStatus::failed);
+                promise->set_value(std::unexpected(std::move(error)));
+            }};
+    }
 
     /// Enqueues a command that resolves only after a translated stop event.
     template <class Value, class Begin, class Finish>
@@ -449,6 +513,12 @@ private:
                                                                      "Debugger operation was cancelled before start")));
                 return;
             }
+            if (pending_) {
+                control->set_status(api::OperationStatus::rejected);
+                promise->set_value(std::unexpected(core::Error::make(
+                    core::DiagnosticCode::conflict, "Another debugger execution operation is already waiting")));
+                return;
+            }
             control->set_status(api::OperationStatus::running);
             auto started = begin();
             if (!started) {
@@ -456,26 +526,68 @@ private:
                 promise->set_value(std::unexpected(started.error()));
                 return;
             }
-            pending_ = PendingWait{
-                control, [promise, control, finish = std::move(finish)](const model::StopReason& reason) mutable {
-                    if (control->cancellation().stop_requested()) {
-                        control->set_status(api::OperationStatus::cancelled);
-                        promise->set_value(std::unexpected(
-                            core::Error::make(core::DiagnosticCode::cancelled, "Debugger operation was cancelled")));
-                        return;
-                    }
-                    try {
-                        auto result = finish(reason);
-                        control->set_status(result ? api::OperationStatus::completed : api::OperationStatus::failed);
-                        promise->set_value(std::move(result));
-                    } catch (...) {
-                        control->set_status(api::OperationStatus::failed);
-                        promise->set_exception(std::current_exception());
-                    }
-                }};
+            pending_ = make_pending_wait<Value>(promise, control, std::move(finish));
+            arm_deadline();
         };
         enqueue(std::move(command), promise);
         return api::Task<core::Result<Value>>{std::move(future), std::move(control)};
+    }
+
+    /// Enqueues pause as an interrupt that can target an already-running wait.
+    [[nodiscard]] api::Task<core::Result<model::StopReason>> enqueue_pause(api::OperationContext context) {
+        auto control = context.operation ? context.operation : std::make_shared<api::OperationControl>();
+        auto promise = std::make_shared<std::promise<core::Result<model::StopReason>>>();
+        auto future = promise->get_future().share();
+        Command command = [this, promise, control]() mutable {
+            if (control->cancellation().stop_requested()) {
+                control->set_status(api::OperationStatus::cancelled);
+                promise->set_value(std::unexpected(
+                    core::Error::make(core::DiagnosticCode::cancelled, "Debugger pause was cancelled before start")));
+                return;
+            }
+            if (pending_) {
+                if (state() != model::SessionState::running || !waiting_for_event_) {
+                    control->set_status(api::OperationStatus::rejected);
+                    promise->set_value(std::unexpected(core::Error::make(
+                        core::DiagnosticCode::conflict, "Debugger pause conflicts with another pending operation")));
+                    return;
+                }
+#ifdef _WIN32
+                // Microsoft documents SetInterrupt as the cross-thread
+                // interrupt used to return a blocked WaitForEvent. All other
+                // DbgEng calls remain owned by the engine thread.
+                pause_requested_ = true;
+                request_interrupt();
+#else
+                pause_requested_ = true;
+#endif
+                control->set_status(api::OperationStatus::running);
+                pause_pending_ = make_pending_wait<model::StopReason>(
+                    promise, control,
+                    [](const model::StopReason& reason) -> core::Result<model::StopReason> { return reason; });
+                arm_deadline();
+                return;
+            }
+            if (state() == model::SessionState::stopped) {
+                control->set_status(api::OperationStatus::completed);
+                promise->set_value(core::Result<model::StopReason>{model::StopReason{
+                    model::StopReasonKind::pause, {}, {}, current_thread_id_, {}, "Target was already stopped"}});
+                return;
+            }
+            control->set_status(api::OperationStatus::running);
+            auto started = begin_execution(detail::execution_break, model::StopReasonKind::pause);
+            if (!started) {
+                control->set_status(api::OperationStatus::failed);
+                promise->set_value(std::unexpected(started.error()));
+                return;
+            }
+            pending_ = make_pending_wait<model::StopReason>(
+                promise, control,
+                [](const model::StopReason& reason) -> core::Result<model::StopReason> { return reason; });
+            arm_deadline();
+        };
+        enqueue(std::move(command), promise);
+        return api::Task<core::Result<model::StopReason>>{std::move(future), std::move(control)};
     }
 
     /// Enqueues an immediate command and waits synchronously for its result.
@@ -523,9 +635,84 @@ private:
                     core::Error::make(core::DiagnosticCode::project_closed, "Debugger session is shutting down")));
                 return;
             }
-            commands_.push_back(std::move(command));
+            commands_.push_back(
+                QueuedCommand{std::move(command), [promise] {
+                                  promise->set_value(std::unexpected(core::Error::make(
+                                      core::DiagnosticCode::project_closed, "Debugger session is shutting down")));
+                              }});
         }
         queue_condition_.notify_one();
+    }
+
+    /// Resolves active waiters with cancellation before native interfaces are released.
+    void cancel_pending_waits() noexcept {
+        clear_deadline();
+        const model::StopReason shutdown_reason{model::StopReasonKind::unknown,     {}, {}, {}, {},
+                                                "Debugger session is shutting down"};
+        if (pending_) {
+            pending_->control->request_cancel();
+            auto pending = std::move(*pending_);
+            pending_.reset();
+            pending.complete(shutdown_reason);
+        }
+        if (pause_pending_) {
+            pause_pending_->control->request_cancel();
+            auto pause = std::move(*pause_pending_);
+            pause_pending_.reset();
+            pause.complete(shutdown_reason);
+        }
+    }
+
+    /// Rejects commands that were queued but never reached the engine thread.
+    void reject_queued_commands() noexcept {
+        std::deque<QueuedCommand> queued;
+        {
+            std::scoped_lock lock(queue_mutex_);
+            queued.swap(commands_);
+        }
+        for (auto& command : queued)
+            command.reject();
+    }
+
+    /// Arms the watchdog that prevents a DbgEng wait from hanging forever.
+    void arm_deadline() noexcept {
+#ifdef _WIN32
+        if (options_.operation_timeout.count() <= 0)
+            return;
+        std::scoped_lock lock(interrupt_mutex_);
+        if (!deadline_)
+            deadline_ = std::chrono::steady_clock::now() + options_.operation_timeout;
+        interrupt_condition_.notify_one();
+#endif
+    }
+
+    /// Clears the active execution watchdog after a stop or terminal operation.
+    void clear_deadline() noexcept {
+#ifdef _WIN32
+        std::scoped_lock lock(interrupt_mutex_);
+        deadline_.reset();
+        timeout_requested_ = false;
+        interrupt_condition_.notify_one();
+#endif
+    }
+
+    /// Fails active waiters with an explicit timeout diagnostic.
+    void fail_pending_timeout() noexcept {
+        clear_deadline();
+        const auto error = core::Error::make(
+            core::DiagnosticCode::timeout, "Debugger execution operation exceeded its configured timeout",
+            "Inspect the target state and retry with a larger operation timeout if appropriate.");
+        if (pending_) {
+            auto pending = std::move(*pending_);
+            pending_.reset();
+            pending.fail(error);
+        }
+        if (pause_pending_) {
+            auto pause = std::move(*pause_pending_);
+            pause_pending_.reset();
+            pause.fail(error);
+        }
+        pause_requested_ = false;
     }
 
     /// Runs the engine thread, initializes native interfaces, and owns every DbgEng call.
@@ -536,11 +723,17 @@ private:
 #else
             const auto initialized = core::Result<void>{std::unexpected(detail::unsupported_platform())};
 #endif
-            ready.set_value(initialized);
-            if (!initialized)
+            if (!initialized) {
+#ifdef _WIN32
+                shutdown_native();
+#endif
+                ready.set_value(initialized);
                 return;
+            }
+            ready.set_value(initialized);
             while (!stop.stop_requested() && !stopping_.load(std::memory_order_acquire)) {
-                Command command;
+                QueuedCommand queued_command;
+                bool has_command = false;
                 {
                     std::unique_lock lock(queue_mutex_);
                     if (commands_.empty() && !waiting_for_event_)
@@ -549,27 +742,47 @@ private:
                                    !commands_.empty() || waiting_for_event_;
                         });
                     if (!commands_.empty()) {
-                        command = std::move(commands_.front());
+                        queued_command = std::move(commands_.front());
                         commands_.pop_front();
+                        has_command = true;
                     }
                 }
-                if (command)
-                    command();
+                if (has_command && queued_command.execute)
+                    queued_command.execute();
 #ifdef _WIN32
-                if (waiting_for_event_)
-                    pump_event();
+                if (waiting_for_event_) {
+                    bool commands_pending;
+                    {
+                        std::scoped_lock lock(queue_mutex_);
+                        commands_pending = !commands_.empty();
+                    }
+                    if (!commands_pending)
+                        pump_event();
+                }
 #endif
             }
+            cancel_pending_waits();
+            reject_queued_commands();
 #ifdef _WIN32
             shutdown_native();
 #endif
         } catch (const std::exception& error) {
+#ifdef _WIN32
+            shutdown_native();
+#endif
+            cancel_pending_waits();
+            reject_queued_commands();
             try {
                 ready.set_value(std::unexpected(detail::native_error("engine initialization", error.what())));
             } catch (...) {
             }
             state_.store(model::SessionState::failed, std::memory_order_release);
         } catch (...) {
+#ifdef _WIN32
+            shutdown_native();
+#endif
+            cancel_pending_waits();
+            reject_queued_commands();
             try {
                 ready.set_value(std::unexpected(detail::native_error("engine initialization", "unknown exception")));
             } catch (...) {
@@ -754,9 +967,61 @@ private:
         return {};
     }
 
+    /// Signals the documented cross-thread DbgEng interrupt path.
+    void request_interrupt() noexcept {
+        {
+            std::scoped_lock lock(interrupt_mutex_);
+            interrupt_requested_ = true;
+        }
+        interrupt_condition_.notify_one();
+    }
+
+    /// Waits for an interrupt request and calls only the DbgEng method documented as cross-thread safe.
+    void interrupt_loop(std::stop_token stop) noexcept {
+        std::unique_lock lock(interrupt_mutex_);
+        while (!stop.stop_requested()) {
+            bool timed_out = false;
+            if (deadline_) {
+                if (std::chrono::steady_clock::now() >= *deadline_) {
+                    deadline_.reset();
+                    timeout_requested_.store(true, std::memory_order_release);
+                    timed_out = true;
+                } else {
+                    interrupt_condition_.wait_until(lock, *deadline_, [&] {
+                        return stop.stop_requested() || interrupt_requested_ ||
+                               stopping_.load(std::memory_order_acquire);
+                    });
+                }
+            } else {
+                interrupt_condition_.wait(lock, [&] {
+                    return stop.stop_requested() || interrupt_requested_ || stopping_.load(std::memory_order_acquire) ||
+                           deadline_.has_value();
+                });
+            }
+            if (stop.stop_requested())
+                break;
+            if (stopping_.load(std::memory_order_acquire) && !interrupt_requested_ && !timed_out)
+                break;
+            const bool should_interrupt = interrupt_requested_ || timed_out;
+            interrupt_requested_ = false;
+            if (!should_interrupt)
+                continue;
+            lock.unlock();
+            if (control_) {
+                const HRESULT result = control_.get()->SetInterrupt(DEBUG_INTERRUPT_ACTIVE);
+                static_cast<void>(result);
+            }
+            lock.lock();
+        }
+    }
+
     /// Unregisters callbacks before releasing native interfaces and COM state.
     void shutdown_native() noexcept {
         if (client_) {
+            const auto current = state();
+            if (current != model::SessionState::created && current != model::SessionState::detached &&
+                current != model::SessionState::exited && current != model::SessionState::failed)
+                static_cast<void>(client_.get()->TerminateProcesses());
             static_cast<void>(client_.get()->SetEventCallbacks(nullptr));
             static_cast<void>(client_.get()->SetOutputCallbacks(nullptr));
         }
@@ -776,24 +1041,42 @@ private:
         com_initialized_ = false;
     }
 
-    /// Pumps one bounded WaitForEvent call so external commands can request a break between waits.
+    /// Waits for one stop while the interrupt/watchdog thread bounds the otherwise blocking DbgEng call.
     void pump_event() {
         if (pending_ && pending_->control->cancellation().stop_requested())
-            static_cast<void>(control_.get()->SetExecutionStatus(DEBUG_STATUS_BREAK));
-        const HRESULT result = control_.get()->WaitForEvent(DEBUG_WAIT_DEFAULT, 100);
+            request_interrupt();
+        const HRESULT result = control_.get()->WaitForEvent(DEBUG_WAIT_DEFAULT, INFINITE);
         if (result == S_FALSE)
             return;
         if (FAILED(result)) {
             state_.store(model::SessionState::failed, std::memory_order_release);
             if (pending_) {
-                auto pending = std::move(pending_);
-                pending->complete(
+                auto pending = std::move(*pending_);
+                pending_.reset();
+                pending.complete(
                     model::StopReason{model::StopReasonKind::unknown, {}, {}, {}, {}, "DbgEng WaitForEvent failed"});
             }
+            if (pause_pending_) {
+                auto pause = std::move(*pause_pending_);
+                pause_pending_.reset();
+                pause.complete(
+                    model::StopReason{model::StopReasonKind::unknown, {}, {}, {}, {}, "DbgEng WaitForEvent failed"});
+            }
+            pause_requested_ = false;
             waiting_for_event_ = false;
+            clear_deadline();
             return;
         }
         waiting_for_event_ = false;
+#ifdef _WIN32
+        if (timeout_requested_.exchange(false, std::memory_order_acq_rel)) {
+            state_.store(model::SessionState::stopped, std::memory_order_release);
+            fail_pending_timeout();
+            return;
+        }
+#endif
+        if (pause_requested_hint_.exchange(false, std::memory_order_acq_rel))
+            pause_requested_ = true;
         refresh_context_ids();
         if (process_created_pending_) {
             auto process = query_current_process();
@@ -826,6 +1109,8 @@ private:
         if (last_stop_reason_.kind == model::StopReasonKind::unknown)
             last_stop_reason_.kind =
                 process_created_pending_ ? model::StopReasonKind::initial_stop : model::StopReasonKind::unknown;
+        if (pause_requested_ && last_stop_reason_.kind == model::StopReasonKind::unknown)
+            last_stop_reason_.kind = model::StopReasonKind::pause;
         emit_execution_stopped(last_stop_reason_);
         for (const auto id : temporary_breakpoints_to_remove_)
             static_cast<void>(remove_breakpoint_native(id));
@@ -835,9 +1120,17 @@ private:
         thread_event_pending_ = false;
         process_exited_ = false;
         if (pending_) {
-            auto pending = std::move(pending_);
-            pending->complete(last_stop_reason_);
+            auto pending = std::move(*pending_);
+            pending_.reset();
+            pending.complete(last_stop_reason_);
         }
+        if (pause_pending_) {
+            auto pause = std::move(*pause_pending_);
+            pause_pending_.reset();
+            pause.complete(last_stop_reason_);
+        }
+        clear_deadline();
+        pause_requested_ = false;
         last_stop_reason_ = model::StopReason{};
         expected_stop_kind_ = model::StopReasonKind::unknown;
         dispatch_sink_events();
@@ -893,7 +1186,13 @@ private:
     void on_exception(const EXCEPTION_RECORD64& record, ULONG first_chance) {
         model::DebugException exception{record.ExceptionCode, core::Address{process_space_, record.ExceptionAddress},
                                         first_chance != 0, "DbgEng exception event"};
-        if (first_chance == 0 || options_.stop_on_first_chance_exceptions)
+        if ((first_chance == 0 || options_.stop_on_first_chance_exceptions) &&
+            !(pause_requested_ || pause_requested_hint_.load(std::memory_order_acquire)) &&
+            record.ExceptionCode == EXCEPTION_BREAKPOINT)
+            last_stop_reason_ = model::StopReason{
+                model::StopReasonKind::exception, {}, {}, current_thread_id_, exception, "Target breakpoint exception"};
+        else if ((first_chance == 0 || options_.stop_on_first_chance_exceptions) &&
+                 !(pause_requested_ || pause_requested_hint_.load(std::memory_order_acquire)))
             last_stop_reason_ = model::StopReason{
                 model::StopReasonKind::exception, {}, {}, current_thread_id_, exception, "Target exception"};
         emit_event(model::DebugEvent{next_event_++, model::EventKind::exception, model::ExceptionEvent {
@@ -922,6 +1221,9 @@ private:
     /// Captures a thread callback for later enumeration refresh.
     void on_thread_created() {
         thread_event_pending_ = true;
+        if (options_.stop_on_thread_events)
+            last_stop_reason_ = model::StopReason{
+                model::StopReasonKind::thread_event, {}, {}, current_thread_id_, {}, "Thread created"};
     }
 
     /// Captures a thread exit callback using the last selected thread identity.
@@ -1043,12 +1345,15 @@ private:
                                    [](unsigned char value) { return static_cast<char>(std::toupper(value)); });
             return result;
         }();
-        return model::Register{std::move(name),
-                               bits,
-                               upper.starts_with("R") || upper.starts_with("E"),
-                               upper == "RIP" || upper == "EIP",
-                               upper == "RSP" || upper == "ESP",
-                               upper == "RBP" || upper == "EBP"};
+        model::Register descriptor{std::move(name),
+                                   bits,
+                                   upper.starts_with("R") || upper.starts_with("E"),
+                                   upper == "RIP" || upper == "EIP",
+                                   upper == "RSP" || upper == "ESP",
+                                   upper == "RBP" || upper == "EBP"};
+        descriptor.flags = upper == "RFLAGS" || upper == "EFLAGS" || upper == "EFL";
+        descriptor.vector = upper.starts_with("XMM") || upper.starts_with("YMM") || upper.starts_with("ZMM");
+        return descriptor;
     }
 
     /// Resolves a native breakpoint object by its DbgEng identifier.
@@ -1118,6 +1423,48 @@ private:
                         process = *current;
         }
         return result;
+    }
+
+    /// Converts an opaque local process identity to a DbgEng process index and selects it.
+    [[nodiscard]] core::Result<void> select_process_native(model::ProcessId process) {
+        ULONG native_process_id{};
+        const auto [end, error] =
+            std::from_chars(process.value.data(), process.value.data() + process.value.size(), native_process_id);
+        if (error != std::errc{} || end != process.value.data() + process.value.size())
+            return std::unexpected(
+                core::Error::make(core::DiagnosticCode::unsupported,
+                                  "WinDbgEng process selection requires a numeric local process identity",
+                                  "Use a backend that supports opaque remote process locators."));
+        ULONG count{};
+        if (const HRESULT status = system_objects_.get()->GetNumberProcesses(&count); FAILED(status))
+            return std::unexpected(detail::hresult_error("IDebugSystemObjects::GetNumberProcesses", status));
+        std::vector<ULONG> engine_ids(count);
+        std::vector<ULONG> system_ids(count);
+        if (count != 0) {
+            const HRESULT status =
+                system_objects_.get()->GetProcessIdsByIndex(0, count, engine_ids.data(), system_ids.data());
+            if (FAILED(status))
+                return std::unexpected(detail::hresult_error("IDebugSystemObjects::GetProcessIdsByIndex", status));
+        }
+        const auto match = std::ranges::find(system_ids, native_process_id);
+        if (match == system_ids.end())
+            return std::unexpected(
+                core::Error::make(core::DiagnosticCode::invalid_argument, "Requested debugger process is not present"));
+        const auto index = static_cast<std::size_t>(std::distance(system_ids.begin(), match));
+        const HRESULT status = system_objects_.get()->SetCurrentProcessId(engine_ids[index]);
+        if (FAILED(status))
+            return std::unexpected(detail::hresult_error("IDebugSystemObjects::SetCurrentProcessId", status));
+        current_process_id_ = process;
+        return {};
+    }
+
+    /// Reads the selected process's opaque identity from DbgEng system objects.
+    [[nodiscard]] core::Result<model::ProcessId> current_process_id_native() {
+        ULONG native_process_id{};
+        if (const HRESULT status = system_objects_.get()->GetCurrentProcessSystemId(&native_process_id); FAILED(status))
+            return std::unexpected(detail::hresult_error("IDebugSystemObjects::GetCurrentProcessSystemId", status));
+        current_process_id_ = model::ProcessId{std::to_string(native_process_id)};
+        return current_process_id_;
     }
 
     /// Enumerates system thread IDs and identifies the selected thread without changing other contexts.
@@ -1219,7 +1566,16 @@ private:
                 return std::unexpected(selected.error());
         }
         ULONG index{};
-        HRESULT status = registers_.get()->GetIndexByName(name.c_str(), &index);
+        std::string native_name = name;
+        HRESULT status = registers_.get()->GetIndexByName(native_name.c_str(), &index);
+        if (FAILED(status)) {
+            std::ranges::transform(native_name, native_name.begin(),
+                                   [](unsigned char value) { return static_cast<char>(std::toupper(value)); });
+            if (native_name == "RFLAGS") {
+                native_name = "efl";
+                status = registers_.get()->GetIndexByName(native_name.c_str(), &index);
+            }
+        }
         if (FAILED(status))
             return std::unexpected(detail::hresult_error("IDebugRegisters::GetIndexByName", status));
         DEBUG_VALUE value{};
@@ -1227,7 +1583,7 @@ private:
         if (FAILED(status))
             return std::unexpected(detail::hresult_error("IDebugRegisters::GetValue", status));
         auto descriptor = register_descriptor(name, value.Type == DEBUG_VALUE_INT32 ? 32U : 64U);
-        return model::RegisterValue{std::move(descriptor), register_bytes(value)};
+        return model::RegisterValue{std::move(descriptor), register_bytes(value), model::ByteOrder::little};
     }
 
     /// Reads every available register, preserving partial descriptions as a best-effort query.
@@ -1259,10 +1615,13 @@ private:
         return core::Address{process_space_, offset};
     }
 
-    /// Reads a bounded virtual range and returns only the bytes DbgEng reported as transferred.
-    [[nodiscard]] core::Result<core::Bytes> read_memory_native(core::Address address, std::size_t size) {
+    /// Reads a bounded virtual range while preserving requested and transferred sizes.
+    [[nodiscard]] core::Result<model::MemoryReadResult> read_memory_native(core::Address address, std::size_t size) {
+        if (size > (std::numeric_limits<ULONG>::max)())
+            return std::unexpected(core::Error::make(core::DiagnosticCode::invalid_argument,
+                                                     "Debugger memory read exceeds the native transfer limit"));
         if (size == 0)
-            return core::Bytes{};
+            return model::MemoryReadResult{address, 0, {}, 0};
         std::vector<core::Byte> result(size);
         ULONG transferred{};
         const HRESULT status =
@@ -1270,11 +1629,14 @@ private:
         if (FAILED(status) && transferred == 0)
             return std::unexpected(detail::hresult_error("IDebugDataSpaces::ReadVirtual", status));
         result.resize(transferred);
-        return core::Bytes{std::move(result)};
+        return model::MemoryReadResult{address, size, core::Bytes{std::move(result)}, transferred};
     }
 
     /// Writes a bounded virtual range and rejects partial writes as a generic I/O failure.
     [[nodiscard]] core::Result<void> write_memory_native(core::Address address, const std::vector<core::Byte>& bytes) {
+        if (bytes.size() > (std::numeric_limits<ULONG>::max)())
+            return std::unexpected(core::Error::make(core::DiagnosticCode::invalid_argument,
+                                                     "Debugger memory write exceeds the native transfer limit"));
         ULONG transferred{};
         const HRESULT status = data_spaces_.get()->WriteVirtual(address.offset, const_cast<core::Byte*>(bytes.data()),
                                                                 static_cast<ULONG>(bytes.size()), &transferred);
@@ -1600,7 +1962,7 @@ private:
         /// Marks thread creation for later enumeration refresh.
         HRESULT STDMETHODCALLTYPE CreateThread(ULONG64, ULONG64, ULONG64) override {
             owner_->on_thread_created();
-            return DEBUG_STATUS_BREAK;
+            return owner_->options_.stop_on_thread_events ? DEBUG_STATUS_BREAK : DEBUG_STATUS_NO_CHANGE;
         }
 
         /// Captures exception code/address before DbgEng invalidates the record.
@@ -1620,7 +1982,7 @@ private:
         /// Captures thread exit code and selected thread identity.
         HRESULT STDMETHODCALLTYPE ExitThread(ULONG exit_code) override {
             owner_->on_thread_exited(exit_code);
-            return DEBUG_STATUS_BREAK;
+            return owner_->options_.stop_on_thread_events ? DEBUG_STATUS_BREAK : DEBUG_STATUS_NO_CHANGE;
         }
 
         /// Captures loaded module metadata for the generic event queue.
@@ -1746,7 +2108,7 @@ private:
     }
 
     /// Reports that memory reads are unavailable on non-Windows builds.
-    [[nodiscard]] core::Result<core::Bytes> read_memory_native(core::Address, std::size_t) {
+    [[nodiscard]] core::Result<model::MemoryReadResult> read_memory_native(core::Address, std::size_t) {
         return std::unexpected(detail::unsupported_platform());
     }
 
@@ -1813,14 +2175,25 @@ private:
     std::atomic<model::SessionState> state_{model::SessionState::created};
     std::atomic_bool stopping_{};
     std::jthread engine_;
+#ifdef _WIN32
+    std::jthread interrupt_;
+    std::mutex interrupt_mutex_;
+    std::condition_variable interrupt_condition_;
+    bool interrupt_requested_{};
+    std::optional<std::chrono::steady_clock::time_point> deadline_;
+    std::atomic_bool timeout_requested_{};
+#endif
     mutable std::mutex queue_mutex_;
     std::condition_variable queue_condition_;
-    std::deque<Command> commands_;
+    std::deque<QueuedCommand> commands_;
     std::deque<model::DebugEvent> events_;
     std::deque<model::DebugEvent> sink_events_;
     api::DebugEventSink event_sink_;
     std::optional<PendingWait> pending_;
+    std::optional<PendingWait> pause_pending_;
     bool waiting_for_event_{};
+    bool pause_requested_{};
+    std::atomic_bool pause_requested_hint_{};
     model::StopReasonKind expected_stop_kind_{model::StopReasonKind::unknown};
     model::StopReason last_stop_reason_;
     model::SessionState state_before_target_{};

@@ -113,6 +113,9 @@ struct Thread {
     friend bool operator==(const Thread&, const Thread&) = default;
 };
 
+/// Describes byte order used when a register value is interpreted numerically.
+enum class ByteOrder : std::uint8_t { unknown, little, big };
+
 /// Describes one architecture register without exposing a native register file.
 struct Register {
     std::string name;
@@ -121,6 +124,8 @@ struct Register {
     bool instruction_pointer{};
     bool stack_pointer{};
     bool frame_pointer{};
+    bool flags{};
+    bool vector{};
 
     /// Compares register descriptors by their semantic fields.
     friend bool operator==(const Register&, const Register&) = default;
@@ -130,10 +135,11 @@ struct Register {
 struct RegisterValue {
     Register register_info;
     Bytes raw_value;
+    ByteOrder byte_order{ByteOrder::unknown};
 
-    /// Returns a little-endian integer when the value fits the requested width.
+    /// Returns a numeric value only when the target byte order is explicitly known and little-endian.
     [[nodiscard]] std::optional<std::uint64_t> unsigned_value() const {
-        if (raw_value.size() == 0 || raw_value.size() > sizeof(std::uint64_t))
+        if (byte_order != ByteOrder::little || raw_value.size() == 0 || raw_value.size() > sizeof(std::uint64_t))
             return std::nullopt;
         std::uint64_t value{};
         for (std::size_t index = 0; index < raw_value.size(); ++index)
@@ -169,6 +175,19 @@ struct MemoryRegion {
     /// Reports whether the region contains a half-open address range.
     [[nodiscard]] bool contains(Address address) const noexcept {
         return address.space == start.space && address.offset >= start.offset && address.offset - start.offset < size;
+    }
+};
+
+/// Preserves completeness information for a target memory read.
+struct MemoryReadResult {
+    Address start;
+    std::size_t requested_size{};
+    Bytes bytes;
+    std::size_t transferred_size{};
+
+    /// Reports whether every requested byte was transferred.
+    [[nodiscard]] bool complete() const noexcept {
+        return transferred_size == requested_size;
     }
 };
 
@@ -351,6 +370,8 @@ struct SessionOptions {
     std::string target_description;
     bool stop_on_shared_library_events{};
     bool stop_on_first_chance_exceptions{true};
+    bool stop_on_thread_events{};
+    std::chrono::milliseconds operation_timeout{std::chrono::seconds(30)};
 };
 
 } // namespace ghidra::core::debugger
