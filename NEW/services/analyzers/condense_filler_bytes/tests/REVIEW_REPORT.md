@@ -1,15 +1,15 @@
-# Test Coverage Review: tests
+# Test Coverage Review: services/analyzers/condense_filler_bytes/tests
 
 ## Review Metadata
 
-- [x] **Scope:** tests, its CMake registration, test sources, fixtures, and the architecture commits 778c5d87ad and 3c123d1fda.
+- [x] **Scope:** services/analyzers/condense_filler_bytes/tests, its CMake registration, test sources, fixtures, and the architecture commits 778c5d87ad and 3c123d1fda.
 - [x] **Date:** 2026-09-16.
 - [x] **Reviewer:** Kilo, independent test-coverage review.
 - [x] **Assumptions:** Existing green tests are regression coverage, not proof of complete architecture behavior. Generated `NEW/build` directories are excluded.
 
 ## Inventory
 
-- [x] Existing files: CMakeLists.txt, README.md.
+- [x] Existing files: condense_filler_bytes_tests.cppm.
 - [x] CMake registration and nearby target ownership inspected.
 
 ## Findings: Critical
@@ -24,11 +24,11 @@ No missing test was classified as critical in this directory. Runtime lifetime g
 
 ## Findings: Medium
 
-### TEST-TESTS-MEDIUM-001: Important contract coverage is missing
+### TEST-SERVICES_ANALYZERS_CONDENSE_FILLER_BYTES_TESTS-MEDIUM-001: Important contract coverage is missing
 
 - [ ] **Remediation status:** Open.
-- **Affected component:** tests.
-- **Source references:** ../CMakeLists.txt or README.md (directory has no test source). CMake registration is in `../CMakeLists.txt` where present.
+- **Affected component:** services/analyzers/condense_filler_bytes/tests.
+- **Source references:** condense_filler_bytes_tests.cppm. CMake registration is in `../CMakeLists.txt` where present.
 - **Technical evidence:** Current tests primarily cover successful fixture behavior or narrow synthetic cases, without proving the component contract through invalid input, failure, cancellation, persistence, replay, or alternate resources.
 - **Expected behavior:** The suite proves the component contract through valid, invalid, failure, and runtime-composed cases.
 - **Actual behavior:** Current tests primarily cover successful fixture behavior or narrow synthetic cases, without proving the component contract through invalid input, failure, cancellation, persistence, replay, or alternate resources.

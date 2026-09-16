@@ -1,15 +1,15 @@
-# Test Coverage Review: tests
+# Test Coverage Review: core/tests
 
 ## Review Metadata
 
-- [x] **Scope:** tests, its CMake registration, test sources, fixtures, and the architecture commits 778c5d87ad and 3c123d1fda.
+- [x] **Scope:** core/tests, its CMake registration, test sources, fixtures, and the architecture commits 778c5d87ad and 3c123d1fda.
 - [x] **Date:** 2026-09-16.
 - [x] **Reviewer:** Kilo, independent test-coverage review.
 - [x] **Assumptions:** Existing green tests are regression coverage, not proof of complete architecture behavior. Generated `NEW/build` directories are excluded.
 
 ## Inventory
 
-- [x] Existing files: CMakeLists.txt, README.md.
+- [x] Existing files: CMakeLists.txt, contract_value_tests.cppm, domain_tests.cppm, event_codec_tests.cppm, README.md.
 - [x] CMake registration and nearby target ownership inspected.
 
 ## Findings: Critical
@@ -24,14 +24,14 @@ No missing test was classified as critical in this directory. Runtime lifetime g
 
 ## Findings: Medium
 
-### TEST-TESTS-MEDIUM-001: Important contract coverage is missing
+### TEST-CORE_TESTS-MEDIUM-001: Core values lack property and malformed-input coverage
 
 - [ ] **Remediation status:** Open.
-- **Affected component:** tests.
-- **Source references:** ../CMakeLists.txt or README.md (directory has no test source). CMake registration is in `../CMakeLists.txt` where present.
-- **Technical evidence:** Current tests primarily cover successful fixture behavior or narrow synthetic cases, without proving the component contract through invalid input, failure, cancellation, persistence, replay, or alternate resources.
+- **Affected component:** core/tests.
+- **Source references:** contract_value_tests.cppm, domain_tests.cppm, event_codec_tests.cppm. CMake registration is in `../CMakeLists.txt` where present.
+- **Technical evidence:** Current tests cover checked arithmetic, range normalization, event fields, and cancellation copies, but not codec truncation, arbitrary byte escaping, revision identity stability, or all domain value round trips.
 - **Expected behavior:** The suite proves the component contract through valid, invalid, failure, and runtime-composed cases.
-- **Actual behavior:** Current tests primarily cover successful fixture behavior or narrow synthetic cases, without proving the component contract through invalid input, failure, cancellation, persistence, replay, or alternate resources.
+- **Actual behavior:** Current tests cover checked arithmetic, range normalization, event fields, and cancellation copies, but not codec truncation, arbitrary byte escaping, revision identity stability, or all domain value round trips.
 - **Impact:** Important regressions can pass the focused suite.
 - **Failure scenario:** A future change breaks the listed contract while preserving current happy-path fixtures.
 - **Root cause:** Coverage was migrated around the successful path without the required failure/contract scenarios.
@@ -41,9 +41,9 @@ No missing test was classified as critical in this directory. Runtime lifetime g
 
 #### Required tests
 
-- [ ] Negative input and error mapping tests.
-- [ ] Cancellation/lifetime and idempotent re-run tests.
-- [ ] Contract integration assertions for durable output and replay.
+- [ ] Property tests for AddressRangeSet normalization and AddressFactory parse/format.
+- [ ] Event codec truncation/header/checksum/schema-version cases.
+- [ ] Identifier serialization and restart/replay stability.
 
 ## Findings: Low
 

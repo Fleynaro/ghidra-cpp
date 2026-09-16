@@ -1,15 +1,15 @@
-# Test Coverage Review: tests
+# Test Coverage Review: services/analyzers/non_returning_functions_known/tests
 
 ## Review Metadata
 
-- [x] **Scope:** tests, its CMake registration, test sources, fixtures, and the architecture commits 778c5d87ad and 3c123d1fda.
+- [x] **Scope:** services/analyzers/non_returning_functions_known/tests, its CMake registration, test sources, fixtures, and the architecture commits 778c5d87ad and 3c123d1fda.
 - [x] **Date:** 2026-09-16.
 - [x] **Reviewer:** Kilo, independent test-coverage review.
 - [x] **Assumptions:** Existing green tests are regression coverage, not proof of complete architecture behavior. Generated `NEW/build` directories are excluded.
 
 ## Inventory
 
-- [x] Existing files: CMakeLists.txt, README.md.
+- [x] No test source file is present in this directory.
 - [x] CMake registration and nearby target ownership inspected.
 
 ## Findings: Critical
@@ -20,18 +20,14 @@ No missing test was classified as critical in this directory. Runtime lifetime g
 
 ## Findings: High
 
-### No high-severity test gap identified
-
-## Findings: Medium
-
-### TEST-TESTS-MEDIUM-001: Important contract coverage is missing
+### TEST-SERVICES_ANALYZERS_NON_RETURNING_FUNCTIONS_KNOWN_TESTS-HIGH-001: Analyzer scaffold has no test source
 
 - [ ] **Remediation status:** Open.
-- **Affected component:** tests.
+- **Affected component:** services/analyzers/non_returning_functions_known/tests.
 - **Source references:** ../CMakeLists.txt or README.md (directory has no test source). CMake registration is in `../CMakeLists.txt` where present.
-- **Technical evidence:** Current tests primarily cover successful fixture behavior or narrow synthetic cases, without proving the component contract through invalid input, failure, cancellation, persistence, replay, or alternate resources.
+- **Technical evidence:** No test source exists for known no-return classification.
 - **Expected behavior:** The suite proves the component contract through valid, invalid, failure, and runtime-composed cases.
-- **Actual behavior:** Current tests primarily cover successful fixture behavior or narrow synthetic cases, without proving the component contract through invalid input, failure, cancellation, persistence, replay, or alternate resources.
+- **Actual behavior:** No test source exists for known no-return classification.
 - **Impact:** Important regressions can pass the focused suite.
 - **Failure scenario:** A future change breaks the listed contract while preserving current happy-path fixtures.
 - **Root cause:** Coverage was migrated around the successful path without the required failure/contract scenarios.
@@ -41,9 +37,13 @@ No missing test was classified as critical in this directory. Runtime lifetime g
 
 #### Required tests
 
-- [ ] Negative input and error mapping tests.
-- [ ] Cancellation/lifetime and idempotent re-run tests.
-- [ ] Contract integration assertions for durable output and replay.
+- [ ] Known library/no-return positive and negative cases.
+- [ ] Indirect/external call cases.
+- [ ] Idempotent rerun and invalidation.
+
+## Findings: Medium
+
+### No medium-severity test gap identified
 
 ## Findings: Low
 
