@@ -15,7 +15,7 @@ import std;
 #define GHIDRA_ANALYZER_TEST_MODULE_EXPORT
 #endif
 
-export namespace ghidra::analyzer::tests {
+export namespace recode::analyzer::tests {
 
 /// Loads a checked-in x64 fixture through the production PE/Sleigh providers.
 ///
@@ -189,4 +189,4 @@ public:
     bool ended_as_cancelled{};
 };
 
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

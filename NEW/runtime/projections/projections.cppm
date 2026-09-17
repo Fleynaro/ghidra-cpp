@@ -1,6 +1,6 @@
-export module ghidra.runtime.projections;
+export module recode.runtime.projections;
 
-export import ghidra.runtime.projections.software_model;
-export import ghidra.runtime.projections.analysis;
-export import ghidra.runtime.projections.diagnostics;
-export import ghidra.runtime.projections.coordinator;
+export import recode.runtime.projections.software_model;
+export import recode.runtime.projections.analysis;
+export import recode.runtime.projections.diagnostics;
+export import recode.runtime.projections.coordinator;

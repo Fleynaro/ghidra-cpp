@@ -1,14 +1,14 @@
-export module ghidra.runtime.projections.software_model;
+export module recode.runtime.projections.software_model;
 
 import std;
-import ghidra.core;
-import ghidra.core.contracts.projection;
-import ghidra.core.contracts.project_query;
-import ghidra.core.events.event;
+import recode.core;
+import recode.core.contracts.projection;
+import recode.core.contracts.project_query;
+import recode.core.events.event;
 
-export namespace ghidra::runtime::projections {
+export namespace recode::runtime::projections {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Decodes the hexadecimal byte representation persisted by ListingStateChanged.
 [[nodiscard]] core::Result<std::vector<std::uint8_t>> decode_hex(std::string_view encoded) {
@@ -64,14 +64,13 @@ namespace core = ghidra::core;
                 return std::unexpected(core::Error::make(core::DiagnosticCode::event_corrupt,
                                                          "Listing event contains an invalid operand field"));
             const auto kind_field = operand_text.substr(0, first_separator);
-            const auto value_field = operand_text.substr(first_separator + 1U,
-                                                         second_separator - first_separator - 1U);
+            const auto value_field = operand_text.substr(first_separator + 1U, second_separator - first_separator - 1U);
             const auto objects_field = operand_text.substr(second_separator + 1U);
             core::InstructionOperand operand;
             operand.kind = static_cast<core::OperandKind>(std::stoul(std::string{kind_field}));
             if (value_field != "_")
                 operand.scalar = core::Scalar{std::stoull(std::string{value_field}), 64, false,
-                                               operand.kind == core::OperandKind::address, false};
+                                              operand.kind == core::OperandKind::address, false};
             if (!objects_field.empty())
                 for (const auto object_text : split_field(objects_field, ',')) {
                     const auto object = split_field(object_text, ':');
@@ -85,9 +84,9 @@ namespace core = ghidra::core;
             result.push_back(std::move(operand));
         }
     } catch (const std::exception& error) {
-        return std::unexpected(core::Error::make(core::DiagnosticCode::event_corrupt,
-                                                 std::string("Listing event contains invalid operand numbers: ") +
-                                                     error.what()));
+        return std::unexpected(
+            core::Error::make(core::DiagnosticCode::event_corrupt,
+                              std::string("Listing event contains invalid operand numbers: ") + error.what()));
     }
     return result;
 }
@@ -367,4 +366,4 @@ private:
     std::vector<core::Reference> references_;
 };
 
-} // namespace ghidra::runtime::projections
+} // namespace recode::runtime::projections

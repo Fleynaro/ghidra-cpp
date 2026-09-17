@@ -10,7 +10,7 @@ import std;
 // Ghidra/Features/FunctionID/src/main/java/ghidra/feature/fid/service/FidService.java
 
 /// Matches decoded native function bodies against the existing packed Function ID databases.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class FunctionIdAnalyzer final : public Analyzer {
 public:
     /// Returns the byte-analysis priority immediately before Function ID analysis.
@@ -36,9 +36,9 @@ private:
     std::vector<DatabaseFileState> database_files_;
     std::vector<fid::Database> databases_;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Adds every configured `.fidb` file or directory entry to the query list.
@@ -231,4 +231,4 @@ bool FunctionIdAnalyzer::ensure_databases(const std::vector<std::filesystem::pat
     return !databases_.empty();
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

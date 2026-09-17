@@ -11,7 +11,7 @@ import analyzer_subroutine_references;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies Data Reference scans pointer-sized PE data cells after its prerequisite event.
@@ -57,4 +57,4 @@ TEST(AnalyzerPipelineTest, FollowsDataSectionPointers) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

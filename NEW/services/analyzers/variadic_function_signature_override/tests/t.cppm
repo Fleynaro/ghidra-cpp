@@ -9,7 +9,7 @@ import std;
 
 /// Verifies printf conversions, escaped percent signs, length modifiers, and pointer arguments.
 TEST(VariadicSignatureOverride, ParsesPrintfArguments) {
-    const auto parsed = ghidra::analyzer::parse_format_string("value=%d name=%s ratio=%0.2f ptr=%p %%", false);
+    const auto parsed = recode::analyzer::parse_format_string("value=%d name=%s ratio=%0.2f ptr=%p %%", false);
     ASSERT_TRUE(parsed);
     ASSERT_EQ(parsed->size(), 4U);
     EXPECT_EQ((*parsed)[0].type, "int");
@@ -21,7 +21,7 @@ TEST(VariadicSignatureOverride, ParsesPrintfArguments) {
 
 /// Verifies scanf suppression and output-pointer semantics are not confused with printf inputs.
 TEST(VariadicSignatureOverride, ParsesScanfOutputArguments) {
-    const auto parsed = ghidra::analyzer::parse_format_string("%*d %u %lf %s %n", true);
+    const auto parsed = recode::analyzer::parse_format_string("%*d %u %lf %s %n", true);
     ASSERT_TRUE(parsed);
     ASSERT_EQ(parsed->size(), 4U);
     EXPECT_EQ((*parsed)[0].type, "unsigned int *");
@@ -33,7 +33,7 @@ TEST(VariadicSignatureOverride, ParsesScanfOutputArguments) {
 
 /// Verifies wide-character conversions and scanf pointer-to-pointer semantics.
 TEST(VariadicSignatureOverride, ParsesWideAndPointerConversions) {
-    const auto parsed = ghidra::analyzer::parse_format_string("%ls %lc %p", true);
+    const auto parsed = recode::analyzer::parse_format_string("%ls %lc %p", true);
     ASSERT_TRUE(parsed);
     ASSERT_EQ(parsed->size(), 3U);
     EXPECT_EQ((*parsed)[0].type, "wchar_t *");
@@ -43,7 +43,7 @@ TEST(VariadicSignatureOverride, ParsesWideAndPointerConversions) {
 
 /// Verifies malformed conversions are rejected instead of producing a partial call-site signature.
 TEST(VariadicSignatureOverride, RejectsMalformedFormat) {
-    const auto parsed = ghidra::analyzer::parse_format_string("bad=%", false);
+    const auto parsed = recode::analyzer::parse_format_string("bad=%", false);
     ASSERT_FALSE(parsed);
     EXPECT_NE(parsed.error().message.find("ends after"), std::string::npos);
 }

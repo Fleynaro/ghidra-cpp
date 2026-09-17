@@ -1,11 +1,11 @@
-export module ghidra.runtime.resources.manager;
+export module recode.runtime.resources.manager;
 
 import std;
-import ghidra.core;
+import recode.core;
 
-export namespace ghidra::runtime::resources {
+export namespace recode::runtime::resources {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Verifies and identifies immutable analyzer resources without owning service state.
 class ResourceManager final : public core::contracts::IResourceManager {
@@ -40,4 +40,4 @@ private:
     std::vector<core::ResourceIdentity> resources_;
 };
 
-} // namespace ghidra::runtime::resources
+} // namespace recode::runtime::resources

@@ -1,7 +1,7 @@
 if(BUILD_TESTING)
     find_package(GTest CONFIG REQUIRED)
     add_library(analyzer_test_support STATIC)
-    add_library(NewGhidra::AnalyzerTestSupport ALIAS analyzer_test_support)
+    add_library(ReCode::AnalyzerTestSupport ALIAS analyzer_test_support)
     target_sources(analyzer_test_support PUBLIC
         FILE_SET cxx_modules TYPE CXX_MODULES FILES analyzer_test_support.cppm
     )
@@ -9,5 +9,5 @@ if(BUILD_TESTING)
     target_compile_definitions(analyzer_test_support PUBLIC ANALYZER_FIXTURE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../..")
     # The manager's inline built-in-registration method delegates to the
     # aggregate adapter, which is intentionally outside the shared runtime.
-    target_link_libraries(analyzer_test_support PUBLIC analyzer NewGhidra::AnalyzerShared GTest::gtest)
+    target_link_libraries(analyzer_test_support PUBLIC analyzer ReCode::AnalyzerShared GTest::gtest)
 endif()

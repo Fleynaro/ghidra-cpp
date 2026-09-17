@@ -1,9 +1,9 @@
-export module ghidra.core.scalar;
+export module recode.core.scalar;
 
 import std;
-import ghidra.core.address;
+import recode.core.address;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Preserves integer width and semantic interpretation for decoded operands.
 struct Scalar {
@@ -17,4 +17,4 @@ struct Scalar {
     friend bool operator==(const Scalar&, const Scalar&) = default;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

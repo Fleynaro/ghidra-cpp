@@ -1,9 +1,9 @@
-export module ghidra.runtime.resources.lease;
+export module recode.runtime.resources.lease;
 
 import std;
-import ghidra.core;
+import recode.core;
 
-export namespace ghidra::runtime::resources {
+export namespace recode::runtime::resources {
 
 /// Keeps an immutable resource identity alive for one operation lifetime.
 class ResourceLease final {
@@ -20,4 +20,4 @@ private:
     core::ResourceSetIdentity identity_;
 };
 
-} // namespace ghidra::runtime::resources
+} // namespace recode::runtime::resources

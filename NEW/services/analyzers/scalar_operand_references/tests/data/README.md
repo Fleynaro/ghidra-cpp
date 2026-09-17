@@ -67,5 +67,5 @@ The fixture deliberately fixes the PE image base and uses section-aligned addres
 ## Reproduction
 
 Run `build.bat`, then
-`TEST\\run_ghidra_python.bat NEW\\features\\analyzer\\test_data\\scalar_operand_references\\run_ghidra.py`
+`TEST\\run_ghidra_python.bat \features\\analyzer\\test_data\\scalar_operand_references\\run_ghidra.py`
 from the repository root.

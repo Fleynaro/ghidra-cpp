@@ -2,26 +2,26 @@ module;
 
 #include <gtest/gtest.h>
 
-export module ghidra.runtime.tests;
+export module recode.runtime.tests;
 
-import ghidra.core;
-import ghidra.runtime.event_bus;
-import ghidra.runtime.event_store.log;
-import ghidra.runtime.analysis.coalescer;
-import ghidra.runtime.analysis.registry;
-import ghidra.runtime.analysis.scheduler;
-import ghidra.runtime.projections.coordinator;
-import ghidra.runtime.projections.software_model;
-import ghidra.runtime.storage.projection;
-import ghidra.runtime.workers.pool;
+import recode.core;
+import recode.runtime.event_bus;
+import recode.runtime.event_store.log;
+import recode.runtime.analysis.coalescer;
+import recode.runtime.analysis.registry;
+import recode.runtime.analysis.scheduler;
+import recode.runtime.projections.coordinator;
+import recode.runtime.projections.software_model;
+import recode.runtime.storage.projection;
+import recode.runtime.workers.pool;
 import std;
 
-namespace ghidra::runtime::tests {
+namespace recode::runtime::tests {
 namespace {
 
 /// Creates a unique temporary project directory for one isolated persistence test.
 [[nodiscard]] std::filesystem::path temporary_project_path(std::string_view suffix) {
-    const auto path = std::filesystem::temp_directory_path() / ("new-ghidra-runtime-" + std::string(suffix));
+    const auto path = std::filesystem::temp_directory_path() / ("recode-runtime-" + std::string(suffix));
     std::error_code error;
     std::filesystem::remove_all(path, error);
     std::filesystem::create_directories(path, error);
@@ -156,4 +156,4 @@ TEST(RuntimeInfrastructureTest, TriggerCoalescerDeduplicatesEvents) {
 }
 
 } // namespace
-} // namespace ghidra::runtime::tests
+} // namespace recode::runtime::tests

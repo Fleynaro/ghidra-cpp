@@ -1,11 +1,11 @@
-export module ghidra.core.events.symbol;
+export module recode.core.events.symbol;
 
 import std;
-import ghidra.core.events.event;
-import ghidra.core.identifiers;
-import ghidra.core.symbol;
+import recode.core.events.event;
+import recode.core.identifiers;
+import recode.core.symbol;
 
-export namespace ghidra::core::events {
+export namespace recode::core::events {
 
 /// Creates a symbol upsert event with source-priority information.
 [[nodiscard]] inline EventDraft symbol_state_changed(const ProjectId& project, const Symbol& symbol,
@@ -26,4 +26,4 @@ export namespace ghidra::core::events {
                                      {"priority", std::to_string(symbol.source_priority)}})};
 }
 
-} // namespace ghidra::core::events
+} // namespace recode::core::events

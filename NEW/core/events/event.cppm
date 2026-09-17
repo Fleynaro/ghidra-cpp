@@ -1,9 +1,9 @@
-export module ghidra.core.events.event;
+export module recode.core.events.event;
 
 import std;
-import ghidra.core.identifiers;
+import recode.core.identifiers;
 
-export namespace ghidra::core::events {
+export namespace recode::core::events {
 
 /// Describes how one state-event partition is updated.
 enum class StateOperation : std::uint8_t { upsert, replace_scope, remove, invalidate };
@@ -116,4 +116,4 @@ struct EventBatch {
     return result;
 }
 
-} // namespace ghidra::core::events
+} // namespace recode::core::events

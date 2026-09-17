@@ -4,7 +4,7 @@ module;
 
 export module native_scalar_tests;
 
-import ghidra.decompiler;
+import recode.decompiler;
 import std;
 
 namespace ghidra::native_scalar_tests {

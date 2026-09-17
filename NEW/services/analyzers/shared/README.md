@@ -4,7 +4,7 @@ This module owns the common analysis model and event-driven scheduler used by ev
 
 ## Navigation
 
-- [`CMakeLists.txt`](CMakeLists.txt) contributes all shared modules to `NewGhidra::AnalyzerShared` and includes [`test_support/`](test_support/) and [`tests/`](tests/).
+- [`CMakeLists.txt`](CMakeLists.txt) contributes all shared modules to `ReCode::AnalyzerShared` and includes [`test_support/`](test_support/) and [`tests/`](tests/).
 - [`src/analyzer_types.cppm`](src/analyzer_types.cppm) defines the observable address, listing, function, event, option, and result value types and re-exports [`../../pe_loader`](../../pe_loader) and [`../../sleigh_runtime`](../../sleigh_runtime).
 - [`src/analyzer_cancellation_token.cppm`](src/analyzer_cancellation_token.cppm) defines `CancellationToken` with atomic cooperative cancellation state.
 - [`src/analyzer_base.cppm`](src/analyzer_base.cppm) defines the abstract `Analyzer` callback contract.

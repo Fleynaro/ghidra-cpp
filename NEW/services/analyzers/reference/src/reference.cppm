@@ -4,7 +4,7 @@ import analyzer;
 import std;
 
 /// Owns the p-code memory-reference analyzer declaration and implementation.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class ReferenceAnalyzer final : public Analyzer {
 public:
     /// Returns the OperandReferenceAnalyzer-compatible contract.
@@ -13,9 +13,9 @@ public:
     /// Creates direct data references from LOAD and STORE semantics.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Accepts provider memory/address kinds and textual x86 memory qualifiers.
@@ -197,4 +197,4 @@ void ReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const Analys
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

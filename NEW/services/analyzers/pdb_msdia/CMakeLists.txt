@@ -1,7 +1,7 @@
 # Each analyzer owns this source and test registration boundary.
 add_library(analyzer_pdb_msdia STATIC)
 target_sources(analyzer_pdb_msdia PUBLIC FILE_SET cxx_modules TYPE CXX_MODULES FILES src/pdb_msdia.cppm)
-target_link_libraries(analyzer_pdb_msdia PUBLIC NewGhidra::AnalyzerShared)
+target_link_libraries(analyzer_pdb_msdia PUBLIC ReCode::AnalyzerShared)
 target_compile_features(analyzer_pdb_msdia PUBLIC cxx_std_23)
 
 if(WIN32)

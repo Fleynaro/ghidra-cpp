@@ -92,8 +92,8 @@ No findings.
 - [x] Read-only original/native comparison completed.
 - [x] Read-only test, fixture, documentation, CMake, and wrapper inspection completed.
 - [ ] Focused build/test: not run by request.
-- [ ] `NEW/format.bat windows_pe_x86_propagate_external_parameters`: not run by request.
-- [ ] `NEW/tidy.bat windows_pe_x86_propagate_external_parameters --check`: not run by request.
+- [ ] `format.bat windows_pe_x86_propagate_external_parameters`: not run by request.
+- [ ] `tidy.bat windows_pe_x86_propagate_external_parameters --check`: not run by request.
 
 ## Unresolved Questions
 

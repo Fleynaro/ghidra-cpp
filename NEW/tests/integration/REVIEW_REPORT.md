@@ -24,7 +24,7 @@
 - [ ] **Remediation status:** Open.
 - **Source references:** `end_to_end_tests.cppm:22-50`, `CMakeLists.txt`.
 - **Affected component:** Application composition and service runtime.
-- **Technical evidence:** The test opens `ProjectFacade` directly; it never invokes `new_ghidra_app`, so the legacy `AnalysisContext`/`AutoAnalysisManager` default path can remain broken or bypass the architecture while this test passes.
+- **Technical evidence:** The test opens `ProjectFacade` directly; it never invokes `recode_app`, so the legacy `AnalysisContext`/`AutoAnalysisManager` default path can remain broken or bypass the architecture while this test passes.
 - **Expected behavior:** The acceptance suite verifies both the facade pipeline and the shipped default executable composition.
 - **Actual behavior:** Only the parallel facade pipeline is exercised.
 - **Impact:** The primary user entry point can remain on legacy architecture unnoticed.
@@ -72,7 +72,7 @@
 
 ## Validation Results
 
-- [x] `ctest --test-dir NEW/build --output-on-failure`: 49/49 passed.
+- [x] `ctest --test-dir build --output-on-failure`: 49/49 passed.
 - [x] Source/CMake/fixture ownership inspected.
 - [ ] No alternate-architecture, fault-injection, sanitizer, or process-level default-app test exists.
 

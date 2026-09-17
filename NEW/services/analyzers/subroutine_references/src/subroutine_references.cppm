@@ -4,7 +4,7 @@ import analyzer;
 import std;
 
 /// Owns the direct-call function discovery analyzer declaration and implementation.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class SubroutineReferencesAnalyzer final : public Analyzer {
 public:
     /// Returns the FunctionAnalyzer-compatible priority contract.
@@ -13,9 +13,9 @@ public:
     /// Creates missing direct-call targets without scanning raw bytes.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 
 /// Returns the Subroutine References priority and code/reference event contract.
 AnalyzerDescriptor SubroutineReferencesAnalyzer::descriptor() const {
@@ -101,4 +101,4 @@ void SubroutineReferencesAnalyzer::analyze(AnalysisContext& context, std::span<c
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

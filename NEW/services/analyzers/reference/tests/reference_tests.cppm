@@ -11,7 +11,7 @@ import analyzer_subroutine_references;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies p-code LOAD/STORE references match the four keyed rows in the Reference fixture.
@@ -104,4 +104,4 @@ TEST(AnalyzerPipelineTest, IgnoresRegisterRelativeHexDisplacements) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

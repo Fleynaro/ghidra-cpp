@@ -1,15 +1,15 @@
-export module ghidra.bindings.cpp.results;
+export module recode.bindings.cpp.results;
 
-export import ghidra.runtime.project.state;
-export import ghidra.core.decompilation;
+export import recode.runtime.project.state;
+export import recode.core.decompilation;
 
-export namespace ghidra::bindings::cpp {
+export namespace recode::bindings::cpp {
 
 /// Names the stable result values returned by native project operations.
-using LoadResult = ghidra::runtime::project::LoadSummary;
+using LoadResult = recode::runtime::project::LoadSummary;
 /// Names the stable analysis result value.
-using AnalysisResult = ghidra::runtime::project::AnalysisSummary;
+using AnalysisResult = recode::runtime::project::AnalysisSummary;
 /// Names the stable decompilation result value.
-using DecompilationResult = ghidra::core::Decompilation;
+using DecompilationResult = recode::core::Decompilation;
 
-} // namespace ghidra::bindings::cpp
+} // namespace recode::bindings::cpp

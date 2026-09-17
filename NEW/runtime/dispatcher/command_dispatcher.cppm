@@ -1,11 +1,11 @@
-export module ghidra.runtime.dispatcher.command;
+export module recode.runtime.dispatcher.command;
 
 import std;
-import ghidra.core;
-import ghidra.runtime.project.session;
-import ghidra.runtime.workers.pool;
+import recode.core;
+import recode.runtime.project.session;
+import recode.runtime.workers.pool;
 
-export namespace ghidra::runtime::dispatcher {
+export namespace recode::runtime::dispatcher {
 
 /// Separates inline validation from runtime-owned queued command execution.
 class CommandDispatcher final {
@@ -42,4 +42,4 @@ private:
     std::shared_ptr<workers::WorkerPool> workers_;
 };
 
-} // namespace ghidra::runtime::dispatcher
+} // namespace recode::runtime::dispatcher

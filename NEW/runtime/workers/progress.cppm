@@ -1,8 +1,8 @@
-export module ghidra.runtime.workers.progress;
+export module recode.runtime.workers.progress;
 
 import std;
 
-export namespace ghidra::runtime::workers {
+export namespace recode::runtime::workers {
 
 /// Carries bounded progress information without borrowing a caller-owned sink.
 struct ProgressUpdate {
@@ -39,4 +39,4 @@ private:
     std::deque<ProgressUpdate> updates_;
 };
 
-} // namespace ghidra::runtime::workers
+} // namespace recode::runtime::workers

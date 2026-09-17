@@ -41,7 +41,7 @@ if errorlevel 1 (
 )
 
 if not exist "%BUILD_DIR%\compile_commands.json" (
-    echo Required build artifacts were not found. Building NEW before clang-tidy...
+    echo Required build artifacts were not found. Building the ReCode project before clang-tidy...
     call "%SCRIPT_DIR%build.bat" %MODE%
     if errorlevel 1 exit /b 1
 )

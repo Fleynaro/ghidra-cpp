@@ -8,7 +8,7 @@ import analyzer_create_address_tables;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies the four-entry PE32+ fixture table and its Address Table bookmark.
@@ -60,4 +60,4 @@ TEST(CreateAddressTablesIntegrationTest, StopsAtSentinel) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

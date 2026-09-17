@@ -1,10 +1,10 @@
-export module ghidra.service.decompiler.provider_adapters;
+export module recode.service.decompiler.provider_adapters;
 
-export import ghidra.core.contracts.decompiler;
+export import recode.core.contracts.decompiler;
 
-export namespace ghidra::services::decompiler {
+export namespace recode::services::decompiler {
 
 /// Names the provider bundle passed to each isolated native decompiler task.
-using ProviderAdapters = ghidra::core::contracts::ProviderContext;
+using ProviderAdapters = recode::core::contracts::ProviderContext;
 
-} // namespace ghidra::services::decompiler
+} // namespace recode::services::decompiler

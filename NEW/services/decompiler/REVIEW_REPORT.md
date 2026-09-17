@@ -2,7 +2,7 @@
 
 ## Review Metadata
 
-- [x] **Scope confirmed:** `NEW/services/decompiler`, including the provenance API, markup capture, CMake registration, documentation, and `tests/provenance_mapping_tests.cppm`.
+- [x] **Scope confirmed:** `services/decompiler`, including the provenance API, markup capture, CMake registration, documentation, and `tests/provenance_mapping_tests.cppm`.
 - [x] **Reviewed diff:** current uncommitted working-tree changes on 2026-09-16.
 - [x] **Reviewer:** Kilo independent review.
 - [x] **Review objective:** determine whether a future Decompiled Code Viewer can reliably map a clicked Clang token/node to all relevant P-code operations and original ASM instruction addresses, and whether the test proves both directions.
@@ -181,9 +181,9 @@ No findings.
 
 - [x] Focused test passed: `DecompilerProvenance.BidirectionalSleighMarkupAndNativeGraph`.
 - [x] Focused decompiler CTest subset passed: 6/6.
-- [x] Full `NEW\build.bat all` integration validation passed: 49/49 tests.
-- [x] Formatting completed with `NEW\format.bat decompiler`.
-- [x] `NEW\tidy.bat decompiler --check` completed without applied fixes.
+- [x] Full `build.bat all` integration validation passed: 49/49 tests.
+- [x] Formatting completed with `format.bat decompiler`.
+- [x] `tidy.bat decompiler --check` completed without applied fixes.
 - [ ] **Static-analysis limitation:** clang-tidy processed 0 translation units because all 178 C++ module consumers were skipped by the MSVC `.ifc` limitation; this is not equivalent to a clean analyzed pass.
 - [x] `git diff --check` reported no whitespace errors.
 

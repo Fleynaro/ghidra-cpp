@@ -1,15 +1,15 @@
-export module ghidra.runtime.event_store.log;
+export module recode.runtime.event_store.log;
 
 import std;
-import ghidra.core;
-import ghidra.core.contracts.event_store;
-import ghidra.core.events.event;
-import ghidra.core.diagnostics;
-import ghidra.runtime.event_store.codec;
+import recode.core;
+import recode.core.contracts.event_store;
+import recode.core.events.event;
+import recode.core.diagnostics;
+import recode.runtime.event_store.codec;
 
-export namespace ghidra::runtime::event_store {
+export namespace recode::runtime::event_store {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Owns one append-only framed binary project history file.
 class AppendOnlyLog final : public core::contracts::IEventStore {
@@ -243,4 +243,4 @@ private:
     bool closed_{};
 };
 
-} // namespace ghidra::runtime::event_store
+} // namespace recode::runtime::event_store

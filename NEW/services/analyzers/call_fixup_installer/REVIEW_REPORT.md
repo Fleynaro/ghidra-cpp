@@ -92,8 +92,8 @@ No findings.
 - [x] Read-only original/native comparison completed.
 - [x] Read-only test, fixture, documentation, CMake, and wrapper inspection completed.
 - [ ] Focused build/test: not run by request.
-- [ ] `NEW/format.bat call_fixup_installer`: not run by request.
-- [ ] `NEW/tidy.bat call_fixup_installer --check`: not run by request.
+- [ ] `format.bat call_fixup_installer`: not run by request.
+- [ ] `tidy.bat call_fixup_installer --check`: not run by request.
 
 ## Unresolved Questions
 

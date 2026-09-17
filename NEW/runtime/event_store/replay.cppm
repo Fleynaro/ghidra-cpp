@@ -1,13 +1,13 @@
-export module ghidra.runtime.event_store.replay;
+export module recode.runtime.event_store.replay;
 
 import std;
-import ghidra.core;
-import ghidra.core.contracts.event_store;
-import ghidra.core.contracts.projection;
+import recode.core;
+import recode.core.contracts.event_store;
+import recode.core.contracts.projection;
 
-export namespace ghidra::runtime::event_store {
+export namespace recode::runtime::event_store {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Rebuilds a projection directly from committed event history.
 [[nodiscard]] inline core::Result<void>
@@ -18,4 +18,4 @@ replay(core::contracts::IEventStore& store, core::contracts::IProjection& projec
     return projection.rebuild(stream->events);
 }
 
-} // namespace ghidra::runtime::event_store
+} // namespace recode::runtime::event_store

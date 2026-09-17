@@ -1,4 +1,4 @@
-module ghidra.decompiler;
+module recode.decompiler;
 import std;
 
 // Port provenance: mechanically copied from Ghidra/Features/Decompiler/src/decompile/cpp/prefersplit.cc.

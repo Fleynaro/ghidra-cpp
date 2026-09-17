@@ -15,7 +15,7 @@ import std;
 #define GHIDRA_ANALYZER_MODULE_EXPORT
 #endif
 
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 
 class AutoAnalysisManager;
 
@@ -355,4 +355,4 @@ private:
     CancellationToken cancellation_;
 };
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

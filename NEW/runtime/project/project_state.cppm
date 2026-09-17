@@ -1,9 +1,9 @@
-export module ghidra.runtime.project.state;
+export module recode.runtime.project.state;
 
 import std;
-import ghidra.core;
+import recode.core;
 
-export namespace ghidra::runtime::project {
+export namespace recode::runtime::project {
 
 /// Represents the externally visible project lifecycle state.
 enum class ProjectStatus : std::uint8_t {
@@ -44,4 +44,4 @@ struct AnalysisSummary {
     std::vector<core::Diagnostic> diagnostics;
 };
 
-} // namespace ghidra::runtime::project
+} // namespace recode::runtime::project

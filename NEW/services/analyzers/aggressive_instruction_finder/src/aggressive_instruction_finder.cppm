@@ -4,7 +4,7 @@ import analyzer;
 import std;
 
 /// Owns the Aggressive Instruction Finder analyzer declaration and implementation.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class AggressiveInstructionFinderAnalyzer final : public Analyzer {
 public:
     /// Returns the late, opt-in aggressive finder contract.
@@ -13,9 +13,9 @@ public:
     /// Searches undefined executable bytes for repeated, valid function starts.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Describes the bounded pseudo-flow validation result for one candidate.
@@ -325,4 +325,4 @@ void AggressiveInstructionFinderAnalyzer::analyze(AnalysisContext& context, std:
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

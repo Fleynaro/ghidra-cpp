@@ -6,16 +6,16 @@ module;
 #include <windows.h>
 #endif
 
-export module ghidra.service.debugger.win_ttd.analysis.tests;
+export module recode.service.debugger.win_ttd.analysis.tests;
 
 import std;
-import ghidra.core;
-import ghidra.service.debugger.win_ttd.analysis;
+import recode.core;
+import recode.service.debugger.win_ttd.analysis;
 
 namespace {
 
-namespace api = ghidra::core::contracts;
-namespace model = ghidra::core;
+namespace api = recode::core::contracts;
+namespace model = recode::core;
 
 /// Loads one exported fixture function and converts its ASLR address to a module RVA.
 [[nodiscard]] std::uint64_t fixture_rva(const std::filesystem::path& executable, std::string_view name) {
@@ -47,13 +47,13 @@ namespace model = ghidra::core;
 
 /// Verifies one real bulk segment analysis returns deterministic fixture call counts.
 TEST(WinTtdFunctionAnalysis, CountsFixtureFunctionEntries) {
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
     GTEST_SKIP() << "Microsoft TTD Replay API is unavailable";
 #else
     const char* trace_name = std::getenv("TTD_TEST_TRACE");
     const char* program_name = std::getenv("TTD_ANALYSIS_PROGRAM");
     if (trace_name == nullptr || program_name == nullptr || *trace_name == '\0' || *program_name == '\0')
-        GTEST_SKIP() << "Run NEW\\build.bat ttd_all or set TTD_TEST_TRACE and TTD_ANALYSIS_PROGRAM";
+        GTEST_SKIP() << "Run \build.bat ttd_all or set TTD_TEST_TRACE and TTD_ANALYSIS_PROGRAM";
     const std::filesystem::path trace{trace_name};
     const std::filesystem::path program{program_name};
     ASSERT_TRUE(std::filesystem::is_regular_file(trace));
@@ -61,7 +61,7 @@ TEST(WinTtdFunctionAnalysis, CountsFixtureFunctionEntries) {
     const auto catalog = fixture_catalog(program);
     for (const auto& function : catalog)
         ASSERT_NE(function.relative_entry, 0U) << function.display_name;
-    const auto analyzer = ghidra::services::debugger::win_ttd::analysis::create_win_ttd_function_call_analyzer();
+    const auto analyzer = recode::services::debugger::win_ttd::analysis::create_win_ttd_function_call_analyzer();
     ASSERT_TRUE(analyzer) << analyzer.error().message;
     const auto started = std::chrono::steady_clock::now();
     auto task = (*analyzer)->analyze(model::TraceAnalysisRequest{trace, catalog}, {});
@@ -94,14 +94,14 @@ TEST(WinTtdFunctionAnalysis, CountsFixtureFunctionEntries) {
 
 /// Verifies unlisted fixture functions are not fabricated as call-stat entries.
 TEST(WinTtdFunctionAnalysis, DoesNotInventUncataloguedFunctions) {
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
     GTEST_SKIP() << "Microsoft TTD Replay API is unavailable";
 #else
     const char* trace_name = std::getenv("TTD_TEST_TRACE");
     const char* program_name = std::getenv("TTD_ANALYSIS_PROGRAM");
     if (trace_name == nullptr || program_name == nullptr || *trace_name == '\0' || *program_name == '\0')
-        GTEST_SKIP() << "Run NEW\\build.bat ttd_all or set TTD_TEST_TRACE and TTD_ANALYSIS_PROGRAM";
-    const auto analyzer = ghidra::services::debugger::win_ttd::analysis::create_win_ttd_function_call_analyzer();
+        GTEST_SKIP() << "Run \build.bat ttd_all or set TTD_TEST_TRACE and TTD_ANALYSIS_PROGRAM";
+    const auto analyzer = recode::services::debugger::win_ttd::analysis::create_win_ttd_function_call_analyzer();
     ASSERT_TRUE(analyzer);
     const auto catalog = fixture_catalog(std::filesystem::path{program_name});
     const auto result = (*analyzer)->analyze({std::filesystem::path{trace_name}, catalog}, {}).get();

@@ -68,5 +68,5 @@ recovered if MSVC/Ghidra cannot prove them.
 ## Reproduction
 
 Run `build.bat`, then
-`TEST\\run_ghidra_python.bat NEW\\features\\analyzer\\test_data\\stack\\run_ghidra.py`
+`TEST\\run_ghidra_python.bat \features\\analyzer\\test_data\\stack\\run_ghidra.py`
 from the repository root.

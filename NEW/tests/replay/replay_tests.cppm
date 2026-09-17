@@ -2,27 +2,27 @@ module;
 
 #include <gtest/gtest.h>
 
-export module ghidra.tests.replay;
+export module recode.tests.replay;
 
-import ghidra.core;
-import ghidra.runtime.event_bus;
-import ghidra.runtime.event_store.log;
-import ghidra.runtime.projections.coordinator;
-import ghidra.runtime.projections.software_model;
-import ghidra.runtime.storage.projection;
+import recode.core;
+import recode.runtime.event_bus;
+import recode.runtime.event_store.log;
+import recode.runtime.projections.coordinator;
+import recode.runtime.projections.software_model;
+import recode.runtime.storage.projection;
 import std;
 
-namespace ghidra::tests::replay {
+namespace recode::tests::replay {
 namespace {
 
-namespace event_bus = ghidra::runtime::event_bus;
-namespace event_store = ghidra::runtime::event_store;
-namespace projections = ghidra::runtime::projections;
-namespace storage = ghidra::runtime::storage;
+namespace event_bus = recode::runtime::event_bus;
+namespace event_store = recode::runtime::event_store;
+namespace projections = recode::runtime::projections;
+namespace storage = recode::runtime::storage;
 
 /// Rebuilds a listing projection from a fresh event-log reader and checks its durable checkpoint.
 TEST(ReplayArchitectureTest, RebuildRestoresListingAndCheckpoint) {
-    const auto directory = std::filesystem::temp_directory_path() / "new-ghidra-architecture-replay";
+    const auto directory = std::filesystem::temp_directory_path() / "recode-architecture-replay";
     std::error_code error;
     std::filesystem::remove_all(directory, error);
     std::filesystem::create_directories(directory, error);
@@ -51,4 +51,4 @@ TEST(ReplayArchitectureTest, RebuildRestoresListingAndCheckpoint) {
 }
 
 } // namespace
-} // namespace ghidra::tests::replay
+} // namespace recode::tests::replay

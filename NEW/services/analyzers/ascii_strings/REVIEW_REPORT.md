@@ -80,8 +80,8 @@ No findings.
 - [x] Read-only original/native source comparison completed.
 - [x] Read-only test, fixture, documentation, CMake, and wrapper inspection completed.
 - [ ] Focused build/test: not run by request.
-- [ ] `NEW/format.bat ascii_strings`: not run by request.
-- [ ] `NEW/tidy.bat ascii_strings --check`: not run by request.
+- [ ] `format.bat ascii_strings`: not run by request.
+- [ ] `tidy.bat ascii_strings --check`: not run by request.
 
 ## Unresolved Questions
 

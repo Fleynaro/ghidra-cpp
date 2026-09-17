@@ -29,7 +29,7 @@ No findings.
 
 - **Status:** [x] Remediated; the facade now covers the generic session surface without importing a concrete backend
 - **Source:** [`debugger.cppm:21-124`](debugger.cppm#L21-L124), compared with [`../../core/contracts/debugger.cppm:57-138`](../../core/contracts/debugger.cppm#L57-L138).
-- **Component:** `ghidra::bindings::cpp::DebugSession` facade.
+- **Component:** `recode::bindings::cpp::DebugSession` facade.
 - **Technical evidence:** The wrapper exposes launch/attach/continue/pause/step operations, process, threads, raw memory, and event polling. It does not expose detach, terminate, thread selection/current thread, registers/IP, memory regions, stack, modules, symbol resolution, code breakpoints, watchpoints, enable/remove operations, or event sink registration.
 - **Expected behavior:** The binding should make the generic debugger service usable from C++ without forcing callers to bypass it and hold the raw contract interface.
 - **Actual behavior:** Most core debugger functionality is inaccessible through the advertised C++ binding, including code/data breakpoints, register context, stack, modules, and cleanup.

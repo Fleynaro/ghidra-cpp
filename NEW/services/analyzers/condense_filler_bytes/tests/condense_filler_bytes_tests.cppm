@@ -8,7 +8,7 @@ import analyzer_condense_filler_bytes;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Materializes executable fixture code without making an analyzer responsible for PE/Sleigh setup.
@@ -76,4 +76,4 @@ TEST(CondenseFillerBytesIntegrationTest, HonorsExplicitFillerSelection) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

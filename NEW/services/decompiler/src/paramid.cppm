@@ -1,8 +1,8 @@
 // Port provenance: declarations and implementation originate from
 // Ghidra/Features/Decompiler/src/decompile/cpp/paramid.hh and paramid.cc.
-export module ghidra.decompiler.paramid;
+export module recode.decompiler.paramid;
 import std;
-import ghidra.decompiler;
+import recode.decompiler;
 
 export namespace ghidra {
 extern ElementId ELEM_PARAMMEASURES;

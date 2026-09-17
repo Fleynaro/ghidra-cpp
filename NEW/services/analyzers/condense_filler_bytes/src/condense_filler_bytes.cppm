@@ -4,7 +4,7 @@ import analyzer;
 import std;
 
 /// Owns the Condense Filler Bytes analyzer declaration and implementation.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class CondenseFillerBytesAnalyzer final : public Analyzer {
 public:
     /// Returns the Condense Filler Bytes analyzer contract.
@@ -13,9 +13,9 @@ public:
     /// Converts eligible undefined filler runs following functions to alignment data.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Reports whether a byte belongs to an existing code or data listing unit.
@@ -130,4 +130,4 @@ void CondenseFillerBytesAnalyzer::analyze(AnalysisContext& context, std::span<co
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

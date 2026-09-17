@@ -4,7 +4,7 @@ import analyzer;
 import std;
 
 /// Owns the data-origin reference analyzer declaration and implementation.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class DataReferenceAnalyzer final : public Analyzer {
 public:
     /// Returns the DataOperandReferenceAnalyzer-compatible contract.
@@ -13,9 +13,9 @@ public:
     /// Resolves mapped pointer values without creating functions from them.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 
 /// Returns the Data Reference analyzer priority and data-event contract.
 AnalyzerDescriptor DataReferenceAnalyzer::descriptor() const {
@@ -107,4 +107,4 @@ void DataReferenceAnalyzer::analyze(AnalysisContext& context, std::span<const An
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

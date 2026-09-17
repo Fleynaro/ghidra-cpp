@@ -57,7 +57,7 @@ PE import behavior may create an initial entry function, and future loader chang
 
 ## Reproduction
 
-Run `build.bat`, then from the repository root run `TEST\run_ghidra_python.bat NEW\\features\\analyzers\disassemble_entry_points\\tests\\data\\\\run_ghidra.py`. Optional executable/report arguments are accepted.
+Run `build.bat`, then from the repository root run `TEST\run_ghidra_python.bat \features\\analyzers\disassemble_entry_points\\tests\\data\\\\run_ghidra.py`. Optional executable/report arguments are accepted.
 
 ## Generated Artifacts
 

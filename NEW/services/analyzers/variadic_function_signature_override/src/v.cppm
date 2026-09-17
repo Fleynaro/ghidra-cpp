@@ -7,7 +7,7 @@ import std;
 // Ghidra/Features/DecompilerDependent/src/main/java/ghidra/app/plugin/core/string/variadic/
 // FormatStringAnalyzer.java and FormatStringParser.java.
 
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 
 /// Describes one argument introduced by a printf/scanf conversion.
 struct FormatArgument {
@@ -34,9 +34,9 @@ public:
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Skips one bounded decimal field.
@@ -254,4 +254,4 @@ void VariadicFunctionSignatureOverrideAnalyzer::analyze(AnalysisContext& context
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

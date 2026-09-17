@@ -7,7 +7,7 @@ import std;
 // Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/analysis/ApplyDataArchiveAnalyzer.java
 
 /// Selects and validates user datatype archives through the native archive state boundary.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class ApplyDataArchivesAnalyzer final : public Analyzer {
 public:
     /// Returns the Function ID analysis successor priority and memory event contract.
@@ -16,9 +16,9 @@ public:
     /// Records explicit archive selections and clear validation/application diagnostics.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Validates one archive path without reading an unsupported private Ghidra GDT format.
@@ -66,4 +66,4 @@ void ApplyDataArchivesAnalyzer::analyze(AnalysisContext& context, std::span<cons
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

@@ -1,13 +1,13 @@
-export module ghidra.runtime.event_bus;
+export module recode.runtime.event_bus;
 
 import std;
-import ghidra.core;
-import ghidra.core.contracts.event_bus;
-import ghidra.core.events.event;
+import recode.core;
+import recode.core.contracts.event_bus;
+import recode.core.events.event;
 
-export namespace ghidra::runtime::event_bus {
+export namespace recode::runtime::event_bus {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Publishes committed envelopes to ordered in-process subscribers.
 class EventBus final : public core::contracts::IEventBus {
@@ -55,4 +55,4 @@ private:
     core::contracts::SubscriptionId next_id_{1};
 };
 
-} // namespace ghidra::runtime::event_bus
+} // namespace recode::runtime::event_bus

@@ -1,11 +1,11 @@
-export module ghidra.service.sleigh.decoder_resource;
+export module recode.service.sleigh.decoder_resource;
 
 import std;
-import ghidra.core;
+import recode.core;
 
-export namespace ghidra::services::sleigh {
+export namespace recode::services::sleigh {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Validates and identifies one compiled SLA before a decoder is created.
 class DecoderResource final {
@@ -37,4 +37,4 @@ private:
     std::uint64_t size_{};
 };
 
-} // namespace ghidra::services::sleigh
+} // namespace recode::services::sleigh

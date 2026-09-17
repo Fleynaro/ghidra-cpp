@@ -56,4 +56,4 @@ The n-gram model can change which text scores above threshold between Ghidra ver
 
 ## Reproduction
 
-Run `build.bat` in this directory. From the repository root, run `TEST\run_ghidra_python.bat NEW\\features\\analyzers\ascii_strings\\tests\\data\\\\run_ghidra.py`.
+Run `build.bat` in this directory. From the repository root, run `TEST\run_ghidra_python.bat \features\\analyzers\ascii_strings\\tests\\data\\\\run_ghidra.py`.

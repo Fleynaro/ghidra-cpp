@@ -1,8 +1,8 @@
-export module ghidra.core.identifiers;
+export module recode.core.identifiers;
 
 import std;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Stores a stable identifier without allowing callers to confuse it with an unrelated string.
 /// The project uses canonical textual identifiers in the MVP so event codecs remain portable.
@@ -83,13 +83,13 @@ struct Revision {
     return std::string(prefix) + "-" + std::to_string(ordinal);
 }
 
-} // namespace ghidra::core
+} // namespace recode::core
 
 export namespace std {
 
 /// Hashes strong identifiers using their canonical string representation.
-template <class Tag> struct hash<ghidra::core::StrongIdentifier<Tag>> {
-    [[nodiscard]] std::size_t operator()(const ghidra::core::StrongIdentifier<Tag>& id) const noexcept {
+template <class Tag> struct hash<recode::core::StrongIdentifier<Tag>> {
+    [[nodiscard]] std::size_t operator()(const recode::core::StrongIdentifier<Tag>& id) const noexcept {
         return std::hash<std::string>{}(id.value());
     }
 };

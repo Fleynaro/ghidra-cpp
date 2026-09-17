@@ -1,9 +1,9 @@
-export module ghidra.bindings.cpp.queries;
+export module recode.bindings.cpp.queries;
 
 import std;
-import ghidra.core;
+import recode.core;
 
-export namespace ghidra::bindings::cpp {
+export namespace recode::bindings::cpp {
 
 /// Stable synchronous read facade over a revision-stamped project query.
 class ProjectView final {
@@ -30,4 +30,4 @@ private:
     std::shared_ptr<const core::contracts::IProjectQuery> query_;
 };
 
-} // namespace ghidra::bindings::cpp
+} // namespace recode::bindings::cpp

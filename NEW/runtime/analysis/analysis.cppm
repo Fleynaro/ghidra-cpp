@@ -1,5 +1,5 @@
-export module ghidra.runtime.analysis;
+export module recode.runtime.analysis;
 
-export import ghidra.runtime.analysis.registry;
-export import ghidra.runtime.analysis.coalescer;
-export import ghidra.runtime.analysis.scheduler;
+export import recode.runtime.analysis.registry;
+export import recode.runtime.analysis.coalescer;
+export import recode.runtime.analysis.scheduler;

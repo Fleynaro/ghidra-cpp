@@ -1,11 +1,11 @@
-export module ghidra.core.reference;
+export module recode.core.reference;
 
 import std;
-import ghidra.core.address;
-import ghidra.core.flow;
-import ghidra.core.identifiers;
+import recode.core.address;
+import recode.core.flow;
+import recode.core.identifiers;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Classifies the semantic relationship represented by a reference.
 enum class ReferenceKind : std::uint8_t {
@@ -39,4 +39,4 @@ struct Reference {
     std::string provenance;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

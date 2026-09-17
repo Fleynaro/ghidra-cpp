@@ -1,11 +1,11 @@
-export module ghidra.core.contracts.projection;
+export module recode.core.contracts.projection;
 
 import std;
-import ghidra.core.events.event;
-import ghidra.core.identifiers;
-import ghidra.core.diagnostics;
+import recode.core.events.event;
+import recode.core.identifiers;
+import recode.core.diagnostics;
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
 /// Applies committed state events to a replaceable current query model.
 class IProjection {
@@ -45,4 +45,4 @@ public:
     [[nodiscard]] virtual Result<void> flush() = 0;
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

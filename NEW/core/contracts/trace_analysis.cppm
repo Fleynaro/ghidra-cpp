@@ -1,13 +1,13 @@
-export module ghidra.core.contracts.trace_analysis;
+export module recode.core.contracts.trace_analysis;
 
 import std;
-import ghidra.core.trace_analysis;
-import ghidra.core.contracts.operation;
-import ghidra.core.diagnostics;
+import recode.core.trace_analysis;
+import recode.core.contracts.operation;
+import recode.core.diagnostics;
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
-namespace trace_analysis = ghidra::core;
+namespace trace_analysis = recode::core;
 
 /// Performs one offline bulk pass over a replayable execution trace.
 class ITraceAnalyzer {
@@ -16,8 +16,8 @@ public:
     virtual ~ITraceAnalyzer() = default;
 
     /// Computes function-entry statistics without mutating an interactive replay session.
-    [[nodiscard]] virtual Task<Result<trace_analysis::FunctionCallStatistics>> analyze(
-        trace_analysis::TraceAnalysisRequest request, OperationContext context) = 0;
+    [[nodiscard]] virtual Task<Result<trace_analysis::FunctionCallStatistics>>
+    analyze(trace_analysis::TraceAnalysisRequest request, OperationContext context) = 0;
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

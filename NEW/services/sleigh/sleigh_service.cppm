@@ -1,14 +1,14 @@
-export module ghidra.service.sleigh;
+export module recode.service.sleigh;
 
 import std;
-import ghidra.core;
-import ghidra.runtime.workers.pool;
+import recode.core;
+import recode.runtime.workers.pool;
 import sleigh_runtime;
 
-export namespace ghidra::services::sleigh {
+export namespace recode::services::sleigh {
 
-namespace core = ghidra::core;
-namespace runtime = ghidra::runtime;
+namespace core = recode::core;
+namespace runtime = recode::runtime;
 
 /// Adapts the stateful Sleigh decoder into a mutex-protected canonical decoder service.
 class SleighService final : public core::contracts::IPCodeDecoder {
@@ -89,4 +89,4 @@ private:
     mutable std::mutex mutex_;
 };
 
-} // namespace ghidra::services::sleigh
+} // namespace recode::services::sleigh

@@ -2,19 +2,19 @@ module;
 
 #include <gtest/gtest.h>
 
-export module ghidra.services.debugger.win_ttd.tests;
+export module recode.services.debugger.win_ttd.tests;
 
-import ghidra.core;
-import ghidra.service.debugger.win_ttd;
+import recode.core;
+import recode.service.debugger.win_ttd;
 import std;
 
 namespace {
-namespace api = ghidra::core::contracts;
-namespace model = ghidra::core::debugger;
+namespace api = recode::core::contracts;
+namespace model = recode::core::debugger;
 
 /// Verifies that the replay service exposes the specialized contract rather than the live contract.
 TEST(WinTtdReplayContractTest, FactoryCreatesReplaySession) {
-    const auto service = ghidra::services::debugger::win_ttd::create_win_ttd();
+    const auto service = recode::services::debugger::win_ttd::create_win_ttd();
     ASSERT_TRUE(service) << service.error().message;
     const auto session = (*service)->create_session();
     ASSERT_TRUE(session) << session.error().message;
@@ -25,39 +25,39 @@ TEST(WinTtdReplayContractTest, FactoryCreatesReplaySession) {
 
 /// Verifies invalid trace paths fail before native engine initialization and preserve a useful diagnostic.
 TEST(WinTtdReplayContractTest, RejectsMissingTrace) {
-    const auto service = ghidra::services::debugger::win_ttd::create_win_ttd();
+    const auto service = recode::services::debugger::win_ttd::create_win_ttd();
     ASSERT_TRUE(service);
     const auto session = (*service)->create_session();
     ASSERT_TRUE(session);
     const auto opened = (*session)->open_trace(std::filesystem::path{"missing-test-trace.run"});
-#if defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if defined(RECODE_HAS_TTD_REPLAY)
     ASSERT_FALSE(opened);
-    EXPECT_EQ(opened.error().code, ghidra::core::DiagnosticCode::invalid_argument);
+    EXPECT_EQ(opened.error().code, recode::core::DiagnosticCode::invalid_argument);
 #else
     ASSERT_FALSE(opened);
-    EXPECT_EQ(opened.error().code, ghidra::core::DiagnosticCode::unsupported);
+    EXPECT_EQ(opened.error().code, recode::core::DiagnosticCode::unsupported);
 #endif
 }
 
 /// Verifies replay-only operations remain explicit and never mutate a closed session.
 TEST(WinTtdReplayContractTest, ClosedSessionReportsLifecycleConflict) {
-    const auto service = ghidra::services::debugger::win_ttd::create_win_ttd();
+    const auto service = recode::services::debugger::win_ttd::create_win_ttd();
     ASSERT_TRUE(service);
     const auto session = (*service)->create_session();
     ASSERT_TRUE(session);
     const auto position = (*session)->position();
-#if defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if defined(RECODE_HAS_TTD_REPLAY)
     ASSERT_FALSE(position);
-    EXPECT_EQ(position.error().code, ghidra::core::DiagnosticCode::conflict);
+    EXPECT_EQ(position.error().code, recode::core::DiagnosticCode::conflict);
 #else
     ASSERT_FALSE(position);
-    EXPECT_EQ(position.error().code, ghidra::core::DiagnosticCode::unsupported);
+    EXPECT_EQ(position.error().code, recode::core::DiagnosticCode::unsupported);
 #endif
 }
 
 /// Replays a caller-supplied real trace through contracts and checks the shared state queries.
 TEST(WinTtdReplayIntegrationTest, OpensAndNavigatesProvidedTrace) {
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
     GTEST_SKIP() << "Microsoft TTD Replay API package is not available";
 #else
     const char* trace_name = std::getenv("TTD_TEST_TRACE");
@@ -72,7 +72,7 @@ TEST(WinTtdReplayIntegrationTest, OpensAndNavigatesProvidedTrace) {
             FAIL() << "TTD_TEST_REQUIRED is set, but TTD_TEST_TRACE is not a file: " << trace_name;
         GTEST_SKIP() << "TTD_TEST_TRACE does not name an existing finalized .run file: " << trace_name;
     }
-    const auto service = ghidra::services::debugger::win_ttd::create_win_ttd();
+    const auto service = recode::services::debugger::win_ttd::create_win_ttd();
     ASSERT_TRUE(service) << service.error().message;
     const auto session = (*service)->create_session();
     ASSERT_TRUE(session) << session.error().message;
@@ -107,7 +107,7 @@ TEST(WinTtdReplayIntegrationTest, OpensAndNavigatesProvidedTrace) {
     const auto execute_watchpoint =
         (*session)->seek_watchpoint(*instruction_pointer, 1, model::WatchpointAccess::execute, true);
     ASSERT_TRUE(execute_watchpoint) << execute_watchpoint.error().message;
-    EXPECT_EQ(execute_watchpoint->reason, ghidra::core::replay::StopReason::watchpoint);
+    EXPECT_EQ(execute_watchpoint->reason, recode::core::replay::StopReason::watchpoint);
     const auto modules = (*session)->modules();
     ASSERT_TRUE(modules) << modules.error().message;
     ASSERT_FALSE(modules->empty());
@@ -129,7 +129,7 @@ TEST(WinTtdReplayIntegrationTest, OpensAndNavigatesProvidedTrace) {
 #endif
 }
 
-#if defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if defined(RECODE_HAS_TTD_REPLAY)
 
 /// Opens the one caller-provided trace once per focused test and closes its cursor deterministically.
 class ReplayTraceFixture : public ::testing::Test {
@@ -149,7 +149,7 @@ protected:
             GTEST_SKIP() << "TTD_TEST_TRACE does not name an existing finalized .run file: " << trace_name;
         }
         trace_path_ = trace_name;
-        const auto service = ghidra::services::debugger::win_ttd::create_win_ttd();
+        const auto service = recode::services::debugger::win_ttd::create_win_ttd();
         ASSERT_TRUE(service) << service.error().message;
         const auto created = (*service)->create_session();
         ASSERT_TRUE(created) << created.error().message;
@@ -167,7 +167,7 @@ protected:
     }
 
     std::shared_ptr<api::IReplayDebugSession> session_;
-    ghidra::core::replay::TraceInfo metadata_;
+    recode::core::replay::TraceInfo metadata_;
     std::filesystem::path trace_path_;
 };
 
@@ -223,7 +223,7 @@ TEST_F(ReplayTraceFixture, ReadsRegistersAndMemory) {
     EXPECT_EQ(memory->transferred_size, 1U);
     const auto invalid = session_->read_memory(*instruction, 0);
     ASSERT_FALSE(invalid);
-    EXPECT_EQ(invalid.error().code, ghidra::core::DiagnosticCode::invalid_argument);
+    EXPECT_EQ(invalid.error().code, recode::core::DiagnosticCode::invalid_argument);
 }
 
 /// Verifies module snapshots and conservative memory-region projections are non-empty.
@@ -254,7 +254,7 @@ TEST_F(ReplayTraceFixture, SeeksAndReplaysBothDirections) {
     EXPECT_NE(backward->position, backward->previous_position);
     const auto zero = session_->step_forward(0);
     ASSERT_FALSE(zero);
-    EXPECT_EQ(zero.error().code, ghidra::core::DiagnosticCode::invalid_argument);
+    EXPECT_EQ(zero.error().code, recode::core::DiagnosticCode::invalid_argument);
 }
 
 /// Verifies execute watchpoint navigation uses a temporary cursor and reports its stop reason.
@@ -266,7 +266,7 @@ TEST_F(ReplayTraceFixture, FindsExecuteWatchpointWithoutMovingUserCursorFirst) {
     ASSERT_TRUE(instruction);
     const auto hit = session_->seek_watchpoint(*instruction, 1, model::WatchpointAccess::execute, true);
     ASSERT_TRUE(hit) << hit.error().message;
-    EXPECT_EQ(hit->reason, ghidra::core::replay::StopReason::watchpoint);
+    EXPECT_EQ(hit->reason, recode::core::replay::StopReason::watchpoint);
     EXPECT_EQ(session_->position().value(), *before);
 }
 
@@ -274,19 +274,19 @@ TEST_F(ReplayTraceFixture, FindsExecuteWatchpointWithoutMovingUserCursorFirst) {
 TEST_F(ReplayTraceFixture, ReportsUnsupportedEventPollingExplicitly) {
     const auto events = session_->poll_events();
     ASSERT_FALSE(events);
-    EXPECT_EQ(events.error().code, ghidra::core::DiagnosticCode::unsupported);
+    EXPECT_EQ(events.error().code, recode::core::DiagnosticCode::unsupported);
     const auto sink = session_->set_event_sink([](const model::DebugEvent&) {});
     ASSERT_FALSE(sink);
-    EXPECT_EQ(sink.error().code, ghidra::core::DiagnosticCode::unsupported);
+    EXPECT_EQ(sink.error().code, recode::core::DiagnosticCode::unsupported);
 }
 
 /// Verifies invalid positions and unsupported symbol/stack operations fail explicitly.
 TEST_F(ReplayTraceFixture, RejectsInvalidAndUnsupportedOperations) {
     const auto invalid = session_->seek({std::numeric_limits<std::uint64_t>::max(), 0});
     ASSERT_FALSE(invalid);
-    EXPECT_EQ(invalid.error().code, ghidra::core::DiagnosticCode::invalid_argument);
-    EXPECT_EQ(session_->resolve_symbol("debugger_test_entry").error().code, ghidra::core::DiagnosticCode::unsupported);
-    EXPECT_EQ(session_->stack_trace().error().code, ghidra::core::DiagnosticCode::unsupported);
+    EXPECT_EQ(invalid.error().code, recode::core::DiagnosticCode::invalid_argument);
+    EXPECT_EQ(session_->resolve_symbol("debugger_test_entry").error().code, recode::core::DiagnosticCode::unsupported);
+    EXPECT_EQ(session_->stack_trace().error().code, recode::core::DiagnosticCode::unsupported);
 }
 
 #endif

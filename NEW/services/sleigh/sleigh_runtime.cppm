@@ -2,23 +2,23 @@
 // public API does not depend on textual standard-header inclusion.
 export module sleigh_runtime;
 import std;
-export import ghidra.core;
+export import recode.core;
 
 export namespace sleigh_runtime {
 
 /// Re-exports the canonical decoder value vocabulary without defining runtime-local DTOs.
-using OperandKind = ghidra::core::OperandKind;
-using Operand = ghidra::core::DecodedOperand;
-using Varnode = ghidra::core::StorageLocation;
-using PcodeOpcode = ghidra::core::PcodeOpcode;
-using PcodeOp = ghidra::core::PcodeOp;
-using FlowKind = ghidra::core::FlowKind;
-using FlowInfo = ghidra::core::DecodedFlowInfo;
-using ProcessorContext = ghidra::core::ProcessorContext;
+using OperandKind = recode::core::OperandKind;
+using Operand = recode::core::DecodedOperand;
+using Varnode = recode::core::StorageLocation;
+using PcodeOpcode = recode::core::PcodeOpcode;
+using PcodeOp = recode::core::PcodeOp;
+using FlowKind = recode::core::FlowKind;
+using FlowInfo = recode::core::DecodedFlowInfo;
+using ProcessorContext = recode::core::ProcessorContext;
 /// Preserves the pair-based context fixture spelling without defining a runtime DTO.
 using ContextValue = std::pair<std::string, std::uint64_t>;
-using Instruction = ghidra::core::DecodedInstruction;
-using DecodeError = ghidra::core::DecodeError;
+using Instruction = recode::core::DecodedInstruction;
+using DecodeError = recode::core::DecodeError;
 
 /// Owns a compiled SLA runtime and decodes bounded instruction windows.
 class Decoder final {

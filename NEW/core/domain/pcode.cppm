@@ -1,11 +1,11 @@
-export module ghidra.core.pcode;
+export module recode.core.pcode;
 
 import std;
-import ghidra.core.address;
-import ghidra.core.pcode_opcode;
-import ghidra.core.storage_location;
+import recode.core.address;
+import recode.core.pcode_opcode;
+import recode.core.storage_location;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Stores one canonical p-code operation independent of native engine ownership.
 struct PcodeOp {
@@ -45,4 +45,4 @@ struct PcodeSequence {
     std::vector<PcodeOp> operations;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

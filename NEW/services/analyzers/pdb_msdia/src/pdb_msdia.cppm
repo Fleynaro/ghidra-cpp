@@ -15,7 +15,7 @@ import std;
 // Ghidra/Features/PDB/src/main/java/ghidra/app/plugin/core/analysis/
 // PdbMsdiaAnalyzer.java, PdbAnalyzer.java, and PdbAnalyzerCommon.java.
 
-export namespace ghidra::pdb::msdia {
+export namespace recode::pdb::msdia {
 
 /// Reports provider, COM, file, or DIA enumeration failures.
 struct MsdiaError {
@@ -84,9 +84,9 @@ private:
 #endif
 };
 
-} // namespace ghidra::pdb::msdia
+} // namespace recode::pdb::msdia
 
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 
 /// Applies symbols from the Windows DIA provider boundary.
 class PdbMsdiaAnalyzer final : public Analyzer {
@@ -98,9 +98,9 @@ public:
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::pdb::msdia {
+namespace recode::pdb::msdia {
 namespace {
 
 /// Converts a failed HRESULT to a stable diagnostic without hiding its code.
@@ -291,9 +291,9 @@ MsdiaSession& MsdiaSession::operator=(MsdiaSession&& other) noexcept {
     return *this;
 }
 
-} // namespace ghidra::pdb::msdia
+} // namespace recode::pdb::msdia
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 
 /// Returns the Windows-only DIA analyzer scheduling contract.
 AnalyzerDescriptor PdbMsdiaAnalyzer::descriptor() const {
@@ -305,7 +305,7 @@ void PdbMsdiaAnalyzer::analyze(AnalysisContext& context, std::span<const Analysi
                                CancellationToken& cancellation) {
     if (!context.options().pdb_msdia || context.options().pdb_path.empty() || cancellation.is_cancelled())
         return;
-    const auto session = ghidra::pdb::msdia::MsdiaSession::open(context.options().pdb_path);
+    const auto session = recode::pdb::msdia::MsdiaSession::open(context.options().pdb_path);
     if (!session)
         throw std::runtime_error(session.error().message);
     for (const auto& symbol : session->symbols()) {
@@ -333,4 +333,4 @@ void PdbMsdiaAnalyzer::analyze(AnalysisContext& context, std::span<const Analysi
                                                         "DIA provider loaded: " + session->path().string()}));
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

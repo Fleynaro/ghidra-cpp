@@ -8,9 +8,9 @@ import decompiler;
 import sleigh_runtime;
 import std;
 
-namespace newghidra::decompiler::architecture_tests {
+namespace recode::decompiler::architecture_tests {
 
-/// Describes one processor smoke case backed by a specification stored in NEW.
+/// Describes one processor smoke case backed by a specification stored in this project.
 struct ArchitectureCase {
     std::string name;
     std::string sla;
@@ -195,7 +195,7 @@ static ArchitectureProviderContext toy_context() {
     return ArchitectureProviderContext{std::move(architecture), {}};
 }
 
-/// Returns the processor inventory whose compiled specifications are stored locally in NEW.
+/// Returns the processor inventory whose compiled specifications are stored locally in this project.
 /// Other architecture contexts remain covered by provider-only construction tests below.
 static std::vector<ArchitectureCase> architecture_cases() {
     return {
@@ -290,7 +290,7 @@ TEST(ArchitectureProviders, ConstructsSelectedArchitectureDescriptions) {
     }
 }
 
-/// Verifies real decoding and provider materialization for every SLA stored in NEW.
+/// Verifies real decoding and provider materialization for every SLA stored in this project.
 TEST(ArchitectureProviders, DecodesLocalSlas) {
     constexpr std::uint64_t entry = 0x1000;
     for (const ArchitectureCase& test_case : architecture_cases()) {
@@ -323,4 +323,4 @@ TEST(ArchitectureProviders, DecodesLocalSlas) {
     }
 }
 
-} // namespace newghidra::decompiler::architecture_tests
+} // namespace recode::decompiler::architecture_tests

@@ -1,11 +1,11 @@
-export module ghidra.runtime.analysis.registry;
+export module recode.runtime.analysis.registry;
 
 import std;
-import ghidra.core;
+import recode.core;
 
-export namespace ghidra::runtime::analysis {
+export namespace recode::runtime::analysis {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Owns analyzer registration, descriptor uniqueness, and dependency ordering.
 class AnalyzerRegistry final {
@@ -78,4 +78,4 @@ private:
     std::map<std::string, Entry> analyzers_;
 };
 
-} // namespace ghidra::runtime::analysis
+} // namespace recode::runtime::analysis

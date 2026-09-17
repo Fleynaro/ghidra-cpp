@@ -1,7 +1,7 @@
-export module ghidra.runtime;
+export module recode.runtime;
 
-export import ghidra.runtime.workers;
-export import ghidra.runtime.event_bus;
-export import ghidra.runtime.event_store;
-export import ghidra.runtime.projections;
-export import ghidra.runtime.analysis;
+export import recode.runtime.workers;
+export import recode.runtime.event_bus;
+export import recode.runtime.event_store;
+export import recode.runtime.projections;
+export import recode.runtime.analysis;

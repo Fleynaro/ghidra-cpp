@@ -2,21 +2,20 @@ module;
 
 #include <gtest/gtest.h>
 
-export module ghidra.services.tests;
+export module recode.services.tests;
 
-import ghidra.core;
-import ghidra.service.pe_loader;
-import ghidra.service.sleigh;
-import ghidra.runtime.workers.pool;
+import recode.core;
+import recode.service.pe_loader;
+import recode.service.sleigh;
+import recode.runtime.workers.pool;
 import std;
 
-namespace ghidra::services::tests {
+namespace recode::services::tests {
 namespace {
 
 /// Resolves the checked PE fixture used to prove the service boundary parses real input.
 [[nodiscard]] std::filesystem::path pe_fixture() {
-    return std::filesystem::path(NEW_GHIDRA_SERVICE_FIXTURE_DIR) / "services" / "pe_loader" / "tests" / "data" /
-           "test.exe";
+    return std::filesystem::path(RECODE_SERVICE_FIXTURE_DIR) / "services" / "pe_loader" / "tests" / "data" / "test.exe";
 }
 
 /// Verifies that PE parsing returns core regions and architecture metadata without exposing parser state.
@@ -37,9 +36,9 @@ TEST(ServiceBoundaryTest, PeLoaderProducesCoreImageFacts) {
 /// Verifies that a compiled SLA resource decodes an actual machine-code byte window into core values.
 TEST(ServiceBoundaryTest, SleighServiceProducesCanonicalInstruction) {
     auto pool =
-        std::make_shared<ghidra::runtime::workers::WorkerPool>(ghidra::runtime::workers::WorkerPoolConfig{1, 8});
+        std::make_shared<recode::runtime::workers::WorkerPool>(recode::runtime::workers::WorkerPoolConfig{1, 8});
     const auto path =
-        std::filesystem::path(NEW_GHIDRA_SERVICE_FIXTURE_DIR) / "services" / "sleigh" / "specifications" / "x86-64.sla";
+        std::filesystem::path(RECODE_SERVICE_FIXTURE_DIR) / "services" / "sleigh" / "specifications" / "x86-64.sla";
     auto service = sleigh::SleighService::open(path, pool);
     ASSERT_TRUE(service) << (service ? "" : service.error().message);
     core::contracts::DecodeRequest request;
@@ -57,4 +56,4 @@ TEST(ServiceBoundaryTest, SleighServiceProducesCanonicalInstruction) {
 }
 
 } // namespace
-} // namespace ghidra::services::tests
+} // namespace recode::services::tests

@@ -1,24 +1,24 @@
 export module decompiler;
 
 import std;
-export import ghidra.core;
+export import recode.core;
 
-export namespace newghidra::decompiler {
+export namespace recode::decompiler {
 
 /// Re-exports the canonical storage value used by p-code and ABI boundaries.
-using Storage = ghidra::core::StorageLocation;
+using Storage = recode::core::StorageLocation;
 
 /// Re-exports the canonical p-code operation used by Sleigh and decompiler providers.
-using PcodeOperation = ghidra::core::PcodeOp;
+using PcodeOperation = recode::core::PcodeOp;
 
 /// Re-exports the canonical opcode enumeration used by provider operations.
-using PcodeOpcode = ghidra::core::PcodeOpcode;
+using PcodeOpcode = recode::core::PcodeOpcode;
 
 /// Re-exports the canonical decoder snapshot shared by Sleigh and the native frontend.
-using Instruction = ghidra::core::DecodedInstruction;
+using Instruction = recode::core::DecodedInstruction;
 
 /// Re-exports the canonical decoder failure value.
-using ProviderError = ghidra::core::DecodeError;
+using ProviderError = recode::core::DecodeError;
 
 /// Selects the integer representation used by the native C printer.
 ///
@@ -679,7 +679,7 @@ public:
     /// Transfers ownership of decoder state.
     SleighPcodeProvider& operator=(SleighPcodeProvider&&) noexcept;
 
-    /// Decodes one instruction through NEW's Sleigh runtime.
+    /// Decodes one instruction through ReCode's Sleigh runtime.
     [[nodiscard]] std::expected<Instruction, ProviderError> decode(std::uint64_t address) const override;
 
 private:
@@ -720,4 +720,4 @@ private:
     std::unique_ptr<State> state_;
 };
 
-} // namespace newghidra::decompiler
+} // namespace recode::decompiler

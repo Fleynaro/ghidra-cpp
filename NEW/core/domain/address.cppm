@@ -1,10 +1,10 @@
-export module ghidra.core.address;
+export module recode.core.address;
 
 import std;
-import ghidra.core.address_space;
-import ghidra.core.diagnostics;
+import recode.core.address_space;
+import recode.core.diagnostics;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Represents an immutable address in a named address space.
 struct Address {
@@ -38,4 +38,4 @@ struct Address {
     }();
 }
 
-} // namespace ghidra::core
+} // namespace recode::core

@@ -5,7 +5,7 @@
 - [x] **Scope:** services/analyzers/stack/tests, its CMake registration, test sources, fixtures, and the architecture commits 778c5d87ad and 3c123d1fda.
 - [x] **Date:** 2026-09-16.
 - [x] **Reviewer:** Kilo, independent test-coverage review.
-- [x] **Assumptions:** Existing green tests are regression coverage, not proof of complete architecture behavior. Generated `NEW/build` directories are excluded.
+- [x] **Assumptions:** Existing green tests are regression coverage, not proof of complete architecture behavior. Generated `build` directories are excluded.
 
 ## Inventory
 
@@ -64,7 +64,7 @@ No missing test was classified as critical in this directory. Runtime lifetime g
 ## Validation Results
 
 - [x] Test source and CMake registration inspected.
-- [x] `ctest --test-dir NEW/build --output-on-failure`: 49/49 passed.
+- [x] `ctest --test-dir build --output-on-failure`: 49/49 passed.
 - [x] `git diff --check`: passed for implementation commits.
 - [ ] No tests were added by this review.
 

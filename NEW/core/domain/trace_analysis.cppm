@@ -1,8 +1,8 @@
-export module ghidra.core.trace_analysis;
+export module recode.core.trace_analysis;
 
 import std;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Identifies a function by loaded module name and module-relative entry address.
 /// The identity remains stable when the recorded process uses ASLR.
@@ -43,4 +43,4 @@ struct TraceAnalysisRequest {
     std::vector<TraceFunction> functions;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

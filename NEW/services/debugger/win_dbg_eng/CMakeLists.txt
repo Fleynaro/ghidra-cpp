@@ -1,10 +1,10 @@
-add_library(new_ghidra_win_dbg_eng STATIC)
-target_sources(new_ghidra_win_dbg_eng PUBLIC
+add_library(recode_win_dbg_eng STATIC)
+target_sources(recode_win_dbg_eng PUBLIC
     FILE_SET cxx_modules TYPE CXX_MODULES FILES win_dbg_eng.cppm
 )
-add_library(NewGhidra::WinDbgEng ALIAS new_ghidra_win_dbg_eng)
-target_link_libraries(new_ghidra_win_dbg_eng PUBLIC NewGhidra::Core NewGhidra::Std)
-target_compile_features(new_ghidra_win_dbg_eng PUBLIC cxx_std_23)
+add_library(ReCode::WinDbgEng ALIAS recode_win_dbg_eng)
+target_link_libraries(recode_win_dbg_eng PUBLIC ReCode::Core ReCode::Std)
+target_compile_features(recode_win_dbg_eng PUBLIC cxx_std_23)
 
 if(WIN32)
     # DbgEng is shipped with the Windows debugging tools/SDK, not vcpkg.
@@ -36,14 +36,14 @@ if(WIN32)
     if(NOT DBGENG_INCLUDE_DIR OR NOT DBGENG_LIBRARY)
         message(FATAL_ERROR "WinDbgEng requires dbgeng.h and dbgeng.lib from the Windows debugging tools/SDK")
     endif()
-    target_include_directories(new_ghidra_win_dbg_eng PRIVATE
+    target_include_directories(recode_win_dbg_eng PRIVATE
         "${DBGENG_INCLUDE_DIR}"
         "${DBGENG_SDK_VERSION_DIR}/um"
         "${DBGENG_SDK_VERSION_DIR}/shared"
         "${DBGENG_SDK_VERSION_DIR}/ucrt"
         "${DBGENG_MSVC_VERSION}/include"
     )
-    target_link_libraries(new_ghidra_win_dbg_eng PRIVATE "${DBGENG_LIBRARY}")
+    target_link_libraries(recode_win_dbg_eng PRIVATE "${DBGENG_LIBRARY}")
 endif()
 
 if(BUILD_TESTING)

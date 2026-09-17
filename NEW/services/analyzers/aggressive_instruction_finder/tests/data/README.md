@@ -56,4 +56,4 @@ The Java analyzer is explicitly heuristic and warns that it may create bad code.
 
 ## Reproduction
 
-Run `build.bat` in this directory. From the repository root, run `TEST\run_ghidra_python.bat NEW\\features\\analyzers\aggressive_instruction_finder\\tests\\data\\\\run_ghidra.py`.
+Run `build.bat` in this directory. From the repository root, run `TEST\run_ghidra_python.bat \features\\analyzers\aggressive_instruction_finder\\tests\\data\\\\run_ghidra.py`.

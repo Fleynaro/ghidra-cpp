@@ -64,5 +64,5 @@ required to test the requested behavior; an x64 fixture would select a different
 language and analyzer.
 
 Run `build.bat`, then execute
-`TEST\\run_ghidra_python.bat NEW\\features\\analyzer\\test_data\\x86_constant_reference\\run_ghidra.py`
+`TEST\\run_ghidra_python.bat \features\\analyzer\\test_data\\x86_constant_reference\\run_ghidra.py`
 from the repository root.

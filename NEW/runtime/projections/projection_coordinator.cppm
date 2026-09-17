@@ -1,14 +1,14 @@
-export module ghidra.runtime.projections.coordinator;
+export module recode.runtime.projections.coordinator;
 
 import std;
-import ghidra.core;
-import ghidra.core.contracts.event_bus;
-import ghidra.core.contracts.event_store;
-import ghidra.core.contracts.projection;
+import recode.core;
+import recode.core.contracts.event_bus;
+import recode.core.contracts.event_store;
+import recode.core.contracts.projection;
 
-export namespace ghidra::runtime::projections {
+export namespace recode::runtime::projections {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Coordinates append, projection apply, checkpoint persistence, and publication.
 class ProjectionCoordinator final {
@@ -70,4 +70,4 @@ private:
     std::shared_ptr<core::contracts::IEventBus> bus_;
 };
 
-} // namespace ghidra::runtime::projections
+} // namespace recode::runtime::projections

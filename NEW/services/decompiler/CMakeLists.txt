@@ -1,6 +1,6 @@
 find_package(pugixml CONFIG REQUIRED)
 
-set(NEW_GHIDRA_DECOMPILER_INTERFACE_MODULE
+set(RECODE_DECOMPILER_INTERFACE_MODULE
     src/ghidra_decompiler.cppm
     src/block_switch.cppm
     src/grammar.cppm
@@ -9,7 +9,7 @@ set(NEW_GHIDRA_DECOMPILER_INTERFACE_MODULE
     src/paramid.cppm
 )
 
-set(NEW_GHIDRA_DECOMPILER_IMPLEMENTATION_MODULES
+set(RECODE_DECOMPILER_IMPLEMENTATION_MODULES
     src/action.cppm
     src/address.cppm
     src/architecture.cppm
@@ -76,36 +76,36 @@ set(NEW_GHIDRA_DECOMPILER_IMPLEMENTATION_MODULES
     src/xml.cppm
 )
 
-add_library(new_ghidra_decompiler STATIC)
-add_library(NewGhidra::Decompiler ALIAS new_ghidra_decompiler)
-set_target_properties(new_ghidra_decompiler PROPERTIES ARCHIVE_OUTPUT_NAME "new_ghidra_decompiler_engine")
+add_library(recode_decompiler STATIC)
+add_library(ReCode::Decompiler ALIAS recode_decompiler)
+set_target_properties(recode_decompiler PROPERTIES ARCHIVE_OUTPUT_NAME "recode_decompiler_engine")
 if(MSVC)
-    set_target_properties(new_ghidra_decompiler PROPERTIES COMPILE_PDB_NAME "new_ghidra_decompiler_engine")
+    set_target_properties(recode_decompiler PROPERTIES COMPILE_PDB_NAME "recode_decompiler_engine")
 endif()
-target_sources(new_ghidra_decompiler
+target_sources(recode_decompiler
     PUBLIC FILE_SET cxx_modules TYPE CXX_MODULES
         BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src"
-        FILES ${NEW_GHIDRA_DECOMPILER_INTERFACE_MODULE}
-    PRIVATE ${NEW_GHIDRA_DECOMPILER_IMPLEMENTATION_MODULES}
+        FILES ${RECODE_DECOMPILER_INTERFACE_MODULE}
+    PRIVATE ${RECODE_DECOMPILER_IMPLEMENTATION_MODULES}
 )
-target_link_libraries(new_ghidra_decompiler PRIVATE pugixml::pugixml PUBLIC NewGhidra::Std)
-target_include_directories(new_ghidra_decompiler PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_compile_features(new_ghidra_decompiler PUBLIC cxx_std_23)
+target_link_libraries(recode_decompiler PRIVATE pugixml::pugixml PUBLIC ReCode::Std)
+target_include_directories(recode_decompiler PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_compile_features(recode_decompiler PUBLIC cxx_std_23)
 
-add_library(new_ghidra_decompiler_frontend STATIC)
-add_library(NewGhidra::DecompilerFrontend ALIAS new_ghidra_decompiler_frontend)
-target_sources(new_ghidra_decompiler_frontend
+add_library(recode_decompiler_frontend STATIC)
+add_library(ReCode::DecompilerFrontend ALIAS recode_decompiler_frontend)
+target_sources(recode_decompiler_frontend
     PUBLIC FILE_SET cxx_modules TYPE CXX_MODULES FILES src/decompiler.cppm
     PRIVATE src/decompiler_impl.cppm
 )
-target_include_directories(new_ghidra_decompiler_frontend PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_compile_features(new_ghidra_decompiler_frontend PUBLIC cxx_std_23)
-target_link_libraries(new_ghidra_decompiler_frontend PUBLIC NewGhidra::Core NewGhidra::Decompiler NewGhidra::SleighRuntime
+target_include_directories(recode_decompiler_frontend PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_compile_features(recode_decompiler_frontend PUBLIC cxx_std_23)
+target_link_libraries(recode_decompiler_frontend PUBLIC ReCode::Core ReCode::Decompiler ReCode::SleighRuntime
                                                             PRIVATE pugixml::pugixml)
 
 add_executable(decompiler_cli cli/decompiler_cli.cppm)
-set_target_properties(decompiler_cli PROPERTIES OUTPUT_NAME "new_ghidra_decompiler")
-target_link_libraries(decompiler_cli PRIVATE NewGhidra::DecompilerFrontend)
+set_target_properties(decompiler_cli PROPERTIES OUTPUT_NAME "recode_decompiler")
+target_link_libraries(decompiler_cli PRIVATE ReCode::DecompilerFrontend)
 target_compile_features(decompiler_cli PRIVATE cxx_std_23)
 
 if(BUILD_TESTING)
@@ -114,16 +114,16 @@ if(BUILD_TESTING)
     add_subdirectory(tests)
 endif()
 
-add_library(new_ghidra_decompiler_service STATIC)
-target_sources(new_ghidra_decompiler_service PUBLIC
+add_library(recode_decompiler_service STATIC)
+target_sources(recode_decompiler_service PUBLIC
     FILE_SET cxx_modules TYPE CXX_MODULES FILES
         decompiler_service.cppm
         decompiler_types.cppm
         provider_adapters.cppm
         decompilation_result.cppm
 )
-add_library(NewGhidra::DecompilerService ALIAS new_ghidra_decompiler_service)
-target_link_libraries(new_ghidra_decompiler_service PUBLIC
-    NewGhidra::Core NewGhidra::RuntimeWorkers NewGhidra::DecompilerFrontend
+add_library(ReCode::DecompilerService ALIAS recode_decompiler_service)
+target_link_libraries(recode_decompiler_service PUBLIC
+    ReCode::Core ReCode::RuntimeWorkers ReCode::DecompilerFrontend
 )
-target_compile_features(new_ghidra_decompiler_service PUBLIC cxx_std_23)
+target_compile_features(recode_decompiler_service PUBLIC cxx_std_23)

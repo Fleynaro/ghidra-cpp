@@ -1,10 +1,10 @@
-export module ghidra.service.translation_engine.native.opcodes;
+export module recode.service.translation_engine.native.opcodes;
 
-export import ghidra.core.pcode_opcode;
+export import recode.core.pcode_opcode;
 
-export namespace ghidra::services::translation_engine::native {
+export namespace recode::services::translation_engine::native {
 
 /// Canonical p-code opcode mapping shared by native consumers.
-using PcodeOpcode = ghidra::core::PcodeOpcode;
+using PcodeOpcode = recode::core::PcodeOpcode;
 
-} // namespace ghidra::services::translation_engine::native
+} // namespace recode::services::translation_engine::native

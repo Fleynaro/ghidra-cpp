@@ -2,7 +2,7 @@ find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
 add_subdirectory(workers)
 
-set(NEW_GHIDRA_RUNTIME_MODULES
+set(RECODE_RUNTIME_MODULES
     event_bus/event_bus.cppm
     event_store/event_store.cppm
     event_store/event_codec.cppm
@@ -31,16 +31,16 @@ set(NEW_GHIDRA_RUNTIME_MODULES
     dispatcher/command_contract.cppm
 )
 
-add_library(new_ghidra_runtime STATIC)
-target_sources(new_ghidra_runtime
+add_library(recode_runtime STATIC)
+target_sources(recode_runtime
     PUBLIC
         FILE_SET cxx_modules TYPE CXX_MODULES
         BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}"
-        FILES ${NEW_GHIDRA_RUNTIME_MODULES}
+        FILES ${RECODE_RUNTIME_MODULES}
 )
-add_library(NewGhidra::Runtime ALIAS new_ghidra_runtime)
-target_link_libraries(new_ghidra_runtime PUBLIC NewGhidra::Core NewGhidra::RuntimeWorkers unofficial::sqlite3::sqlite3)
-target_compile_features(new_ghidra_runtime PUBLIC cxx_std_23)
+add_library(ReCode::Runtime ALIAS recode_runtime)
+target_link_libraries(recode_runtime PUBLIC ReCode::Core ReCode::RuntimeWorkers unofficial::sqlite3::sqlite3)
+target_compile_features(recode_runtime PUBLIC cxx_std_23)
 
 if(BUILD_TESTING)
     add_subdirectory(tests)

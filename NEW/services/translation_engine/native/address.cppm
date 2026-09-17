@@ -1,10 +1,10 @@
-export module ghidra.service.translation_engine.native.address;
+export module recode.service.translation_engine.native.address;
 
-export import ghidra.core.address;
+export import recode.core.address;
 
-export namespace ghidra::services::translation_engine::native {
+export namespace recode::services::translation_engine::native {
 
 /// Canonical shared native-facing address value.
-using Address = ghidra::core::Address;
+using Address = recode::core::Address;
 
-} // namespace ghidra::services::translation_engine::native
+} // namespace recode::services::translation_engine::native

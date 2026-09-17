@@ -1,11 +1,11 @@
-export module ghidra.core.contracts.event_store;
+export module recode.core.contracts.event_store;
 
 import std;
-import ghidra.core.events.event;
-import ghidra.core.identifiers;
-import ghidra.core.diagnostics;
+import recode.core.events.event;
+import recode.core.identifiers;
+import recode.core.diagnostics;
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
 /// Reports identities and committed envelopes from one append operation.
 struct AppendResult {
@@ -42,4 +42,4 @@ public:
     virtual void close() noexcept = 0;
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

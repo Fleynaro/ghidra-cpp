@@ -1,8 +1,8 @@
 // Port provenance: declarations and implementation originate from
 // Ghidra/Features/Decompiler/src/decompile/cpp/graph.hh and graph.cc.
-export module ghidra.decompiler.graph;
+export module recode.decompiler.graph;
 import std;
-import ghidra.decompiler;
+import recode.decompiler;
 
 export namespace ghidra {
 /// Export the data-flow graph in Renoir's columnar graph format.

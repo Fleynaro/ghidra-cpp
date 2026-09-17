@@ -8,7 +8,7 @@ import analyzer_apply_data_archives;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies valid GDT selection records the exact path and explicit unsupported-application diagnostic.
@@ -46,4 +46,4 @@ TEST(ApplyDataArchivesAnalyzerTest, PreservesDefaultDisabledOption) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

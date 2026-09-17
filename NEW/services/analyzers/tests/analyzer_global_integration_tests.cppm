@@ -7,7 +7,7 @@ export module analyzer_global_integration_tests;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Loads the one integration PE from the aggregate analyzer fixture directory.
@@ -369,4 +369,4 @@ TEST(AnalyzerGlobalIntegrationTest, RunsCompleteBuiltinPipelineAndRemainsStable)
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

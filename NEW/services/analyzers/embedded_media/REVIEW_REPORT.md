@@ -19,7 +19,7 @@ No findings.
 No findings.
 
 ## Validation
-- [x] `NEW\build.bat embedded_media` passes after the verified JPEG fix.
+- [x] `build.bat embedded_media` passes after the verified JPEG fix.
 - [x] Existing-data conflict coverage remains active.
 - [x] Tests do not read Markdown.
 

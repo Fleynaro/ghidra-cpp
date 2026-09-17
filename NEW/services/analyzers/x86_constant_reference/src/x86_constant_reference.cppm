@@ -8,7 +8,7 @@ import std;
 // Ghidra/Features/Base/ghidra_scripts/PropagateX86ConstantReferences.java
 
 /// Creates x86 data references for LEA destinations recovered by constant propagation.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class X86ConstantReferenceAnalyzer final : public Analyzer {
 public:
     /// Returns the x86 constant-reference name and REFERENCE_ANALYSIS.before() priority.
@@ -17,9 +17,9 @@ public:
     /// Applies the LEA address, minimum-address, mapped-memory, and duplicate-reference rules.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Resolves an image VA or image-relative RVA through the existing PE loader.
@@ -113,4 +113,4 @@ void X86ConstantReferenceAnalyzer::analyze(AnalysisContext& context, std::span<c
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

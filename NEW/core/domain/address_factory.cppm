@@ -1,11 +1,11 @@
-export module ghidra.core.address_factory;
+export module recode.core.address_factory;
 
 import std;
-import ghidra.core.address;
-import ghidra.core.address_space;
-import ghidra.core.diagnostics;
+import recode.core.address;
+import recode.core.address_space;
+import recode.core.diagnostics;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Provides immutable lookup and parse/format rules for one project's spaces.
 class AddressFactory final {
@@ -52,4 +52,4 @@ private:
     std::vector<AddressSpaceDescriptor> descriptors_;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

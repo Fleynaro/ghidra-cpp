@@ -2,7 +2,7 @@
 
 ## Review Metadata
 
-- [x] **Scope:** current `HEAD` (`9cd8a17501`), covering `NEW/services/translation_engine` aliases and their Sleigh/decompiler consumers as part of the core-contract audit.
+- [x] **Scope:** current `HEAD` (`9cd8a17501`), covering `services/translation_engine` aliases and their Sleigh/decompiler consumers as part of the core-contract audit.
 - [x] **Date:** 2026-09-16.
 - [x] **Reviewer:** Kilo, independent read-only audit.
 - [x] **Assumption:** this directory is currently a value-alias boundary; native decoder/decompiler ownership findings are recorded by the service reports.
@@ -45,7 +45,7 @@ The translation aliases themselves do not define an additional DTO copy. The dec
 ## Validation Results
 
 - [x] Source and import/reference searches completed read-only.
-- [x] `NEW\\build.bat all` completed successfully with 49/49 tests passing; clang-tidy checks were limited by MSVC IFC parsing.
+- [x] `\build.bat all` completed successfully with 49/49 tests passing; clang-tidy checks were limited by MSVC IFC parsing.
 
 ## Unresolved Questions And Residual Risks
 

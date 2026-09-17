@@ -1,23 +1,23 @@
-# NEW C++23 Ghidra Architecture
+# Binary ReCode C++23 Architecture
 
-**Status:** architecture specification; implementation is maintained under `NEW/core`, `NEW/runtime`, `NEW/services`, and `NEW/bindings`.
+**Status:** architecture specification; implementation is maintained under `core`, `runtime`, `services`, and `bindings`.
 
-**Scope:** the autonomous C++23 implementation under `NEW/`. This document maps the proposed service-platform architecture onto the current repository and the original Ghidra sources. It is deliberately implementation-oriented: names, ownership, revisions, synchronization boundaries, persistence rules, and migration boundaries are specified so that later implementation work does not require recreating these architectural decisions.
+**Scope:** the autonomous C++23 implementation under `this project`. This document maps the proposed service-platform architecture onto the current repository and the original Ghidra sources. It is deliberately implementation-oriented: names, ownership, revisions, synchronization boundaries, persistence rules, and migration boundaries are specified so that later implementation work does not require recreating these architectural decisions.
 
-**Implementation update:** the migration described here has been applied. The former feature source, test, CLI, and fixture trees now live under `NEW/services/*`; there is no `NEW/features` directory or CMake subtree. All current repository links in this document use service-owned paths.
+**Implementation update:** the migration described here has been applied. The former feature source, test, CLI, and fixture trees now live under `services/*`; there is no `features` directory or CMake subtree. All current repository links in this document use service-owned paths.
 
 ## 1. Executive Conclusion
 
 The implementation now uses the conceptual service-platform tree. The historical migration source was a collection of feature libraries, which has been relocated into service-owned targets:
 
-- `NEW/services/sleigh` is the compiled-SLA decoder service and owns the migrated native Sleigh source/tests/resources.
-- `NEW/services/decompiler` is the broad native decompiler service with a provider facade and contract adapter.
-- `NEW/services/function_id` contains the autonomous FID parser, hasher, query implementation, and tests.
-- `NEW/services/pe_loader` contains the substantial value-oriented PE model/parser and service contract adapter.
-- `NEW/services/analyzers` contains all migrated analyzer ports and fixtures; orchestration is owned by `NEW/runtime/analysis`.
-- `NEW/services/debugger/win_dbg_eng` implements the generic debugger contract for Windows DbgEng while keeping its engine thread and native callbacks private.
-- `NEW/core`, `NEW/services`, `NEW/runtime`, and `NEW/bindings` are the active architectural layers.
-- `NEW/services/analyzers/shared/src/analyzer_context.cppm` remains an internal compatibility context for the migrated parity suite; new runtime-facing services use canonical snapshots/contracts.
+- `services/sleigh` is the compiled-SLA decoder service and owns the migrated native Sleigh source/tests/resources.
+- `services/decompiler` is the broad native decompiler service with a provider facade and contract adapter.
+- `services/function_id` contains the autonomous FID parser, hasher, query implementation, and tests.
+- `services/pe_loader` contains the substantial value-oriented PE model/parser and service contract adapter.
+- `services/analyzers` contains all migrated analyzer ports and fixtures; orchestration is owned by `runtime/analysis`.
+- `services/debugger/win_dbg_eng` implements the generic debugger contract for Windows DbgEng while keeping its engine thread and native callbacks private.
+- `core`, `services`, `runtime`, and `bindings` are the active architectural layers.
+- `services/analyzers/shared/src/analyzer_context.cppm` remains an internal compatibility context for the migrated parity suite; new runtime-facing services use canonical snapshots/contracts.
 
 The final architecture therefore needs **consolidation and extraction**, not a wholesale rewrite of the algorithms:
 
@@ -36,40 +36,40 @@ The most important correction is that the current `AnalysisContext` must not bec
 
 ## 2. Evidence Inspected
 
-### 2.1 Current NEW implementation
+### 2.1 Current ReCode implementation
 
 The following current files and build descriptions were inspected:
 
 | Area | Current evidence | Architectural significance |
 | --- | --- | --- |
-| Build root | `NEW/CMakeLists.txt` | The build currently adds only `features`, then links `hello_feature`, the decompiler frontend, and the analyzer aggregate into `new_ghidra_app`. No core/runtime graph exists. |
-| Sleigh | `NEW/services/sleigh/CMakeLists.txt`, `sleigh_runtime.cppm`, `sleigh_runtime_adapter.cppm`, and `src/*.cppm` (including `types.cppm`, `compression.cppm`, and `internal.cppm`) | The decoder owns compiled SLA state and adapts native `ghidra::Sleigh` callbacks to value results. The low-level port is currently self-contained but overlaps the decompiler port. |
-| Decompiler | `NEW/services/decompiler/CMakeLists.txt`, `src/decompiler.cppm`, `src/decompiler_impl.cppm`, and the implementation modules listed there | The native engine is broad and algorithmically substantial. `decompiler.cppm` already exposes provider abstractions for memory, p-code, symbols, types, prototypes, comments, variables, flow, functions, and injections. |
-| PE | `NEW/services/pe_loader/src/pe_loader.cppm` | The parser has checked RVA/VA/file-offset translation, sections, imports, exports, relocations, debug data, TLS, runtime functions, resources, and a move-only `LoadedPeImage`. It is a service-specific parser whose result can feed a generic image domain. |
-| FID | `NEW/services/function_id/src/function_id.cppm`, `types.cppm`, `database.cppm`, `hasher.cppm`, `storage_helpers.cppm`, `buffer_file.cppm`, `parse_exception.cppm` | The FID implementation is already separated into parser, database, hash, and public aggregate boundaries. Current analyzer-side database loading uses `std::async`, which must be routed through the shared runtime pool. |
-| Analyzer model | `NEW/services/analyzers/shared/src/analyzer_types.cppm` | This file currently defines `Address` as `std::uint64_t` and contains nearly all listing, function, reference, data, symbol, PDB, archive, bookmark, fact, option, event, and result types. It is the first extraction source for core/domain, not the final location. |
-| Analyzer state | `NEW/services/analyzers/shared/src/analyzer_context.cppm` | `AnalysisContext` owns `pe::LoadedPeImage`, `sleigh_runtime::Decoder`, processor context, options, every mutable analysis collection, event queue, sequence counter, recursion guard, and disassembly limit. This is the principal architectural seam to split. |
-| Analyzer scheduler | `NEW/services/analyzers/shared/src/analyzer.cppm`, `analyzer_manager.cppm`, `analyzer_registry.cppm`, `analyzer_base.cppm`, `analyzer_cancellation_token.cppm` | The umbrella re-exports the split modules. The manager preserves lower-number-first priority, event-kind triggers, coalescing, cancellation, and prerequisite checks. It is a good behavior baseline but belongs in runtime and currently assumes a single mutable context. |
-| Analyzer registrations | `NEW/services/analyzers/analyzer_builtin.cpp` and each analyzer directory | The current built-in pipeline contains ports for disassembly, function starts, references, data, strings, PE/PDB, Function ID, decompiler analyses, stack, and other analyzers. Implementations should remain service modules while scheduling moves. |
-| Tests | `NEW/services/*/tests`, analyzer test support and fixtures | Tests are feature-local and use GoogleTest. They define important compatibility behavior, including checked PE parsing, SLA decoding, FID hashes, provider validation, function body carving, analyzer priority, cancellation, and repeat-analysis stability. |
-| Documentation | `NEW/services/*/README.md`, analyzer README files, and analyzer-local `GHIDRA_PORT.md` files | Existing port evidence must remain linked from future module `README.md` and `GHIDRA_PORT.md` files. This document is architecture guidance, not a replacement for feature-specific port evidence. |
+| Build root | `CMakeLists.txt` | The build currently adds only `features`, then links `hello_feature`, the decompiler frontend, and the analyzer aggregate into `recode_app`. No core/runtime graph exists. |
+| Sleigh | `services/sleigh/CMakeLists.txt`, `sleigh_runtime.cppm`, `sleigh_runtime_adapter.cppm`, and `src/*.cppm` (including `types.cppm`, `compression.cppm`, and `internal.cppm`) | The decoder owns compiled SLA state and adapts native `ghidra::Sleigh` callbacks to value results. The low-level port is currently self-contained but overlaps the decompiler port. |
+| Decompiler | `services/decompiler/CMakeLists.txt`, `src/decompiler.cppm`, `src/decompiler_impl.cppm`, and the implementation modules listed there | The native engine is broad and algorithmically substantial. `decompiler.cppm` already exposes provider abstractions for memory, p-code, symbols, types, prototypes, comments, variables, flow, functions, and injections. |
+| PE | `services/pe_loader/src/pe_loader.cppm` | The parser has checked RVA/VA/file-offset translation, sections, imports, exports, relocations, debug data, TLS, runtime functions, resources, and a move-only `LoadedPeImage`. It is a service-specific parser whose result can feed a generic image domain. |
+| FID | `services/function_id/src/function_id.cppm`, `types.cppm`, `database.cppm`, `hasher.cppm`, `storage_helpers.cppm`, `buffer_file.cppm`, `parse_exception.cppm` | The FID implementation is already separated into parser, database, hash, and public aggregate boundaries. Current analyzer-side database loading uses `std::async`, which must be routed through the shared runtime pool. |
+| Analyzer model | `services/analyzers/shared/src/analyzer_types.cppm` | This file currently defines `Address` as `std::uint64_t` and contains nearly all listing, function, reference, data, symbol, PDB, archive, bookmark, fact, option, event, and result types. It is the first extraction source for core/domain, not the final location. |
+| Analyzer state | `services/analyzers/shared/src/analyzer_context.cppm` | `AnalysisContext` owns `pe::LoadedPeImage`, `sleigh_runtime::Decoder`, processor context, options, every mutable analysis collection, event queue, sequence counter, recursion guard, and disassembly limit. This is the principal architectural seam to split. |
+| Analyzer scheduler | `services/analyzers/shared/src/analyzer.cppm`, `analyzer_manager.cppm`, `analyzer_registry.cppm`, `analyzer_base.cppm`, `analyzer_cancellation_token.cppm` | The umbrella re-exports the split modules. The manager preserves lower-number-first priority, event-kind triggers, coalescing, cancellation, and prerequisite checks. It is a good behavior baseline but belongs in runtime and currently assumes a single mutable context. |
+| Analyzer registrations | `services/analyzers/analyzer_builtin.cpp` and each analyzer directory | The current built-in pipeline contains ports for disassembly, function starts, references, data, strings, PE/PDB, Function ID, decompiler analyses, stack, and other analyzers. Implementations should remain service modules while scheduling moves. |
+| Tests | `services/*/tests`, analyzer test support and fixtures | Tests are feature-local and use GoogleTest. They define important compatibility behavior, including checked PE parsing, SLA decoding, FID hashes, provider validation, function body carving, analyzer priority, cancellation, and repeat-analysis stability. |
+| Documentation | `services/*/README.md`, analyzer README files, and analyzer-local `GHIDRA_PORT.md` files | Existing port evidence must remain linked from future module `README.md` and `GHIDRA_PORT.md` files. This document is architecture guidance, not a replacement for feature-specific port evidence. |
 
-There is no current `NEW/framework` directory. The current shared framework is effectively the analyzer shared library. There is also no current project, event store, event bus, projection, dispatcher, public C++ facade, or language binding layer.
+There is no current `framework` directory. The current shared framework is effectively the analyzer shared library. There is also no current project, event store, event bus, projection, dispatcher, public C++ facade, or language binding layer.
 
 Current executable sources are also migration inputs rather than final service APIs:
 
 | Current executable | Current role | Final role |
 | --- | --- | --- |
-| `NEW/src/main.cpp` | Current application entry point linked by `new_ghidra_app` | `apps/cli/main.cppm` or a composition root that constructs the public C++ facade; it must not link feature internals directly. |
-| `NEW/services/sleigh/cli/sleigh_runtime_decode.cppm` | Standalone SLA decoder diagnostic | `apps/cli` command using `IPCodeDecoder`/C++ facade; retain as a focused diagnostic during migration. |
-| `NEW/services/decompiler/cli/decompiler_cli.cppm` | Standalone decompiler CLI | `apps/cli` decompile command using dispatcher task/status APIs. |
-| `NEW/services/function_id/cli/function_id_cli.cppm` | Raw bytes/SLA/FID database diagnostic | `apps/cli` FID command using the service/facade; preserve raw fixture grammar. |
+| `src/main.cpp` | Current application entry point linked by `recode_app` | `apps/cli/main.cppm` or a composition root that constructs the public C++ facade; it must not link feature internals directly. |
+| `services/sleigh/cli/sleigh_runtime_decode.cppm` | Standalone SLA decoder diagnostic | `apps/cli` command using `IPCodeDecoder`/C++ facade; retain as a focused diagnostic during migration. |
+| `services/decompiler/cli/decompiler_cli.cppm` | Standalone decompiler CLI | `apps/cli` decompile command using dispatcher task/status APIs. |
+| `services/function_id/cli/function_id_cli.cppm` | Raw bytes/SLA/FID database diagnostic | `apps/cli` FID command using the service/facade; preserve raw fixture grammar. |
 
 Current CMake deliberately differs by subsystem: Sleigh collects `src/*.cppm` with a glob, while the decompiler uses an explicit synchronized source list. The final build must use explicit module lists for public/core/runtime targets and keep any glob limited to a documented private native partition if necessary. Each final feature/library target has a matching focused test target registered with CTest; runtime/replay/projection integration tests are additional targets, not replacements for feature tests.
 
-The current `NEW/vcpkg.json` declares `gtest`, `pugixml`, and `zlib`. SQLite is not yet a dependency and must be added through vcpkg when the projection implementation is introduced, never by vendoring or hand-copying a third-party library. The CMake target should consume the package's exported SQLite target resolved by the selected vcpkg toolchain; the target name must be verified against the installed port during implementation. `GHIDRA_INSTALL_DIR` remains the only documented environment variable and is used for original Ghidra/PyGhidra oracles, not hard-coded by the C++ runtime. No project-specific environment variable is required for the event log/projection.
+The current `vcpkg.json` declares `gtest`, `pugixml`, and `zlib`. SQLite is not yet a dependency and must be added through vcpkg when the projection implementation is introduced, never by vendoring or hand-copying a third-party library. The CMake target should consume the package's exported SQLite target resolved by the selected vcpkg toolchain; the target name must be verified against the installed port during implementation. `GHIDRA_INSTALL_DIR` remains the only documented environment variable and is used for original Ghidra/PyGhidra oracles, not hard-coded by the C++ runtime. No project-specific environment variable is required for the event log/projection.
 
-`NEW/framework` is therefore not a second final layer. The final `NEW/core` replaces the absent framework directory as the stable vocabulary/contract layer, while `NEW/runtime` owns the infrastructure that a framework target would otherwise have owned. If staged migration requires a compatibility CMake target named `NewGhidra::Framework`, it must be a thin umbrella that re-exports `NewGhidra::Core` and the event/contract module targets; it must contain no duplicate domain types, database, worker pool, or service implementations. The migration source is `NEW/services/analyzers/shared`, especially `analyzer_types.cppm`, `analyzer_base.cppm`, and the pure portions of `analyzer_context.cppm`.
+`framework` is therefore not a second final layer. The final `core` replaces the absent framework directory as the stable vocabulary/contract layer, while `runtime` owns the infrastructure that a framework target would otherwise have owned. If staged migration requires a compatibility CMake target named `ReCode::Framework`, it must be a thin umbrella that re-exports `ReCode::Core` and the event/contract module targets; it must contain no duplicate domain types, database, worker pool, or service implementations. The migration source is `services/analyzers/shared`, especially `analyzer_types.cppm`, `analyzer_base.cppm`, and the pure portions of `analyzer_context.cppm`.
 
 ### 2.2 Original Ghidra sources
 
@@ -98,7 +98,7 @@ The important original sources inspected or used as mapping anchors are:
 | Program/block contracts | `Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/program/model/block/BasicBlockModel.java`, `SimpleBlockModel.java`, `CodeBlock.java`, `CodeBlockModel.java` |
 | Representative analyzers | `Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/disassembler/EntryPointAnalyzer.java`, `app/plugin/core/function/FunctionAnalyzer.java`, `app/plugin/core/analysis/ConstantPropagationAnalyzer.java`, and corresponding analyzers named in the current analyzer sources and `GHIDRA_PORT.md` files |
 
-The original native files demonstrate that Sleigh is not an unrelated decoder copied beside the decompiler. `Sleigh` derives from `SleighBase`, which derives from `Translate`; both use `Address`, `AddrSpace`, `VarnodeData`, `PcodeEmit`, `LoadImage`, context databases, and p-code opcode definitions that are also consumed by the decompiler. The duplicate current NEW modules are therefore a real duplication of one original native subsystem, not merely similar names.
+The original native files demonstrate that Sleigh is not an unrelated decoder copied beside the decompiler. `Sleigh` derives from `SleighBase`, which derives from `Translate`; both use `Address`, `AddrSpace`, `VarnodeData`, `PcodeEmit`, `LoadImage`, context databases, and p-code opcode definitions that are also consumed by the decompiler. The duplicate current project modules are therefore a real duplication of one original native subsystem, not merely similar names.
 
 This shared-native conclusion must not be confused with the Java model. Original Java Sleigh (`Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/app/plugin/processors/sleigh/SleighLanguage.java` and `SleighInstructionPrototype.java`) shares Java `Address`/`Program` concepts, but the Java side communicates with native decompiler code through `DecompileCallback`/`DecompileProcess` methods such as `getBytes`, `getPcode`, `getComments`, `getMappedSymbols`, `getDataType`, `getRegister`, `getTrackedRegisters`, and `getUserOpName`. The final C++ project has no Java runtime dependency: the native translation engine shares original native semantics internally, while core values replace the serialized Java callback boundary for C++ providers.
 
@@ -108,7 +108,7 @@ The following inventory records details that must be preserved during migration.
 
 #### Sleigh public API
 
-`NEW/services/sleigh/sleigh_runtime.cppm` exports `OperandKind`, `Operand`, `Operand::HashObject`, `Varnode`, `PcodeOpcode`, `FlowKind`, `PcodeOp`, `FlowInfo`, `ContextValue`, `ProcessorContext`, `Instruction`, `DecodeError`, and `Decoder`. `Decoder` is move-only, constructed from a filesystem SLA path, and exposes:
+`services/sleigh/sleigh_runtime.cppm` exports `OperandKind`, `Operand`, `Operand::HashObject`, `Varnode`, `PcodeOpcode`, `FlowKind`, `PcodeOp`, `FlowInfo`, `ContextValue`, `ProcessorContext`, `Instruction`, `DecodeError`, and `Decoder`. `Decoder` is move-only, constructed from a filesystem SLA path, and exposes:
 
 ```cpp
 explicit Decoder(std::filesystem::path sla_path);
@@ -120,23 +120,23 @@ Result<Instruction, DecodeError> decode(
 
 The returned `Instruction` contains raw bytes, instruction mask, mnemonic, operands, flow, and p-code. The adapter translates native `ghidra::AssemblyEmit`, `ghidra::PcodeEmit`, `ghidra::SleighLoadImage`, `ghidra::Address`, and `ghidra::VarnodeData`. The final `IPCodeDecoder` must preserve all of these observable fields while replacing the raw integer address and service-local storage types with core values.
 
-The current implementation is approximately twenty internal C++ modules re-exported through `src/internal.cppm`; it loads compiled SLA files but does not compile `.slaspec` files. Zlib is required for SLA decompression. The focused tests in `NEW/services/sleigh/tests/sleigh_runtime_tests.cppm` cover SLA loading, x86-64 decoding, operands, flow, p-code, masks, context values, invalid input, and instruction-window behavior. There is currently no feature-level `GHIDRA_PORT.md` for Sleigh; the final `services/sleigh` module must add one before it is considered a complete port.
+The current implementation is approximately twenty internal C++ modules re-exported through `src/internal.cppm`; it loads compiled SLA files but does not compile `.slaspec` files. Zlib is required for SLA decompression. The focused tests in `services/sleigh/tests/sleigh_runtime_tests.cppm` cover SLA loading, x86-64 decoding, operands, flow, p-code, masks, context values, invalid input, and instruction-window behavior. There is currently no feature-level `GHIDRA_PORT.md` for Sleigh; the final `services/sleigh` module must add one before it is considered a complete port.
 
 #### PE public API
 
-`NEW/services/pe_loader/src/pe_loader.cppm` exports PE-specific types including `Machine`, `DosHeader`, `RichHeader`, `CoffHeader`, `OptionalHeader`, `Section`, `MemoryRegion`, `ImportedSymbol`, `ImportDescriptor`, `IatEntry`, `ExportDirectory`, `ExportedSymbol`, `RelocationBlock`, `RelocationEntry`, `DebugDirectoryEntry`, `RuntimeFunction`, `TlsDirectory`, resource/security/bound/delay-import/CLR/COFF records, `LoadOptions`, `ParseStatus`, `ParseError`, `AddressError`, `MemoryError`, `LoadedPeImage`, and `PeLoader`.
+`services/pe_loader/src/pe_loader.cppm` exports PE-specific types including `Machine`, `DosHeader`, `RichHeader`, `CoffHeader`, `OptionalHeader`, `Section`, `MemoryRegion`, `ImportedSymbol`, `ImportDescriptor`, `IatEntry`, `ExportDirectory`, `ExportedSymbol`, `RelocationBlock`, `RelocationEntry`, `DebugDirectoryEntry`, `RuntimeFunction`, `TlsDirectory`, resource/security/bound/delay-import/CLR/COFF records, `LoadOptions`, `ParseStatus`, `ParseError`, `AddressError`, `MemoryError`, `LoadedPeImage`, and `PeLoader`.
 
 `PeLoader::load()`/`load_file()` construct a move-only `LoadedPeImage` with checked header/directory parsing. Its read-only API exposes sections, memory regions, imports, IAT entries, exports, relocations, exception functions, TLS callbacks, resources, debug entries, parse diagnostics, entry point, executable-range queries, RVA/VA/file-offset translations, memory reads, and resource payload reads. Strict and partial parsing are both supported. The final PE service must retain this breadth in `PeLoadDetails`; only generic image facts move to core. The focused `pe_loader_tests.cpp` suite covers malformed/truncated files, PE32/PE32+, mapping, imports, exports, relocations, resources, TLS, exception data, debug data, and partial parsing. There is currently no feature-level `GHIDRA_PORT.md` for PE.
 
 #### Function ID public API
 
-`NEW/services/function_id/src/types.cppm` exports `fid::Instruction`, `Relocation`, `HashQuad`, `ProgramInfo`, `FunctionContext`, `LibraryRecord`, `FunctionRecord`, `MatchMode`, `Match`, and `IdentificationResult`, together with error and operand-object values. Its `Instruction` is richer than the analyzer instruction: it carries raw bytes, instruction masks, operand masks, normalized operand objects, call/skip state, and relocation metadata.
+`services/function_id/src/types.cppm` exports `fid::Instruction`, `Relocation`, `HashQuad`, `ProgramInfo`, `FunctionContext`, `LibraryRecord`, `FunctionRecord`, `MatchMode`, `Match`, and `IdentificationResult`, together with error and operand-object values. Its `Instruction` is richer than the analyzer instruction: it carries raw bytes, instruction masks, operand masks, normalized operand objects, call/skip state, and relocation metadata.
 
 `fid::Hasher` implements full/specific Function ID hashes and `hash_sleigh()` conversion. `fid::Database` opens original `.fidb` storage, preserves compressed/B-tree/table layout, supports language/compiler/source filtering, and performs relation-aware identification. These database values are not a second program model; they are immutable external resource records. The final `FunctionIdService` must adapt core instruction/operand/relocation snapshots to this service model and adapt results back to `core::FunctionIdResult`. The focused tests use checked-in `.fidb` fixtures and Sleigh decoding. There is currently no feature-level `GHIDRA_PORT.md` for Function ID.
 
 There are two material current parity gaps that the final service must not hide:
 
-- `NEW/services/analyzers/function_id/src/function_id.cppm:145-176` currently constructs `fid::FunctionContext query{*hash, {}, {}}`; it supplies no child or parent hash family. Original `FidProgramSeeker.java:81-202` collects call-graph children and parents, and `FidProgramSeeker.java:284-355` includes those relations in scoring. The final service must expose a `FunctionHashFamily` builder that queries the project reference/function graph and applies the original parent/child relation limits and force-relation rules.
+- `services/analyzers/function_id/src/function_id.cppm:145-176` currently constructs `fid::FunctionContext query{*hash, {}, {}}`; it supplies no child or parent hash family. Original `FidProgramSeeker.java:81-202` collects call-graph children and parents, and `FidProgramSeeker.java:284-355` includes those relations in scoring. The final service must expose a `FunctionHashFamily` builder that queries the project reference/function graph and applies the original parent/child relation limits and force-relation rules.
 - Current application at `function_id.cppm:101-120` is hard-coded. Original `FidAnalyzer.java:70-81,183-212` and `ApplyFidEntriesCommand.java:110-154,243-267` contain score thresholds, multiple-name handling, trusted/user/imported label conflict policy, bookmark policy, comments, and database filter behavior. Those options belong in `FunctionIdOptions` and the command handler, not in the low-level database parser.
 
 The current library opens and queries existing `.fidb` files but does not implement the original FID service's database creation/ingestion operations (`FidService.java:125-127,191-219,316-318`). The final architecture must either mark FID database creation as a deliberately pending service capability or add a separate `IFunctionIdDatabaseBuilder`; it must not imply that read-only matching is the complete Function ID port.
@@ -145,16 +145,16 @@ The current library opens and queries existing `.fidb` files but does not implem
 
 The decompiler has two distinct current APIs:
 
-1. `NEW/services/decompiler/src/decompiler.cppm` exports the provider-facing `newghidra::decompiler` API. It includes `Storage`, `PcodeOperation`, `Instruction`, provider errors/options, symbol/type/prototype/variable/flow/injection descriptions, `ProviderContext`, `ArchitectureDescription`, `FunctionDescription`, `DecompilationResult`, and provider interfaces for p-code, memory, symbols, types, prototypes, comments, variables, flow, functions, and injections. `Decompiler::decompile(FunctionDescription)` returns raw instructions/p-code, high p-code, data flow, control flow, AST output, and generated C.
-2. `NEW/services/decompiler/src/ghidra_decompiler.cppm` aggregates the large legacy `ghidra` implementation. `decompiler_impl.cppm` adapts the provider API to native `Architecture`, `SleighArchitecture`, `Funcdata`, `Translate`, `LoadImage`, `PcodeEmit`, `PrintC`, `Action`, and `FlowInfo` classes.
+1. `services/decompiler/src/decompiler.cppm` exports the provider-facing `recode::decompiler` API. It includes `Storage`, `PcodeOperation`, `Instruction`, provider errors/options, symbol/type/prototype/variable/flow/injection descriptions, `ProviderContext`, `ArchitectureDescription`, `FunctionDescription`, `DecompilationResult`, and provider interfaces for p-code, memory, symbols, types, prototypes, comments, variables, flow, functions, and injections. `Decompiler::decompile(FunctionDescription)` returns raw instructions/p-code, high p-code, data flow, control flow, AST output, and generated C.
+2. `services/decompiler/src/ghidra_decompiler.cppm` aggregates the large legacy `ghidra` implementation. `decompiler_impl.cppm` adapts the provider API to native `Architecture`, `SleighArchitecture`, `Funcdata`, `Translate`, `LoadImage`, `PcodeEmit`, `PrintC`, `Action`, and `FlowInfo` classes.
 
-The final architecture retains both roles but makes the boundary explicit: the provider-facing types become core/service contract values, while the legacy aggregate is private native implementation. Existing tests include the public/provider suite and native marshal, scalar, type, architecture, metadata, parameter-store, and circle-range suites. There is currently no feature-level `GHIDRA_PORT.md` for the decompiler. `NEW/README.md` also contains stale documentation that refers to `fspec.cppm` as missing even though the explicit decompiler CMake source list includes it; migration should correct such documentation rather than treating it as a code gap.
+The final architecture retains both roles but makes the boundary explicit: the provider-facing types become core/service contract values, while the legacy aggregate is private native implementation. Existing tests include the public/provider suite and native marshal, scalar, type, architecture, metadata, parameter-store, and circle-range suites. There is currently no feature-level `GHIDRA_PORT.md` for the decompiler. `README.md` also contains stale documentation that refers to `fspec.cppm` as missing even though the explicit decompiler CMake source list includes it; migration should correct such documentation rather than treating it as a code gap.
 
 The current analyzer integration does not populate the complete provider surface. `decompiler_parameter_id.cppm:29-125` and `decompiler_switch_analysis.cppm:32-128` supply local memory/p-code adapters through the two-provider constructor. `call_convention_id.cppm:32-210` adds local prototype/symbol adapters but still populates only p-code, memory, prototypes, and symbols. Types, comments, variables, flow, functions, injections, constant formats, and compiler-spec resource identity are not supplied from `AnalysisContext`. `AnalysisContext` also has no general comment collection, variable collection, jump-table/flow-description collection, or injection registry. The final `provider_adapters.cppm` therefore needs to be a complete adapter factory backed by `IProjectQuery`, not merely a shared version of the existing two-provider helper.
 
 #### Analyzer inventory and incomplete behavior
 
-The current built-in registration in `NEW/services/analyzers/analyzer_builtin.cpp` contains 34 analyzers. The effective priority order is:
+The current built-in registration in `services/analyzers/analyzer_builtin.cpp` contains 34 analyzers. The effective priority order is:
 
 | Priority | Current analyzers |
 | ---: | --- |
@@ -262,7 +262,7 @@ The dependency direction is downward toward stable values and contracts. Runtime
 | `bindings/python`, `javascript`, `go` | Language adaptation | C++ facade or generated C ABI | Runtime internals, services directly |
 | `apps/*` | User interaction and process entry points | Public C++ facade | Projection storage internals, mutable service state |
 
-MVP composition exception: existing analyzer/FID CMake targets may link concrete `NewGhidra::*` feature targets while the migration is in progress, as shown in the dependency graph. Those links are private composition details and must not appear in `core/contracts`, public result types, or persistence code. The final optional-service inversion remains deferred under MAJOR-005.
+MVP composition exception: existing analyzer/FID CMake targets may link concrete `ReCode::*` feature targets while the migration is in progress, as shown in the dependency graph. Those links are private composition details and must not appear in `core/contracts`, public result types, or persistence code. The final optional-service inversion remains deferred under MAJOR-005.
 
 ### 3.2 Value versus entity versus service
 
@@ -305,18 +305,18 @@ All primary declarations use one class/struct per `.cppm` module, following the 
 
 | File/module | Type | Required design |
 | --- | --- | --- |
-| `core/domain/identifiers.cppm` / `ghidra.core.identifiers` | `ProjectId`, `ArtifactId`, `EntityId`, `CommandId`, `EventId`, `CorrelationId`, `CausationId`, `AnalysisRunId`, `Revision` | Strong wrappers over UUID/128-bit or canonical string values. They are serializable, comparable, and never raw strings in public contracts. `Revision` is a monotonically increasing project event-log position. |
-| `core/domain/diagnostics.cppm` / `ghidra.core.diagnostics` | `Severity`, `Diagnostic`, `DiagnosticCode`, `Error` | Value-semantic error information with stable code, English message, optional source location, and remediation hint. `std::expected<T, Error>` is the normal operation result; exceptions are reserved for programming errors and unrecoverable resource construction. |
-| `core/domain/bytes.cppm` / `ghidra.core.bytes` | `Byte`, `Bytes`, `BytesView` | `Byte` is `std::uint8_t`; `Bytes` owns a vector; `BytesView` is a non-owning span with an explicit lifetime precondition. Bytes are serialized only where needed; p-code does not own duplicate image bytes unless the projection policy requests it. |
+| `core/domain/identifiers.cppm` / `recode.core.identifiers` | `ProjectId`, `ArtifactId`, `EntityId`, `CommandId`, `EventId`, `CorrelationId`, `CausationId`, `AnalysisRunId`, `Revision` | Strong wrappers over UUID/128-bit or canonical string values. They are serializable, comparable, and never raw strings in public contracts. `Revision` is a monotonically increasing project event-log position. |
+| `core/domain/diagnostics.cppm` / `recode.core.diagnostics` | `Severity`, `Diagnostic`, `DiagnosticCode`, `Error` | Value-semantic error information with stable code, English message, optional source location, and remediation hint. `std::expected<T, Error>` is the normal operation result; exceptions are reserved for programming errors and unrecoverable resource construction. |
+| `core/domain/bytes.cppm` / `recode.core.bytes` | `Byte`, `Bytes`, `BytesView` | `Byte` is `std::uint8_t`; `Bytes` owns a vector; `BytesView` is a non-owning span with an explicit lifetime precondition. Bytes are serialized only where needed; p-code does not own duplicate image bytes unless the projection policy requests it. |
 
 ### 4.2 Address model
 
 | File/module | Type | Fields and behavior |
 | --- | --- | --- |
-| `core/domain/address_space.cppm` / `ghidra.core.address_space` | `AddressSpaceKind`, `AddressSpaceId`, `AddressSpaceDescriptor` | Stable name, numeric identity, kind (`ram`, `code`, `register`, `stack`, `constant`, `unique`, `join`, `external`, `variable`, `other`), address bit width, addressable unit size, pointer size, endianness, signed-offset flag, and whether it is physical. Descriptor is immutable and serializable. |
-| `core/domain/address.cppm` / `ghidra.core.address` | `Address` | `{AddressSpaceId space; std::uint64_t offset;}`. Strongly typed, comparable by space then offset, hashable, serializable, and immutable. Addition/subtraction operations return `expected<Address, Error>` when overflow is possible. No implicit conversion to `std::uint64_t`. A PE VA is an address in the project default RAM space. Register and constant addresses remain distinguishable. |
-| `core/domain/address_range.cppm` / `ghidra.core.address_range` | `AddressRange`, `AddressRangeSet` | Inclusive ranges in one address space. `AddressRangeSet` stores normalized non-overlapping ranges and supports contains, intersection, union, iteration, and serialization. It is the value replacement for the relevant parts of `AddressSetView`, not a global listing. |
-| `core/domain/address_factory.cppm` / `ghidra.core.address_factory` | `AddressFactory` | Immutable project-scoped registry of address-space descriptors and parse/format rules. It is a provider/value service boundary, not a mutable Program manager. It is used by PE mapping, Sleigh adapters, decompiler providers, and public queries. |
+| `core/domain/address_space.cppm` / `recode.core.address_space` | `AddressSpaceKind`, `AddressSpaceId`, `AddressSpaceDescriptor` | Stable name, numeric identity, kind (`ram`, `code`, `register`, `stack`, `constant`, `unique`, `join`, `external`, `variable`, `other`), address bit width, addressable unit size, pointer size, endianness, signed-offset flag, and whether it is physical. Descriptor is immutable and serializable. |
+| `core/domain/address.cppm` / `recode.core.address` | `Address` | `{AddressSpaceId space; std::uint64_t offset;}`. Strongly typed, comparable by space then offset, hashable, serializable, and immutable. Addition/subtraction operations return `expected<Address, Error>` when overflow is possible. No implicit conversion to `std::uint64_t`. A PE VA is an address in the project default RAM space. Register and constant addresses remain distinguishable. |
+| `core/domain/address_range.cppm` / `recode.core.address_range` | `AddressRange`, `AddressRangeSet` | Inclusive ranges in one address space. `AddressRangeSet` stores normalized non-overlapping ranges and supports contains, intersection, union, iteration, and serialization. It is the value replacement for the relevant parts of `AddressSetView`, not a global listing. |
+| `core/domain/address_factory.cppm` / `recode.core.address_factory` | `AddressFactory` | Immutable project-scoped registry of address-space descriptors and parse/format rules. It is a provider/value service boundary, not a mutable Program manager. It is used by PE mapping, Sleigh adapters, decompiler providers, and public queries. |
 
 The address-space identity is mandatory even for x86 PE analysis. The current analyzer alias `using Address = std::uint64_t` in `analyzer_types.cppm:19` is sufficient for the current PE-only tests but cannot represent Sleigh `constant`, `register`, `unique`, stack, external, or overlay spaces faithfully. The original Java `Address`/`AddressSpace` contract and native `Address`/`AddrSpace` contract both require the distinction.
 
@@ -324,11 +324,11 @@ The address-space identity is mandatory even for x86 PE analysis. The current an
 
 | File/module | Type | Required design |
 | --- | --- | --- |
-| `core/domain/storage_location.cppm` / `ghidra.core.storage_location` | `StorageLocation` | `{AddressSpaceId space; uint64 offset; uint32 size;}`. This is the canonical value equivalent of native `VarnodeData` and Java `Varnode` storage identity. It is used by p-code, registers, stack variables, prototype storage, FID operand hashing, and decompiler provider adapters. |
-| `core/domain/register.cppm` / `ghidra.core.register` | `RegisterDescriptor` | Name, `StorageLocation`, display name, parent register identity, and bit range. Immutable. It must not contain a pointer to a mutable native `AddrSpace`; native adapters translate it. |
-| `core/domain/scalar.cppm` / `ghidra.core.scalar` | `Scalar` | Unsigned value, bit width, signed interpretation, and optional relocation/address classification. It preserves the distinction between an immediate constant, an address scalar, and a register value needed by FID hashing and operand APIs. |
-| `core/domain/pcode_opcode.cppm` / `ghidra.core.pcode_opcode` | `PcodeOpcode` | A stable enum/value mapping to original `ghidra::OpCode`/`CPUI_*`. Unknown future opcode values must be representable as `UnknownPcodeOpcode` in serialized input rather than causing silent renumbering. |
-| `core/domain/pcode.cppm` / `ghidra.core.pcode` | `PcodeOp`, `PcodeSequence` | `PcodeOp` contains opcode, optional output `StorageLocation`, ordered inputs, optional LOAD/STORE memory space, instruction sequence index, and optional source operand. `PcodeSequence` contains the owning instruction address and ordered operations. Individual p-code operations are not persistent domain events by default; they are instruction data and may be stored as one compact projection blob. |
+| `core/domain/storage_location.cppm` / `recode.core.storage_location` | `StorageLocation` | `{AddressSpaceId space; uint64 offset; uint32 size;}`. This is the canonical value equivalent of native `VarnodeData` and Java `Varnode` storage identity. It is used by p-code, registers, stack variables, prototype storage, FID operand hashing, and decompiler provider adapters. |
+| `core/domain/register.cppm` / `recode.core.register` | `RegisterDescriptor` | Name, `StorageLocation`, display name, parent register identity, and bit range. Immutable. It must not contain a pointer to a mutable native `AddrSpace`; native adapters translate it. |
+| `core/domain/scalar.cppm` / `recode.core.scalar` | `Scalar` | Unsigned value, bit width, signed interpretation, and optional relocation/address classification. It preserves the distinction between an immediate constant, an address scalar, and a register value needed by FID hashing and operand APIs. |
+| `core/domain/pcode_opcode.cppm` / `recode.core.pcode_opcode` | `PcodeOpcode` | A stable enum/value mapping to original `ghidra::OpCode`/`CPUI_*`. Unknown future opcode values must be representable as `UnknownPcodeOpcode` in serialized input rather than causing silent renumbering. |
+| `core/domain/pcode.cppm` / `recode.core.pcode` | `PcodeOp`, `PcodeSequence` | `PcodeOp` contains opcode, optional output `StorageLocation`, ordered inputs, optional LOAD/STORE memory space, instruction sequence index, and optional source operand. `PcodeSequence` contains the owning instruction address and ordered operations. Individual p-code operations are not persistent domain events by default; they are instruction data and may be stored as one compact projection blob. |
 
 The current `sleigh_runtime::Varnode`, `sleigh_runtime::PcodeOp`, `sleigh_runtime::PcodeOpcode`, and decompiler `Storage`, `PcodeOperation` are the main consolidation targets. A native-engine adapter may retain `ghidra::VarnodeData` internally, but no service-facing contract may expose it.
 
@@ -336,10 +336,10 @@ The current `sleigh_runtime::Varnode`, `sleigh_runtime::PcodeOp`, `sleigh_runtim
 
 | File/module | Type | Required design |
 | --- | --- | --- |
-| `core/domain/operand.cppm` / `ghidra.core.operand` | `OperandKind`, `InstructionOperand`, `OperandObject` | Text, kind, optional scalar/address/register identity, exact value mask, and hash objects. This preserves the current Sleigh operand output and the original Java `Instruction.getOpObjects()` behavior needed by FID. |
-| `core/domain/flow.cppm` / `ghidra.core.flow` | `FlowKind`, `FlowInfo`, `FlowOverride` | Target storage/address if resolvable, fall-through policy, terminal flag, and override metadata. Flow is decoded fact; an override is a separate user/analysis mutation. |
-| `core/domain/instruction.cppm` / `ghidra.core.instruction` | `Instruction` | Address, parsed length, bytes policy/reference, mnemonic, assembly, operands, instruction mask, architecture identity, flow, p-code sequence, and source/provenance. Immutable snapshot. `InstructionKey` is an `EntityId` plus address; address alone is not sufficient for cross-project identity. |
-| `core/domain/instruction_reference.cppm` / `ghidra.core.instruction_reference` | `InstructionReference` | Optional source operand index, exact reference class, original flow kind, fall-through, target, and source classification. This is the richer input from which a listing `Reference` projection is derived. |
+| `core/domain/operand.cppm` / `recode.core.operand` | `OperandKind`, `InstructionOperand`, `OperandObject` | Text, kind, optional scalar/address/register identity, exact value mask, and hash objects. This preserves the current Sleigh operand output and the original Java `Instruction.getOpObjects()` behavior needed by FID. |
+| `core/domain/flow.cppm` / `recode.core.flow` | `FlowKind`, `FlowInfo`, `FlowOverride` | Target storage/address if resolvable, fall-through policy, terminal flag, and override metadata. Flow is decoded fact; an override is a separate user/analysis mutation. |
+| `core/domain/instruction.cppm` / `recode.core.instruction` | `Instruction` | Address, parsed length, bytes policy/reference, mnemonic, assembly, operands, instruction mask, architecture identity, flow, p-code sequence, and source/provenance. Immutable snapshot. `InstructionKey` is an `EntityId` plus address; address alone is not sufficient for cross-project identity. |
+| `core/domain/instruction_reference.cppm` / `recode.core.instruction_reference` | `InstructionReference` | Optional source operand index, exact reference class, original flow kind, fall-through, target, and source classification. This is the richer input from which a listing `Reference` projection is derived. |
 
 The original `Instruction.java` distinguishes parsed bytes, instruction length, p-code, default flow, overrides, operand objects, and delay slots. The final `Instruction` must preserve those dimensions rather than reducing the result to mnemonic and a vector of p-code operations.
 
@@ -347,10 +347,10 @@ The original `Instruction.java` distinguishes parsed bytes, instruction length, 
 
 | File/module | Type | Required design |
 | --- | --- | --- |
-| `core/domain/basic_block.cppm` / `ghidra.core.basic_block` | `BasicBlock` | Stable block ID, address ranges, ordered instruction starts, successor/predecessor block IDs or addresses, and block kind. Immutable snapshot. Separate `BasicBlockModel` and `SimpleBlockModel` views may be represented by a model-kind field or separate query methods; do not collapse the two. |
-| `core/domain/function_signature.cppm` / `ghidra.core.function_signature` | `FunctionParameter`, `FunctionSignature`, `CallingConvention` | Parameter name, `DataTypeId`/descriptor, storage pieces, ordinal, indirect flag, return type/storage, calling convention, varargs, no-return, and source priority. Storage must support ABI-split/join pieces, not only one string and one offset. |
-| `core/domain/function.cppm` / `ghidra.core.function` | `FunctionKey`, `FunctionSnapshot` | Entry `Address`, stable entity ID, name and namespace, body `AddressRangeSet`, instruction starts, CFG/basic/simple blocks, thunk target, external/no-return flags, stack frame, signature, source/provenance, and analysis status. It is a read-only snapshot; mutation is through commands/events. |
-| `core/domain/analysis_fact.cppm` / `ghidra.core.analysis_fact` | `ConstantFact`, `FunctionIdMatch`, `SwitchFact`, `StackVariable`, `AnalysisEvidence` | Facts carry source service, confidence/score, revision, and optional evidence. They can be projected normally now and later fed into a knowledge projection. They are not yet RDF triples. |
+| `core/domain/basic_block.cppm` / `recode.core.basic_block` | `BasicBlock` | Stable block ID, address ranges, ordered instruction starts, successor/predecessor block IDs or addresses, and block kind. Immutable snapshot. Separate `BasicBlockModel` and `SimpleBlockModel` views may be represented by a model-kind field or separate query methods; do not collapse the two. |
+| `core/domain/function_signature.cppm` / `recode.core.function_signature` | `FunctionParameter`, `FunctionSignature`, `CallingConvention` | Parameter name, `DataTypeId`/descriptor, storage pieces, ordinal, indirect flag, return type/storage, calling convention, varargs, no-return, and source priority. Storage must support ABI-split/join pieces, not only one string and one offset. |
+| `core/domain/function.cppm` / `recode.core.function` | `FunctionKey`, `FunctionSnapshot` | Entry `Address`, stable entity ID, name and namespace, body `AddressRangeSet`, instruction starts, CFG/basic/simple blocks, thunk target, external/no-return flags, stack frame, signature, source/provenance, and analysis status. It is a read-only snapshot; mutation is through commands/events. |
+| `core/domain/analysis_fact.cppm` / `recode.core.analysis_fact` | `ConstantFact`, `FunctionIdMatch`, `SwitchFact`, `StackVariable`, `AnalysisEvidence` | Facts carry source service, confidence/score, revision, and optional evidence. They can be projected normally now and later fed into a knowledge projection. They are not yet RDF triples. |
 
 `FunctionSnapshot` intentionally has more fields than a minimal “entry plus body” value because current analyzers use CFG, block splitting, stack information, thunk relationships, no-return, signatures, and completion flags. The fields should be split into nested value modules so that a query can request a narrow projection and avoid loading all functions into memory.
 
@@ -358,12 +358,12 @@ The original `Instruction.java` distinguishes parsed bytes, instruction length, 
 
 | File/module | Type | Required design |
 | --- | --- | --- |
-| `core/domain/binary.cppm` / `ghidra.core.binary` | `BinaryIdentity`, `BinaryArtifact`, `ResourceSetIdentity` | Canonical path/display name, format, size, SHA-256 content hash, architecture hint, primary-artifact flag, and the ordered identity of all resources used by an operation. The artifact is a project input reference, not ownership of a mutable file stream. |
-| `core/domain/memory_region.cppm` / `ghidra.core.memory_region` | `MemoryRegion`, `MemoryPermissions` | Address range, name, read/write/execute, initialized/header/file-backed flags, source artifact range, section identity, and provenance. PE section-specific fields remain in the PE service details; this generic value is used by all loaders and providers. |
-| `core/domain/symbol.cppm` / `ghidra.core.symbol` | `SymbolId`, `Symbol`, `SymbolSource`, `NamespaceId` | Address or external identity, name, namespace, kind, primary flag, source (`default`, `import`, `pdb`, `analysis`, `user`, `fid`), and optional source record. Symbol renaming is an event, not in-place mutation. |
-| `core/domain/reference.cppm` / `ghidra.core.reference` | `ReferenceId`, `Reference`, `ReferenceKind` | Source and target addresses/entities, operand index, primary/source flags, flow override, stack offset, external/entry-point classification, and provenance. A stable reference ID is needed for replace/remove events. |
-| `core/domain/data_type.cppm` / `ghidra.core.data_type` | `DataTypeId`, `DataTypeKind`, `DataTypeDescriptor`, `DataTypeField` | Name/path, kind, size/alignment, signedness, element type/count, fields, enum values, source archive, universal/source identity, and declaration. This is a serializable descriptor graph, not a mutable `DataTypeManager`. |
-| `core/domain/data_object.cppm` / `ghidra.core.data_object` | `DataObject` | Address/range, `DataTypeId` or type descriptor, display/value metadata, read-only/alignment/string flags, and provenance. It is separate from raw PE data and instruction entities. |
+| `core/domain/binary.cppm` / `recode.core.binary` | `BinaryIdentity`, `BinaryArtifact`, `ResourceSetIdentity` | Canonical path/display name, format, size, SHA-256 content hash, architecture hint, primary-artifact flag, and the ordered identity of all resources used by an operation. The artifact is a project input reference, not ownership of a mutable file stream. |
+| `core/domain/memory_region.cppm` / `recode.core.memory_region` | `MemoryRegion`, `MemoryPermissions` | Address range, name, read/write/execute, initialized/header/file-backed flags, source artifact range, section identity, and provenance. PE section-specific fields remain in the PE service details; this generic value is used by all loaders and providers. |
+| `core/domain/symbol.cppm` / `recode.core.symbol` | `SymbolId`, `Symbol`, `SymbolSource`, `NamespaceId` | Address or external identity, name, namespace, kind, primary flag, source (`default`, `import`, `pdb`, `analysis`, `user`, `fid`), and optional source record. Symbol renaming is an event, not in-place mutation. |
+| `core/domain/reference.cppm` / `recode.core.reference` | `ReferenceId`, `Reference`, `ReferenceKind` | Source and target addresses/entities, operand index, primary/source flags, flow override, stack offset, external/entry-point classification, and provenance. A stable reference ID is needed for replace/remove events. |
+| `core/domain/data_type.cppm` / `recode.core.data_type` | `DataTypeId`, `DataTypeKind`, `DataTypeDescriptor`, `DataTypeField` | Name/path, kind, size/alignment, signedness, element type/count, fields, enum values, source archive, universal/source identity, and declaration. This is a serializable descriptor graph, not a mutable `DataTypeManager`. |
+| `core/domain/data_object.cppm` / `recode.core.data_object` | `DataObject` | Address/range, `DataTypeId` or type descriptor, display/value metadata, read-only/alignment/string flags, and provenance. It is separate from raw PE data and instruction entities. |
 
 The original `Program.java` aggregates memory, listing, symbol table, reference manager, bookmark manager, data types, language, compiler spec, and relocation table. The final core model deliberately represents those as independent values and projection tables. There is no `Program` class in `core/domain`; the public API can expose a `ProjectView` facade that composes read-only query providers.
 
@@ -371,8 +371,8 @@ The original `Program.java` aggregates memory, listing, symbol table, reference 
 
 | File/module | Type | Required design |
 | --- | --- | --- |
-| `core/domain/architecture.cppm` / `ghidra.core.architecture` | `LanguageId`, `CompilerSpecId`, `ArchitectureId`, `ArchitectureDescription` | Language/compiler IDs, endianness, pointer size, spaces, registers, code/data spaces, instruction alignment, calling-convention names, and feature flags. Immutable after project readiness. |
-| `core/domain/relocation.cppm` / `ghidra.core.relocation` | `Relocation` | Target address, width, type, addend/adjustment if known, and source loader. It is shared by PE/FID and future loaders without importing PE enums into core. |
+| `core/domain/architecture.cppm` / `recode.core.architecture` | `LanguageId`, `CompilerSpecId`, `ArchitectureId`, `ArchitectureDescription` | Language/compiler IDs, endianness, pointer size, spaces, registers, code/data spaces, instruction alignment, calling-convention names, and feature flags. Immutable after project readiness. |
+| `core/domain/relocation.cppm` / `recode.core.relocation` | `Relocation` | Target address, width, type, addend/adjustment if known, and source loader. It is shared by PE/FID and future loaders without importing PE enums into core. |
 
 Compiler-spec XML/SLA internals remain in service resources. The domain only carries the stable architecture facts needed by contracts and serialization.
 
@@ -382,10 +382,10 @@ The request/result values used by contracts must also have named homes. They are
 
 | File/module | Type | Required design |
 | --- | --- | --- |
-| `core/domain/processor_context.cppm` / `ghidra.core.processor_context` | `ProcessorContext` | Immutable named Sleigh context values plus a builder used only while preparing a decode request. It is project/architecture scoped and serializable when a decode must be reproduced. |
-| `core/domain/variable.cppm` / `ghidra.core.variable` | `VariableDescription`, `VariableStorage` | Name, type ID, one or more storage pieces, identity, source, and isolation flag. This is the canonical replacement for decompiler provider variables and analyzer stack/parameter text. |
-| `core/domain/function_id.cppm` / `ghidra.core.function_id` | `FunctionHashFamily`, `FunctionIdCandidate`, `FunctionIdResult`, `FunctionIdOptions` | FID query hash/evidence, scored candidates, selected names/libraries, thresholds, language/filter policy, and provenance. The hashing algorithm/database record types remain service-specific; the result is shared because analyzers, projection, and public API consume it. |
-| `core/domain/decompilation.cppm` / `ghidra.core.decompilation` | `Decompilation`, `DecompileArtifact`, `DecompilationStatus` | Function key, read revision, C/source text, control-flow compatibility artifact, raw instructions, recovered signature/variables/switch facts, evidence, diagnostics, timeout status, and cache identity. The value is immutable and can be returned without being persisted. |
+| `core/domain/processor_context.cppm` / `recode.core.processor_context` | `ProcessorContext` | Immutable named Sleigh context values plus a builder used only while preparing a decode request. It is project/architecture scoped and serializable when a decode must be reproduced. |
+| `core/domain/variable.cppm` / `recode.core.variable` | `VariableDescription`, `VariableStorage` | Name, type ID, one or more storage pieces, identity, source, and isolation flag. This is the canonical replacement for decompiler provider variables and analyzer stack/parameter text. |
+| `core/domain/function_id.cppm` / `recode.core.function_id` | `FunctionHashFamily`, `FunctionIdCandidate`, `FunctionIdResult`, `FunctionIdOptions` | FID query hash/evidence, scored candidates, selected names/libraries, thresholds, language/filter policy, and provenance. The hashing algorithm/database record types remain service-specific; the result is shared because analyzers, projection, and public API consume it. |
+| `core/domain/decompilation.cppm` / `recode.core.decompilation` | `Decompilation`, `DecompileArtifact`, `DecompilationStatus` | Function key, read revision, C/source text, control-flow compatibility artifact, raw instructions, recovered signature/variables/switch facts, evidence, diagnostics, timeout status, and cache identity. The value is immutable and can be returned without being persisted. |
 
 Contract-specific request values live beside their contract and use the domain values above:
 
@@ -513,15 +513,15 @@ Sleigh-specific implementation remains in `services/sleigh/native/`: `sleigh.cpp
 
 Decompiler-specific implementation remains in `services/decompiler/native/`: `architecture.cppm`, `database.cppm`, `funcdata.cppm`, `funcdata_block.cppm`, `funcdata_op.cppm`, `funcdata_varnode.cppm`, `flow.cppm`, `block.cppm`, `block_switch.cppm`, `jumptable.cppm`, `fspec.cppm`, `type.cppm`, `typeop.cppm`, `varnode.cppm`, `op.cppm`, `heritage.cppm`, action/rule/transform classes, printing classes, and XML/provider adapters.
 
-The native classes may preserve the original `ghidra` namespace for port fidelity, but that namespace is private to the engine libraries. Public service results use `ghidra::core` values. This prevents the public domain from depending on raw pointers such as native `AddrSpace*` or native decompiler ownership graphs.
+The native classes may preserve the original `ghidra` namespace for port fidelity, but that namespace is private to the engine libraries. Public service results use `recode::core` values. This prevents the public domain from depending on raw pointers such as native `AddrSpace*` or native decompiler ownership graphs.
 
-The current NEW build has not yet restored the original native target composition. `NEW/services/sleigh/CMakeLists.txt` makes its internal native modules private and `SharedSleighRuntime` owns a mutable `ghidra::Sleigh`, `ghidra::ContextInternal`, `ByteLoadImage`, and decoder state protected by a mutex. `NEW/services/decompiler` ports the decompiler core but does not compile the native Sleigh implementation modules into that target; its frontend links separately against `NewGhidra::SleighRuntime`. The final shared translation target must therefore consolidate the common `CORE` semantics without sharing one mutable `SharedSleighRuntime` object across tasks.
+The current project build has not yet restored the original native target composition. `services/sleigh/CMakeLists.txt` makes its internal native modules private and `SharedSleighRuntime` owns a mutable `ghidra::Sleigh`, `ghidra::ContextInternal`, `ByteLoadImage`, and decoder state protected by a mutex. `services/decompiler` ports the decompiler core but does not compile the native Sleigh implementation modules into that target; its frontend links separately against `ReCode::SleighRuntime`. The final shared translation target must therefore consolidate the common `CORE` semantics without sharing one mutable `SharedSleighRuntime` object across tasks.
 
 The current bridge classes are explicit migration anchors: `ProviderTranslate : ghidra::Translate`, `ProviderLoadImage : ghidra::LoadImage`, `ProviderArchitecture : ghidra::Architecture`, and `SleighPcodeProvider` convert `sleigh_runtime::Decoder`/`Instruction`/`ProcessorContext` into native `ghidra::Address`, `AddrSpace`, `VarnodeData`, and `PcodeEmit`. They become the implementation of `services/decompiler/provider_adapters.cppm`. **MVP:** the immutable SLA metadata may be shared, but native decoder access is serialized by one project mutex; a native `Architecture`/`Funcdata` session remains owned by one decompiler task.
 
 ### 6.2 Sleigh service
 
-Final public service module: `services/sleigh/sleigh_service.cppm`, module `ghidra.service.sleigh`.
+Final public service module: `services/sleigh/sleigh_service.cppm`, module `recode.service.sleigh`.
 
 Responsibilities:
 
@@ -549,11 +549,11 @@ One instruction decode is cheap when bytes and architecture state already exist.
 
 Original references: `Ghidra/Features/Decompiler/src/decompile/cpp/sleigh.hh` (`Sleigh::oneInstruction`, `instructionLength`, `printAssembly`), `translate.hh` (`PcodeEmit`, `AssemblyEmit`), `loadimage.hh`, and Java `SleighInstructionPrototype.java`/`SleighDebugLogger.java` for operand objects and masks.
 
-Current mappings: `NEW/services/sleigh/sleigh_runtime.cppm` is the public result source; `NEW/services/sleigh/sleigh_runtime_adapter.cppm` is the native callback adapter; `NEW/services/sleigh/src/address.cppm`, `space.cppm`, `translate.cppm`, `loadimage.cppm`, `globalcontext.cppm`, `marshal.cppm`, `opcodes.cppm`, `varnode.cppm`, `types.cppm`, and related files move conceptually to the shared/native engine and canonical adapter. `compression.cppm` remains in `services/sleigh/native/` because it is SLA-format-specific.
+Current mappings: `services/sleigh/sleigh_runtime.cppm` is the public result source; `services/sleigh/sleigh_runtime_adapter.cppm` is the native callback adapter; `services/sleigh/src/address.cppm`, `space.cppm`, `translate.cppm`, `loadimage.cppm`, `globalcontext.cppm`, `marshal.cppm`, `opcodes.cppm`, `varnode.cppm`, `types.cppm`, and related files move conceptually to the shared/native engine and canonical adapter. `compression.cppm` remains in `services/sleigh/native/` because it is SLA-format-specific.
 
 ### 6.3 PE loader service
 
-Final public service module: `services/pe_loader/pe_loader_service.cppm`, module `ghidra.service.pe_loader`.
+Final public service module: `services/pe_loader/pe_loader_service.cppm`, module `recode.service.pe_loader`.
 
 The PE service retains PE-specific types in `services/pe_loader/pe_types.cppm` or equivalent. It returns:
 
@@ -574,7 +574,7 @@ It preserves the current checked translation and error categories from `pe_loade
 
 Original references: `PeLoader.java`, `PortableExecutable.java`, `NTHeader.java`, `OptionalHeader.java`, and the PE format classes under `Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/`.
 
-Current mapping: `NEW/services/pe_loader/src/pe_loader.cppm` remains the algorithm source but its generic output types are adapted to core. `pe::LoadedPeImage` can remain an immutable service resource owned by a project, but `AnalysisContext` must not be the only owner or API route to it.
+Current mapping: `services/pe_loader/src/pe_loader.cppm` remains the algorithm source but its generic output types are adapted to core. `pe::LoadedPeImage` can remain an immutable service resource owned by a project, but `AnalysisContext` must not be the only owner or API route to it.
 
 ### 6.4 Function ID service
 
@@ -597,13 +597,13 @@ Recommended query flow:
 5. Return `FunctionIdResult` with matches, scores, libraries, evidence, and whether a label threshold was met.
 6. A separate command handler decides whether to emit `FunctionIdMatched`, `SymbolAdded`, `FunctionRenamed`, and `BookmarkAdded` events according to source priority and configured thresholds.
 
-Do not use `std::async` directly in the final service. It bypasses cancellation, fairness, project lifecycle, and the shared pool. The current `FunctionIdAnalyzer::ensure_databases()` at `NEW/services/analyzers/function_id/src/function_id.cppm:196-231` is the migration source for concurrent opening, but runtime owns scheduling.
+Do not use `std::async` directly in the final service. It bypasses cancellation, fairness, project lifecycle, and the shared pool. The current `FunctionIdAnalyzer::ensure_databases()` at `services/analyzers/function_id/src/function_id.cppm:196-231` is the migration source for concurrent opening, but runtime owns scheduling.
 
 Original references: `FidAnalyzer.java`, `ApplyFidEntriesCommand.java`, `FidProgramSeeker.java`, `FidDB.java`, `FunctionsTable.java`, `MessageDigestFidHasher.java`, and `FunctionBodyFunctionExtentGenerator.java`.
 
 ### 6.5 Decompiler service
 
-Final public module: `services/decompiler/decompiler_service.cppm`, module `ghidra.service.decompiler`.
+Final public module: `services/decompiler/decompiler_service.cppm`, module `recode.service.decompiler`.
 
 The service consumes provider contracts rather than a concrete projection database:
 
@@ -612,7 +612,7 @@ The service consumes provider contracts rather than a concrete projection databa
 - `IProjectQuery` for functions, symbols, references, data types, and existing signatures;
 - prototype, variable, comment, flow, and injection providers where needed.
 
-The current provider types in `NEW/services/decompiler/src/decompiler.cppm:93-462` are useful and should be adapted to core contracts rather than discarded. Their responsibilities map as follows:
+The current provider types in `services/decompiler/src/decompiler.cppm:93-462` are useful and should be adapted to core contracts rather than discarded. Their responsibilities map as follows:
 
 | Current provider | Final contract |
 | --- | --- |
@@ -705,29 +705,29 @@ The following duplication is confirmed by comparing current module names and bui
 
 | Current location | Duplicated concept | Proposed canonical type/component | Why |
 | --- | --- | --- | --- |
-| `NEW/services/analyzers/shared/src/analyzer_types.cppm:19` and PE/decompiler/Sleigh APIs | Raw `Address` as `uint64_t` | `core/domain/address.cppm` | A raw integer loses address-space identity required by native and Java Ghidra contracts. |
-| `NEW/services/sleigh/sleigh_runtime.cppm:38-46` | `Varnode` | `core/domain/storage_location.cppm` | Same storage triple is needed by p-code, FID, decompiler providers, registers, stack, and signatures. |
-| `NEW/services/decompiler/src/decompiler.cppm:7-24` | `Storage`, `PcodeOperation` | `core/domain/storage_location.cppm`, `pcode.cppm` | The decompiler provider model and Sleigh public model otherwise require conversion through two near-identical representations. |
-| `NEW/services/sleigh/sleigh_runtime.cppm:48-123` and native decompiler `opcodes`/`pcoderaw` | P-code opcode and raw operation | Canonical core p-code values plus one private native mapping | Preserve original enum values while allowing public serialization and future opcodes. |
-| `NEW/services/sleigh/src/address.cppm` and `NEW/services/decompiler/src/address.cppm` | Native address implementation | `services/translation_engine/native/address.cppm` | Both are ports of original `address.hh`/`address.cc`; compiling both risks duplicate symbols and semantic drift. |
-| `NEW/services/sleigh/src/space.cppm` and `NEW/services/decompiler/src/space.cppm` | Native address spaces | Shared native translation engine `space.cppm` | Sleigh and decompiler use the same original `AddrSpace` hierarchy. |
-| `NEW/services/sleigh/src/translate.cppm` and `NEW/services/decompiler/src/translate.cppm` | `Translate`, p-code/assembly emit interfaces | Shared native engine `translate.cppm`, public adapter in Sleigh/decompiler services | This is explicitly the shared boundary in original `translate.hh`. |
-| `NEW/services/sleigh/src/loadimage.cppm` and `NEW/services/decompiler/src/loadimage.cppm` | `LoadImage`, section/function records | Shared native engine `loadimage.cppm`, generic core memory provider adapter | Original `LoadImage` is designed for both standalone Sleigh and decompiler use. |
-| `NEW/services/sleigh/src/globalcontext.cppm` and `NEW/services/decompiler/src/globalcontext.cppm` | Context database/cache | Shared native engine | Context values affect decoding and decompiler translation and must have one semantic implementation. |
-| `NEW/services/sleigh/src/marshal.cppm` and `NEW/services/decompiler/src/marshal.cppm` | Native XML/marshal helper | Shared native engine | Same serialized low-level data contract. |
-| `NEW/services/sleigh/src/opcodes.cppm` and `NEW/services/decompiler/src/opcodes.cppm` | Opcode names/behavior | Shared native engine mapped to core `PcodeOpcode` | Prevent mismatched opcode numbering or names. |
-| `NEW/services/sleigh/src/varnode.cppm` and `NEW/services/decompiler/src/varnode.cppm` | Native varnode behavior | Shared native raw p-code engine; public values in core | Native decompiler varnodes have links/flags and cannot be the core value, but their low-level storage representation is shared. |
-| `NEW/services/analyzers/shared/src/analyzer_types.cppm:99-168` and Sleigh/decompiler instruction/function models | `Instruction`, `Function`, `BasicBlock`, `Reference` | Core domain snapshots | These are cross-service concepts currently hidden in analyzer shared code. |
-| `NEW/services/analyzers/shared/src/analyzer_context.cppm:437-461` | Program/listing/state aggregate | Split `ProgramProjection`, `AnalysisProjection`, `MemoryImage`, and query snapshots | A single mutable owner recreates ProgramDB and prevents concurrent read-only service work. |
-| `NEW/services/analyzers/shared/src/analyzer_context.cppm:409-411` and `NEW/services/analyzers/shared/src/analyzer_types.cppm:35-62` | Transient wake-up event | `core/events` typed persistent events plus runtime scheduler trigger view | Current events have no payload/revision and are not durable; they should become a compatibility projection of real event envelopes. |
-| `NEW/services/analyzers/shared/src/analyzer_registry.cppm` and `NEW/services/analyzers/shared/src/analyzer_manager.cppm` | Analyzer registration/scheduling | `runtime/analysis/AnalyzerRegistry` and `AnalysisScheduler` | These are orchestration concerns, not analyzer implementation concerns. |
-| `NEW/services/function_id/src/database.cppm:137-177` and `NEW/services/analyzers/function_id/src/function_id.cppm:196-231` | FID database lifetime/loading | Runtime `ResourceManager` plus `FunctionIdService` | Resource warm-up and worker scheduling are runtime concerns; both current database/cache paths and `database.cppm:266-270`/analyzer `std::async` calls move to the shared worker/resource layer. |
-| `NEW/services/decompiler/src/decompiler.cppm:93-462` and analyzer-local `Memory`/`Pcode` adapters | Provider interfaces | Core contracts with compatibility adapters | The existing provider boundary is good, but it currently has a separate decompiler type vocabulary. |
-| `NEW/services/analyzers/decompiler_parameter_id/src/decompiler_parameter_id.cppm:29-125`, `decompiler_switch_analysis.cppm:32-128`, and `call_convention_id.cppm:32-210` | PE memory, Sleigh-to-p-code conversion, x86 architecture/register descriptions, body-end fallback, and decompiler invocation | One `services/decompiler/provider_adapters.cppm` factory | Repeated adapters drift and cannot provide the complete `ProviderContext`. |
-| `NEW/services/analyzers/pdb_universal/src/pdb_universal.cppm:986-1036` and `pdb_msdia/src/pdb_msdia.cppm:304-333` | PDB symbol/function/name/bookmark mutation mapping | Shared `PdbMutationMapper` and typed symbol/function events | Keep MSF and DIA parsing separate, but normalize source priority and commit semantics. |
-| `NEW/services/analyzers/shared/src/analyzer_context.cppm:476-492` | Normal and delay-import symbol normalization/insertion | One PE external-symbol ingestion helper | Avoid two subtly different external-symbol policies. |
-| `NEW/services/function_id/src/database.cppm:137-177`, `database.cppm:266-270`, and analyzer FID cache | Path/stat cache and independent async loading | Runtime resource cache and shared worker pool | One immutable resource handle, one cancellation/fairness policy. |
-| `NEW/services/analyzers/shared/test_support/analyzer_test_support.cppm:24-48`, aggregate/PDB fixture helpers, and decompiler analyzer fixtures | Fixture path and project loading | Shared test-only `ProjectFixtureResolver` | Keep test data local to each feature while removing path-convention drift. |
+| `services/analyzers/shared/src/analyzer_types.cppm:19` and PE/decompiler/Sleigh APIs | Raw `Address` as `uint64_t` | `core/domain/address.cppm` | A raw integer loses address-space identity required by native and Java Ghidra contracts. |
+| `services/sleigh/sleigh_runtime.cppm:38-46` | `Varnode` | `core/domain/storage_location.cppm` | Same storage triple is needed by p-code, FID, decompiler providers, registers, stack, and signatures. |
+| `services/decompiler/src/decompiler.cppm:7-24` | `Storage`, `PcodeOperation` | `core/domain/storage_location.cppm`, `pcode.cppm` | The decompiler provider model and Sleigh public model otherwise require conversion through two near-identical representations. |
+| `services/sleigh/sleigh_runtime.cppm:48-123` and native decompiler `opcodes`/`pcoderaw` | P-code opcode and raw operation | Canonical core p-code values plus one private native mapping | Preserve original enum values while allowing public serialization and future opcodes. |
+| `services/sleigh/src/address.cppm` and `services/decompiler/src/address.cppm` | Native address implementation | `services/translation_engine/native/address.cppm` | Both are ports of original `address.hh`/`address.cc`; compiling both risks duplicate symbols and semantic drift. |
+| `services/sleigh/src/space.cppm` and `services/decompiler/src/space.cppm` | Native address spaces | Shared native translation engine `space.cppm` | Sleigh and decompiler use the same original `AddrSpace` hierarchy. |
+| `services/sleigh/src/translate.cppm` and `services/decompiler/src/translate.cppm` | `Translate`, p-code/assembly emit interfaces | Shared native engine `translate.cppm`, public adapter in Sleigh/decompiler services | This is explicitly the shared boundary in original `translate.hh`. |
+| `services/sleigh/src/loadimage.cppm` and `services/decompiler/src/loadimage.cppm` | `LoadImage`, section/function records | Shared native engine `loadimage.cppm`, generic core memory provider adapter | Original `LoadImage` is designed for both standalone Sleigh and decompiler use. |
+| `services/sleigh/src/globalcontext.cppm` and `services/decompiler/src/globalcontext.cppm` | Context database/cache | Shared native engine | Context values affect decoding and decompiler translation and must have one semantic implementation. |
+| `services/sleigh/src/marshal.cppm` and `services/decompiler/src/marshal.cppm` | Native XML/marshal helper | Shared native engine | Same serialized low-level data contract. |
+| `services/sleigh/src/opcodes.cppm` and `services/decompiler/src/opcodes.cppm` | Opcode names/behavior | Shared native engine mapped to core `PcodeOpcode` | Prevent mismatched opcode numbering or names. |
+| `services/sleigh/src/varnode.cppm` and `services/decompiler/src/varnode.cppm` | Native varnode behavior | Shared native raw p-code engine; public values in core | Native decompiler varnodes have links/flags and cannot be the core value, but their low-level storage representation is shared. |
+| `services/analyzers/shared/src/analyzer_types.cppm:99-168` and Sleigh/decompiler instruction/function models | `Instruction`, `Function`, `BasicBlock`, `Reference` | Core domain snapshots | These are cross-service concepts currently hidden in analyzer shared code. |
+| `services/analyzers/shared/src/analyzer_context.cppm:437-461` | Program/listing/state aggregate | Split `ProgramProjection`, `AnalysisProjection`, `MemoryImage`, and query snapshots | A single mutable owner recreates ProgramDB and prevents concurrent read-only service work. |
+| `services/analyzers/shared/src/analyzer_context.cppm:409-411` and `services/analyzers/shared/src/analyzer_types.cppm:35-62` | Transient wake-up event | `core/events` typed persistent events plus runtime scheduler trigger view | Current events have no payload/revision and are not durable; they should become a compatibility projection of real event envelopes. |
+| `services/analyzers/shared/src/analyzer_registry.cppm` and `services/analyzers/shared/src/analyzer_manager.cppm` | Analyzer registration/scheduling | `runtime/analysis/AnalyzerRegistry` and `AnalysisScheduler` | These are orchestration concerns, not analyzer implementation concerns. |
+| `services/function_id/src/database.cppm:137-177` and `services/analyzers/function_id/src/function_id.cppm:196-231` | FID database lifetime/loading | Runtime `ResourceManager` plus `FunctionIdService` | Resource warm-up and worker scheduling are runtime concerns; both current database/cache paths and `database.cppm:266-270`/analyzer `std::async` calls move to the shared worker/resource layer. |
+| `services/decompiler/src/decompiler.cppm:93-462` and analyzer-local `Memory`/`Pcode` adapters | Provider interfaces | Core contracts with compatibility adapters | The existing provider boundary is good, but it currently has a separate decompiler type vocabulary. |
+| `services/analyzers/decompiler_parameter_id/src/decompiler_parameter_id.cppm:29-125`, `decompiler_switch_analysis.cppm:32-128`, and `call_convention_id.cppm:32-210` | PE memory, Sleigh-to-p-code conversion, x86 architecture/register descriptions, body-end fallback, and decompiler invocation | One `services/decompiler/provider_adapters.cppm` factory | Repeated adapters drift and cannot provide the complete `ProviderContext`. |
+| `services/analyzers/pdb_universal/src/pdb_universal.cppm:986-1036` and `pdb_msdia/src/pdb_msdia.cppm:304-333` | PDB symbol/function/name/bookmark mutation mapping | Shared `PdbMutationMapper` and typed symbol/function events | Keep MSF and DIA parsing separate, but normalize source priority and commit semantics. |
+| `services/analyzers/shared/src/analyzer_context.cppm:476-492` | Normal and delay-import symbol normalization/insertion | One PE external-symbol ingestion helper | Avoid two subtly different external-symbol policies. |
+| `services/function_id/src/database.cppm:137-177`, `database.cppm:266-270`, and analyzer FID cache | Path/stat cache and independent async loading | Runtime resource cache and shared worker pool | One immutable resource handle, one cancellation/fairness policy. |
+| `services/analyzers/shared/test_support/analyzer_test_support.cppm:24-48`, aggregate/PDB fixture helpers, and decompiler analyzer fixtures | Fixture path and project loading | Shared test-only `ProjectFixtureResolver` | Keep test data local to each feature while removing path-convention drift. |
 
 No implementation changes are implied by this table. It is a target-state map.
 
@@ -735,7 +735,7 @@ No implementation changes are implied by this table. It is a target-state map.
 
 ### 8.1 Runtime instance
 
-Final module: `runtime/runtime.cppm`, `ghidra.runtime`.
+Final module: `runtime/runtime.cppm`, `recode.runtime`.
 
 `Runtime` owns process-wide or application-wide infrastructure:
 
@@ -1633,7 +1633,7 @@ Forbidden dependencies:
 This is the target tree. It is intentionally more structured than the current feature tree. A migration may retain compatibility CMake targets temporarily, but there must be one canonical implementation location for each component.
 
 ```text
-NEW/
+
 ├── CMakeLists.txt
 ├── README.md
 ├── core/
@@ -1901,87 +1901,87 @@ The final targets should be arranged so each boundary can be validated independe
 
 | Target/module | Focused validation | Required evidence |
 | --- | --- | --- |
-| `NewGhidra::Core` | Domain serialization, address-space arithmetic, p-code round trips, event payload codecs | `core/README.md` and source comments reference Java/native origins; core has no service/runtime link. |
-| `NewGhidra::TranslationEngine` | Native marshal/scalar/type/address/space/translate compatibility and cross-link tests | `services/translation_engine/README.md`, `GHIDRA_PORT.md`, and tests proving Sleigh and Decompiler use the same target. |
-| `NewGhidra::Sleigh` | SLA loading, decompression, one-instruction decode, batch cancellation, context/operand/p-code parity | `services/sleigh/README.md`, `GHIDRA_PORT.md`, focused GoogleTest target. |
-| `NewGhidra::PeLoader` | Existing malformed/PE32/PE32+/directory/address/partial parsing suite | `services/pe_loader/README.md`, `GHIDRA_PORT.md`, focused GoogleTest target. |
-| `NewGhidra::FunctionId` | `.fidb` parsing, full/specific hash, relation family, score/filter/application policy | `services/function_id/README.md`, `GHIDRA_PORT.md`, focused GoogleTest target and original-oracle fixtures. |
-| `NewGhidra::Decompiler` | Provider contracts, native engine tests, structured result and per-task isolation | `services/decompiler/README.md`, `GHIDRA_PORT.md`, focused native/provider GoogleTest targets. |
-| `NewGhidra::Runtime` | Worker fairness/cancellation, event append/recovery, projection apply/replay, project lifecycle | `runtime/README.md` and module READMEs; CTest integration/replay targets. |
+| `ReCode::Core` | Domain serialization, address-space arithmetic, p-code round trips, event payload codecs | `core/README.md` and source comments reference Java/native origins; core has no service/runtime link. |
+| `ReCode::TranslationEngine` | Native marshal/scalar/type/address/space/translate compatibility and cross-link tests | `services/translation_engine/README.md`, `GHIDRA_PORT.md`, and tests proving Sleigh and Decompiler use the same target. |
+| `ReCode::Sleigh` | SLA loading, decompression, one-instruction decode, batch cancellation, context/operand/p-code parity | `services/sleigh/README.md`, `GHIDRA_PORT.md`, focused GoogleTest target. |
+| `ReCode::PeLoader` | Existing malformed/PE32/PE32+/directory/address/partial parsing suite | `services/pe_loader/README.md`, `GHIDRA_PORT.md`, focused GoogleTest target. |
+| `ReCode::FunctionId` | `.fidb` parsing, full/specific hash, relation family, score/filter/application policy | `services/function_id/README.md`, `GHIDRA_PORT.md`, focused GoogleTest target and original-oracle fixtures. |
+| `ReCode::Decompiler` | Provider contracts, native engine tests, structured result and per-task isolation | `services/decompiler/README.md`, `GHIDRA_PORT.md`, focused native/provider GoogleTest targets. |
+| `ReCode::Runtime` | Worker fairness/cancellation, event append/recovery, projection apply/replay, project lifecycle | `runtime/README.md` and module READMEs; CTest integration/replay targets. |
 | analyzer services | One focused test target per analyzer plus aggregate 34-analyzer stability test | Analyzer `README.md`/`GHIDRA_PORT.md`, original-source links, fixture manifest, and CTest registration. |
 
-Use the repository wrappers rather than ad hoc commands: `NEW\build.bat <feature>` for focused build/tests, `NEW\build.bat all` for final integration, and the prescribed format/tidy wrappers for C++ modules. Adding SQLite changes the target graph, so the first SQLite-enabled configure uses the feature/runtime clean configure mode; subsequent edits use the preserved build. The architecture document does not change `vcpkg.json`, CMake, or build scripts.
+Use the repository wrappers rather than ad hoc commands: `build.bat <feature>` for focused build/tests, `build.bat all` for final integration, and the prescribed format/tidy wrappers for C++ modules. Adding SQLite changes the target graph, so the first SQLite-enabled configure uses the feature/runtime clean configure mode; subsequent edits use the preserved build. The architecture document does not change `vcpkg.json`, CMake, or build scripts.
 
 ## 17. Class and Module Catalog
 
 The catalog below is the implementation blueprint for the most important final components. “Persistence” means whether the component's output is event/projection state, not whether the implementation object itself is serialized.
 
-| Name | Location | Responsibility / public API | Dependencies / thread safety / sync-async | Persistence | Original Ghidra source | Current NEW / migration |
+| Name | Location | Responsibility / public API | Dependencies / thread safety / sync-async | Persistence | Original Ghidra source | Current ReCode / migration |
 | --- | --- | --- | --- | --- | --- | --- |
-| `Address` | `core/domain/address.cppm` | Strong address-space-aware value; parse/format/arithmetic | Domain only; immutable, thread-safe; sync | Event payload/projection key | Java `Address.java`; native `address.hh` | `NEW/services/analyzers/shared/src/analyzer_types.cppm` raw alias; `NEW/services/sleigh/src/address.cppm` and `NEW/services/decompiler/src/address.cppm` |
+| `Address` | `core/domain/address.cppm` | Strong address-space-aware value; parse/format/arithmetic | Domain only; immutable, thread-safe; sync | Event payload/projection key | Java `Address.java`; native `address.hh` | `services/analyzers/shared/src/analyzer_types.cppm` raw alias; `services/sleigh/src/address.cppm` and `services/decompiler/src/address.cppm` |
 | `AddressRangeSet` | `core/domain/address_range.cppm` | Normalized inclusive address intervals | Domain only; immutable value or local builder | Function/memory/data projection | `AddressSet.java`, `AddressSetView.java` | `AddressRange` and function body sets in analyzer types |
-| `StorageLocation` | `core/domain/storage_location.cppm` | Varnode/storage triple | Domain only; immutable | P-code/signature blobs | `pcoderaw.hh` `VarnodeData`; Java `Varnode.java` | `NEW/services/sleigh/sleigh_runtime.cppm` `Varnode`, `NEW/services/decompiler/src/decompiler.cppm` `Storage` |
-| `PcodeOp` | `core/domain/pcode.cppm` | Canonical operation with output/input storage | Domain only; immutable | Instruction p-code blob | `PcodeOpRaw`, `PcodeOp`, `translate.hh` | `NEW/services/sleigh/sleigh_runtime.cppm` `PcodeOp`, `NEW/services/decompiler/src/decompiler.cppm` `PcodeOperation` |
-| `Instruction` | `core/domain/instruction.cppm` | Complete decoded instruction snapshot | Domain plus p-code/flow/operand; immutable | `instructions` projection, optional batch event | `Instruction.java`, Sleigh instruction prototype classes | `NEW/services/sleigh/sleigh_runtime.cppm` `Instruction`, `NEW/services/decompiler/src/decompiler.cppm` `Instruction` |
-| `MemoryRegion` | `core/domain/memory_region.cppm` | Generic mapped memory permissions/range | Domain only; immutable | `MemoryStateChanged` and table | Java `MemoryBlock`/`Memory`; native `LoadImageSection` | `NEW/services/pe_loader/src/pe_loader.cppm` `MemoryRegion` |
-| `FunctionSnapshot` | `core/domain/function.cppm` | Function body/CFG/name/signature view | Domain values; immutable | Function/body/signature events and tables | Java `Function.java`, `FunctionManager.java` | `NEW/services/analyzers/shared/src/analyzer_types.cppm` `Function` |
-| `Reference` | `core/domain/reference.cppm` | Stable source-target relation and provenance | Domain values; immutable | Reference events/table | Java `Reference.java`, `ReferenceManager.java` | `NEW/services/analyzers/shared/src/analyzer_types.cppm` `Reference` |
+| `StorageLocation` | `core/domain/storage_location.cppm` | Varnode/storage triple | Domain only; immutable | P-code/signature blobs | `pcoderaw.hh` `VarnodeData`; Java `Varnode.java` | `services/sleigh/sleigh_runtime.cppm` `Varnode`, `services/decompiler/src/decompiler.cppm` `Storage` |
+| `PcodeOp` | `core/domain/pcode.cppm` | Canonical operation with output/input storage | Domain only; immutable | Instruction p-code blob | `PcodeOpRaw`, `PcodeOp`, `translate.hh` | `services/sleigh/sleigh_runtime.cppm` `PcodeOp`, `services/decompiler/src/decompiler.cppm` `PcodeOperation` |
+| `Instruction` | `core/domain/instruction.cppm` | Complete decoded instruction snapshot | Domain plus p-code/flow/operand; immutable | `instructions` projection, optional batch event | `Instruction.java`, Sleigh instruction prototype classes | `services/sleigh/sleigh_runtime.cppm` `Instruction`, `services/decompiler/src/decompiler.cppm` `Instruction` |
+| `MemoryRegion` | `core/domain/memory_region.cppm` | Generic mapped memory permissions/range | Domain only; immutable | `MemoryStateChanged` and table | Java `MemoryBlock`/`Memory`; native `LoadImageSection` | `services/pe_loader/src/pe_loader.cppm` `MemoryRegion` |
+| `FunctionSnapshot` | `core/domain/function.cppm` | Function body/CFG/name/signature view | Domain values; immutable | Function/body/signature events and tables | Java `Function.java`, `FunctionManager.java` | `services/analyzers/shared/src/analyzer_types.cppm` `Function` |
+| `Reference` | `core/domain/reference.cppm` | Stable source-target relation and provenance | Domain values; immutable | Reference events/table | Java `Reference.java`, `ReferenceManager.java` | `services/analyzers/shared/src/analyzer_types.cppm` `Reference` |
 | `InstructionReference` | `core/domain/instruction_reference.cppm` | Operand/flow-specific reference fact used to derive references | Domain values; immutable | Included in reference batch events or instruction projection | Java `Instruction.getReferencesFrom()`/`ReferenceManager`; native flow emitters | Sleigh `FlowInfo`, analyzer reference creation helpers |
-| `DataTypeDescriptor` | `core/domain/data_type.cppm` | Serializable type graph node | Domain; immutable descriptor | Type events/table | Java `DataType.java`, `DataTypeManager.java` | `NEW/services/decompiler/src/decompiler.cppm` `TypeDescription`; `NEW/services/analyzers/shared/src/analyzer_types.cppm` PDB type records |
-| `ArchitectureDescription` | `core/domain/architecture.cppm` | Stable language/compiler/spaces/registers | Domain; immutable after ready | Project metadata/resource manifest | Java `Language`, `CompilerSpec`; native `Architecture` subset | `NEW/services/decompiler/src/decompiler.cppm` `ArchitectureDescription`, analyzer PE machine mapping |
-| `ProcessorContext` | `core/domain/processor_context.cppm` | Named Sleigh context values for reproducible decoding | Domain; immutable request value; sync use | Optional decode request metadata | Native `ContextDatabase`/`ParserContext`; Java processor context classes | `NEW/services/sleigh/sleigh_runtime.cppm` `ProcessorContext` |
-| `VariableDescription` | `core/domain/variable.cppm` | Source/local/parameter variable and ABI storage pieces | Domain; immutable | Variable/signature/fact projection | Java `Variable`, `Parameter`, `VariableStorage`; native decompiler variable classes | `NEW/services/decompiler/src/decompiler.cppm` `VariableDescription`; `NEW/services/analyzers/shared/src/analyzer_types.cppm` `FunctionParameter`/`StackVariable` |
-| `FunctionIdResult` | `core/domain/function_id.cppm` | Scored FID candidates and match evidence | Domain result; immutable; async-producing service | Optional `FunctionIdMatched` event, not every query | `FidProgramSeeker`, `HashMatch`, `FidSearchResult` | `NEW/services/function_id/src/types.cppm` `IdentificationResult`, `NEW/services/analyzers/function_id/src/function_id.cppm` |
-| `Decompilation` | `core/domain/decompilation.cppm` | Structured/text decompiler result and diagnostics | Domain result; immutable; async-producing service | Text/cache optional; facts/signatures evented | Native decompiler output and Java decompiler commands | `NEW/services/decompiler/src/decompiler.cppm` `newghidra::decompiler::DecompilationResult` |
-| `IProjectQuery` | `core/contracts/project_query.cppm` | Revision-stamped read view | Implemented by projection; read-safe; sync paginated queries | No direct state; reads projection | Java `Program`, `Listing`, managers | `NEW/services/analyzers/shared/src/analyzer_context.cppm` getters |
-| `IPCodeDecoder` | `core/contracts/pcode_decoder.cppm` | One/batch canonical decoding | Service implementation; one decode sync, batch async; decoder lease | Optional materialized instruction events | Native `Translate`, `Sleigh` | `NEW/services/sleigh/sleigh_runtime.cppm` `Decoder` |
-| `IPELoader` | `core/contracts/pe_loader.cppm` | Validate/parse PE artifact | PE service; load may be async; immutable result | Load/memory/relocation events | `PeLoader.java`, PE format classes | `NEW/services/pe_loader/src/pe_loader.cppm` `PeLoader` |
-| `PeLoadResult` | `core/contracts/pe_loader.cppm` | Contract DTO carrying generic image facts and required PE directory details | Immutable result; produced sync/async by PE service | Load event payload source | `PortableExecutable.java`, PE directory classes | `NEW/services/pe_loader/src/pe_loader.cppm` `LoadedPeImage` adapter |
-| `IFunctionIdMatcher` | `core/contracts/function_id.cppm` | Hash/query/combine FID candidates | FID service; async worker pool | Match/name/bookmark events only when applied | `FidAnalyzer`, `ApplyFidEntriesCommand`, `FidProgramSeeker` | `NEW/services/analyzers/function_id/src/function_id.cppm` plus `NEW/services/function_id/src/*.cppm` |
-| `IDecompiler` | `core/contracts/decompiler.cppm` | Structured C/p-code analysis | Decompiler service; async default, optional sync | Decomp cache optional; signature/switch facts evented | Native architecture/decompiler and Java commands | `NEW/services/decompiler/src/decompiler.cppm` facade / `decompiler_impl.cppm` |
-| `IAnalyzer` | `core/contracts/analyzer.cppm` | Read snapshot, return mutation proposals | Analyzer service; pool execution; no mutable context | Run status and emitted domain events | `AbstractAnalyzer`, analyzer classes | `NEW/services/analyzers/shared/src/analyzer_base.cppm` |
-| `AnalysisSnapshot` | `core/contracts/analyzer.cppm` | Immutable revision-stamped bundle of query/memory/architecture/decoder providers | Contract value; safe to share with worker tasks; built by runtime | No direct persistence; revision is recorded in analysis-run events | `Program`/provider state passed to `Analyzer.added` | `NEW/services/analyzers/shared/src/analyzer_context.cppm` plus local decompiler adapters |
+| `DataTypeDescriptor` | `core/domain/data_type.cppm` | Serializable type graph node | Domain; immutable descriptor | Type events/table | Java `DataType.java`, `DataTypeManager.java` | `services/decompiler/src/decompiler.cppm` `TypeDescription`; `services/analyzers/shared/src/analyzer_types.cppm` PDB type records |
+| `ArchitectureDescription` | `core/domain/architecture.cppm` | Stable language/compiler/spaces/registers | Domain; immutable after ready | Project metadata/resource manifest | Java `Language`, `CompilerSpec`; native `Architecture` subset | `services/decompiler/src/decompiler.cppm` `ArchitectureDescription`, analyzer PE machine mapping |
+| `ProcessorContext` | `core/domain/processor_context.cppm` | Named Sleigh context values for reproducible decoding | Domain; immutable request value; sync use | Optional decode request metadata | Native `ContextDatabase`/`ParserContext`; Java processor context classes | `services/sleigh/sleigh_runtime.cppm` `ProcessorContext` |
+| `VariableDescription` | `core/domain/variable.cppm` | Source/local/parameter variable and ABI storage pieces | Domain; immutable | Variable/signature/fact projection | Java `Variable`, `Parameter`, `VariableStorage`; native decompiler variable classes | `services/decompiler/src/decompiler.cppm` `VariableDescription`; `services/analyzers/shared/src/analyzer_types.cppm` `FunctionParameter`/`StackVariable` |
+| `FunctionIdResult` | `core/domain/function_id.cppm` | Scored FID candidates and match evidence | Domain result; immutable; async-producing service | Optional `FunctionIdMatched` event, not every query | `FidProgramSeeker`, `HashMatch`, `FidSearchResult` | `services/function_id/src/types.cppm` `IdentificationResult`, `services/analyzers/function_id/src/function_id.cppm` |
+| `Decompilation` | `core/domain/decompilation.cppm` | Structured/text decompiler result and diagnostics | Domain result; immutable; async-producing service | Text/cache optional; facts/signatures evented | Native decompiler output and Java decompiler commands | `services/decompiler/src/decompiler.cppm` `recode::decompiler::DecompilationResult` |
+| `IProjectQuery` | `core/contracts/project_query.cppm` | Revision-stamped read view | Implemented by projection; read-safe; sync paginated queries | No direct state; reads projection | Java `Program`, `Listing`, managers | `services/analyzers/shared/src/analyzer_context.cppm` getters |
+| `IPCodeDecoder` | `core/contracts/pcode_decoder.cppm` | One/batch canonical decoding | Service implementation; one decode sync, batch async; decoder lease | Optional materialized instruction events | Native `Translate`, `Sleigh` | `services/sleigh/sleigh_runtime.cppm` `Decoder` |
+| `IPELoader` | `core/contracts/pe_loader.cppm` | Validate/parse PE artifact | PE service; load may be async; immutable result | Load/memory/relocation events | `PeLoader.java`, PE format classes | `services/pe_loader/src/pe_loader.cppm` `PeLoader` |
+| `PeLoadResult` | `core/contracts/pe_loader.cppm` | Contract DTO carrying generic image facts and required PE directory details | Immutable result; produced sync/async by PE service | Load event payload source | `PortableExecutable.java`, PE directory classes | `services/pe_loader/src/pe_loader.cppm` `LoadedPeImage` adapter |
+| `IFunctionIdMatcher` | `core/contracts/function_id.cppm` | Hash/query/combine FID candidates | FID service; async worker pool | Match/name/bookmark events only when applied | `FidAnalyzer`, `ApplyFidEntriesCommand`, `FidProgramSeeker` | `services/analyzers/function_id/src/function_id.cppm` plus `services/function_id/src/*.cppm` |
+| `IDecompiler` | `core/contracts/decompiler.cppm` | Structured C/p-code analysis | Decompiler service; async default, optional sync | Decomp cache optional; signature/switch facts evented | Native architecture/decompiler and Java commands | `services/decompiler/src/decompiler.cppm` facade / `decompiler_impl.cppm` |
+| `IAnalyzer` | `core/contracts/analyzer.cppm` | Read snapshot, return mutation proposals | Analyzer service; pool execution; no mutable context | Run status and emitted domain events | `AbstractAnalyzer`, analyzer classes | `services/analyzers/shared/src/analyzer_base.cppm` |
+| `AnalysisSnapshot` | `core/contracts/analyzer.cppm` | Immutable revision-stamped bundle of query/memory/architecture/decoder providers | Contract value; safe to share with worker tasks; built by runtime | No direct persistence; revision is recorded in analysis-run events | `Program`/provider state passed to `Analyzer.added` | `services/analyzers/shared/src/analyzer_context.cppm` plus local decompiler adapters |
 | `CommandDispatcher` | `runtime/dispatcher/dispatcher.cppm` | Route/execute typed commands | Runtime services/project; sync or task-returning | No; responses transient | Ghidra commands plus runtime orchestration | No current equivalent |
 | `WorkerPool` | `runtime/workers/worker_pool.cppm` | Shared bounded CPU scheduling | Runtime; thread-safe; async | No | `AutoAnalysisManager` shared analysis pool concept | Current FID `std::async`, manager single-thread loop |
-| `EventBus` | `runtime/event_bus/event_bus.cppm` | Publish committed envelopes to subscribers | Runtime; ordered per project; async delivery | No, resumes from store/checkpoint | Ghidra event queues/listeners, not a direct equivalent | `NEW/services/analyzers/shared/src/analyzer_context.cppm` `pending_events_` is only an ephemeral queue |
+| `EventBus` | `runtime/event_bus/event_bus.cppm` | Publish committed envelopes to subscribers | Runtime; ordered per project; async delivery | No, resumes from store/checkpoint | Ghidra event queues/listeners, not a direct equivalent | `services/analyzers/shared/src/analyzer_context.cppm` `pending_events_` is only an ephemeral queue |
 | `EventStore` | `runtime/event_store/append_only_log.cppm` | Append/read/recover/replay log | One writer per project; sync commit with flush policy | Yes, `events.log` | No direct equivalent; inspired by event sourcing | No current equivalent |
 | `SoftwareModelProjection` | `runtime/projections/software_model_projection.cppm` | Materialize functions/instructions/memory/etc. | SQLite writer serialized, concurrent readers | `projection.sqlite` | Materializes familiar `Program` concepts without ProgramDB coupling | `AnalysisContext` maps/vectors |
 | `AnalysisProjection` | `runtime/projections/analysis_projection.cppm` | Dirty entities, analyzer checkpoints, runs | One project writer; query-safe | SQLite analysis tables | `AutoAnalysisManager` task state concept | Manager private queues/sets |
-| `AnalysisScheduler` | `runtime/analysis/analysis_scheduler.cppm` | DAG/priority/trigger/retry orchestration | Runtime; async pool, serialized commits | Run status/checkpoints, not scheduler queue history | `AutoAnalysisManager`, `AnalysisTaskList`, `AnalysisScheduler` | `NEW/services/analyzers/shared/src/analyzer_manager.cppm` |
+| `AnalysisScheduler` | `runtime/analysis/analysis_scheduler.cppm` | DAG/priority/trigger/retry orchestration | Runtime; async pool, serialized commits | Run status/checkpoints, not scheduler queue history | `AutoAnalysisManager`, `AnalysisTaskList`, `AnalysisScheduler` | `services/analyzers/shared/src/analyzer_manager.cppm` |
 | `ResourceManager` | `runtime/resources/resource_manager.cppm` | SLA/compiler/FID immutable resource leases | Thread-safe cache; warm-up async | Cache metadata optional, not event source | Ghidra language/FID service lifecycle | Decoder/FID caches currently service/analyzer-local |
 | `Project` | `runtime/project/project.cppm` | Lifecycle and ownership of one analyzed executable | Runtime; state machine; task cancellation on close | Config plus event/projection stores | Ghidra project/program lifecycle, but intentionally not `ProgramDB` | No current abstraction |
-| `ProjectView` | `bindings/cpp/queries.cppm` | Stable native read facade | Wraps `IProjectQuery`; synchronous/paginated | No direct state | Java `Program`/`Listing` user-facing role | No current abstraction; current callers use `NEW/services/analyzers/shared/src/analyzer_context.cppm` directly |
-| `Runtime` facade | `bindings/cpp/runtime.cppm` | Create/open project and submit commands | Wraps runtime; thread-safe public handle | No direct state | Application/tool lifecycle concepts | `NEW/src/main.cpp` and current `new_ghidra_app` composition |
+| `ProjectView` | `bindings/cpp/queries.cppm` | Stable native read facade | Wraps `IProjectQuery`; synchronous/paginated | No direct state | Java `Program`/`Listing` user-facing role | No current abstraction; current callers use `services/analyzers/shared/src/analyzer_context.cppm` directly |
+| `Runtime` facade | `bindings/cpp/runtime.cppm` | Create/open project and submit commands | Wraps runtime; thread-safe public handle | No direct state | Application/tool lifecycle concepts | `src/main.cpp` and current `recode_app` composition |
 
-## 18. Ghidra to NEW Mapping
+## 18. Ghidra to ReCode Mapping
 
-| Ghidra original | Current NEW | Final NEW | Notes |
+| Ghidra original | Current ReCode | Final ReCode | Notes |
 | --- | --- | --- | --- |
 | `program.model.address.Address` / `AddressSpace` | `analyzer_types.cppm` `uint64_t`; native duplicated address modules | `core/domain/address.cppm`, `address_space.cppm` | Preserve spaces and overflow behavior; PE VA maps to RAM. |
-| Native `address.hh` / `space.hh` | Both `NEW/services/sleigh/src` and `NEW/services/decompiler/src` | `services/translation_engine/native/address.cppm`, `space.cppm` | One private native copy, with core adapter. |
+| Native `address.hh` / `space.hh` | Both `services/sleigh/src` and `services/decompiler/src` | `services/translation_engine/native/address.cppm`, `space.cppm` | One private native copy, with core adapter. |
 | Native `translate.hh` `Translate`, `PcodeEmit`, `AssemblyEmit` | Duplicated `translate.cppm` plus adapters | Shared native translation engine and `IPCodeDecoder` | Original contract is shared by Sleigh/decompiler. |
 | Native `loadimage.hh` `LoadImage` | Duplicated loadimage modules | Shared native adapter; core `IMemoryProvider` and PE service | Do not expose native load image pointers. |
 | `program.model.pcode.Varnode`, native `VarnodeData` | Sleigh `Varnode`, decompiler `Storage`, native copies | `core::StorageLocation`; native conversion at engine boundary | Core value is address-space aware and serializable. |
 | `PcodeOp`/`PcodeOpRaw` | Sleigh `PcodeOp`, decompiler `PcodeOperation`, native copies | `core::PcodeOp`; native raw op remains private | Persist p-code as instruction data, not one event per op. |
 | `Instruction`/`InstructionPrototype` | Sleigh `Instruction`; decompiler provider `Instruction`; analyzer `InstructionRecord` | `core::Instruction`, `InstructionOperand`, `FlowInfo` | Keep operand masks/objects and delay/flow semantics. |
 | `Program` | No equivalent; `AnalysisContext` owns all state | `runtime::Project` + `IProjectQuery` + projections | Avoid giant central object; compose read-only views. |
-| `NEW/framework` conceptual layer | Directory is absent; analyzer shared library is the de facto framework | No duplicate final directory; optional `NewGhidra::Framework` compatibility umbrella re-exports `core` targets | The stable model moves to `NEW/core`; runtime infrastructure moves to `NEW/runtime`. |
+| `framework` conceptual layer | Directory is absent; analyzer shared library is the de facto framework | No duplicate final directory; optional `ReCode::Framework` compatibility umbrella re-exports `core` targets | The stable model moves to `core`; runtime infrastructure moves to `runtime`. |
 | `Listing` | `AnalysisContext::instructions_`, `data_` | `SoftwareModelProjection` query/indexes | Mutations are commands/events. |
 | `Function`/`FunctionManager` | Analyzer `Function`, map in `AnalysisContext` | `FunctionSnapshot`, function projection/query | Preserve body ranges, CFG, simple blocks, signatures, thunk/no-return/source. |
 | `Reference`/`ReferenceManager` | Analyzer `Reference`, vector in context | Stable reference entity/events/table | Add removal/replacement/provenance semantics. |
 | `Symbol`/`SymbolTable` | `SymbolRecord`, `ExternalSymbol` | Core `Symbol`, symbol projection, symbol commands/events | Preserve source/primary/namespace rules. |
 | `DataType`/`DataTypeManager` | Decompiler `TypeDescription`, analyzer PDB records | Core descriptor graph plus type projection/service | Do not build a full manager in core initially. |
 | `Memory`/`MemoryBlock` | `pe::LoadedPeImage`, `MemoryRegion` | `IMemoryProvider`, generic core `MemoryRegion`, PE details | Immutable image and projection mapping. |
-| `PeLoader` and PE format classes | `NEW/services/pe_loader/src/pe_loader.cppm` | `services/pe_loader` | Preserve checked parser and PE-specific details. |
-| `Sleigh`/`SleighBase`/`Translate` | `NEW/services/sleigh` | `services/sleigh` + shared native engine | One SLA resource, one mutex-protected project decoder in MVP; worker-local pool deferred. |
-| Sleigh native `types.cppm` and `compression.cppm` | `NEW/services/sleigh/src/types.cppm`, `compression.cppm`, re-exported by `internal.cppm` | `services/translation_engine/native/types.cppm` and `services/sleigh/native/compression.cppm` | `types` preserves shared native word-size aliases; compression remains SLA-specific because `slaformat.cppm` imports it. |
-| Native `Architecture`/`Funcdata`/`Flow` | `NEW/services/decompiler/src/*.cppm` | `services/decompiler/native` | Remain service-specific, sharing native translation substrate. |
-| `FidDB`/`FidProgramSeeker` | `NEW/services/function_id` | `services/function_id` and `runtime/resources/fid_cache` | FID resources warm at project open; queries use shared pool. |
-| `AbstractAnalyzer`/`AutoAnalysisManager` | `NEW/services/analyzers/shared` | Analyzer contract/service implementations plus `runtime/analysis` | Split algorithm from orchestration. |
+| `PeLoader` and PE format classes | `services/pe_loader/src/pe_loader.cppm` | `services/pe_loader` | Preserve checked parser and PE-specific details. |
+| `Sleigh`/`SleighBase`/`Translate` | `services/sleigh` | `services/sleigh` + shared native engine | One SLA resource, one mutex-protected project decoder in MVP; worker-local pool deferred. |
+| Sleigh native `types.cppm` and `compression.cppm` | `services/sleigh/src/types.cppm`, `compression.cppm`, re-exported by `internal.cppm` | `services/translation_engine/native/types.cppm` and `services/sleigh/native/compression.cppm` | `types` preserves shared native word-size aliases; compression remains SLA-specific because `slaformat.cppm` imports it. |
+| Native `Architecture`/`Funcdata`/`Flow` | `services/decompiler/src/*.cppm` | `services/decompiler/native` | Remain service-specific, sharing native translation substrate. |
+| `FidDB`/`FidProgramSeeker` | `services/function_id` | `services/function_id` and `runtime/resources/fid_cache` | FID resources warm at project open; queries use shared pool. |
+| `AbstractAnalyzer`/`AutoAnalysisManager` | `services/analyzers/shared` | Analyzer contract/service implementations plus `runtime/analysis` | Split algorithm from orchestration. |
 | Ghidra analysis event/listener queues | `AnalysisEvent` and `pending_events_` | Durable typed events plus bus and scheduler trigger view | Current events become compatibility hints, not history. |
 | Ghidra task monitor/shared pool | `CancellationToken`, manager loop, FID `std::async` | `runtime/workers` task/cancellation/progress | One pool with quotas and fairness. |
 | Ghidra project/program persistence | None | `runtime/project`, `runtime/event_store`, `runtime/projections` | One primary executable per Project initially. |
-| Ghidra C++/Java public tool use | CLI/frontend direct feature links | `bindings/cpp` facade, then language bindings/apps | Prevent application dependence on internals. |
+| ReCode C++/Java public tool use | CLI/frontend direct feature links | `bindings/cpp` facade, then language bindings/apps | Prevent application dependence on internals. |
 
 ## 19. Concurrency Model
 
@@ -2079,7 +2079,7 @@ The event payload should preserve source service, confidence/score, revision, an
 
 **Decision:** compile one private implementation of native address/space/translate/load-image/raw p-code classes for Sleigh and Decompiler.
 
-**Reason:** the original Ghidra C++ code shares these classes, and current NEW has confirmed duplicate module names in both libraries.
+**Reason:** the original Ghidra C++ code shares these classes, and current project has confirmed duplicate module names in both libraries.
 
 **Alternatives:** keep two copies, or replace native algorithms with a new simplified p-code model.
 

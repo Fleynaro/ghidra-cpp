@@ -1,11 +1,11 @@
-export module ghidra.core.events.function;
+export module recode.core.events.function;
 
 import std;
-import ghidra.core.events.event;
-import ghidra.core.function;
-import ghidra.core.identifiers;
+import recode.core.events.event;
+import recode.core.function;
+import recode.core.identifiers;
 
-export namespace ghidra::core::events {
+export namespace recode::core::events {
 
 /// Creates a function snapshot upsert event.
 [[nodiscard]] inline EventDraft function_state_changed(const ProjectId& project, const FunctionSnapshot& function,
@@ -31,4 +31,4 @@ export namespace ghidra::core::events {
                                      {"status", function.analysis_status}})};
 }
 
-} // namespace ghidra::core::events
+} // namespace recode::core::events

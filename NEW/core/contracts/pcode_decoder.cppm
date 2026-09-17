@@ -1,13 +1,13 @@
-export module ghidra.core.contracts.pcode_decoder;
+export module recode.core.contracts.pcode_decoder;
 
 import std;
-import ghidra.core.address;
-import ghidra.core.bytes;
-import ghidra.core.decoded_instruction;
-import ghidra.core.processor_context;
-import ghidra.core.contracts.operation;
+import recode.core.address;
+import recode.core.bytes;
+import recode.core.decoded_instruction;
+import recode.core.processor_context;
+import recode.core.contracts.operation;
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
 /// Requests one bounded instruction decode.
 struct DecodeRequest {
@@ -40,4 +40,4 @@ public:
                                                                        OperationContext context) const = 0;
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

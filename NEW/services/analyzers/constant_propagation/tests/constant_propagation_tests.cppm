@@ -9,7 +9,7 @@ import analyzer_subroutine_references;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies p-code COPY and integer addition produce a stable constant fact.
@@ -123,4 +123,4 @@ TEST(AnalyzerPipelineTest, UnknownWriteInvalidatesPreviousConstant) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

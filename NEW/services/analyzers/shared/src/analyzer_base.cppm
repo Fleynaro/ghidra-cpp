@@ -13,7 +13,7 @@ import std;
 #define GHIDRA_ANALYZER_MODULE_EXPORT
 #endif
 
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 
 /// Defines the analyzer callback implemented by every analysis feature.
 // Models the lifecycle and callback contract used by
@@ -37,4 +37,4 @@ public:
     virtual void analysis_ended(AnalysisContext&, bool) {}
 };
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

@@ -11,18 +11,18 @@ if(BUILD_TESTING)
     add_subdirectory(tests)
 endif()
 
-add_custom_target(new_ghidra_services)
-add_dependencies(new_ghidra_services
+add_custom_target(recode_services)
+add_dependencies(recode_services
     hello_service
     pe_loader
     sleigh_runtime
     function_id
-    new_ghidra_decompiler
-    new_ghidra_decompiler_frontend
+    recode_decompiler
+    recode_decompiler_frontend
     analyzer
-    new_ghidra_analyzer_services
-    new_ghidra_win_dbg_eng
-    new_ghidra_win_ttd_replay
-    new_ghidra_ttd_recorder
-    new_ghidra_win_ttd_analysis
+    recode_analyzer_services
+    recode_win_dbg_eng
+    recode_win_ttd_replay
+    recode_ttd_recorder
+    recode_win_ttd_analysis
 )

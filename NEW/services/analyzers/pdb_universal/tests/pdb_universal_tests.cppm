@@ -19,7 +19,7 @@ namespace {
 
 /// Verifies identity, named records, and procedure symbols from the real fixture.
 TEST(PdbUniversal, ParsesSupportedMsfCodeViewRecords) {
-    const auto parsed = ghidra::pdb::universal::PdbReader::parse(fixture_path());
+    const auto parsed = recode::pdb::universal::PdbReader::parse(fixture_path());
     ASSERT_TRUE(parsed) << (parsed ? "" : parsed.error().message);
     EXPECT_EQ(parsed->identity.age, 12U);
     EXPECT_EQ(parsed->identity.guid_string(), "4d1a0d5b-567a-67c8-83ba-d3f22c4b9fbf");
@@ -45,7 +45,7 @@ TEST(PdbUniversal, ParsesSupportedMsfCodeViewRecords) {
 
 /// Verifies that malformed input fails with a diagnostic instead of being treated as a name-only PDB.
 TEST(PdbUniversal, RejectsNonPdbInput) {
-    const auto parsed = ghidra::pdb::universal::PdbReader::parse(
+    const auto parsed = recode::pdb::universal::PdbReader::parse(
         std::filesystem::path(ANALYZER_FIXTURE_DIR) / "pdb_universal" / "tests" / "data" / "test_pdb_universal.cpp");
     ASSERT_FALSE(parsed);
     EXPECT_NE(parsed.error().message.find("not a Microsoft PDB"), std::string::npos);
@@ -53,11 +53,11 @@ TEST(PdbUniversal, RejectsNonPdbInput) {
 
 /// Verifies application of types, functions, names, and the identity bookmark to the native model.
 TEST(PdbUniversal, AppliesRecordsToAnalysisContext) {
-    auto context = ghidra::analyzer::tests::load_fixture("pdb_universal");
+    auto context = recode::analyzer::tests::load_fixture("pdb_universal");
     context.options().pdb_universal = true;
     context.options().pdb_path = fixture_path();
-    ghidra::analyzer::PdbUniversalAnalyzer analyzer;
-    ghidra::analyzer::CancellationToken cancellation;
+    recode::analyzer::PdbUniversalAnalyzer analyzer;
+    recode::analyzer::CancellationToken cancellation;
     analyzer.analyze(context, {}, cancellation);
     const auto* function = context.function_at(0x140001000ULL);
     ASSERT_NE(function, nullptr);

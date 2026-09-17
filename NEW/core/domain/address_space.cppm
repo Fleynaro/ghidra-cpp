@@ -1,8 +1,8 @@
-export module ghidra.core.address_space;
+export module recode.core.address_space;
 
 import std;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Identifies the semantic kind of an address space.
 enum class AddressSpaceKind : std::uint8_t {
@@ -74,13 +74,13 @@ struct AddressSpaceDescriptor {
     bool physical{};
 };
 
-} // namespace ghidra::core
+} // namespace recode::core
 
 export namespace std {
 
 /// Hashes address-space IDs for provider indexes.
-template <> struct hash<ghidra::core::AddressSpaceId> {
-    [[nodiscard]] std::size_t operator()(const ghidra::core::AddressSpaceId& id) const noexcept {
+template <> struct hash<recode::core::AddressSpaceId> {
+    [[nodiscard]] std::size_t operator()(const recode::core::AddressSpaceId& id) const noexcept {
         return std::hash<std::string>{}(id.name());
     }
 };

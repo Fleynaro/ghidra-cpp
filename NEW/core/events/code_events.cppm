@@ -1,12 +1,12 @@
-export module ghidra.core.events.code;
+export module recode.core.events.code;
 
 import std;
-import ghidra.core.events.event;
-import ghidra.core.identifiers;
-import ghidra.core.instruction;
-import ghidra.core.operand;
+import recode.core.events.event;
+import recode.core.identifiers;
+import recode.core.instruction;
+import recode.core.operand;
 
-export namespace ghidra::core::events {
+export namespace recode::core::events {
 
 /// Encodes binary instruction data into the delimiter-safe hexadecimal event representation.
 [[nodiscard]] inline std::string encode_hex(const std::vector<std::uint8_t>& bytes) {
@@ -70,4 +70,4 @@ export namespace ghidra::core::events {
                                      {"operands", encode_operands(instruction.operands)}})};
 }
 
-} // namespace ghidra::core::events
+} // namespace recode::core::events

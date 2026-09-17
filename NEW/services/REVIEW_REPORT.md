@@ -2,14 +2,14 @@
 
 ## Review Metadata
 
-- [x] **Scope:** current `HEAD` (`9cd8a17501`), covering `NEW/core/contracts` and all matching PE, Sleigh, decompiler, Function ID, analyzer, translation-engine, and service consumers/implementors under `NEW/services`.
+- [x] **Scope:** current `HEAD` (`9cd8a17501`), covering `core/contracts` and all matching PE, Sleigh, decompiler, Function ID, analyzer, translation-engine, and service consumers/implementors under `services`.
 - [x] **Date:** 2026-09-16.
 - [x] **Reviewer:** Kilo, independent read-only pass.
 - [x] **Assumption:** native algorithms may remain private compatibility implementations, but runtime-facing calls must honor core contracts and service lifetime rules.
 
 ### Scope Extension: domain-model duplication audit
 
-- [x] **Audit scope:** read-only comparison of `NEW/services` (analyzers, PE loader, Sleigh, decompiler, Function ID, translation-engine, and hello) against `NEW/core/domain` and related `NEW/core/contracts` boundaries; `NEW/runtime` was also checked for runtime-service model overlap.
+- [x] **Audit scope:** read-only comparison of `services` (analyzers, PE loader, Sleigh, decompiler, Function ID, translation-engine, and hello) against `core/domain` and related `core/contracts` boundaries; `runtime` was also checked for runtime-service model overlap.
 - [x] **Audit date:** 2026-09-16.
 - [x] **Source changes:** none; only module-local review reports were updated or added by this audit.
 - [x] **Comparison rule:** native parser/decompiler engine ownership types were not classified as duplicates when their pointer ownership, graph identity, or algorithm lifecycle differs from core values.
@@ -62,13 +62,13 @@
 - [ ] **Remediation status:** Open.
 - **References:** `analyzers/CMakeLists.txt:1-15`, `analyzers/CMakeLists.txt:68-74`, `analyzers/analyzer_builtin.cpp:34-72`, `../runtime/project/project_session.cppm:55-57`.
 - **Affected component:** Analyzer feature-to-service migration.
-- **Technical evidence:** The moved analyzer libraries still link `NewGhidra::PeLoader`, `NewGhidra::SleighRuntime`, and `NewGhidra::DecompilerFrontend` and implement the old mutable `AnalysisContext`/`AutoAnalysisManager` model. The new analyzer service target contains only `EntryMaterializationAnalyzer`; project startup registers only that new `IAnalyzer`.
+- **Technical evidence:** The moved analyzer libraries still link `ReCode::PeLoader`, `ReCode::SleighRuntime`, and `ReCode::DecompilerFrontend` and implement the old mutable `AnalysisContext`/`AutoAnalysisManager` model. The new analyzer service target contains only `EntryMaterializationAnalyzer`; project startup registers only that new `IAnalyzer`.
 - **Expected behavior:** Migrated analyzers consume immutable core snapshots/contracts and are registered by runtime analysis.
 - **Actual behavior:** The physical move hides the old feature coupling; the default runtime does not execute the moved feature analyzers.
 - **Impact:** Alternate service implementations cannot be substituted and feature analysis is absent from the facade path.
 - **Failure scenario:** Provide a mock `IPCodeDecoder` or call facade analysis expecting the moved analyzer set; native legacy targets/registrations remain in use or are not invoked.
 - **Root cause:** Directory relocation preceded extraction of analyzer algorithms from the legacy aggregate/context.
-- **Recommended fix:** Introduce contract-facing analyzer adapters and register them through `NewGhidra::AnalyzerServices`/runtime registry; keep legacy aggregate only as an explicit diagnostic target.
+- **Recommended fix:** Introduce contract-facing analyzer adapters and register them through `ReCode::AnalyzerServices`/runtime registry; keep legacy aggregate only as an explicit diagnostic target.
 - **Regression risks:** Priority/prerequisite and mutation behavior require parity coverage.
 - **Relevant validation:** Existing tests exercise legacy analyzer targets individually, not facade registration/substitution.
 
@@ -154,11 +154,11 @@
 - [ ] **Remediation status:** Open.
 - **References:** `CMakeLists.txt:13-24`, `../build.bat:257-263`.
 - **Affected component:** Service CMake target graph.
-- **Technical evidence:** `new_ghidra_services` depends on legacy engine targets but omits the public adapter libraries and translation engine. The `services --no-test` wrapper assignment is overwritten with `new_ghidra_service_tests`, which is not defined when `BUILD_TESTING=0`.
+- **Technical evidence:** `recode_services` depends on legacy engine targets but omits the public adapter libraries and translation engine. The `services --no-test` wrapper assignment is overwritten with `recode_service_tests`, which is not defined when `BUILD_TESTING=0`.
 - **Expected behavior:** The aggregate builds every public service and the no-test mode builds that aggregate.
 - **Actual behavior:** Compile-only service validation can omit adapters or request a disabled test target.
 - **Impact:** Migration target health is not reliably validated by the prescribed workflow.
-- **Failure scenario:** Invoke `NEW\build.bat services --no-test`.
+- **Failure scenario:** Invoke `build.bat services --no-test`.
 - **Root cause:** Target-name migration was not synchronized between CMake and wrapper logic.
 - **Recommended fix:** Add all service targets to the aggregate and remove the later test-target override.
 - **Regression risks:** Focused build time and target dependency ordering.
@@ -383,7 +383,7 @@ The translation-engine metadata facade is now a direct alias to `core::Architect
 
 - [x] Service source/CMake/dependency/test registration inspected read-only.
 - [x] Existing generated CTest metadata and build target metadata inspected.
-- [x] `ctest --test-dir NEW/build --output-on-failure`: 49/49 passed.
+- [x] `ctest --test-dir build --output-on-failure`: 49/49 passed.
 - [x] `git diff HEAD~2..HEAD --check`: passed.
 - [ ] No sanitizer, alternate-provider, non-x86, malformed-input, or destruction-race validation was run.
 

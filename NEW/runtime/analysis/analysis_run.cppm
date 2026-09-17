@@ -1,9 +1,9 @@
-export module ghidra.runtime.analysis.run;
+export module recode.runtime.analysis.run;
 
 import std;
-import ghidra.core;
+import recode.core;
 
-export namespace ghidra::runtime::analysis {
+export namespace recode::runtime::analysis {
 
 /// Stores durable lifecycle values for one analysis run.
 struct AnalysisRunState {
@@ -15,4 +15,4 @@ struct AnalysisRunState {
     std::vector<std::string> analyzers;
 };
 
-} // namespace ghidra::runtime::analysis
+} // namespace recode::runtime::analysis

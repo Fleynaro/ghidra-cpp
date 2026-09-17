@@ -120,7 +120,7 @@ No findings.
 
 - [x] Original analyzer/command/service, native adapter/database relation logic, native tests, fixture script/report, and CMake registration were inspected.
 - [ ] Focused build/test was not run by this audit.
-- [ ] `NEW\format.bat analyzer` and `NEW\tidy.bat analyzer --check` were not run by this audit.
+- [ ] `format.bat analyzer` and `tidy.bat analyzer --check` were not run by this audit.
 - [x] No implementation, test, fixture, or build source was edited.
 
 ## Unresolved Questions And Residual Risks

@@ -5,11 +5,11 @@ module;
 export module metadata_provider_tests;
 
 import decompiler;
-import ghidra.decompiler;
+import recode.decompiler;
 import sleigh_runtime;
 import std;
 
-namespace newghidra::decompiler::metadata_tests {
+namespace recode::decompiler::metadata_tests {
 
 /// Provides one deterministic COPY/RETURN body so metadata tests execute the
 /// real native prototype, type, symbol, action, and printer pipeline.
@@ -331,4 +331,4 @@ TEST(MetadataProvider, ResolvesOffcutDataSymbol) {
     EXPECT_NE(result.c_source.find("counter"), std::string::npos) << result.c_source;
 }
 
-} // namespace newghidra::decompiler::metadata_tests
+} // namespace recode::decompiler::metadata_tests

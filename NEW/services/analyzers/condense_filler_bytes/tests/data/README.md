@@ -55,4 +55,4 @@ Linker padding bytes, function ordering, and alignment ranges are implementation
 
 ## Reproduction
 
-Run `build.bat` in this directory. From the repository root, run `TEST\run_ghidra_python.bat NEW\\features\\analyzers\condense_filler_bytes\\tests\\data\\\\run_ghidra.py`.
+Run `build.bat` in this directory. From the repository root, run `TEST\run_ghidra_python.bat \features\\analyzers\condense_filler_bytes\\tests\\data\\\\run_ghidra.py`.

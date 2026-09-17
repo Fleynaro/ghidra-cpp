@@ -4,7 +4,7 @@ import analyzer;
 import std;
 
 /// Owns the Embedded Media analyzer declaration and implementation.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class EmbeddedMediaAnalyzer final : public Analyzer {
 public:
     /// Returns the EmbeddedMediaAnalyzer name and block-analysis priority.
@@ -13,9 +13,9 @@ public:
     /// Searches loaded initialized memory for validated media containers.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Describes one media datatype match before it is applied to the listing model.
@@ -342,4 +342,4 @@ void EmbeddedMediaAnalyzer::analyze(AnalysisContext& context, std::span<const An
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

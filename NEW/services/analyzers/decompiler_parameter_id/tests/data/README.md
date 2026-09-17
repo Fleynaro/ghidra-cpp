@@ -57,7 +57,7 @@ Decompiler parameter names and storage formatting are Ghidra outputs and may cha
 
 ## Reproduction
 
-Run `build.bat`, then `TEST\run_ghidra_python.bat NEW\\features\\analyzers\decompiler_parameter_id\\tests\\data\\\\run_ghidra.py` from the repository root. Optional executable, PDB, and report arguments are accepted.
+Run `build.bat`, then `TEST\run_ghidra_python.bat \features\\analyzers\decompiler_parameter_id\\tests\\data\\\\run_ghidra.py` from the repository root. Optional executable, PDB, and report arguments are accepted.
 
 ## Generated Artifacts
 

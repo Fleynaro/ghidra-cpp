@@ -1,28 +1,28 @@
-export module ghidra.runtime.project.session;
+export module recode.runtime.project.session;
 
 import std;
-import ghidra.core;
-import ghidra.runtime.event_bus;
-import ghidra.runtime.analysis.registry;
-import ghidra.runtime.analysis.scheduler;
-import ghidra.runtime.event_store.log;
-import ghidra.runtime.projections.coordinator;
-import ghidra.runtime.projections.software_model;
-import ghidra.runtime.storage.projection;
-import ghidra.runtime.workers.pool;
-import ghidra.service.decompiler;
-import ghidra.service.pe_loader;
-import ghidra.service.sleigh;
-import ghidra.service.analyzers.entry_materialization;
-import ghidra.runtime.project.config;
-import ghidra.runtime.project.state;
+import recode.core;
+import recode.runtime.event_bus;
+import recode.runtime.analysis.registry;
+import recode.runtime.analysis.scheduler;
+import recode.runtime.event_store.log;
+import recode.runtime.projections.coordinator;
+import recode.runtime.projections.software_model;
+import recode.runtime.storage.projection;
+import recode.runtime.workers.pool;
+import recode.service.decompiler;
+import recode.service.pe_loader;
+import recode.service.sleigh;
+import recode.service.analyzers.entry_materialization;
+import recode.runtime.project.config;
+import recode.runtime.project.state;
 
-export namespace ghidra::runtime::project {
+export namespace recode::runtime::project {
 
-namespace core = ghidra::core;
-namespace pe_service = ghidra::services::pe_loader;
-namespace sleigh_service = ghidra::services::sleigh;
-namespace decompiler_service = ghidra::services::decompiler;
+namespace core = recode::core;
+namespace pe_service = recode::services::pe_loader;
+namespace sleigh_service = recode::services::sleigh;
+namespace decompiler_service = recode::services::decompiler;
 
 /// Owns one project's lifecycle, services, authoritative history, and current projection.
 class ProjectSession final : public core::contracts::ICommandHandler,
@@ -53,7 +53,7 @@ public:
             new ProjectSession(std::move(config), std::move(workers), std::move(bus), std::move(*log),
                                std::move(projection_store), std::move(projection)));
         if (const auto registered = session->analyzer_registry_->register_analyzer(
-                std::make_shared<ghidra::services::analyzers::EntryMaterializationAnalyzer>());
+                std::make_shared<recode::services::analyzers::EntryMaterializationAnalyzer>());
             !registered)
             return std::unexpected(registered.error());
         session->state_.status = ProjectStatus::open;
@@ -212,8 +212,9 @@ public:
         core::contracts::DecompileRequest request;
         request.function = *current;
         request.read_revision = projection_->checkpoint();
-        request.providers = core::contracts::ProviderContext{
-            std::static_pointer_cast<const core::contracts::IPCodeDecoder>(decoder_), image_, projection_, architecture_};
+        request.providers =
+            core::contracts::ProviderContext{std::static_pointer_cast<const core::contracts::IPCodeDecoder>(decoder_),
+                                             image_, projection_, architecture_};
         auto operation = std::make_shared<core::contracts::OperationControl>();
         return decompiler_->decompile(std::move(request),
                                       core::contracts::OperationContext{config_.id, projection_->checkpoint(),
@@ -408,4 +409,4 @@ private:
     std::uint64_t next_operation_{1};
 };
 
-} // namespace ghidra::runtime::project
+} // namespace recode::runtime::project

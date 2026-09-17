@@ -7,7 +7,7 @@ export module provenance_mapping_tests;
 import decompiler;
 import std;
 
-namespace newghidra::decompiler::provenance_tests {
+namespace recode::decompiler::provenance_tests {
 
 /// Supplies deterministic symbols, types, prototypes, and locals for the real
 /// Sleigh-backed examples used by the provenance tests.
@@ -655,4 +655,4 @@ TEST(DecompilerProvenance, IntegratedControlFlowFixture) {
     expect_asm_to_nodes(result, std::array<std::uint64_t, 1>{0x560031}, "callee");
 }
 
-} // namespace newghidra::decompiler::provenance_tests
+} // namespace recode::decompiler::provenance_tests

@@ -57,7 +57,7 @@ The fixture does not claim that every valid pointer run is a table; minimum-size
 
 ## Reproduction
 
-Run `build.bat` from this directory. From the repository root run `TEST\run_ghidra_python.bat NEW\\features\\analyzers\create_address_tables\\tests\\data\\\\run_ghidra.py`. Optional arguments are an input executable and output markdown path.
+Run `build.bat` from this directory. From the repository root run `TEST\run_ghidra_python.bat \features\\analyzers\create_address_tables\\tests\\data\\\\run_ghidra.py`. Optional arguments are an input executable and output markdown path.
 
 ## Generated Artifacts
 

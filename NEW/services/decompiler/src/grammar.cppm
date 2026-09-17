@@ -4,9 +4,9 @@ module;
 
 // Port provenance: declarations and implementation originate from
 // Ghidra/Features/Decompiler/src/decompile/cpp/grammar.hh and grammar.cc.
-export module ghidra.decompiler.grammar;
+export module recode.decompiler.grammar;
 import std;
-import ghidra.decompiler;
+import recode.decompiler;
 
 export namespace ghidra {
 /// A lexical token produced by the C declaration lexer.

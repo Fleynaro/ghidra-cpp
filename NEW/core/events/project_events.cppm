@@ -1,11 +1,11 @@
-export module ghidra.core.events.project;
+export module recode.core.events.project;
 
 import std;
-import ghidra.core.binary;
-import ghidra.core.events.event;
-import ghidra.core.identifiers;
+import recode.core.binary;
+import recode.core.events.event;
+import recode.core.identifiers;
 
-export namespace ghidra::core::events {
+export namespace recode::core::events {
 
 /// Creates the immutable project creation event.
 [[nodiscard]] inline EventDraft project_created(const ProjectId& project, const CorrelationId& correlation) {
@@ -34,4 +34,4 @@ export namespace ghidra::core::events {
                                      {"size", std::to_string(artifact.byte_size)}})};
 }
 
-} // namespace ghidra::core::events
+} // namespace recode::core::events

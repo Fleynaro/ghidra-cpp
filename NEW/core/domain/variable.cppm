@@ -1,11 +1,11 @@
-export module ghidra.core.variable;
+export module recode.core.variable;
 
 import std;
-import ghidra.core.data_type;
-import ghidra.core.identifiers;
-import ghidra.core.storage_location;
+import recode.core.data_type;
+import recode.core.identifiers;
+import recode.core.storage_location;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Groups one or more physical storage pieces for an ABI value.
 struct VariableStorage {
@@ -22,4 +22,4 @@ struct VariableDescription {
     bool isolated{};
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

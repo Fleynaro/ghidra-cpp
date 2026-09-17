@@ -92,8 +92,8 @@ No findings.
 - [x] Read-only original/native comparison completed.
 - [x] Read-only test, fixture, documentation, CMake, and wrapper inspection completed.
 - [ ] Focused build/test: not run by request.
-- [ ] `NEW/format.bat x86_constant_reference`: not run by request.
-- [ ] `NEW/tidy.bat x86_constant_reference --check`: not run by request.
+- [ ] `format.bat x86_constant_reference`: not run by request.
+- [ ] `tidy.bat x86_constant_reference --check`: not run by request.
 
 ## Unresolved Questions
 

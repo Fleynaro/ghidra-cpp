@@ -1,10 +1,10 @@
-export module ghidra.runtime.analysis.snapshot;
+export module recode.runtime.analysis.snapshot;
 
-export import ghidra.core.contracts.analyzer;
+export import recode.core.contracts.analyzer;
 
-export namespace ghidra::runtime::analysis {
+export namespace recode::runtime::analysis {
 
 /// Names the runtime-owned snapshot builder result without duplicating core state.
-using AnalysisSnapshot = ghidra::core::contracts::AnalysisSnapshot;
+using AnalysisSnapshot = recode::core::contracts::AnalysisSnapshot;
 
-} // namespace ghidra::runtime::analysis
+} // namespace recode::runtime::analysis

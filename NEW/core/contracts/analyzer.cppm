@@ -1,17 +1,17 @@
-export module ghidra.core.contracts.analyzer;
+export module recode.core.contracts.analyzer;
 
 import std;
-import ghidra.core.architecture;
-import ghidra.core.binary;
-import ghidra.core.diagnostics;
-import ghidra.core.events.event;
-import ghidra.core.identifiers;
-import ghidra.core.contracts.memory_provider;
-import ghidra.core.contracts.operation;
-import ghidra.core.contracts.pcode_decoder;
-import ghidra.core.contracts.project_query;
+import recode.core.architecture;
+import recode.core.binary;
+import recode.core.diagnostics;
+import recode.core.events.event;
+import recode.core.identifiers;
+import recode.core.contracts.memory_provider;
+import recode.core.contracts.operation;
+import recode.core.contracts.pcode_decoder;
+import recode.core.contracts.project_query;
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
 /// Names event kinds that can dirty an analyzer.
 using EventTriggerSet = std::set<std::string>;
@@ -81,4 +81,4 @@ public:
     analyze(const AnalysisSnapshot& snapshot, events::EventBatch event_batch, OperationContext context) = 0;
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

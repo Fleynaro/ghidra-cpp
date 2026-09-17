@@ -1,11 +1,11 @@
-export module ghidra.core.analysis_fact;
+export module recode.core.analysis_fact;
 
 import std;
-import ghidra.core.address;
-import ghidra.core.identifiers;
-import ghidra.core.storage_location;
+import recode.core.address;
+import recode.core.identifiers;
+import recode.core.storage_location;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Carries provenance and confidence shared by derived analysis facts.
 struct AnalysisEvidence {
@@ -53,4 +53,4 @@ struct StackVariable {
     AnalysisEvidence evidence;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

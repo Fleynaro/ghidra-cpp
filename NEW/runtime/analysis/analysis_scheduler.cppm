@@ -1,15 +1,15 @@
-export module ghidra.runtime.analysis.scheduler;
+export module recode.runtime.analysis.scheduler;
 
 import std;
-import ghidra.core;
-import ghidra.runtime.analysis.registry;
-import ghidra.runtime.analysis.coalescer;
-import ghidra.runtime.workers.pool;
+import recode.core;
+import recode.runtime.analysis.registry;
+import recode.runtime.analysis.coalescer;
+import recode.runtime.workers.pool;
 
-export namespace ghidra::runtime::analysis {
+export namespace recode::runtime::analysis {
 
-namespace core = ghidra::core;
-namespace workers = ghidra::runtime::workers;
+namespace core = recode::core;
+namespace workers = recode::runtime::workers;
 
 /// Reports one deterministic scheduler run and all analyzer outcomes.
 struct SchedulerReport {
@@ -66,4 +66,4 @@ private:
     std::shared_ptr<workers::WorkerPool> workers_;
 };
 
-} // namespace ghidra::runtime::analysis
+} // namespace recode::runtime::analysis

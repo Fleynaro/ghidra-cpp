@@ -1,10 +1,10 @@
-export module ghidra.service.translation_engine.native.error;
+export module recode.service.translation_engine.native.error;
 
-export import ghidra.core.diagnostics;
+export import recode.core.diagnostics;
 
-export namespace ghidra::services::translation_engine::native {
+export namespace recode::services::translation_engine::native {
 
 /// Canonical translation error value.
-using TranslationError = ghidra::core::Error;
+using TranslationError = recode::core::Error;
 
-} // namespace ghidra::services::translation_engine::native
+} // namespace recode::services::translation_engine::native

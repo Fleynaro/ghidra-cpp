@@ -56,4 +56,4 @@ Archive contents and matching signatures are versioned Ghidra data. If the insta
 
 ## Reproduction
 
-Run `build.bat` in this directory. From the repository root, run `TEST\run_ghidra_python.bat NEW\\features\\analyzers\apply_data_archives\\tests\\data\\\\run_ghidra.py`.
+Run `build.bat` in this directory. From the repository root, run `TEST\run_ghidra_python.bat \features\\analyzers\apply_data_archives\\tests\\data\\\\run_ghidra.py`.

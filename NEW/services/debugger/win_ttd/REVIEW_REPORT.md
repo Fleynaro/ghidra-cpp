@@ -2,10 +2,10 @@
 
 ## Scope and method
 
-- [x] Scope confirmed: `win_ttd.cppm`, the nested `recorder` adapter, their CMake files, tests, README/`GHIDRA_PORT.md` files, `core/contracts/debugger.cppm`, `core/contracts/trace_recorder.cppm`, `core/domain/replay.cppm`, `core/domain/trace_recording.cppm`, service integration, dependency bootstrap, and the comparison test `NEW/services/debugger/win_dbg_eng/tests/debugger_contract_tests.cppm`.
+- [x] Scope confirmed: `win_ttd.cppm`, the nested `recorder` adapter, their CMake files, tests, README/`GHIDRA_PORT.md` files, `core/contracts/debugger.cppm`, `core/contracts/trace_recorder.cppm`, `core/domain/replay.cppm`, `core/domain/trace_recording.cppm`, service integration, dependency bootstrap, and the comparison test `services/debugger/win_dbg_eng/tests/debugger_contract_tests.cppm`.
 - [x] Review date: 2026-09-17.
 - [x] Reviewer: Kilo, independent read-only implementation review.
-- [x] Reviewed the current working tree and staged deletion of the former `NEW/services/trace_recorder/win_ttd` implementation while the recorder was moved under `win_ttd/recorder`.
+- [x] Reviewed the current working tree and staged deletion of the former `services/trace_recorder/win_ttd` implementation while the recorder was moved under `win_ttd/recorder`.
 - [x] Compared native calls with the checked-in Microsoft TTD samples and the copied Microsoft API package/bootstrap inputs.
 - [x] Source, contracts, CMake, tests, and documentation were inspected directly.
 - [x] `git diff --check` completed without whitespace errors.
@@ -56,7 +56,7 @@ No findings.
 - [x] Remediation status: fixed by passing the returned `OperationControl` token into the worker and adding opt-in cancellation coverage.
 - **Source:** `recorder/win_ttd.cppm:87-114` and `recorder/win_ttd.cppm:162-167`.
 - **Affected component:** `WinTtdRecorder` asynchronous operation and `ITraceRecorder` cancellation contract.
-- **Technical evidence:** `record` creates and returns an `OperationControl` at lines 87-114, but the worker captures neither that control nor its cancellation token. `run` checks only `context.cancellation`, while `Task::cancel()` sets the returned control (`NEW/core/contracts/operation.cppm:92-96`).
+- **Technical evidence:** `record` creates and returns an `OperationControl` at lines 87-114, but the worker captures neither that control nor its cancellation token. `run` checks only `context.cancellation`, while `Task::cancel()` sets the returned control (`core/contracts/operation.cppm:92-96`).
 - **Expected behavior:** Calling `Task::cancel()` must request cancellation that the worker observes and translate to a bounded cancelled result.
 - **Actual behavior:** Calling `task.cancel()` changes an object no worker reads; the TTD process continues until it exits or a separate direct `ITraceRecorder::cancel()` call is made.
 - **Impact:** Runtime clients cannot stop a long-running recording through the standard task API. This can leave elevated TTD processes and large trace files running indefinitely.
@@ -64,12 +64,12 @@ No findings.
 - **Root cause:** The implementation has two unrelated cancellation channels and ignores the channel exposed by `Task`.
 - **Recommended fix:** Reuse `context.operation` when supplied or pass the created control into `run`; poll both operation cancellation and `std::stop_token`, and centralize process termination/wait cleanup.
 - **Regression risks:** Ensure cancellation before `CreateProcessW` does not launch TTD and cancellation after process exit is idempotent.
-- **Relevant validation:** `ITraceRecorder::record/cancel` is declared in `NEW/core/contracts/trace_recorder.cppm:15-19`; no test covers `Task::cancel`.
+- **Relevant validation:** `ITraceRecorder::record/cancel` is declared in `core/contracts/trace_recorder.cppm:15-19`; no test covers `Task::cancel`.
 
 #### HIGH-004: Recorder request environment semantics are silently violated
 
 - [x] Remediation status: fixed with a double-NUL UTF-16 environment block, inheritance policy, and explicit environment test.
-- **Source:** `recorder/win_ttd.cppm:146-155`; contract values are in `NEW/core/domain/trace_recording.cppm:10-20`.
+- **Source:** `recorder/win_ttd.cppm:146-155`; contract values are in `core/domain/trace_recording.cppm:10-20`.
 - **Affected component:** Windows child-process setup and recording reproducibility/security.
 - **Technical evidence:** `RecordingRequest` exposes `environment` and `inherit_environment`, but `CreateProcessW` is called with a null environment block. That means the child inherits the recorder's environment regardless of `inherit_environment`, and no request entries are passed. The command builder also has no environment handling.
 - **Expected behavior:** Apply the requested environment and inheritance policy, or reject unsupported fields explicitly before launching.
@@ -161,7 +161,7 @@ No findings.
 #### MEDIUM-003: Replay event APIs are a silent no-op
 
 - [x] Remediation status: fixed by returning explicit `unsupported` diagnostics instead of successful empty/no-op results; callback queue implementation remains future work.
-- **Source:** `win_ttd.cppm:475-483`; inherited contract `NEW/core/contracts/debugger.cppm:68-71`.
+- **Source:** `win_ttd.cppm:475-483`; inherited contract `core/contracts/debugger.cppm:68-71`.
 - **Affected component:** `IBaseDebugSession` event delivery for replay.
 - **Technical evidence:** `poll_events()` always returns an empty vector, while `set_event_sink()` stores a callback that is never invoked. The contract promises draining translated events and installing an event callback.
 - **Expected behavior:** Implement replay event translation, or return an explicit unsupported diagnostic for an operation not meaningful for this backend.
@@ -176,7 +176,7 @@ No findings.
 #### MEDIUM-004: Recorder child/options semantics are silently dropped
 
 - [x] Remediation status: fixed by mapping `record_children` to `-children` and rejecting unknown options before launch.
-- **Source:** `recorder/win_ttd.cppm:66-74`; values at `NEW/core/domain/trace_recording.cppm:17-20`.
+- **Source:** `recorder/win_ttd.cppm:66-74`; values at `core/domain/trace_recording.cppm:17-20`.
 - **Affected component:** Trace scope and backend option mapping.
 - **Technical evidence:** The initial command builder emitted only `-noUI`, `-out`, `-accepteula`, `-launch`, and target arguments. The corrected builder maps the documented `record_children` flag to `-children` and rejects unknown options.
 - **Expected behavior:** Map supported request fields or reject unsupported fields explicitly.
@@ -215,12 +215,12 @@ No findings.
 - **Failure scenario:** Configure with `-DTTD_APIS_PACKAGE_DIR=C:/managed/ttd` but no `TTD_APIS_PACKAGE_DIR` environment variable; CMake searches the TEST fallback instead. Configure ARM64 with x64 staged runtime and observe late loader failure.
 - **Root cause:** Dependency discovery was added as a local environment/fallback convention rather than a cache-aware, architecture-aware package contract.
 - **Recommended fix:** Declare `TTD_APIS_PACKAGE_DIR` as a `CACHE PATH` and only fill it when unset; validate package target architecture and stage runtime DLLs for the selected target. Keep the TEST path as an explicit opt-in default only if documented.
-- **Regression risks:** Preserve the unsupported fallback for ordinary builds without SDKs and keep `NEW_GHIDRA_REQUIRE_TTD_REPLAY=ON` fail-fast behavior.
+- **Regression risks:** Preserve the unsupported fallback for ordinary builds without SDKs and keep `RECODE_REQUIRE_TTD_REPLAY=ON` fail-fast behavior.
 - **Relevant validation:** The service-owned cache variables and bootstrap were configured, then a real native configure/build was completed.
 
 #### MEDIUM-007: Replay native coverage is opt-in and can pass without testing native replay
 
-- [x] Remediation status: fixed for required mode: `NEW\build.bat ttd_replay` sets `TTD_TEST_REQUIRED=1` and fails when `TTD_TEST_TRACE` is absent; the bootstrap/recording workflow supplies the real trace.
+- [x] Remediation status: fixed for required mode: `build.bat ttd_replay` sets `TTD_TEST_REQUIRED=1` and fails when `TTD_TEST_TRACE` is absent; the bootstrap/recording workflow supplies the real trace.
 - **Source:** `tests/replay_contract_tests.cppm:16-120` and `tests/CMakeLists.txt:1-17`.
 - **Affected component:** Replay regression suite.
 - **Technical evidence:** The first three tests exercise factory/invalid-path behavior and compile-time hierarchy. The only native integration test skips when `TTD_TEST_TRACE` is absent at lines 60-65. No deterministic trace is generated or checked in, and no fixture setup parallels the live debugger fixture.
@@ -285,7 +285,7 @@ No findings.
 - [x] Remediation status: fixed by recalculating parent/core/reference links after the recorder move.
 - **Source:** `README.md:11` and `recorder/README.md:5`.
 - **Affected component:** In-place C++ module navigation.
-- **Technical evidence:** From `NEW/services/debugger/win_ttd`, `../../../../core/contracts/debugger.cppm` points above `NEW`; the target is `../../../core/contracts/debugger.cppm`. From `recorder`, `../../CMakeLists.txt` points to the debugger parent rather than the recorder's immediate `win_ttd/CMakeLists.txt` integration boundary.
+- **Technical evidence:** From `services/debugger/win_ttd`, `../../../../core/contracts/debugger.cppm` points above the project root; the target is `../../../core/contracts/debugger.cppm`. From `recorder`, `../../CMakeLists.txt` points to the debugger parent rather than the recorder's immediate `win_ttd/CMakeLists.txt` integration boundary.
 - **Expected behavior:** Every README link resolves to the source/configuration it describes.
 - **Actual behavior:** Readers following the links reach nonexistent or unintended files.
 - **Impact:** Porting evidence and module navigation are less reliable, especially after moving the recorder.
@@ -298,15 +298,15 @@ No findings.
 #### LOW-002: `--no-test` build modes still select TTD test targets
 
 - [x] Remediation status: fixed by mapping both focused modes to their library targets in the no-test branch.
-- **Source:** `NEW/build.bat:92-100` and the `--no-test` target remapping block at `NEW/build.bat:274-320`.
+- **Source:** `build.bat:92-100` and the `--no-test` target remapping block at `build.bat:274-320`.
 - **Affected component:** Focused build workflow.
-- **Technical evidence:** This was present in the initial review; the no-test remapping now selects `new_ghidra_ttd_recorder` and `new_ghidra_win_ttd_replay` explicitly.
+- **Technical evidence:** This was present in the initial review; the no-test remapping now selects `recode_ttd_recorder` and `recode_win_ttd_replay` explicitly.
 - **Expected behavior:** `--no-test` should build the recorder/replay libraries without test executables or test execution.
 - **Actual behavior:** The selected test target remains when tests are disabled, so the focused command can still compile test sources or fail because the target graph differs.
 - **Impact:** Slow or misleading dependency-only builds and a broken documented incremental workflow.
-- **Failure scenario:** Run `NEW\build.bat ttd_replay --no-test` or `trace_recorder --no-test` and inspect the requested target.
+- **Failure scenario:** Run `build.bat ttd_replay --no-test` or `trace_recorder --no-test` and inspect the requested target.
 - **Root cause:** New mode selectors were added without updating the existing target remapping table.
-- **Recommended fix:** Map the modes to `new_ghidra_win_ttd_replay` and `new_ghidra_ttd_recorder` in the no-test branch and add a script smoke check.
+- **Recommended fix:** Map the modes to `recode_win_ttd_replay` and `recode_ttd_recorder` in the no-test branch and add a script smoke check.
 - **Regression risks:** Keep test-enabled mode target names unchanged.
 - **Relevant validation:** Static inspection only; no build wrapper was executed.
 
@@ -328,16 +328,16 @@ No findings.
 ## Verified strengths
 
 - [x] Native replay objects use `UniqueReplayEngine` and `UniqueCursor` rather than raw `delete` (`win_ttd.cppm:558-560`).
-- [x] Replay and live debugger contracts are separated: `IReplayDebugSession` does not derive from `ILiveDebugSession` (`NEW/core/contracts/debugger.cppm:130-161`), and the replay test has compile-time assertions (`tests/replay_contract_tests.cppm:21-24`).
+- [x] Replay and live debugger contracts are separated: `IReplayDebugSession` does not derive from `ILiveDebugSession` (`core/contracts/debugger.cppm:130-161`), and the replay test has compile-time assertions (`tests/replay_contract_tests.cppm:21-24`).
 - [x] The service provides structured unsupported/resource/invalid-argument diagnostics for common missing-dependency and invalid-input paths.
 - [x] The recorder uses a mutable command line with `CreateProcessW` and closes the thread handle, rather than relying on a shell command string.
-- [x] CMake target names are distinct (`NewGhidra::WinTtdReplay` and `NewGhidra::TtdRecorder`) and both are included in `new_ghidra_services` (`NEW/services/CMakeLists.txt:14-27`).
+- [x] CMake target names are distinct (`ReCode::WinTtdReplay` and `ReCode::TtdRecorder`) and both are included in `recode_services` (`services/CMakeLists.txt:14-27`).
 - [x] Both focused test executables are registered with CTest (`tests/CMakeLists.txt:16` and `recorder/tests/CMakeLists.txt:9`).
 
 ## Reviewed areas with no confirmed findings
 
 - No target-name collision remains in the current replay/recorder CMake files.
-- The core replay value types keep TTD native types out of `NEW/core/domain` and treat positions as opaque pairs (`NEW/core/domain/replay.cppm:5-17`).
+- The core replay value types keep TTD native types out of `core/domain` and treat positions as opaque pairs (`core/domain/replay.cppm:5-17`).
 - The normal no-package replay fallback is explicit rather than pretending that native replay is available (`CMakeLists.txt:39-44`).
 - No critical-severity defect was confirmed from the inspected source.
 
@@ -356,8 +356,8 @@ No findings.
 ## Unresolved questions and residual risks
 
 - The installed 0.9.5 API does not expose a complete portable event queue; replay event polling/sinks therefore return explicit `unsupported` diagnostics rather than pretending to deliver events.
-- The current working tree intentionally moves the recorder from the former sibling path `NEW/services/trace_recorder/win_ttd` to `NEW/services/debugger/win_ttd/recorder`; the portable `ITraceRecorder` contract remains source-compatible.
-- The real trace fixture is generated in-process by `NEW\build.bat ttd_all` and removed after a successful run; CI can use that one command instead of managing `TTD_TEST_TRACE` manually.
+- The current working tree intentionally moves the recorder from the former sibling path `services/trace_recorder/win_ttd` to `services/debugger/win_ttd/recorder`; the portable `ITraceRecorder` contract remains source-compatible.
+- The real trace fixture is generated in-process by `build.bat ttd_all` and removed after a successful run; CI can use that one command instead of managing `TTD_TEST_TRACE` manually.
 
 ## Final follow-up decision
 

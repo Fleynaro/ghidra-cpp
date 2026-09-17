@@ -1,4 +1,4 @@
-export module ghidra.decompiler;
+export module recode.decompiler;
 import std;
 export using std::toupper;
 export using std::isdigit;

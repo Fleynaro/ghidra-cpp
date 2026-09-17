@@ -1,25 +1,25 @@
-option(NEW_GHIDRA_REQUIRE_TTD_REPLAY "Fail configuration unless real Microsoft TTD Replay is available" OFF)
+option(RECODE_REQUIRE_TTD_REPLAY "Fail configuration unless real Microsoft TTD Replay is available" OFF)
 
 if(WIN32)
-    add_custom_target(new_ghidra_win_ttd_setup
+    add_custom_target(recode_win_ttd_setup
         COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/setup_dependencies.bat"
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         USES_TERMINAL
         COMMENT "Restoring Windows TTD API and Replay runtime dependencies"
     )
 else()
-    add_custom_target(new_ghidra_win_ttd_setup
+    add_custom_target(recode_win_ttd_setup
         COMMAND ${CMAKE_COMMAND} -E echo "TTD dependency setup requires Windows"
         COMMAND ${CMAKE_COMMAND} -E false
         USES_TERMINAL
     )
 endif()
 
-add_library(new_ghidra_win_ttd_replay STATIC)
-target_sources(new_ghidra_win_ttd_replay PUBLIC FILE_SET cxx_modules TYPE CXX_MODULES FILES win_ttd.cppm)
-add_library(NewGhidra::WinTtdReplay ALIAS new_ghidra_win_ttd_replay)
-target_link_libraries(new_ghidra_win_ttd_replay PUBLIC NewGhidra::Core NewGhidra::Std)
-target_compile_features(new_ghidra_win_ttd_replay PUBLIC cxx_std_23)
+add_library(recode_win_ttd_replay STATIC)
+target_sources(recode_win_ttd_replay PUBLIC FILE_SET cxx_modules TYPE CXX_MODULES FILES win_ttd.cppm)
+add_library(ReCode::WinTtdReplay ALIAS recode_win_ttd_replay)
+target_link_libraries(recode_win_ttd_replay PUBLIC ReCode::Core ReCode::Std)
+target_compile_features(recode_win_ttd_replay PUBLIC cxx_std_23)
 
 if(WIN32)
     if(DEFINED ENV{TTD_RUNTIME_DIR} AND NOT "$ENV{TTD_RUNTIME_DIR}" STREQUAL "")
@@ -44,19 +44,19 @@ if(WIN32)
     file(TO_CMAKE_PATH "${TTD_APIS_PACKAGE_DIR}" TTD_APIS_PACKAGE_DIR_CMAKE)
     find_package(Microsoft.TimeTravelDebugging.Apis CONFIG QUIET PATHS "${TTD_APIS_PACKAGE_DIR_CMAKE}/CMake" NO_DEFAULT_PATH)
     if(Microsoft.TimeTravelDebugging.Apis_FOUND)
-        set(NEW_GHIDRA_HAS_TTD_REPLAY ON)
-        target_compile_definitions(new_ghidra_win_ttd_replay PUBLIC NEW_GHIDRA_HAS_TTD_REPLAY)
-        target_link_libraries(new_ghidra_win_ttd_replay PRIVATE Microsoft.TimeTravelDebugging.Apis::TTDReplay)
+        set(RECODE_HAS_TTD_REPLAY ON)
+        target_compile_definitions(recode_win_ttd_replay PUBLIC RECODE_HAS_TTD_REPLAY)
+        target_link_libraries(recode_win_ttd_replay PRIVATE Microsoft.TimeTravelDebugging.Apis::TTDReplay)
         if(TTD_RUNTIME_DIR AND EXISTS "${TTD_RUNTIME_DIR}/TTDReplay.dll" AND EXISTS "${TTD_RUNTIME_DIR}/TTDReplayCPU.dll")
-            add_custom_command(TARGET new_ghidra_win_ttd_replay POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different "${TTD_RUNTIME_DIR}/TTDReplay.dll" "$<TARGET_FILE_DIR:new_ghidra_win_ttd_replay>"
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different "${TTD_RUNTIME_DIR}/TTDReplayCPU.dll" "$<TARGET_FILE_DIR:new_ghidra_win_ttd_replay>"
+            add_custom_command(TARGET recode_win_ttd_replay POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different "${TTD_RUNTIME_DIR}/TTDReplay.dll" "$<TARGET_FILE_DIR:recode_win_ttd_replay>"
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different "${TTD_RUNTIME_DIR}/TTDReplayCPU.dll" "$<TARGET_FILE_DIR:recode_win_ttd_replay>"
             )
-        elseif(NEW_GHIDRA_REQUIRE_TTD_REPLAY)
+        elseif(RECODE_REQUIRE_TTD_REPLAY)
             message(FATAL_ERROR "Real TTD Replay was requested, but TTDReplay.dll and TTDReplayCPU.dll were not found. Set TTD_RUNTIME_DIR or run win_ttd/setup_dependencies.bat.")
         endif()
     else()
-        if(NEW_GHIDRA_REQUIRE_TTD_REPLAY)
+        if(RECODE_REQUIRE_TTD_REPLAY)
             message(FATAL_ERROR "Real TTD Replay was requested, but Microsoft.TimeTravelDebugging.Apis was not found. Run win_ttd/setup_dependencies.bat or set TTD_APIS_PACKAGE_DIR.")
         endif()
         message(WARNING "Microsoft TTD Replay API package not found; WinTtd service will report unsupported")

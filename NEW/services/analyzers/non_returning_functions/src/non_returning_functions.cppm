@@ -4,7 +4,7 @@ import analyzer;
 import std;
 
 /// Owns both no-return analysis phases provided by this feature module.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class KnownNoReturnFunctionsAnalyzer final : public Analyzer {
 public:
     /// Returns the early no-return priority and metadata event contract.
@@ -22,9 +22,9 @@ public:
     /// Applies known-name and repeated post-call evidence rules.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Returns whether a reference carries a direct or computed call flow.
@@ -366,4 +366,4 @@ void NonReturningFunctionsAnalyzer::analyze(AnalysisContext& context, std::span<
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

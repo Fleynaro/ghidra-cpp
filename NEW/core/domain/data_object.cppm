@@ -1,11 +1,11 @@
-export module ghidra.core.data_object;
+export module recode.core.data_object;
 
 import std;
-import ghidra.core.address_range;
-import ghidra.core.data_type;
-import ghidra.core.identifiers;
+import recode.core.address_range;
+import recode.core.data_type;
+import recode.core.identifiers;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Stores a typed data listing object independently from raw image bytes.
 struct DataObject {
@@ -20,4 +20,4 @@ struct DataObject {
     std::string provenance;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

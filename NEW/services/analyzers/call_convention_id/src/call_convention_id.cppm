@@ -9,7 +9,7 @@ import std;
 // Ghidra/Features/Decompiler/src/main/java/ghidra/app/plugin/core/analysis/
 // DecompilerCallConventionAnalyzer.java and DecompilerParallelConventionAnalysisCmd.java.
 
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 
 /// Extracts an explicit convention emitted by the native decompiler C printer.
 [[nodiscard]] std::optional<std::string> identify_calling_convention(std::string_view c_source);
@@ -24,23 +24,23 @@ public:
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Supplies PE bytes to the decompiler's immutable memory boundary.
-class ContextMemory final : public newghidra::decompiler::MemoryProvider {
+class ContextMemory final : public recode::decompiler::MemoryProvider {
 public:
     /// Borrows the analysis context for the synchronous decompilation call.
     explicit ContextMemory(const AnalysisContext& context) : context_(context) {}
 
     /// Reads exactly the requested preferred-image range.
-    [[nodiscard]] std::expected<std::vector<std::uint8_t>, newghidra::decompiler::ProviderError>
+    [[nodiscard]] std::expected<std::vector<std::uint8_t>, recode::decompiler::ProviderError>
     read(std::uint64_t address, std::size_t size) const override {
         const auto bytes = context_.image().read_memory(address, size);
         if (!bytes)
-            return std::unexpected(newghidra::decompiler::ProviderError{bytes.error().message});
+            return std::unexpected(recode::decompiler::ProviderError{bytes.error().message});
         return *bytes;
     }
 
@@ -49,17 +49,17 @@ private:
 };
 
 /// Converts one Sleigh instruction into the decompiler provider contract.
-class ContextPcode final : public newghidra::decompiler::PcodeProvider {
+class ContextPcode final : public recode::decompiler::PcodeProvider {
 public:
     /// Borrows the decoder for the synchronous decompilation call.
     explicit ContextPcode(const AnalysisContext& context) : context_(context) {}
 
     /// Decodes and materializes all p-code operations for one instruction.
-    [[nodiscard]] std::expected<newghidra::decompiler::Instruction, newghidra::decompiler::ProviderError>
+    [[nodiscard]] std::expected<recode::decompiler::Instruction, recode::decompiler::ProviderError>
     decode(std::uint64_t address) const override {
         const auto decoded = context_.decode(address);
         if (!decoded)
-            return std::unexpected(newghidra::decompiler::ProviderError{decoded.error().message});
+            return std::unexpected(recode::decompiler::ProviderError{decoded.error().message});
         return *decoded;
     }
 
@@ -68,18 +68,18 @@ private:
 };
 
 /// Supplies the prototype already retained by the analyzer model.
-class ContextPrototype final : public newghidra::decompiler::PrototypeProvider {
+class ContextPrototype final : public recode::decompiler::PrototypeProvider {
 public:
     /// Borrows the function table for one synchronous frontend invocation.
     explicit ContextPrototype(const AnalysisContext& context) : context_(context) {}
 
     /// Converts the current native function signature without adding ABI guesses.
-    [[nodiscard]] std::optional<newghidra::decompiler::PrototypeDescription>
+    [[nodiscard]] std::optional<recode::decompiler::PrototypeDescription>
     prototype_at(std::uint64_t address) const override {
         const auto* function = context_.function_at(address);
         if (!function)
             return std::nullopt;
-        newghidra::decompiler::PrototypeDescription prototype;
+        recode::decompiler::PrototypeDescription prototype;
         prototype.calling_convention = function->calling_convention.empty() ? "default" : function->calling_convention;
         prototype.return_type = function->return_type.empty() ? "void" : function->return_type;
         prototype.parameters.reserve(function->parameters.size());
@@ -90,7 +90,7 @@ public:
 
 private:
     /// Parses only storage strings already supplied by the model.
-    [[nodiscard]] static std::optional<newghidra::decompiler::Storage> storage_from(std::string_view value) {
+    [[nodiscard]] static std::optional<recode::decompiler::Storage> storage_from(std::string_view value) {
         if (value.empty())
             return std::nullopt;
         const auto first = value.find(':');
@@ -113,27 +113,26 @@ private:
         const auto size = parse(value.substr(second + 1U));
         if (!offset || !size)
             return std::nullopt;
-        return newghidra::decompiler::Storage{std::string(value.substr(0, first)), *offset,
-                                              static_cast<std::uint32_t>(*size)};
+        return recode::decompiler::Storage{std::string(value.substr(0, first)), *offset,
+                                           static_cast<std::uint32_t>(*size)};
     }
 
     const AnalysisContext& context_;
 };
 
 /// Supplies the current function name to the decompiler printer.
-class ContextSymbols final : public newghidra::decompiler::SymbolProvider {
+class ContextSymbols final : public recode::decompiler::SymbolProvider {
 public:
     /// Borrows function names for one synchronous frontend invocation.
     explicit ContextSymbols(const AnalysisContext& context) : context_(context) {}
 
     /// Returns the function symbol at an exact address.
-    [[nodiscard]] std::optional<newghidra::decompiler::SymbolDescription>
-    symbol_at(std::uint64_t address) const override {
+    [[nodiscard]] std::optional<recode::decompiler::SymbolDescription> symbol_at(std::uint64_t address) const override {
         const auto* function = context_.function_at(address);
         if (!function)
             return std::nullopt;
-        return newghidra::decompiler::SymbolDescription{
-            address, function->name, {}, newghidra::decompiler::SymbolKind::function, 0, {}, false};
+        return recode::decompiler::SymbolDescription{
+            address, function->name, {}, recode::decompiler::SymbolKind::function, 0, {}, false};
     }
 
 private:
@@ -141,8 +140,8 @@ private:
 };
 
 /// Creates the x86-64 architecture facts required by the existing decompiler frontend.
-[[nodiscard]] newghidra::decompiler::ArchitectureDescription architecture() {
-    return newghidra::decompiler::make_x86_64_architecture();
+[[nodiscard]] recode::decompiler::ArchitectureDescription architecture() {
+    return recode::decompiler::make_x86_64_architecture();
 }
 
 /// Returns the exclusive native function end used by the frontend.
@@ -155,17 +154,17 @@ private:
 }
 
 /// Runs the same decompiler frontend used by the CLI against one native function.
-[[nodiscard]] std::optional<newghidra::decompiler::DecompilationResult> decompile(const AnalysisContext& context,
-                                                                                  const Function& function) {
+[[nodiscard]] std::optional<recode::decompiler::DecompilationResult> decompile(const AnalysisContext& context,
+                                                                               const Function& function) {
     const auto end = function_end(function);
     if (!end || *end <= function.entry)
         return std::nullopt;
-    newghidra::decompiler::ProviderContext providers;
+    recode::decompiler::ProviderContext providers;
     providers.pcode = std::make_shared<ContextPcode>(context);
     providers.memory = std::make_shared<ContextMemory>(context);
     providers.prototypes = std::make_shared<ContextPrototype>(context);
     providers.symbols = std::make_shared<ContextSymbols>(context);
-    newghidra::decompiler::Decompiler frontend(architecture(), std::move(providers));
+    recode::decompiler::Decompiler frontend(architecture(), std::move(providers));
     return frontend.decompile({function.name, function.entry, *end});
 }
 
@@ -217,4 +216,4 @@ void CallConventionIdAnalyzer::analyze(AnalysisContext& context, std::span<const
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

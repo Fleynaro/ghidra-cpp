@@ -10,7 +10,7 @@ import analyzer_subroutine_references;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies stack analysis consumes real PE/Sleigh operands and reports golden local names.
@@ -75,4 +75,4 @@ TEST(AnalyzerPipelineTest, FindsStackVariablesAndReferences) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

@@ -29,7 +29,7 @@ import analyzer_windows_pe_x86_propagate_external_parameters;
 import analyzer_windows_resource_reference;
 import analyzer_x86_constant_reference;
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 
 /// Registers the complete built-in pipeline for the aggregate application target.
 /// Individual analyzer libraries intentionally do not depend on this aggregate
@@ -71,4 +71,4 @@ void register_builtin_analyzers_impl(AutoAnalysisManager& manager) {
     manager.register_analyzer(std::make_unique<PdbMsdiaAnalyzer>());
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

@@ -4,7 +4,7 @@ import analyzer;
 import std;
 
 /// Owns the entry-point disassembly analyzer declaration and implementation.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class DisassembleEntryPointsAnalyzer final : public Analyzer {
 public:
     /// Returns the Ghidra analyzer name and block-analysis priority.
@@ -13,9 +13,9 @@ public:
     /// Processes new memory and external-entry events.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 
 /// Returns the EntryPointAnalyzer name and its byte-analysis priority.
 AnalyzerDescriptor DisassembleEntryPointsAnalyzer::descriptor() const {
@@ -55,4 +55,4 @@ void DisassembleEntryPointsAnalyzer::analyze(AnalysisContext& context, std::span
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

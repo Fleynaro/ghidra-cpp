@@ -1,7 +1,7 @@
 export module function_id:types;
 
 import std;
-import ghidra.core.operand;
+import recode.core.operand;
 
 // Ported/adapted from Ghidra:
 // Features/FunctionID/src/main/java/ghidra/feature/fid/hash/FunctionRecord.java
@@ -34,8 +34,8 @@ struct Error {
 };
 
 /// Reuses the canonical operand object facts while keeping FID-specific instruction masks local.
-using OperandObjectKind = ghidra::core::OperandObject::Kind;
-using OperandObject = ghidra::core::OperandObject;
+using OperandObjectKind = recode::core::OperandObject::Kind;
+using OperandObject = recode::core::OperandObject;
 
 /// Describes one instruction in the order used by FunctionBodyFunctionExtentGenerator.
 /// The instruction mask and operand masks use the same byte ordering as the instruction bytes.

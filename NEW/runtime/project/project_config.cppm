@@ -1,9 +1,9 @@
-export module ghidra.runtime.project.config;
+export module recode.runtime.project.config;
 
 import std;
-import ghidra.core;
+import recode.core;
 
-export namespace ghidra::runtime::project {
+export namespace recode::runtime::project {
 
 /// Stores durable project-open options and the primary input identity.
 struct ProjectConfig {
@@ -23,4 +23,4 @@ struct ProjectResources {
     std::string compiler_spec_id;
 };
 
-} // namespace ghidra::runtime::project
+} // namespace recode::runtime::project

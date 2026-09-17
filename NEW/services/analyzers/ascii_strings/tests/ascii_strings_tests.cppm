@@ -8,7 +8,7 @@ import analyzer_ascii_strings;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies the checked-in ASCII fixture creates both terminated strings and preserves negatives.
@@ -41,4 +41,4 @@ TEST(AsciiStringsAnalyzerTest, PreservesDefaultOptionsAndPriority) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

@@ -1,9 +1,9 @@
-export module ghidra.core.storage_location;
+export module recode.core.storage_location;
 
 import std;
-import ghidra.core.address_space;
+import recode.core.address_space;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Identifies a fixed-size storage location used by p-code and ABI descriptions.
 struct StorageLocation {
@@ -36,4 +36,4 @@ struct RegisterDescriptor {
     std::uint32_t bit_size{};
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

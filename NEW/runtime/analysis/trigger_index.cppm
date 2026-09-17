@@ -1,11 +1,11 @@
-export module ghidra.runtime.analysis.trigger_index;
+export module recode.runtime.analysis.trigger_index;
 
 import std;
-import ghidra.core;
+import recode.core;
 
-export namespace ghidra::runtime::analysis {
+export namespace recode::runtime::analysis {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Indexes analyzer IDs by event type for bounded trigger selection.
 class TriggerIndex final {
@@ -31,4 +31,4 @@ private:
     std::map<std::string, std::set<std::string>> analyzers_;
 };
 
-} // namespace ghidra::runtime::analysis
+} // namespace recode::runtime::analysis

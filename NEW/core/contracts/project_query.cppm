@@ -1,16 +1,16 @@
-export module ghidra.core.contracts.project_query;
+export module recode.core.contracts.project_query;
 
 import std;
-import ghidra.core.address;
-import ghidra.core.data_object;
-import ghidra.core.function;
-import ghidra.core.identifiers;
-import ghidra.core.instruction;
-import ghidra.core.memory_region;
-import ghidra.core.reference;
-import ghidra.core.symbol;
+import recode.core.address;
+import recode.core.data_object;
+import recode.core.function;
+import recode.core.identifiers;
+import recode.core.instruction;
+import recode.core.memory_region;
+import recode.core.reference;
+import recode.core.symbol;
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
 /// Provides a revision-stamped read-only view over the current projection.
 class IProjectQuery {
@@ -49,4 +49,4 @@ public:
     [[nodiscard]] virtual std::vector<MemoryRegion> memory_regions() const = 0;
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

@@ -55,7 +55,7 @@ No findings.
 
 - [ ] Remediation status: open.
 - Severity: medium.
-- Title: the C++ test accepts either the unchanged result or `__fastcall`, and the PyGhidra fixture does not execute `NEW`.
+- Title: the C++ test accepts either the unchanged result or `__fastcall`, and the PyGhidra fixture does not exercise ReCode.
 - Exact references: [`tests/call_convention_id_tests.cppm:19-34`](tests/call_convention_id_tests.cppm#L19-L34), especially line 32; [`tests/data/run_ghidra.py:147-173`](tests/data/run_ghidra.py#L147-L173); [`tests/data/test_call_convention_id.md:21-46`](tests/data/test_call_convention_id.md#L21-L46); [`CMakeLists.txt:7-13`](CMakeLists.txt#L7-L13).
 - Affected component: regression infrastructure and claimed behavioral evidence.
 - Technical evidence: line 32 asserts `calling_convention == "default" || calling_convention == "__fastcall"`, so a no-op passes. `run_ghidra.py` imports `pyghidra`, imports the program into Ghidra, and calls `project.analyze`; it never loads a native library or invokes the C++ analyzer. The CMake file registers only `analyzer_call_convention_id_tests`, not the script or Markdown report.
@@ -87,7 +87,7 @@ No findings.
 
 - [x] Original Java analyzer, command, native implementation, native tests, fixture script, report, and CMake registration were inspected.
 - [ ] Focused build/test was not run by this audit.
-- [ ] `NEW\format.bat analyzer` and `NEW\tidy.bat analyzer --check` were not run by this audit.
+- [ ] `format.bat analyzer` and `tidy.bat analyzer --check` were not run by this audit.
 - [x] No implementation, test, fixture, or build source was edited.
 
 ## Unresolved Questions And Residual Risks

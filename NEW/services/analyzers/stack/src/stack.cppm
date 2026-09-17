@@ -4,7 +4,7 @@ import analyzer;
 import std;
 
 /// Owns the stack variable analyzer declaration and implementation.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class StackAnalyzer final : public Analyzer {
 public:
     /// Returns the StackVariableAnalyzer-compatible contract.
@@ -13,9 +13,9 @@ public:
     /// Performs stack-frame discovery for newly created functions.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Parses a signed stack/frame-pointer displacement from Sleigh operand text.
@@ -202,4 +202,4 @@ void StackAnalyzer::analyze(AnalysisContext& context, std::span<const AnalysisEv
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

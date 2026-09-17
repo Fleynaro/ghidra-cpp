@@ -56,4 +56,4 @@ The installer only applies a fixup when the imported function name exactly match
 
 ## Reproduction
 
-Run `build.bat` in this directory. From the repository root, run `TEST\run_ghidra_python.bat NEW\\features\\analyzers\call_fixup_installer\\tests\\data\\\\run_ghidra.py`.
+Run `build.bat` in this directory. From the repository root, run `TEST\run_ghidra_python.bat \features\\analyzers\call_fixup_installer\\tests\\data\\\\run_ghidra.py`.

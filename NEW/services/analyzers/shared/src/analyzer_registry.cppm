@@ -12,7 +12,7 @@ import std;
 #define GHIDRA_ANALYZER_MODULE_EXPORT
 #endif
 
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 
 /// Stores extensible analyzer registrations without manager redesign.
 // Preserves the registration-name invariant from
@@ -56,4 +56,4 @@ private:
     std::vector<std::unique_ptr<Analyzer>> analyzers_;
 };
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

@@ -1,17 +1,17 @@
-export module ghidra.service.decompiler;
+export module recode.service.decompiler;
 
 import std;
-import ghidra.core;
-import ghidra.runtime.workers.pool;
+import recode.core;
+import recode.runtime.workers.pool;
 import decompiler;
 
-export namespace ghidra::services::decompiler {
+export namespace recode::services::decompiler {
 
-namespace core = ghidra::core;
-namespace runtime = ghidra::runtime;
+namespace core = recode::core;
+namespace runtime = recode::runtime;
 
 /// Bridges canonical memory reads to the native decompiler LoadImage contract.
-class LegacyMemoryProvider final : public newghidra::decompiler::MemoryProvider {
+class LegacyMemoryProvider final : public recode::decompiler::MemoryProvider {
 public:
     /// Retains a non-owning shared provider for the duration of a decompiler task.
     LegacyMemoryProvider(std::shared_ptr<const core::contracts::IMemoryProvider> memory,
@@ -19,22 +19,22 @@ public:
         : memory_(std::move(memory)), address_space_(std::move(address_space)) {}
 
     /// Reads a native ram range through the canonical provider.
-    [[nodiscard]] std::expected<std::vector<std::uint8_t>, newghidra::decompiler::ProviderError>
+    [[nodiscard]] std::expected<std::vector<std::uint8_t>, recode::decompiler::ProviderError>
     read(std::uint64_t address, std::size_t size) const override {
         auto bytes = memory_->read(core::Address{address_space_, address}, size);
         if (!bytes)
-            return std::unexpected(newghidra::decompiler::ProviderError{bytes.error().message});
+            return std::unexpected(recode::decompiler::ProviderError{bytes.error().message});
         return bytes->values();
     }
 
     /// Promotes canonical volatile ranges into the native memory-provider representation.
-    [[nodiscard]] std::vector<newghidra::decompiler::MemoryRangeDescription> volatile_ranges() const override {
-        std::vector<newghidra::decompiler::MemoryRangeDescription> result;
+    [[nodiscard]] std::vector<recode::decompiler::MemoryRangeDescription> volatile_ranges() const override {
+        std::vector<recode::decompiler::MemoryRangeDescription> result;
         for (const auto& range : memory_->volatile_ranges()) {
             if (range.start.space != address_space_)
                 continue;
-            result.push_back(newghidra::decompiler::MemoryRangeDescription{range.start.space.name(), range.start.offset,
-                                                                           range.end.offset - range.start.offset + 1U});
+            result.push_back(recode::decompiler::MemoryRangeDescription{range.start.space.name(), range.start.offset,
+                                                                        range.end.offset - range.start.offset + 1U});
         }
         return result;
     }
@@ -45,7 +45,7 @@ private:
 };
 
 /// Adapts the core decoder contract to the native decompiler p-code provider.
-class ContractPcodeProvider final : public newghidra::decompiler::PcodeProvider {
+class ContractPcodeProvider final : public recode::decompiler::PcodeProvider {
 public:
     /// Retains canonical decoder and memory contracts for one native task.
     ContractPcodeProvider(std::shared_ptr<const core::contracts::IPCodeDecoder> decoder,
@@ -54,17 +54,17 @@ public:
         : decoder_(std::move(decoder)), memory_(std::move(memory)), address_space_(std::move(address_space)) {}
 
     /// Reads a bounded instruction through the core decoder and converts its p-code values.
-    [[nodiscard]] std::expected<newghidra::decompiler::Instruction, newghidra::decompiler::ProviderError>
+    [[nodiscard]] std::expected<recode::decompiler::Instruction, recode::decompiler::ProviderError>
     decode(std::uint64_t address) const override {
         auto bytes = memory_->read(core::Address{address_space_, address}, 16);
         if (!bytes)
-            return std::unexpected(newghidra::decompiler::ProviderError{bytes.error().message});
+            return std::unexpected(recode::decompiler::ProviderError{bytes.error().message});
         core::contracts::DecodeRequest request;
         request.address = core::Address{address_space_, address};
         request.bytes = std::move(*bytes);
         auto decoded = decoder_->decode(request);
         if (!decoded)
-            return std::unexpected(newghidra::decompiler::ProviderError{decoded.error().message});
+            return std::unexpected(recode::decompiler::ProviderError{decoded.error().message});
         return *decoded;
     }
 
@@ -118,7 +118,7 @@ public:
             const auto architecture = request.providers.architecture
                                           ? make_native_architecture(*request.providers.architecture)
                                           : default_native_architecture();
-            newghidra::decompiler::Decompiler native{architecture, legacy_pcode, legacy_memory};
+            recode::decompiler::Decompiler native{architecture, legacy_pcode, legacy_memory};
             const auto ranges = request.function.body.ranges();
             if (ranges.empty())
                 return std::unexpected(core::Error::make(core::DiagnosticCode::invalid_argument,
@@ -129,7 +129,7 @@ public:
                 return std::unexpected(core::Error::make(core::DiagnosticCode::invalid_argument,
                                                          "Function body is too close to the address-space limit"));
             const auto native_end = body_end->end.offset + 16U;
-            const auto result = native.decompile(newghidra::decompiler::FunctionDescription{
+            const auto result = native.decompile(recode::decompiler::FunctionDescription{
                 request.function.name, request.function.key.entry.offset, native_end});
             core::Decompilation decompilation;
             decompilation.function = request.function.key;
@@ -156,9 +156,9 @@ public:
 
 private:
     /// Converts canonical architecture facts into the native frontend description without inventing x86 metadata.
-    [[nodiscard]] static newghidra::decompiler::ArchitectureDescription
+    [[nodiscard]] static recode::decompiler::ArchitectureDescription
     make_native_architecture(const core::ArchitectureDescription& source) {
-        newghidra::decompiler::ArchitectureDescription result;
+        recode::decompiler::ArchitectureDescription result;
         result.name = source.architecture_id.empty() ? source.language_id : source.architecture_id;
         result.code_space = source.code_space.name();
         result.data_space = source.data_space.name();
@@ -166,13 +166,13 @@ private:
         result.calling_convention = source.calling_conventions.empty() ? "default" : source.calling_conventions.front();
         for (std::size_t index = 0; index < source.spaces.size(); ++index) {
             const auto& space = source.spaces[index];
-            result.spaces.push_back(newghidra::decompiler::SpaceDescription{
+            result.spaces.push_back(recode::decompiler::SpaceDescription{
                 space.id.name(), std::max<std::uint32_t>(1, space.address_bits / 8), space.addressable_unit_size,
                 space.big_endian, static_cast<std::int32_t>(index), 0, space.physical});
         }
         for (const auto& register_description : source.registers)
             result.registers.push_back(
-                newghidra::decompiler::RegisterDescription{register_description.name, register_description.storage});
+                recode::decompiler::RegisterDescription{register_description.name, register_description.storage});
         const auto stack = std::ranges::find_if(result.registers, [](const auto& register_description) {
             return register_description.name == "RSP" || register_description.name == "SP";
         });
@@ -182,7 +182,7 @@ private:
     }
 
     /// Provides the explicit compatibility architecture for callers that have no architecture contract yet.
-    [[nodiscard]] static newghidra::decompiler::ArchitectureDescription default_native_architecture() {
+    [[nodiscard]] static recode::decompiler::ArchitectureDescription default_native_architecture() {
         core::ArchitectureDescription source;
         source.language_id = "x86:LE:64:default";
         source.architecture_id = "x86:LE:64:default:gcc";
@@ -240,4 +240,4 @@ private:
     std::shared_ptr<runtime::workers::WorkerPool> pool_;
 };
 
-} // namespace ghidra::services::decompiler
+} // namespace recode::services::decompiler

@@ -1,10 +1,10 @@
-export module ghidra.core.contracts.resource_manager;
+export module recode.core.contracts.resource_manager;
 
 import std;
-import ghidra.core.binary;
-import ghidra.core.diagnostics;
+import recode.core.binary;
+import recode.core.diagnostics;
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
 /// Loads and leases immutable analysis resources by content identity.
 class IResourceManager {
@@ -19,4 +19,4 @@ public:
     [[nodiscard]] virtual ResourceSetIdentity resource_set() const = 0;
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

@@ -1,9 +1,9 @@
-export module ghidra.runtime.resources.compiler_spec_cache;
+export module recode.runtime.resources.compiler_spec_cache;
 
 import std;
-import ghidra.core;
+import recode.core;
 
-export namespace ghidra::runtime::resources {
+export namespace recode::runtime::resources {
 
 /// Caches a compiler-spec identity without exposing parsed XML ownership.
 class CompilerSpecCache final {
@@ -22,4 +22,4 @@ private:
     std::optional<core::ResourceIdentity> identity_;
 };
 
-} // namespace ghidra::runtime::resources
+} // namespace recode::runtime::resources

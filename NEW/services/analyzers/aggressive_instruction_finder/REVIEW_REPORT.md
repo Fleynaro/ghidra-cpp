@@ -21,7 +21,7 @@ No findings.
 No findings.
 
 ## Validation
-- [x] `NEW\build.bat aggressive_instruction_finder` passes after the verified terminal-flow fix.
+- [x] `build.bat aggressive_instruction_finder` passes after the verified terminal-flow fix.
 - [x] No test reads Markdown at runtime.
 - [ ] Full 1:1 parity is not established because the ARM and scheduler contracts remain incomplete.
 

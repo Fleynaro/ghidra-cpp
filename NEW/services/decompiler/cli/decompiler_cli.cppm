@@ -5,34 +5,34 @@ import sleigh_runtime;
 
 namespace {
 
-using newghidra::decompiler::ArchitectureDescription;
-using newghidra::decompiler::ConstantFormatDescription;
-using newghidra::decompiler::DecompilationResult;
-using newghidra::decompiler::Decompiler;
-using newghidra::decompiler::DisplayFormat;
-using newghidra::decompiler::FlowDescription;
-using newghidra::decompiler::FlowProvider;
-using newghidra::decompiler::FunctionDescription;
-using newghidra::decompiler::FunctionProvider;
-using newghidra::decompiler::Instruction;
-using newghidra::decompiler::JumpTableDescription;
-using newghidra::decompiler::MemoryRangeDescription;
-using newghidra::decompiler::PcodeOperation;
-using newghidra::decompiler::PrototypeDescription;
-using newghidra::decompiler::PrototypeParameterDescription;
-using newghidra::decompiler::ProviderContext;
-using newghidra::decompiler::ProviderError;
-using newghidra::decompiler::RegisterDescription;
-using newghidra::decompiler::SpaceDescription;
-using newghidra::decompiler::Storage;
-using newghidra::decompiler::SymbolDescription;
-using newghidra::decompiler::SymbolKind;
-using newghidra::decompiler::TypeBitFieldDescription;
-using newghidra::decompiler::TypeDescription;
-using newghidra::decompiler::TypeEnumValueDescription;
-using newghidra::decompiler::TypeFieldDescription;
-using newghidra::decompiler::TypeKind;
-using newghidra::decompiler::VariableDescription;
+using recode::decompiler::ArchitectureDescription;
+using recode::decompiler::ConstantFormatDescription;
+using recode::decompiler::DecompilationResult;
+using recode::decompiler::Decompiler;
+using recode::decompiler::DisplayFormat;
+using recode::decompiler::FlowDescription;
+using recode::decompiler::FlowProvider;
+using recode::decompiler::FunctionDescription;
+using recode::decompiler::FunctionProvider;
+using recode::decompiler::Instruction;
+using recode::decompiler::JumpTableDescription;
+using recode::decompiler::MemoryRangeDescription;
+using recode::decompiler::PcodeOperation;
+using recode::decompiler::PrototypeDescription;
+using recode::decompiler::PrototypeParameterDescription;
+using recode::decompiler::ProviderContext;
+using recode::decompiler::ProviderError;
+using recode::decompiler::RegisterDescription;
+using recode::decompiler::SpaceDescription;
+using recode::decompiler::Storage;
+using recode::decompiler::SymbolDescription;
+using recode::decompiler::SymbolKind;
+using recode::decompiler::TypeBitFieldDescription;
+using recode::decompiler::TypeDescription;
+using recode::decompiler::TypeEnumValueDescription;
+using recode::decompiler::TypeFieldDescription;
+using recode::decompiler::TypeKind;
+using recode::decompiler::VariableDescription;
 
 /// Selects one or more rendered artifacts from a decompilation result.
 enum class OutputSection { summary, assembly, raw_pcode, high_pcode, data_flow, control_flow, ast, c_source };
@@ -531,7 +531,7 @@ Options parse_options(int argc, char* argv[]) {
 /// Prints the complete command syntax and the provider metadata grammar.
 void print_usage(std::ostream& output) {
     output << R"(Usage:
-  new_ghidra_decompiler --sla <name-or-path> --hex <bytes> [options]
+  recode_decompiler --sla <name-or-path> --hex <bytes> [options]
 
 Input:
   --sla <name-or-path>         SLA filename or explicit relative/absolute path, required in direct mode
@@ -600,22 +600,22 @@ public:
     }
 
     /// Returns the symbol provider, or null when no symbols were supplied.
-    [[nodiscard]] std::shared_ptr<newghidra::decompiler::SymbolProvider> symbols() const {
+    [[nodiscard]] std::shared_ptr<recode::decompiler::SymbolProvider> symbols() const {
         return symbols_;
     }
 
     /// Returns the type provider, or null when no types were supplied.
-    [[nodiscard]] std::shared_ptr<newghidra::decompiler::TypeProvider> types() const {
+    [[nodiscard]] std::shared_ptr<recode::decompiler::TypeProvider> types() const {
         return types_;
     }
 
     /// Returns the prototype provider, or null when no prototypes were supplied.
-    [[nodiscard]] std::shared_ptr<newghidra::decompiler::PrototypeProvider> prototypes() const {
+    [[nodiscard]] std::shared_ptr<recode::decompiler::PrototypeProvider> prototypes() const {
         return prototypes_;
     }
 
     /// Returns the local-variable provider, or null when no locals were supplied.
-    [[nodiscard]] std::shared_ptr<newghidra::decompiler::VariableProvider> variables() const {
+    [[nodiscard]] std::shared_ptr<recode::decompiler::VariableProvider> variables() const {
         return variables_;
     }
 
@@ -631,7 +631,7 @@ public:
 
 private:
     /// Implements lookup for externally supplied symbols.
-    class Symbols final : public newghidra::decompiler::SymbolProvider {
+    class Symbols final : public recode::decompiler::SymbolProvider {
     public:
         /// Stores immutable symbols for one invocation.
         explicit Symbols(std::vector<SymbolDescription> values) : values_(std::move(values)) {}
@@ -651,7 +651,7 @@ private:
     };
 
     /// Implements named type lookup.
-    class Types final : public newghidra::decompiler::TypeProvider {
+    class Types final : public recode::decompiler::TypeProvider {
     public:
         /// Stores immutable types for one invocation.
         explicit Types(std::vector<TypeDescription> values) : values_(std::move(values)) {}
@@ -667,7 +667,7 @@ private:
     };
 
     /// Implements address-keyed function prototypes.
-    class Prototypes final : public newghidra::decompiler::PrototypeProvider {
+    class Prototypes final : public recode::decompiler::PrototypeProvider {
     public:
         /// Stores immutable prototypes for one invocation.
         explicit Prototypes(std::vector<std::pair<std::uint64_t, PrototypeDescription>> values)
@@ -684,7 +684,7 @@ private:
     };
 
     /// Implements address-keyed local-variable lookup.
-    class Variables final : public newghidra::decompiler::VariableProvider {
+    class Variables final : public recode::decompiler::VariableProvider {
     public:
         /// Stores immutable local-variable sets for one invocation.
         explicit Variables(std::vector<std::pair<std::uint64_t, std::vector<VariableDescription>>> values)
@@ -865,9 +865,8 @@ int run_direct(const Options& options) {
     if (function_end <= options.address) {
         throw std::invalid_argument("function end must be greater than function address");
     }
-    auto memory = std::make_shared<newghidra::decompiler::SparseMemory>(image_base, image, options.volatile_ranges);
-    auto pcode =
-        std::make_shared<newghidra::decompiler::SleighPcodeProvider>(options.sla_path, memory, options.context);
+    auto memory = std::make_shared<recode::decompiler::SparseMemory>(image_base, image, options.volatile_ranges);
+    auto pcode = std::make_shared<recode::decompiler::SleighPcodeProvider>(options.sla_path, memory, options.context);
     CliProviders providers(options);
     ProviderContext context;
     context.pcode = std::move(pcode);

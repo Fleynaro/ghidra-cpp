@@ -1,8 +1,8 @@
-export module ghidra.core.pcode_opcode;
+export module recode.core.pcode_opcode;
 
 import std;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Stable public p-code opcode mapping; unknown values remain serializable.
 enum class PcodeOpcode : std::uint16_t {
@@ -106,4 +106,4 @@ enum class PcodeOpcode : std::uint16_t {
     }
 }
 
-} // namespace ghidra::core
+} // namespace recode::core

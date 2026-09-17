@@ -4,7 +4,7 @@ This module-local report is the recorder portion of [`../REVIEW_REPORT.md`](../R
 
 ## Scope and method
 
-- [x] Scope confirmed: `win_ttd.cppm`, recorder CMake/tests/docs, `NEW/core/contracts/trace_recorder.cppm`, `NEW/core/domain/trace_recording.cppm`, service integration, and reference TTD recorder setup.
+- [x] Scope confirmed: `win_ttd.cppm`, recorder CMake/tests/docs, `core/contracts/trace_recorder.cppm`, `core/domain/trace_recording.cppm`, service integration, and reference TTD recorder setup.
 - [x] Review date: 2026-09-17.
 - [x] Reviewer: Kilo, independent read-only implementation review.
 - [x] Source and test inspection completed; no production source was edited.
@@ -21,7 +21,7 @@ No findings.
 #### HIGH-001: `Task::cancel()` is disconnected from the worker
 
 - [x] Remediation status: fixed by passing the returned operation token into the worker and adding opt-in cancellation coverage.
-- **Source:** `win_ttd.cppm:87-114,162-167`; `NEW/core/contracts/operation.cppm:92-96`.
+- **Source:** `win_ttd.cppm:87-114,162-167`; `core/contracts/operation.cppm:92-96`.
 - **Affected component:** recorder task cancellation.
 - **Technical evidence:** The returned `Task` owns a new `OperationControl`, but the worker does not capture it and `run` only checks `context.cancellation`.
 - **Expected behavior:** `task.cancel()` requests and observes cancellation.
@@ -36,7 +36,7 @@ No findings.
 #### HIGH-002: Environment and inheritance requests are silently ignored
 
 - [x] Remediation status: fixed with explicit UTF-16 environment-block construction and clean-environment coverage.
-- **Source:** `win_ttd.cppm:146-155`; `NEW/core/domain/trace_recording.cppm:16-18`.
+- **Source:** `win_ttd.cppm:146-155`; `core/domain/trace_recording.cppm:16-18`.
 - **Affected component:** child process environment.
 - **Technical evidence:** `CreateProcessW` receives a null environment block, so the child always inherits the host environment; `RecordingRequest::environment` and `inherit_environment` are never read.
 - **Expected behavior:** Apply the request’s environment policy or reject unsupported fields.
@@ -83,7 +83,7 @@ No findings.
 #### MEDIUM-001: `record_children` and backend options are ignored
 
 - [x] Remediation status: fixed by mapping `record_children` to `-children` and rejecting unknown options.
-- **Source:** `win_ttd.cppm:66-74`; `NEW/core/domain/trace_recording.cppm:17-20`.
+- **Source:** `win_ttd.cppm:66-74`; `core/domain/trace_recording.cppm:17-20`.
 - **Affected component:** trace scope/options.
 - **Technical evidence:** The initial command contained no `-children` or option mapping; the corrected command now emits `-children` for `record_children` and rejects unknown options.
 - **Expected behavior:** Map supported fields or reject them.

@@ -4,7 +4,7 @@ import analyzer;
 import std;
 
 /// Owns the Create Address Tables analyzer declaration and implementation.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class CreateAddressTablesAnalyzer final : public Analyzer {
 public:
     /// Returns the AddressTableAnalyzer-compatible contract.
@@ -13,9 +13,9 @@ public:
     /// Finds contiguous valid pointer runs and materializes their table records.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Reads one little-endian PE pointer from a mapped address.
@@ -225,4 +225,4 @@ void CreateAddressTablesAnalyzer::analyze(AnalysisContext& context, std::span<co
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

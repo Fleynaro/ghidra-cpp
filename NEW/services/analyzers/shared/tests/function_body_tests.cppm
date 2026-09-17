@@ -7,7 +7,7 @@ export module function_body_tests;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies data references do not become control-flow edges during function creation.
@@ -420,4 +420,4 @@ TEST(AnalyzerPipelineTest, EnforcesCodeDataExclusionAndMaximumAddress) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

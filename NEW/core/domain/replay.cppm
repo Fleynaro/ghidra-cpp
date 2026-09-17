@@ -1,4 +1,4 @@
-export module ghidra.core.replay;
+export module recode.core.replay;
 
 import std;
 
@@ -6,7 +6,7 @@ import std;
 // The numeric pair is intentionally opaque: valid positions are trace-specific
 // and may contain gaps, so callers must not synthesize positions by arithmetic.
 
-export namespace ghidra::core::replay {
+export namespace recode::core::replay {
 
 /// Identifies one immutable point in a recorded execution timeline.
 struct Position {
@@ -49,4 +49,4 @@ struct TraceInfo {
     std::size_t keyframe_count{};
 };
 
-} // namespace ghidra::core::replay
+} // namespace recode::core::replay

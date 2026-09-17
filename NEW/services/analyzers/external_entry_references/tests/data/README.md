@@ -49,7 +49,7 @@ the entry is not a fall-through location.
 ## Reproduction
 
 Run `build.bat`, then
-`TEST\\run_ghidra_python.bat NEW\\features\\analyzer\\test_data\\external_entry_references\\run_ghidra.py`.
+`TEST\\run_ghidra_python.bat \features\\analyzer\\test_data\\external_entry_references\\run_ghidra.py`.
 
 An ordinary standalone EXE cannot manufacture a caller outside the image or a
 hand-edited external-entry table; this fixture therefore uses the real PE

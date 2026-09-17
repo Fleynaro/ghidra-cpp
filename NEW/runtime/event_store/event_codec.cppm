@@ -1,13 +1,13 @@
-export module ghidra.runtime.event_store.codec;
+export module recode.runtime.event_store.codec;
 
 import std;
-import ghidra.core;
-import ghidra.core.events.event;
-import ghidra.core.diagnostics;
+import recode.core;
+import recode.core.events.event;
+import recode.core.diagnostics;
 
-export namespace ghidra::runtime::event_store {
+export namespace recode::runtime::event_store {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Encodes and decodes deterministic length-delimited event envelopes.
 class EventCodec final {
@@ -143,4 +143,4 @@ private:
     };
 };
 
-} // namespace ghidra::runtime::event_store
+} // namespace recode::runtime::event_store

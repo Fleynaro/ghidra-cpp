@@ -1,22 +1,22 @@
-export module ghidra.core.contracts.command;
+export module recode.core.contracts.command;
 
 import std;
-import ghidra.core.data_object;
-import ghidra.core.binary;
-import ghidra.core.decompilation;
-import ghidra.core.events.event;
-import ghidra.core.function;
-import ghidra.core.function_id;
-import ghidra.core.flow;
-import ghidra.core.identifiers;
-import ghidra.core.instruction;
-import ghidra.core.reference;
-import ghidra.core.function_signature;
-import ghidra.core.contracts.operation;
-import ghidra.core.contracts.pe_loader;
-import ghidra.core.contracts.pcode_decoder;
+import recode.core.data_object;
+import recode.core.binary;
+import recode.core.decompilation;
+import recode.core.events.event;
+import recode.core.function;
+import recode.core.function_id;
+import recode.core.flow;
+import recode.core.identifiers;
+import recode.core.instruction;
+import recode.core.reference;
+import recode.core.function_signature;
+import recode.core.contracts.operation;
+import recode.core.contracts.pe_loader;
+import recode.core.contracts.pcode_decoder;
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
 /// Requests creation of a project session from one primary artifact.
 struct CreateProject {
@@ -140,4 +140,4 @@ public:
     [[nodiscard]] virtual Result<CommandResponse> handle(const CommandRequest& request) = 0;
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

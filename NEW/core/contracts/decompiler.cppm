@@ -1,16 +1,16 @@
-export module ghidra.core.contracts.decompiler;
+export module recode.core.contracts.decompiler;
 
 import std;
-import ghidra.core.architecture;
-import ghidra.core.decompilation;
-import ghidra.core.diagnostics;
-import ghidra.core.function;
-import ghidra.core.contracts.memory_provider;
-import ghidra.core.contracts.operation;
-import ghidra.core.contracts.pcode_decoder;
-import ghidra.core.contracts.project_query;
+import recode.core.architecture;
+import recode.core.decompilation;
+import recode.core.diagnostics;
+import recode.core.function;
+import recode.core.contracts.memory_provider;
+import recode.core.contracts.operation;
+import recode.core.contracts.pcode_decoder;
+import recode.core.contracts.project_query;
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
 /// Bundles immutable providers for one native decompiler session.
 struct ProviderContext {
@@ -43,4 +43,4 @@ public:
     [[nodiscard]] virtual Result<Decompilation> decompile_now(const DecompileRequest& request) = 0;
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

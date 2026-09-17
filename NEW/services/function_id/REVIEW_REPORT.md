@@ -19,7 +19,7 @@
 - [x] Profiling completed before the optimization.
 - [x] Bottleneck measured rather than inferred.
 - Severity: critical performance finding for the Function ID test workflow.
-- Environment: Windows `win32`, Visual Studio Developer Command Prompt `18.11.0-insiders`, MSVC `14.34.31933` x64, Ninja/CMake preserved build at `NEW/build`, Debug configuration (`/Od /RTC1` before scoped parser optimization), local checked-in `.fidb` files.
+- Environment: Windows `win32`, Visual Studio Developer Command Prompt `18.11.0-insiders`, MSVC `14.34.31933` x64, Ninja/CMake preserved build at `build`, Debug configuration (`/Od /RTC1` before scoped parser optimization), local checked-in `.fidb` files.
 - Baseline: the requested benchmark for the five acceptance tests was `53.07 s`. Direct profiling of the complete test process measured `14` database opens and approximately `64.7 s` of `Database::open` time under profiling instrumentation; the acceptance-only group measured `18.87 s` after the first cache implementation but before suite warm-up.
 - Source: `src/database.cppm:133-334`, `src/buffer_file.cppm:73-124`, `tests/function_id_tests.cpp:55-72` and `:197-220` before optimization.
 - Affected component: packed FID database storage/parsing and the test harness's serialized independent database opens.
@@ -117,11 +117,11 @@ No findings.
 ## Validation
 
 - [x] `git diff --check` completed without whitespace errors.
-- [x] `ctest --test-dir NEW/build -N` listed `function_id_tests` and `analyzer_function_id_tests`.
-- [x] `NEW\build.bat function_id` passed the full Function ID suite after the final optimization.
-- [x] `NEW\build.bat analyzer_global_integration` passed after the final FunctionID storage/cache changes (`37.58 s`).
+- [x] `ctest --test-dir build -N` listed `function_id_tests` and `analyzer_function_id_tests`.
+- [x] `build.bat function_id` passed the full Function ID suite after the final optimization.
+- [x] `build.bat analyzer_global_integration` passed after the final FunctionID storage/cache changes (`37.58 s`).
 - [x] Direct benchmark and per-database/parser-section profiling were performed; temporary profiling instrumentation was removed.
-- [ ] `NEW\tidy.bat function_id --check` was not clean because repository baseline clang-tidy/IFC diagnostics remain; no tidy fixes were applied.
+- [ ] `tidy.bat function_id --check` was not clean because repository baseline clang-tidy/IFC diagnostics remain; no tidy fixes were applied.
 
 ## Unresolved Questions And Residual Risks
 

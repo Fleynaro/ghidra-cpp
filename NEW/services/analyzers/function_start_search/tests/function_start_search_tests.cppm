@@ -9,7 +9,7 @@ import analyzer_function_start_search;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies the pattern phase creates both independent positive candidates while
@@ -56,4 +56,4 @@ TEST(AnalyzerPipelineTest, PatternSearchCreatesPositiveCandidate) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

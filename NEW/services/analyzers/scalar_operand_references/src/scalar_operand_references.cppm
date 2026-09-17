@@ -4,7 +4,7 @@ import analyzer;
 import std;
 
 /// Owns the scalar operand reference analyzer declaration and implementation.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class ScalarOperandReferencesAnalyzer final : public Analyzer {
 public:
     /// Returns the ScalarOperandAnalyzer-compatible contract.
@@ -13,9 +13,9 @@ public:
     /// Applies Ghidra's size, mapping, and offcut rejection rules.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 
 /// Returns the Scalar Operand analyzer priority and code-event contract.
 AnalyzerDescriptor ScalarOperandReferencesAnalyzer::descriptor() const {
@@ -137,4 +137,4 @@ void ScalarOperandReferencesAnalyzer::analyze(AnalysisContext& context, std::spa
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

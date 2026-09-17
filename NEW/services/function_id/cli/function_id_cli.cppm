@@ -222,7 +222,7 @@ std::vector<sleigh_runtime::Instruction> decode_function(sleigh_runtime::Decoder
     return instructions;
 }
 
-/// Resolves the default test SLA from either the NEW directory or its repository root.
+/// Resolves the default test SLA from either the project directory or its repository root.
 std::filesystem::path resolve_sla_path(const std::filesystem::path& requested) {
     if (std::filesystem::exists(requested))
         return requested;

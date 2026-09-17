@@ -5,10 +5,10 @@ module;
 #include <windows.h>
 #endif
 
-export module ghidra.service.debugger.win_dbg_eng;
+export module recode.service.debugger.win_dbg_eng;
 
 import std;
-import ghidra.core;
+import recode.core;
 
 // Implementation references:
 // * Ghidra/Debug/Debugger-agent-dbgeng/src/main/py/src/ghidradbg/util.py
@@ -25,11 +25,11 @@ import ghidra.core;
 // core debugger contract.  All native interface pointers and Windows values
 // remain in this implementation module.
 
-export namespace ghidra::services::debugger::win_dbg_eng {
+export namespace recode::services::debugger::win_dbg_eng {
 
-namespace core = ghidra::core;
-namespace api = ghidra::core::contracts;
-namespace model = ghidra::core::debugger;
+namespace core = recode::core;
+namespace api = recode::core::contracts;
+namespace model = recode::core::debugger;
 
 namespace detail {
 
@@ -2258,4 +2258,4 @@ public:
 #endif
 }
 
-} // namespace ghidra::services::debugger::win_dbg_eng
+} // namespace recode::services::debugger::win_dbg_eng

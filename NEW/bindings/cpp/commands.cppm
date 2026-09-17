@@ -1,12 +1,12 @@
-export module ghidra.bindings.cpp.commands;
+export module recode.bindings.cpp.commands;
 
-export import ghidra.core.contracts.command;
+export import recode.core.contracts.command;
 
-export namespace ghidra::bindings::cpp {
+export namespace recode::bindings::cpp {
 
 /// Names the typed command request exposed by the native facade.
-using Command = ghidra::core::contracts::CommandRequest;
+using Command = recode::core::contracts::CommandRequest;
 /// Names the transient command response exposed by the native facade.
-using CommandResponse = ghidra::core::contracts::CommandResponse;
+using CommandResponse = recode::core::contracts::CommandResponse;
 
-} // namespace ghidra::bindings::cpp
+} // namespace recode::bindings::cpp

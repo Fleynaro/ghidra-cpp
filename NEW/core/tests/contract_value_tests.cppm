@@ -2,12 +2,12 @@ module;
 
 #include <gtest/gtest.h>
 
-export module ghidra.core.tests.contracts;
+export module recode.core.tests.contracts;
 
-import ghidra.core;
+import recode.core;
 import std;
 
-namespace ghidra::core::tests {
+namespace recode::core::tests {
 namespace {
 
 /// Verifies cancellation and task values are independent of worker implementation details.
@@ -22,4 +22,4 @@ TEST(CoreContractTest, OperationCancellationIsSharedByTokenCopies) {
 }
 
 } // namespace
-} // namespace ghidra::core::tests
+} // namespace recode::core::tests

@@ -66,7 +66,7 @@ No findings.
 - [ ] Remediation status: open.
 - Severity: low.
 - Affected component: module documentation.
-- Technical evidence: unlike the other requested Java ports, `NEW/services/analyzers/constant_propagation` has `README.md` but no `GHIDRA_PORT.md`, despite the repository rule requiring port evidence for each Java feature.
+- Technical evidence: unlike the other requested Java ports, `services/analyzers/constant_propagation` has `README.md` but no `GHIDRA_PORT.md`, despite the repository rule requiring port evidence for each Java feature.
 - Expected behavior: document original sources, transferred/omitted behavior, limitations, tests, and build dependencies in a module-local `GHIDRA_PORT.md`.
 - Actual behavior: port-specific status is absent.
 - Impact: omissions and intentional deviations are harder to audit and can be mistaken for completed behavior.
@@ -90,8 +90,8 @@ No findings.
 - [x] Read-only original/native comparison completed.
 - [x] Read-only test, fixture, documentation, CMake, and wrapper inspection completed.
 - [ ] Focused build/test: not run by request.
-- [ ] `NEW/format.bat constant_propagation`: not run by request.
-- [ ] `NEW/tidy.bat constant_propagation --check`: not run by request.
+- [ ] `format.bat constant_propagation`: not run by request.
+- [ ] `tidy.bat constant_propagation --check`: not run by request.
 
 ## Unresolved Questions
 

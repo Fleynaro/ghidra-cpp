@@ -1,10 +1,10 @@
-export module ghidra.core.flow;
+export module recode.core.flow;
 
 import std;
-import ghidra.core.address;
-import ghidra.core.storage_location;
+import recode.core.address;
+import recode.core.storage_location;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Classifies decoded control-flow behavior.
 enum class FlowKind : std::uint8_t {
@@ -34,4 +34,4 @@ struct FlowOverride {
     std::optional<Address> target;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

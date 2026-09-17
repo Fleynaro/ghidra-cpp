@@ -4,7 +4,7 @@ module;
 
 export module native_marshal_tests;
 
-import ghidra.decompiler;
+import recode.decompiler;
 import std;
 
 // Port provenance: Ghidra/Features/Decompiler/src/decompile/unittests/testmarshal.cc.
@@ -323,7 +323,7 @@ void expect_packed_buffer_boundary() {
     decoder.closeElement(element_id);
 }
 
-/// Verifies signed packed integer widths through the real ghidra.decompiler implementation.
+/// Verifies signed packed integer widths through the real recode.decompiler implementation.
 TEST(NativeMarshal, SignedPacked) {
     initialize_marshal_identifiers();
     std::ostringstream output;
@@ -332,7 +332,7 @@ TEST(NativeMarshal, SignedPacked) {
     round_trip_signed_attributes(output, encoder, decoder);
 }
 
-/// Verifies signed XML integer values through the real ghidra.decompiler implementation.
+/// Verifies signed XML integer values through the real recode.decompiler implementation.
 TEST(NativeMarshal, SignedXml) {
     initialize_marshal_identifiers();
     std::ostringstream output;

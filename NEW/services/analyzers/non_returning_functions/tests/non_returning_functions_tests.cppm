@@ -10,7 +10,7 @@ import analyzer_subroutine_references;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies known PE no-return names create the target function and bookmark.
@@ -97,4 +97,4 @@ TEST(AnalyzerPipelineTest, KnownNoReturnOptionIsIndependent) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

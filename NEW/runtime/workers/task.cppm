@@ -1,10 +1,10 @@
-export module ghidra.runtime.workers.task;
+export module recode.runtime.workers.task;
 
-import ghidra.core.contracts.operation;
+import recode.core.contracts.operation;
 
-export namespace ghidra::runtime::workers {
+export namespace recode::runtime::workers {
 
 /// Re-exports the stable task value used by runtime worker implementations.
-template <class T> using Task = ghidra::core::contracts::Task<T>;
+template <class T> using Task = recode::core::contracts::Task<T>;
 
-} // namespace ghidra::runtime::workers
+} // namespace recode::runtime::workers

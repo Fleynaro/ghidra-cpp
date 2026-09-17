@@ -1,10 +1,10 @@
-export module ghidra.runtime.workers.cancellation;
+export module recode.runtime.workers.cancellation;
 
-export import ghidra.core.contracts.operation;
+export import recode.core.contracts.operation;
 
-export namespace ghidra::runtime::workers {
+export namespace recode::runtime::workers {
 
 /// Provides the runtime name for the core cooperative cancellation token.
-using CancellationToken = ghidra::core::contracts::CancellationToken;
+using CancellationToken = recode::core::contracts::CancellationToken;
 
-} // namespace ghidra::runtime::workers
+} // namespace recode::runtime::workers

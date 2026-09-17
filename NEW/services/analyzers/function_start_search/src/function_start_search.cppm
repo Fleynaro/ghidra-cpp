@@ -4,7 +4,7 @@ import analyzer;
 import std;
 
 /// Owns the six delayed Function Start Search phase declarations and implementations.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class FunctionStartPreAnalyzer final : public Analyzer {
 public:
     /// Returns the pre-function pattern analyzer contract.
@@ -49,9 +49,9 @@ public:
     /// Rechecks unresolved candidates after data analysis.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Stores one masked byte from a Ghidra pattern rule.
@@ -751,4 +751,4 @@ void FunctionStartDataPostAnalyzer::analyze(AnalysisContext& context, std::span<
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

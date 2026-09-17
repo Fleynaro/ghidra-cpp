@@ -1,3 +1,3 @@
-export module ghidra.runtime.dispatcher.command_contract;
+export module recode.runtime.dispatcher.command_contract;
 
-export import ghidra.core.contracts.command;
+export import recode.core.contracts.command;

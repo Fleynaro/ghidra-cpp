@@ -1,3 +1,3 @@
-export module ghidra.runtime.api;
+export module recode.runtime.api;
 
-export import ghidra.runtime.api.project;
+export import recode.runtime.api.project;

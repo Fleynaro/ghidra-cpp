@@ -1,12 +1,12 @@
-export module ghidra.runtime.dispatcher.handlers;
+export module recode.runtime.dispatcher.handlers;
 
 import std;
-import ghidra.core;
-import ghidra.runtime.project.session;
+import recode.core;
+import recode.runtime.project.session;
 
-export namespace ghidra::runtime::dispatcher {
+export namespace recode::runtime::dispatcher {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Provides a named command-handler boundary for project sessions.
 class CommandHandlers final {
@@ -18,4 +18,4 @@ public:
     }
 };
 
-} // namespace ghidra::runtime::dispatcher
+} // namespace recode::runtime::dispatcher

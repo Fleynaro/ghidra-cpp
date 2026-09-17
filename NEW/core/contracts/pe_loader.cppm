@@ -1,14 +1,14 @@
-export module ghidra.core.contracts.pe_loader;
+export module recode.core.contracts.pe_loader;
 
 import std;
-import ghidra.core.architecture;
-import ghidra.core.binary;
-import ghidra.core.memory_region;
-import ghidra.core.relocation;
-import ghidra.core.symbol;
-import ghidra.core.diagnostics;
+import recode.core.architecture;
+import recode.core.binary;
+import recode.core.memory_region;
+import recode.core.relocation;
+import recode.core.symbol;
+import recode.core.diagnostics;
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
 /// Selects strictness and parsing breadth for a PE load.
 struct LoadOptions {
@@ -53,4 +53,4 @@ public:
     [[nodiscard]] virtual Result<PeLoadResult> load(const BinaryArtifact& artifact, const LoadOptions& options) = 0;
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

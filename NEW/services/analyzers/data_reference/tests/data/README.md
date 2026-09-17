@@ -57,7 +57,7 @@ The PE loader and Reference prerequisite provide the input reference; the fixtur
 
 ## Reproduction
 
-Run `build.bat`, then from the repository root run `TEST\run_ghidra_python.bat NEW\\features\\analyzers\data_reference\\tests\\data\\\\run_ghidra.py`. Optional arguments select the executable and report path.
+Run `build.bat`, then from the repository root run `TEST\run_ghidra_python.bat \features\\analyzers\data_reference\\tests\\data\\\\run_ghidra.py`. Optional arguments select the executable and report path.
 
 ## Generated Artifacts
 

@@ -7,7 +7,7 @@
 - [x] Reviewer: Kilo.
 - [x] Review date: 2026-09-15.
 - [x] Review type: strict read-only source audit; no implementation or configuration changes were made.
-- [x] Validation included `git diff --check`, `GHIDRA_INSTALL_DIR` verification, and `ctest --test-dir NEW/build -N`.
+- [x] Validation included `git diff --check`, `GHIDRA_INSTALL_DIR` verification, and `ctest --test-dir build -N`.
 - [x] Current core-contract boundary addendum reviewed; its detailed findings are recorded in [`../REVIEW_REPORT.md`](../REVIEW_REPORT.md) and [`../../core/contracts/REVIEW_REPORT.md`](../../core/contracts/REVIEW_REPORT.md).
 
 ## Findings
@@ -74,8 +74,8 @@ No findings.
 ## Validation
 
 - [x] `git diff --check` completed without whitespace errors.
-- [x] `ctest --test-dir NEW/build -N` listed `pe_loader_tests` and the dependent analyzer tests.
-- [x] Runtime build/test execution completed in the authorized follow-up: `NEW\build.bat all`, 49/49 tests passed.
+- [x] `ctest --test-dir build -N` listed `pe_loader_tests` and the dependent analyzer tests.
+- [x] Runtime build/test execution completed in the authorized follow-up: `build.bat all`, 49/49 tests passed.
 
 ## Unresolved Questions And Residual Risks
 

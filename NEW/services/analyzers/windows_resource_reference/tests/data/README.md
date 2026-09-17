@@ -69,5 +69,5 @@ resource data symbols created by the PE loader.
 
 The fixture uses actual `.rc` syntax and `rc.exe`; no resource table or output row is
 handwritten. Run `build.bat`, then execute
-`TEST\\run_ghidra_python.bat NEW\\features\\analyzer\\test_data\\windows_resource_reference\\run_ghidra.py`
+`TEST\\run_ghidra_python.bat \features\\analyzer\\test_data\\windows_resource_reference\\run_ghidra.py`
 from the repository root.

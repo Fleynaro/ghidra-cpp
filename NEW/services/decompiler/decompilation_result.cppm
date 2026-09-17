@@ -1,10 +1,10 @@
-export module ghidra.service.decompiler.result;
+export module recode.service.decompiler.result;
 
-export import ghidra.core.decompilation;
+export import recode.core.decompilation;
 
-export namespace ghidra::services::decompiler {
+export namespace recode::services::decompiler {
 
 /// Names the revision-stamped public result returned by decompilation.
-using DecompilationResult = ghidra::core::Decompilation;
+using DecompilationResult = recode::core::Decompilation;
 
-} // namespace ghidra::services::decompiler
+} // namespace recode::services::decompiler

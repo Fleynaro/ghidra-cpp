@@ -14,7 +14,7 @@ export import sleigh_runtime;
 // ghidra/app/plugin/core/analysis/AutoAnalysisManager.java, and
 // ghidra/app/plugin/core/analysis/AnalysisOptions.java.
 
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 
 using Address = std::uint64_t;
 
@@ -416,4 +416,4 @@ struct AnalysisResult {
     std::vector<std::string> executed_analyzers;
 };
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

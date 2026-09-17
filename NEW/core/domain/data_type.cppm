@@ -1,9 +1,9 @@
-export module ghidra.core.data_type;
+export module recode.core.data_type;
 
 import std;
-import ghidra.core.identifiers;
+import recode.core.identifiers;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Classifies a serializable data-type descriptor.
 enum class DataTypeKind : std::uint8_t {
@@ -49,4 +49,4 @@ struct DataTypeDescriptor {
 /// Provides a strong type name for assignments and signatures.
 using DataTypeId = StrongIdentifier<struct DataTypeIdTag>;
 
-} // namespace ghidra::core
+} // namespace recode::core

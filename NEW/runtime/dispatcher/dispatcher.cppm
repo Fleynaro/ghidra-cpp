@@ -1,3 +1,3 @@
-export module ghidra.runtime.dispatcher;
+export module recode.runtime.dispatcher;
 
-export import ghidra.runtime.dispatcher.command;
+export import recode.runtime.dispatcher.command;

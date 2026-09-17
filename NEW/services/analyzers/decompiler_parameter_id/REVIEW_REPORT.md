@@ -37,7 +37,7 @@ No findings.
 - [ ] Remediation status: open.
 - Severity: high.
 - Title: native scheduling does not implement the Java one-time, dependency-graph, source-reset, or configuration contract.
-- Exact references: [`src/decompiler_parameter_id.cppm:130-150`](src/decompiler_parameter_id.cppm#L130-L150); [`NEW/services/analyzers/shared/src/analyzer_types.cppm:315-363`](../shared/src/analyzer_types.cppm#L315-L363); Ghidra [`DecompilerFunctionAnalyzer.java:66-141`](../../../../Ghidra/Features/Decompiler/src/main/java/ghidra/app/plugin/core/analysis/DecompilerFunctionAnalyzer.java#L66-L141); Ghidra [`DecompilerParameterIdCmd.java:64-105`](../../../../Ghidra/Features/Decompiler/src/main/java/ghidra/app/cmd/function/DecompilerParameterIdCmd.java#L64-L105) and [`:122-166`](../../../../Ghidra/Features/Decompiler/src/main/java/ghidra/app/cmd/function/DecompilerParameterIdCmd.java#L122-L166).
+- Exact references: [`src/decompiler_parameter_id.cppm:130-150`](src/decompiler_parameter_id.cppm#L130-L150); [`services/analyzers/shared/src/analyzer_types.cppm:315-363`](../shared/src/analyzer_types.cppm#L315-L363); Ghidra [`DecompilerFunctionAnalyzer.java:66-141`](../../../../Ghidra/Features/Decompiler/src/main/java/ghidra/app/plugin/core/analysis/DecompilerFunctionAnalyzer.java#L66-L141); Ghidra [`DecompilerParameterIdCmd.java:64-105`](../../../../Ghidra/Features/Decompiler/src/main/java/ghidra/app/cmd/function/DecompilerParameterIdCmd.java#L64-L105) and [`:122-166`](../../../../Ghidra/Features/Decompiler/src/main/java/ghidra/app/cmd/function/DecompilerParameterIdCmd.java#L122-L166).
 - Affected component: analysis ordering, repeatability, and user options.
 - Technical evidence: Java constructs an acyclic call graph, resets eligible source types while preserving external/glue functions, supports clear-level/commit-data-types/commit-void-return/timeout options, and is one-time analysis. Native triggers on every `function_added`/`function_changed`, scans every non-external incomplete function, has no thunk/glue/signature-source filter, and the shared options expose only a timeout plus the boolean feature switch.
 - Expected behavior: the native descriptor and context must preserve the same one-time full-set semantics and option-controlled source/commit policy.
@@ -98,13 +98,13 @@ No findings.
 ## Reviewed Areas With No Findings
 
 - [x] Native CMake target and focused unit-test registration are internally consistent.
-- [x] Fixture setup correctly separates PDB baseline preparation from the target Java analyzer phase; its limitation is that it does not exercise `NEW`.
+- [x] Fixture setup correctly separates PDB baseline preparation from the target Java analyzer phase; its limitation is that it does not exercise ReCode.
 
 ## Validation
 
 - [x] Original Java analyzer/command, native implementation, tests, fixture script/report, and CMake registration were inspected.
 - [ ] Focused build/test was not run by this audit.
-- [ ] `NEW\format.bat analyzer` and `NEW\tidy.bat analyzer --check` were not run by this audit.
+- [ ] `format.bat analyzer` and `tidy.bat analyzer --check` were not run by this audit.
 - [x] No implementation, test, fixture, or build source was edited.
 
 ## Unresolved Questions And Residual Risks

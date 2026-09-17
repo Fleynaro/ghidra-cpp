@@ -8,7 +8,7 @@ import analyzer_disassemble_entry_points;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies that registry insertion rejects duplicate analyzer identities.
@@ -150,4 +150,4 @@ TEST(AnalyzerPipelineTest, PreservesImportedExternalSymbols) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

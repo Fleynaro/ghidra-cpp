@@ -2,7 +2,7 @@
 add_library(analyzer_variadic STATIC)
 add_library(analyzer_variadic_function_signature_override ALIAS analyzer_variadic)
 target_sources(analyzer_variadic PUBLIC FILE_SET cxx_modules TYPE CXX_MODULES FILES src/v.cppm)
-target_link_libraries(analyzer_variadic PUBLIC NewGhidra::AnalyzerShared)
+target_link_libraries(analyzer_variadic PUBLIC ReCode::AnalyzerShared)
 target_compile_features(analyzer_variadic PUBLIC cxx_std_23)
 
 if(BUILD_TESTING)

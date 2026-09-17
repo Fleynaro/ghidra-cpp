@@ -1,11 +1,11 @@
-export module ghidra.core.architecture;
+export module recode.core.architecture;
 
 import std;
-import ghidra.core.address_space;
-import ghidra.core.identifiers;
-import ghidra.core.storage_location;
+import recode.core.address_space;
+import recode.core.identifiers;
+import recode.core.storage_location;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Names one language/compiler/architecture resource set.
 struct ArchitectureDescription {
@@ -35,4 +35,4 @@ using CompilerSpecId = StrongIdentifier<struct CompilerSpecIdTag>;
 /// Identifies an architecture family.
 using ArchitectureId = StrongIdentifier<struct ArchitectureIdTag>;
 
-} // namespace ghidra::core
+} // namespace recode::core

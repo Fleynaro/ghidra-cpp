@@ -1,11 +1,11 @@
-export module ghidra.service.translation_engine.native;
+export module recode.service.translation_engine.native;
 
 import std;
-export import ghidra.core.architecture;
+export import recode.core.architecture;
 
-export namespace ghidra::services::translation_engine {
+export namespace recode::services::translation_engine {
 
 /// Re-exports the canonical architecture value instead of defining a translation-engine duplicate.
-using NativeTranslationEngine = ghidra::core::ArchitectureDescription;
+using NativeTranslationEngine = recode::core::ArchitectureDescription;
 
-} // namespace ghidra::services::translation_engine
+} // namespace recode::services::translation_engine

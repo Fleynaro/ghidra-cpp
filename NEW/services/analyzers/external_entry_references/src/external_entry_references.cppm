@@ -7,7 +7,7 @@ import std;
 // Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/function/ExternalEntryFunctionAnalyzer.java
 
 /// Creates functions at executable PE exports that are already decoded and are not fall-through targets.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class ExternalEntryReferencesAnalyzer final : public Analyzer {
 public:
     /// Returns the original name and CODE_ANALYSIS.before().before() priority.
@@ -16,9 +16,9 @@ public:
     /// Converts eligible exported external entries into named functions.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Returns whether an instruction immediately before an address falls through into it.
@@ -80,4 +80,4 @@ void ExternalEntryReferencesAnalyzer::analyze(AnalysisContext& context, std::spa
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

@@ -1,10 +1,10 @@
-export module ghidra.core.contracts.function_id_database;
+export module recode.core.contracts.function_id_database;
 
 import std;
-import ghidra.core.function_id;
-import ghidra.core.diagnostics;
+import recode.core.function_id;
+import recode.core.diagnostics;
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
 /// Supplies immutable Function ID candidates from one external database.
 class IFunctionIdDatabase {
@@ -19,4 +19,4 @@ public:
     [[nodiscard]] virtual Result<std::vector<FunctionIdCandidate>> query(const FunctionHashFamily& hashes) const = 0;
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

@@ -1,14 +1,14 @@
-export module ghidra.service.function_id;
+export module recode.service.function_id;
 
 import std;
-import ghidra.core;
-import ghidra.runtime.workers.pool;
+import recode.core;
+import recode.runtime.workers.pool;
 import function_id;
 
-export namespace ghidra::services::function_id {
+export namespace recode::services::function_id {
 
-namespace core = ghidra::core;
-namespace runtime = ghidra::runtime;
+namespace core = recode::core;
+namespace runtime = recode::runtime;
 
 /// Adapts one immutable packed Function ID database to the core database contract.
 class FunctionIdDatabaseService final : public core::contracts::IFunctionIdDatabase {
@@ -142,4 +142,4 @@ private:
     std::shared_ptr<runtime::workers::WorkerPool> pool_;
 };
 
-} // namespace ghidra::services::function_id
+} // namespace recode::services::function_id

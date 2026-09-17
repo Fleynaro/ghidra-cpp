@@ -1,8 +1,8 @@
-export module ghidra.core.processor_context;
+export module recode.core.processor_context;
 
 import std;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Stores named immutable Sleigh context values for reproducible decode requests.
 struct ProcessorContext {
@@ -36,4 +36,4 @@ private:
     std::vector<std::pair<std::string, std::uint64_t>> values_;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

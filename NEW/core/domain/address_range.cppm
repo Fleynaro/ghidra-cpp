@@ -1,9 +1,9 @@
-export module ghidra.core.address_range;
+export module recode.core.address_range;
 
 import std;
-import ghidra.core.address;
+import recode.core.address;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Represents one inclusive range in a single address space.
 struct AddressRange {
@@ -75,4 +75,4 @@ private:
     std::vector<AddressRange> ranges_;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

@@ -79,8 +79,8 @@ No findings.
 - [x] Read-only original/native comparison completed.
 - [x] Read-only test, fixture, documentation, CMake, and wrapper inspection completed.
 - [ ] Focused build/test: not run by request.
-- [ ] `NEW/format.bat external_entry_references`: not run by request.
-- [ ] `NEW/tidy.bat external_entry_references --check`: not run by request.
+- [ ] `format.bat external_entry_references`: not run by request.
+- [ ] `tidy.bat external_entry_references --check`: not run by request.
 
 ## Unresolved Questions
 

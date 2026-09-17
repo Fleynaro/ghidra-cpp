@@ -2,10 +2,10 @@
 
 ## Review Metadata
 
-- **Scope:** `NEW/ARCHITECTURE.md`, the current `NEW/` CMake/module/test tree, and the current Sleigh, decompiler, PE loader, Function ID, and analyzer implementations.
+- **Scope:** `ARCHITECTURE.md`, the current `this project` CMake/module/test tree, and the current Sleigh, decompiler, PE loader, Function ID, and analyzer implementations.
 - **Reviewed revision:** Working-tree contents on 2026-09-16. `ARCHITECTURE.md` and source files were not modified.
 - **Reviewer:** Kilo, senior architecture review.
-- **Path convention:** Paths in this document are relative to `NEW/` unless prefixed with `../`.
+- **Path convention:** Paths in this document are relative to `this project` unless prefixed with `../`.
 - **Validation limit:** This was a read-only architecture review. No build, CTest run, format pass, or tidy pass was run because no implementation change was requested.
 
 ## Executive Assessment
@@ -67,7 +67,7 @@ No issue was judged likely to make the entire project fundamentally impossible. 
 ### MAJOR-005: The Dependency Graph Still Couples Services to Concrete Feature Implementations
 
 - **Severity:** Major.
-- **Problem:** The layer table says services depend on core contracts and private native code, and runtime composes services. The dependency graph additionally declares `FID --> SL`, `AN --> SL`, `AN --> DEC`, and `AN --> PE` at [`ARCHITECTURE.md:1450-1468`](ARCHITECTURE.md). The current build has the same coupling: `analyzer_shared` publicly links `NewGhidra::PeLoader` and `NewGhidra::SleighRuntime` in [`services/analyzers/CMakeLists.txt:1-7`](services/analyzers/CMakeLists.txt), the aggregate analyzer links every analyzer library at [`services/analyzers/CMakeLists.txt:56-60`](services/analyzers/CMakeLists.txt), and Function ID publicly links Sleigh in [`services/function_id/CMakeLists.txt:25-27`](services/function_id/CMakeLists.txt).
+- **Problem:** The layer table says services depend on core contracts and private native code, and runtime composes services. The dependency graph additionally declares `FID --> SL`, `AN --> SL`, `AN --> DEC`, and `AN --> PE` at [`ARCHITECTURE.md:1450-1468`](ARCHITECTURE.md). The current build has the same coupling: `analyzer_shared` publicly links `ReCode::PeLoader` and `ReCode::SleighRuntime` in [`services/analyzers/CMakeLists.txt:1-7`](services/analyzers/CMakeLists.txt), the aggregate analyzer links every analyzer library at [`services/analyzers/CMakeLists.txt:56-60`](services/analyzers/CMakeLists.txt), and Function ID publicly links Sleigh in [`services/function_id/CMakeLists.txt:25-27`](services/function_id/CMakeLists.txt).
 - **Why it matters:** Concrete links make optional analyzers, alternate decoders, and isolated service tests harder to build. They also let feature modules bypass the intended runtime composition boundary and encourage direct access to service-local value types. A future `IProjectQuery` or decoder implementation cannot be substituted without rebuilding a broad aggregate, and dependency cycles become likely when runtime factories are introduced.
 - **Concrete architectural improvement:** Make analyzer and Function ID targets depend on core contracts and narrow service contracts only. Inject PE memory, decoder, decompiler, and FID database capabilities through runtime-created provider bundles. Keep concrete service dependencies in composition-root targets or explicit adapter targets. If an analyzer truly requires a concrete native service, document that as a capability-specific exception and prevent the dependency from leaking into the common analyzer contract.
 - **Trade-offs:** More adapters and factory wiring are required, and small standalone builds may need a composition fixture. The resulting graph has clearer optionality and permits alternate implementations, but it is less convenient than linking one aggregate library.

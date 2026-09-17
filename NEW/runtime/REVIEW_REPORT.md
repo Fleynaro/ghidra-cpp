@@ -162,7 +162,7 @@
 
 - [x] Runtime source/CMake/test registration inspected read-only.
 - [x] Existing generated CTest metadata inspected.
-- [x] `ctest --test-dir NEW/build --output-on-failure`: 49/49 passed.
+- [x] `ctest --test-dir build --output-on-failure`: 49/49 passed.
 - [x] `git diff HEAD~2..HEAD --check`: passed.
 - [ ] Fault injection, multi-process, sanitizer, and shutdown stress validation were not run.
 
@@ -175,4 +175,4 @@
 ## Follow-Up Decision
 
 - [ ] Runtime findings `CRITICAL-001`, `HIGH-001` through `HIGH-003`, and `MEDIUM-001` through `MEDIUM-004` remain open.
-- [x] Listing projection now persists/replays hash-critical bytes, masks, and operand object facts; full `NEW\\build.bat all` passed 49/49 tests.
+- [x] Listing projection now persists/replays hash-critical bytes, masks, and operand object facts; full `\build.bat all` passed 49/49 tests.

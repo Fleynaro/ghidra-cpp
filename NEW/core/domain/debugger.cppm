@@ -1,9 +1,9 @@
-export module ghidra.core.debugger;
+export module recode.core.debugger;
 
 import std;
-import ghidra.core.address;
-import ghidra.core.address_range;
-import ghidra.core.bytes;
+import recode.core.address;
+import recode.core.address_range;
+import recode.core.bytes;
 
 // Porting reference:
 // Ghidra/Debug/Debugger-api/src/main/java/ghidra/debug/api/target/TargetObject.java
@@ -12,7 +12,7 @@ import ghidra.core.bytes;
 // that vocabulary independent of a particular debugger protocol or operating
 // system so the same contract can be used by local and remote implementations.
 
-export namespace ghidra::core::debugger {
+export namespace recode::core::debugger {
 
 /// Identifies a debugger-owned session without exposing a backend handle.
 struct SessionId {
@@ -374,37 +374,37 @@ struct SessionOptions {
     std::chrono::milliseconds operation_timeout{std::chrono::seconds(30)};
 };
 
-} // namespace ghidra::core::debugger
+} // namespace recode::core::debugger
 
 export namespace std {
 
 /// Hashes session identities for backend-independent lookup tables.
-template <> struct hash<ghidra::core::debugger::SessionId> {
-    [[nodiscard]] std::size_t operator()(ghidra::core::debugger::SessionId value) const noexcept {
+template <> struct hash<recode::core::debugger::SessionId> {
+    [[nodiscard]] std::size_t operator()(recode::core::debugger::SessionId value) const noexcept {
         return std::hash<std::uint64_t>{}(value.value);
     }
 };
 
-template <> struct hash<ghidra::core::debugger::ProcessId> {
-    [[nodiscard]] std::size_t operator()(ghidra::core::debugger::ProcessId value) const noexcept {
+template <> struct hash<recode::core::debugger::ProcessId> {
+    [[nodiscard]] std::size_t operator()(recode::core::debugger::ProcessId value) const noexcept {
         return std::hash<std::string>{}(value.value);
     }
 };
 
-template <> struct hash<ghidra::core::debugger::ThreadId> {
-    [[nodiscard]] std::size_t operator()(ghidra::core::debugger::ThreadId value) const noexcept {
+template <> struct hash<recode::core::debugger::ThreadId> {
+    [[nodiscard]] std::size_t operator()(recode::core::debugger::ThreadId value) const noexcept {
         return std::hash<std::string>{}(value.value);
     }
 };
 
-template <> struct hash<ghidra::core::debugger::BreakpointId> {
-    [[nodiscard]] std::size_t operator()(ghidra::core::debugger::BreakpointId value) const noexcept {
+template <> struct hash<recode::core::debugger::BreakpointId> {
+    [[nodiscard]] std::size_t operator()(recode::core::debugger::BreakpointId value) const noexcept {
         return std::hash<std::uint64_t>{}(value.value);
     }
 };
 
-template <> struct hash<ghidra::core::debugger::WatchpointId> {
-    [[nodiscard]] std::size_t operator()(ghidra::core::debugger::WatchpointId value) const noexcept {
+template <> struct hash<recode::core::debugger::WatchpointId> {
+    [[nodiscard]] std::size_t operator()(recode::core::debugger::WatchpointId value) const noexcept {
         return std::hash<std::uint64_t>{}(value.value);
     }
 };

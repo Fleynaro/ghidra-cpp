@@ -8,7 +8,7 @@ import analyzer_test_support;
 import analyzer_x86_constant_reference;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies an LEA immediate becomes one DATA reference at the mapped image address.
@@ -57,4 +57,4 @@ TEST(X86ConstantReferenceAnalyzerTest, RejectsNonPointerCandidates) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

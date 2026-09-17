@@ -1,8 +1,8 @@
 // Port provenance: declarations and implementation originate from
 // Ghidra/Features/Decompiler/src/decompile/cpp/signature.hh and signature.cc.
-export module ghidra.decompiler.signature;
+export module recode.decompiler.signature;
 import std;
-import ghidra.decompiler;
+import recode.decompiler;
 
 export namespace ghidra {
 using hashword = uint8;

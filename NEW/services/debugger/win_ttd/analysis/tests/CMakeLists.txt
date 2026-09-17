@@ -2,10 +2,10 @@ find_package(GTest CONFIG REQUIRED)
 
 add_executable(win_ttd_analysis_tests)
 target_sources(win_ttd_analysis_tests PUBLIC FILE_SET cxx_modules TYPE CXX_MODULES FILES function_call_analysis_tests.cppm)
-target_link_libraries(win_ttd_analysis_tests PRIVATE NewGhidra::WinTtdAnalysis NewGhidra::Core NewGhidra::Std GTest::gtest_main)
+target_link_libraries(win_ttd_analysis_tests PRIVATE ReCode::WinTtdAnalysis ReCode::Core ReCode::Std GTest::gtest_main)
 target_compile_features(win_ttd_analysis_tests PRIVATE cxx_std_23)
-if(NEW_GHIDRA_HAS_TTD_REPLAY)
-    target_compile_definitions(win_ttd_analysis_tests PRIVATE NEW_GHIDRA_HAS_TTD_REPLAY)
+if(RECODE_HAS_TTD_REPLAY)
+    target_compile_definitions(win_ttd_analysis_tests PRIVATE RECODE_HAS_TTD_REPLAY)
 endif()
 if(WIN32 AND TTD_RUNTIME_DIR AND EXISTS "${TTD_RUNTIME_DIR}/TTDReplay.dll" AND EXISTS "${TTD_RUNTIME_DIR}/TTDReplayCPU.dll")
     add_custom_command(TARGET win_ttd_analysis_tests POST_BUILD

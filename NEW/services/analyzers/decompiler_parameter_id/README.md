@@ -9,7 +9,7 @@ analyzer.
 - [`tests/decompiler_parameter_id_tests.cppm`](tests/decompiler_parameter_id_tests.cppm) contains hardcoded tests.
 - [`tests/data/`](tests/data/) contains the fixture and original report.
 - [`CMakeLists.txt`](CMakeLists.txt) defines the target and CTest registration.
-- [`build.bat`](build.bat) selects the focused build from `NEW/build.bat`.
+- [`build.bat`](build.bat) selects the focused build from `build.bat`.
 - [`../../decompiler/README.md`](../../decompiler/README.md) documents the frontend contract.
 - [`../../sleigh_runtime/README.md`](../../sleigh_runtime/README.md) documents the decoder dependency.
 - [`../README.md`](../README.md) documents analyzer-family integration.

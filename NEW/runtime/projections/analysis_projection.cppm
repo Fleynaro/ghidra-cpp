@@ -1,12 +1,12 @@
-export module ghidra.runtime.projections.analysis;
+export module recode.runtime.projections.analysis;
 
 import std;
-import ghidra.core;
-import ghidra.core.events.event;
+import recode.core;
+import recode.core.events.event;
 
-export namespace ghidra::runtime::projections {
+export namespace recode::runtime::projections {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Tracks analysis-run lifecycle records separately from software-model rows.
 class AnalysisProjection final {
@@ -27,4 +27,4 @@ private:
     std::map<std::string, std::string> runs_;
 };
 
-} // namespace ghidra::runtime::projections
+} // namespace recode::runtime::projections

@@ -1,12 +1,12 @@
-export module ghidra.service.pe_loader;
+export module recode.service.pe_loader;
 
 import std;
-import ghidra.core;
+import recode.core;
 import pe_loader;
 
-export namespace ghidra::services::pe_loader {
+export namespace recode::services::pe_loader {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Owns one immutable checked PE image for memory/provider consumers.
 class PeImage final : public core::contracts::IMemoryProvider {
@@ -182,4 +182,4 @@ private:
     }
 };
 
-} // namespace ghidra::services::pe_loader
+} // namespace recode::services::pe_loader

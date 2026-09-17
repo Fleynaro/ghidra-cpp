@@ -1,11 +1,11 @@
-export module ghidra.service.function_id.database_resource;
+export module recode.service.function_id.database_resource;
 
 import std;
-import ghidra.core;
+import recode.core;
 
-export namespace ghidra::services::function_id {
+export namespace recode::services::function_id {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Identifies one packed FID database before native parsing/lease creation.
 struct DatabaseResource {
@@ -13,4 +13,4 @@ struct DatabaseResource {
     core::ResourceIdentity identity;
 };
 
-} // namespace ghidra::services::function_id
+} // namespace recode::services::function_id

@@ -4,18 +4,18 @@ module;
 
 module decompiler;
 import std;
-import ghidra.decompiler;
+import recode.decompiler;
 import sleigh_runtime;
 
 // Provider frontend provenance: this adapter invokes the ported Ghidra engine
-// under NEW's explicit provider boundary; analysis algorithms remain in the
-// source files mapped by NEW/services/decompiler/CMakeLists.txt.
+// under this project's explicit provider boundary; analysis algorithms remain in the
+// source files mapped by services/decompiler/CMakeLists.txt.
 
-namespace newghidra::decompiler {
+namespace recode::decompiler {
 namespace detail {
 
 /// Returns the stable numeric encoding of a canonical p-code opcode.
-[[nodiscard]] constexpr std::uint32_t opcode_value(ghidra::core::PcodeOpcode opcode) noexcept {
+[[nodiscard]] constexpr std::uint32_t opcode_value(recode::core::PcodeOpcode opcode) noexcept {
     return std::to_underlying(opcode);
 }
 
@@ -2662,4 +2662,4 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
     return result;
 }
 
-} // namespace newghidra::decompiler
+} // namespace recode::decompiler

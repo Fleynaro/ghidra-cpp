@@ -1,14 +1,14 @@
-export module ghidra.runtime.workers.pool;
+export module recode.runtime.workers.pool;
 
 import std;
-import ghidra.core.contracts.operation;
-import ghidra.core.diagnostics;
-import ghidra.core.identifiers;
+import recode.core.contracts.operation;
+import recode.core.diagnostics;
+import recode.core.identifiers;
 
-export namespace ghidra::runtime::workers {
+export namespace recode::runtime::workers {
 
-namespace core = ghidra::core;
-namespace contracts = ghidra::core::contracts;
+namespace core = recode::core;
+namespace contracts = recode::core::contracts;
 using core::contracts::WorkPriority;
 
 /// Describes bounded shared-pool construction and shutdown behavior.
@@ -152,4 +152,4 @@ private:
     bool stopping_{};
 };
 
-} // namespace ghidra::runtime::workers
+} // namespace recode::runtime::workers

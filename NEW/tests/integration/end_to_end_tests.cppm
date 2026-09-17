@@ -2,28 +2,28 @@ module;
 
 #include <gtest/gtest.h>
 
-export module ghidra.tests.integration;
+export module recode.tests.integration;
 
-import ghidra.core;
-import ghidra.runtime.api.project;
-import ghidra.runtime.project.config;
-import ghidra.runtime.project.runtime_core;
-import ghidra.runtime.workers.pool;
+import recode.core;
+import recode.runtime.api.project;
+import recode.runtime.project.config;
+import recode.runtime.project.runtime_core;
+import recode.runtime.workers.pool;
 import std;
 
-namespace ghidra::tests::integration {
+namespace recode::tests::integration {
 namespace {
 
-namespace api = ghidra::runtime::api;
-namespace project = ghidra::runtime::project;
-namespace workers = ghidra::runtime::workers;
+namespace api = recode::runtime::api;
+namespace project = recode::runtime::project;
+namespace workers = recode::runtime::workers;
 
 /// Runs the real executable through the project facade and verifies the cross-service pipeline.
 TEST(ArchitectureIntegrationTest, AnalyzerFixtureLoadsAnalyzesAndDecompiles) {
-    const auto root = std::filesystem::path(NEW_GHIDRA_INTEGRATION_ROOT);
+    const auto root = std::filesystem::path(RECODE_INTEGRATION_ROOT);
     const auto fixture = root / "services" / "analyzers" / "tests" / "data" / "test_analyzers_integration.exe";
     const auto sla = root / "services" / "sleigh" / "specifications" / "x86-64.sla";
-    const auto directory = std::filesystem::temp_directory_path() / "new-ghidra-architecture-integration";
+    const auto directory = std::filesystem::temp_directory_path() / "recode-architecture-integration";
     std::error_code error;
     std::filesystem::remove_all(directory, error);
     project::ProjectConfig config;
@@ -50,4 +50,4 @@ TEST(ArchitectureIntegrationTest, AnalyzerFixtureLoadsAnalyzesAndDecompiles) {
 }
 
 } // namespace
-} // namespace ghidra::tests::integration
+} // namespace recode::tests::integration

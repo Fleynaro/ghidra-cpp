@@ -4,7 +4,7 @@ import analyzer;
 import std;
 
 /// Owns the p-code constant propagation analyzer declaration and implementation.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class ConstantPropagationAnalyzer final : public Analyzer {
 public:
     /// Returns the ConstantPropagationAnalyzer-compatible contract.
@@ -13,9 +13,9 @@ public:
     /// Runs bounded fixed-point symbolic propagation over affected functions.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Builds a stable map key for one p-code storage location.
@@ -422,4 +422,4 @@ void ConstantPropagationAnalyzer::analyze(AnalysisContext& context, std::span<co
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

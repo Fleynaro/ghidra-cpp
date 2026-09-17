@@ -2,14 +2,14 @@ module;
 
 #include <sqlite3.h>
 
-export module ghidra.runtime.storage.sqlite_connection;
+export module recode.runtime.storage.sqlite_connection;
 
 import std;
-import ghidra.core.diagnostics;
+import recode.core.diagnostics;
 
-export namespace ghidra::runtime::storage {
+export namespace recode::runtime::storage {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Owns one SQLite connection and translates SQLite failures into core errors.
 class SqliteConnection final {
@@ -104,4 +104,4 @@ private:
     sqlite3* handle_{};
 };
 
-} // namespace ghidra::runtime::storage
+} // namespace recode::runtime::storage

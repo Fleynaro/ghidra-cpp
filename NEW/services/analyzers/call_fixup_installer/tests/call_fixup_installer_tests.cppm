@@ -8,7 +8,7 @@ import analyzer_call_fixup_installer;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies target, underscore fallback, fixup evidence, and no-return state use the Java rules.
@@ -40,4 +40,4 @@ TEST(CallFixupInstallerAnalyzerTest, DoesNotGuessMissingCompilerSpecRules) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

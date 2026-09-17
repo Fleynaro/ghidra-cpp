@@ -8,7 +8,7 @@ import analyzer_demangler_microsoft;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies member and static MSVC signatures, including the implicit member receiver.
@@ -59,4 +59,4 @@ TEST(MicrosoftDemanglerAnalyzerTest, AppliesFixtureNamesAndSignatures) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

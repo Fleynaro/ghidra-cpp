@@ -12,7 +12,7 @@ import std;
 #define GHIDRA_ANALYZER_MODULE_EXPORT
 #endif
 
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 
 class AutoAnalysisManager;
 
@@ -1526,4 +1526,4 @@ public:
     }
 };
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

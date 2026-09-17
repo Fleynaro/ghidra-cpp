@@ -1,12 +1,12 @@
-export module ghidra.core.contracts.architecture_provider;
+export module recode.core.contracts.architecture_provider;
 
 import std;
-import ghidra.core.address_factory;
-import ghidra.core.architecture;
-import ghidra.core.diagnostics;
-import ghidra.core.storage_location;
+import recode.core.address_factory;
+import recode.core.architecture;
+import recode.core.diagnostics;
+import recode.core.storage_location;
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
 /// Supplies immutable language, address-space, and register metadata.
 class IArchitectureProvider {
@@ -24,4 +24,4 @@ public:
     [[nodiscard]] virtual std::optional<RegisterDescriptor> register_named(std::string_view name) const = 0;
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

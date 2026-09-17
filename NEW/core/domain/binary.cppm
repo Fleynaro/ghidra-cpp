@@ -1,10 +1,10 @@
-export module ghidra.core.binary;
+export module recode.core.binary;
 
 import std;
-import ghidra.core.bytes;
-import ghidra.core.identifiers;
+import recode.core.bytes;
+import recode.core.identifiers;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Identifies a resource by content and parser metadata for reproducible analysis.
 struct ResourceIdentity {
@@ -36,4 +36,4 @@ struct BinaryArtifact {
     bool primary{};
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

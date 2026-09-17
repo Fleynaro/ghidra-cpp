@@ -4,7 +4,7 @@
 
 The source traces `Ghidra/Features/Decompiler/src/main/java/ghidra/app/plugin/core/analysis/DecompilerCallConventionAnalyzer.java`
 and `Ghidra/Features/Decompiler/src/main/java/ghidra/app/cmd/function/DecompilerParallelConventionAnalysisCmd.java`.
-The native frontend boundary is [`NEW/services/decompiler/src/decompiler.cppm`](../../decompiler/src/decompiler.cppm),
+The native frontend boundary is [`services/decompiler/src/decompiler.cppm`](../../decompiler/src/decompiler.cppm),
 and the fixture test is [`tests/call_convention_id_tests.cppm`](tests/call_convention_id_tests.cppm).
 
 ## Status

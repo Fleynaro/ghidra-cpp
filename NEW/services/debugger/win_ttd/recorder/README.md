@@ -2,7 +2,7 @@
 
 `win_ttd.cppm` implements [`ITraceRecorder`](../../../../core/contracts/trace_recorder.cppm) with Microsoft's `ttd.exe`. The `create_win_ttd_recorder()` factory returns the contract type. It resolves `TTD_EXE` first and otherwise relies on `ttd.exe` on `PATH`, launches with `CreateProcessW`, propagates the requested UTF-16 environment policy, and emits `RecordingResult` diagnostics for launch, exit, missing-artifact, and cancellation outcomes.
 
-The focused tests are in [`tests`](tests), with registration in [`tests/CMakeLists.txt`](tests/CMakeLists.txt). They cover command construction, invalid requests, unsupported options, environment blocks, factory construction, and opt-in real recording/cancellation. The service target and `NewGhidra::TtdRecorder` alias are defined in [`CMakeLists.txt`](CMakeLists.txt); parent integration is in [`../CMakeLists.txt`](../CMakeLists.txt).
+The focused tests are in [`tests`](tests), with registration in [`tests/CMakeLists.txt`](tests/CMakeLists.txt). They cover command construction, invalid requests, unsupported options, environment blocks, factory construction, and opt-in real recording/cancellation. The service target and `ReCode::TtdRecorder` alias are defined in [`CMakeLists.txt`](CMakeLists.txt); parent integration is in [`../CMakeLists.txt`](../CMakeLists.txt).
 
 TTD is intentionally unsupported on non-Windows builds. The recorder does not modify the debugger contract or replay service.
 

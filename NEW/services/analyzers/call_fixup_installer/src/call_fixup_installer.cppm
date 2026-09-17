@@ -15,7 +15,7 @@ export struct CallFixupRule {
 };
 
 /// Installs supplied compiler-spec fixup mappings and repairs known non-fallthrough callers.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class CallFixupInstallerAnalyzer final : public Analyzer {
 public:
     /// Constructs an installer with immutable compiler-spec mappings.
@@ -30,9 +30,9 @@ public:
 private:
     std::vector<CallFixupRule> rules_;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Returns the compiler-spec target name variants used by the Java analyzer.
@@ -106,4 +106,4 @@ void CallFixupInstallerAnalyzer::analyze(AnalysisContext& context, std::span<con
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

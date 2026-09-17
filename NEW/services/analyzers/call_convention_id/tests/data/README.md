@@ -56,4 +56,4 @@ The decompiler can recover the default x64 convention or leave the function unkn
 
 ## Reproduction
 
-Run `build.bat` in this directory. From the repository root, run `TEST\run_ghidra_python.bat NEW\\features\\analyzers\call_convention_id\\tests\\data\\\\run_ghidra.py`.
+Run `build.bat` in this directory. From the repository root, run `TEST\run_ghidra_python.bat \features\\analyzers\call_convention_id\\tests\\data\\\\run_ghidra.py`.

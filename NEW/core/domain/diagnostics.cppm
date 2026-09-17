@@ -1,9 +1,9 @@
-export module ghidra.core.diagnostics;
+export module recode.core.diagnostics;
 
 import std;
-import ghidra.core.identifiers;
+import recode.core.identifiers;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Classifies the user-visible seriousness of a diagnostic.
 enum class Severity : std::uint8_t { info, warning, error, fatal };
@@ -60,4 +60,4 @@ struct Error {
 /// Defines the expected result type used by core and service APIs.
 template <class T> using Result = std::expected<T, Error>;
 
-} // namespace ghidra::core
+} // namespace recode::core

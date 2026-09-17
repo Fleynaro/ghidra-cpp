@@ -1,13 +1,13 @@
-export module ghidra.runtime.api.project;
+export module recode.runtime.api.project;
 
 import std;
-import ghidra.core;
-import ghidra.runtime.project.config;
-import ghidra.runtime.project.runtime_core;
-import ghidra.runtime.project.session;
-import ghidra.runtime.project.state;
+import recode.core;
+import recode.runtime.project.config;
+import recode.runtime.project.runtime_core;
+import recode.runtime.project.session;
+import recode.runtime.project.state;
 
-export namespace ghidra::runtime::api {
+export namespace recode::runtime::api {
 
 /// Exposes a narrow native C++ project API without leaking runtime/service implementation types.
 class ProjectFacade final {
@@ -75,4 +75,4 @@ private:
     std::shared_ptr<project::ProjectSession> session_;
 };
 
-} // namespace ghidra::runtime::api
+} // namespace recode::runtime::api

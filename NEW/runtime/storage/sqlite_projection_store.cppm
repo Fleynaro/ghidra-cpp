@@ -1,14 +1,14 @@
-export module ghidra.runtime.storage.projection;
+export module recode.runtime.storage.projection;
 
 import std;
-import ghidra.core;
-import ghidra.core.contracts.projection;
-import ghidra.core.events.event;
-import ghidra.runtime.storage.sqlite_connection;
+import recode.core;
+import recode.core.contracts.projection;
+import recode.core.events.event;
+import recode.runtime.storage.sqlite_connection;
 
-export namespace ghidra::runtime::storage {
+export namespace recode::runtime::storage {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Persists a replaceable projection checkpoint and applied-event identity in SQLite.
 class SqliteProjectionStore final : public core::contracts::IProjectionStore {
@@ -89,4 +89,4 @@ private:
     std::optional<core::ProjectId> project_;
 };
 
-} // namespace ghidra::runtime::storage
+} // namespace recode::runtime::storage

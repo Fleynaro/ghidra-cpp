@@ -1,14 +1,14 @@
-export module ghidra.core.function;
+export module recode.core.function;
 
 import std;
-import ghidra.core.address;
-import ghidra.core.address_range;
-import ghidra.core.basic_block;
-import ghidra.core.function_signature;
-import ghidra.core.identifiers;
-import ghidra.core.variable;
+import recode.core.address;
+import recode.core.address_range;
+import recode.core.basic_block;
+import recode.core.function_signature;
+import recode.core.identifiers;
+import recode.core.variable;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Identifies a function by project entity and entry address.
 struct FunctionKey {
@@ -35,4 +35,4 @@ struct FunctionSnapshot {
     std::string analysis_status;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

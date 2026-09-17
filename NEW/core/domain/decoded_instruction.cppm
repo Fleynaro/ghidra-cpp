@@ -1,12 +1,12 @@
-export module ghidra.core.decoded_instruction;
+export module recode.core.decoded_instruction;
 
 import std;
-import ghidra.core.flow;
-import ghidra.core.operand;
-import ghidra.core.pcode;
-import ghidra.core.storage_location;
+import recode.core.flow;
+import recode.core.operand;
+import recode.core.pcode;
+import recode.core.storage_location;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 // Original behavior references: Ghidra/Features/Decompiler/src/decompile/cpp/sleigh.hh
 // (`Sleigh::oneInstruction`, `AssemblyEmit`, and `PcodeEmit`) and
@@ -74,4 +74,4 @@ struct DecodedInstruction {
           assembly(std::move(instruction_assembly)), pcode(std::move(operations)) {}
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

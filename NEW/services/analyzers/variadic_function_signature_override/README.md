@@ -10,6 +10,6 @@ override table.
 - [`tests/t.cppm`](tests/t.cppm) contains hardcoded parser expectations.
 - [`tests/data/`](tests/data/) contains the fixture and original analyzer report.
 - [`CMakeLists.txt`](CMakeLists.txt) defines the target and CTest registration.
-- [`build.bat`](build.bat) selects the focused build from `NEW/build.bat`.
+- [`build.bat`](build.bat) selects the focused build from `build.bat`.
 - [`../../pe_loader/README.md`](../../pe_loader/README.md) documents the mapped-image dependency.
 - [`../README.md`](../README.md) documents analyzer-family integration.

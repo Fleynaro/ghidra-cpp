@@ -1,11 +1,11 @@
-export module ghidra.core.events.memory;
+export module recode.core.events.memory;
 
 import std;
-import ghidra.core.events.event;
-import ghidra.core.identifiers;
-import ghidra.core.memory_region;
+import recode.core.events.event;
+import recode.core.identifiers;
+import recode.core.memory_region;
 
-export namespace ghidra::core::events {
+export namespace recode::core::events {
 
 /// Creates a loader-owned mapped-memory state event.
 [[nodiscard]] inline EventDraft memory_state_changed(const ProjectId& project, const MemoryRegion& region,
@@ -29,4 +29,4 @@ export namespace ghidra::core::events {
                                      {"x", region.permissions.executable ? "1" : "0"}})};
 }
 
-} // namespace ghidra::core::events
+} // namespace recode::core::events

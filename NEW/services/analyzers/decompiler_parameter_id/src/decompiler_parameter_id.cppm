@@ -9,7 +9,7 @@ import std;
 // DecompilerFunctionAnalyzer.java and
 // Ghidra/Features/Decompiler/src/main/java/ghidra/app/cmd/function/DecompilerParameterIdCmd.java.
 
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 
 /// Runs native decompiler parameter recovery for eligible functions.
 class DecompilerParameterIdAnalyzer final : public Analyzer {
@@ -21,23 +21,23 @@ public:
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Supplies immutable PE bytes to the decompiler frontend.
-class Memory final : public newghidra::decompiler::MemoryProvider {
+class Memory final : public recode::decompiler::MemoryProvider {
 public:
     /// Borrows the analysis context for one synchronous operation.
     explicit Memory(const AnalysisContext& context) : context_(context) {}
 
     /// Reads exactly the requested preferred-image range.
-    [[nodiscard]] std::expected<std::vector<std::uint8_t>, newghidra::decompiler::ProviderError>
+    [[nodiscard]] std::expected<std::vector<std::uint8_t>, recode::decompiler::ProviderError>
     read(std::uint64_t address, std::size_t size) const override {
         const auto bytes = context_.image().read_memory(address, size);
-        return bytes ? std::expected<std::vector<std::uint8_t>, newghidra::decompiler::ProviderError>{*bytes}
-                     : std::unexpected(newghidra::decompiler::ProviderError{bytes.error().message});
+        return bytes ? std::expected<std::vector<std::uint8_t>, recode::decompiler::ProviderError>{*bytes}
+                     : std::unexpected(recode::decompiler::ProviderError{bytes.error().message});
     }
 
 private:
@@ -45,17 +45,17 @@ private:
 };
 
 /// Converts the production Sleigh decode into frontend p-code records.
-class Pcode final : public newghidra::decompiler::PcodeProvider {
+class Pcode final : public recode::decompiler::PcodeProvider {
 public:
     /// Borrows the production decoder for one synchronous operation.
     explicit Pcode(const AnalysisContext& context) : context_(context) {}
 
     /// Decodes one instruction and preserves its complete p-code sequence.
-    [[nodiscard]] std::expected<newghidra::decompiler::Instruction, newghidra::decompiler::ProviderError>
+    [[nodiscard]] std::expected<recode::decompiler::Instruction, recode::decompiler::ProviderError>
     decode(std::uint64_t address) const override {
         const auto decoded = context_.decode(address);
         if (!decoded)
-            return std::unexpected(newghidra::decompiler::ProviderError{decoded.error().message});
+            return std::unexpected(recode::decompiler::ProviderError{decoded.error().message});
         return *decoded;
     }
 
@@ -64,8 +64,8 @@ private:
 };
 
 /// Creates the processor spaces and register facts required by x86-64.sla.
-[[nodiscard]] newghidra::decompiler::ArchitectureDescription architecture() {
-    return newghidra::decompiler::make_x86_64_architecture();
+[[nodiscard]] recode::decompiler::ArchitectureDescription architecture() {
+    return recode::decompiler::make_x86_64_architecture();
 }
 
 /// Returns the bounded end required by the native flow engine.
@@ -80,8 +80,8 @@ private:
     const auto end = end_of(function);
     if (!end || *end <= function.entry)
         return false;
-    newghidra::decompiler::Decompiler frontend(architecture(), std::make_shared<Pcode>(context),
-                                               std::make_shared<Memory>(context));
+    recode::decompiler::Decompiler frontend(architecture(), std::make_shared<Pcode>(context),
+                                            std::make_shared<Memory>(context));
     const auto result = frontend.decompile({function.name, function.entry, *end});
     return !result.c_source.empty();
 }
@@ -119,4 +119,4 @@ void DecompilerParameterIdAnalyzer::analyze(AnalysisContext& context, std::span<
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

@@ -11,8 +11,8 @@ if /I "%MODE%"=="/?" goto usage
 if /I "%MODE%"=="-h" goto usage
 
 set "BUILD_DIR=%SCRIPT_DIR%build"
-set "BUILD_TARGET=new_ghidra_app"
-set "TEST_FILTER=^new_ghidra_app_smoke$"
+set "BUILD_TARGET=recode_app"
+set "TEST_FILTER=^recode_app_smoke$"
 set "RUN_TESTS=1"
 set "FULL_BUILD=0"
 set "TTD_CMAKE_OPTION="
@@ -37,18 +37,18 @@ if /I "%MODE%"=="core" (
     goto mode_selected
 )
 if /I "%MODE%"=="runtime" (
-    set "BUILD_TARGET=new_ghidra_runtime_tests"
-    set "TEST_FILTER=^new_ghidra_runtime_tests$"
+    set "BUILD_TARGET=recode_runtime_tests"
+    set "TEST_FILTER=^recode_runtime_tests$"
     goto mode_selected
 )
 if /I "%MODE%"=="services" (
-    set "BUILD_TARGET=new_ghidra_service_tests"
-    set "TEST_FILTER=^new_ghidra_service_tests$"
+    set "BUILD_TARGET=recode_service_tests"
+    set "TEST_FILTER=^recode_service_tests$"
     goto mode_selected
 )
 if /I "%MODE%"=="project" (
-    set "BUILD_TARGET=new_ghidra_project_tests"
-    set "TEST_FILTER=^new_ghidra_project_tests$"
+    set "BUILD_TARGET=recode_project_tests"
+    set "TEST_FILTER=^recode_project_tests$"
     goto mode_selected
 )
 if /I "%MODE%"=="integration" (
@@ -62,7 +62,7 @@ if /I "%MODE%"=="replay" (
     goto mode_selected
 )
 if /I "%MODE%"=="bindings" (
-    set "BUILD_TARGET=new_ghidra_cpp_bindings"
+    set "BUILD_TARGET=recode_cpp_bindings"
     set "TEST_FILTER=^$"
     goto mode_selected
 )
@@ -99,7 +99,7 @@ if /I "%MODE%"=="trace_recorder" (
 if /I "%MODE%"=="ttd_replay" (
     set "BUILD_TARGET=win_ttd_tests"
     set "TEST_FILTER=^win_ttd_tests$"
-    set "TTD_CMAKE_OPTION=-DNEW_GHIDRA_REQUIRE_TTD_REPLAY=ON"
+    set "TTD_CMAKE_OPTION=-DRECODE_REQUIRE_TTD_REPLAY=ON"
     set "TTD_TEST_ENV=TTD_TEST_REQUIRED=1"
     goto mode_selected
 )
@@ -107,13 +107,13 @@ if /I "%MODE%"=="ttd_all" (
     set "FULL_BUILD=1"
     set "BUILD_TARGET="
     set "TEST_FILTER="
-    set "TTD_CMAKE_OPTION=-DNEW_GHIDRA_REQUIRE_TTD_REPLAY=ON"
+    set "TTD_CMAKE_OPTION=-DRECODE_REQUIRE_TTD_REPLAY=ON"
     set "TTD_TEST_ENV=TTD_TEST_REQUIRED=1"
     set "AUTO_TTD_TRACE=1"
     goto mode_selected
 )
 if /I "%MODE%"=="ttd_setup" (
-    set "BUILD_TARGET=new_ghidra_win_ttd_setup"
+    set "BUILD_TARGET=recode_win_ttd_setup"
     set "RUN_TESTS=0"
     goto mode_selected
 )
@@ -290,21 +290,21 @@ if /I "%~3"=="--clean" (
 
 if "%RUN_TESTS%"=="0" (
     if /I "%MODE%"=="hello" set "BUILD_TARGET=hello_service"
-    if /I "%MODE%"=="core" set "BUILD_TARGET=new_ghidra_core"
-    if /I "%MODE%"=="runtime" set "BUILD_TARGET=new_ghidra_runtime"
-    if /I "%MODE%"=="services" set "BUILD_TARGET=new_ghidra_services"
-    if /I "%MODE%"=="services" set "BUILD_TARGET=new_ghidra_service_tests"
-    if /I "%MODE%"=="project" set "BUILD_TARGET=new_ghidra_runtime_project"
+    if /I "%MODE%"=="core" set "BUILD_TARGET=recode_core"
+    if /I "%MODE%"=="runtime" set "BUILD_TARGET=recode_runtime"
+    if /I "%MODE%"=="services" set "BUILD_TARGET=recode_services"
+    if /I "%MODE%"=="services" set "BUILD_TARGET=recode_service_tests"
+    if /I "%MODE%"=="project" set "BUILD_TARGET=recode_runtime_project"
     if /I "%MODE%"=="integration" set "BUILD_TARGET=architecture_end_to_end_tests"
     if /I "%MODE%"=="replay" set "BUILD_TARGET=architecture_replay_tests"
-    if /I "%MODE%"=="bindings" set "BUILD_TARGET=new_ghidra_cpp_bindings"
+    if /I "%MODE%"=="bindings" set "BUILD_TARGET=recode_cpp_bindings"
     if /I "%MODE%"=="sleigh" set "BUILD_TARGET=sleigh_runtime"
     if /I "%MODE%"=="pe" set "BUILD_TARGET=pe_loader"
     if /I "%MODE%"=="function_id" set "BUILD_TARGET=function_id function_id_cli"
-    if /I "%MODE%"=="decompiler" set "BUILD_TARGET=new_ghidra_decompiler_frontend decompiler_cli"
-    if /I "%MODE%"=="debugger" set "BUILD_TARGET=new_ghidra_win_dbg_eng"
-    if /I "%MODE%"=="ttd_replay" set "BUILD_TARGET=new_ghidra_win_ttd_replay"
-    if /I "%MODE%"=="trace_recorder" set "BUILD_TARGET=new_ghidra_ttd_recorder"
+    if /I "%MODE%"=="decompiler" set "BUILD_TARGET=recode_decompiler_frontend decompiler_cli"
+    if /I "%MODE%"=="debugger" set "BUILD_TARGET=recode_win_dbg_eng"
+    if /I "%MODE%"=="ttd_replay" set "BUILD_TARGET=recode_win_ttd_replay"
+    if /I "%MODE%"=="trace_recorder" set "BUILD_TARGET=recode_ttd_recorder"
     if /I "%MODE%"=="analyzer" set "BUILD_TARGET=analyzer"
     if /I "%MODE%"=="constant_propagation" set "BUILD_TARGET=analyzer_constant_propagation"
     if /I "%MODE%"=="data_reference" set "BUILD_TARGET=analyzer_data_reference"
@@ -414,7 +414,7 @@ call "%SCRIPT_DIR%services\debugger\win_ttd\setup_dependencies.bat"
 exit /b %errorlevel%
 
 :prepare_ttd_trace
-set "TTD_AUTO_TRACE_PATH=%TEMP%\new-ghidra-ttd-recorder-test.run"
+set "TTD_AUTO_TRACE_PATH=%TEMP%\recode-ttd-recorder-test.run"
 if exist "%TTD_AUTO_TRACE_PATH%" del /q /f "%TTD_AUTO_TRACE_PATH%"
 if exist "%TTD_AUTO_TRACE_PATH:.run=.idx%" del /q /f "%TTD_AUTO_TRACE_PATH:.run=.idx%"
 if exist "%TTD_AUTO_TRACE_PATH%.idx" del /q /f "%TTD_AUTO_TRACE_PATH%.idx"

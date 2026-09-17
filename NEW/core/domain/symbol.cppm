@@ -1,10 +1,10 @@
-export module ghidra.core.symbol;
+export module recode.core.symbol;
 
 import std;
-import ghidra.core.address;
-import ghidra.core.identifiers;
+import recode.core.address;
+import recode.core.identifiers;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Identifies the origin and trust level of a symbol.
 enum class SymbolSource : std::uint8_t { default_name, import, pdb, analysis, user, fid };
@@ -26,4 +26,4 @@ struct Symbol {
     std::optional<EntityId> supersedes_symbol_id;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

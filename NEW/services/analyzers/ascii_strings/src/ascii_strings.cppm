@@ -9,7 +9,7 @@ import std;
 // Ghidra/Features/Base/src/main/java/ghidra/util/ascii/AsciiCharSetRecognizer.java
 
 /// Finds null-terminated ASCII strings in initialized, accessible PE memory.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class AsciiStringsAnalyzer final : public Analyzer {
 public:
     /// Returns the original analyzer name, late data-type priority, and event contract.
@@ -18,9 +18,9 @@ public:
     /// Scans initialized memory and creates accepted string data objects.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Returns whether a byte belongs to Ghidra's ASCII recognizer character set.
@@ -173,4 +173,4 @@ void AsciiStringsAnalyzer::analyze(AnalysisContext& context, std::span<const Ana
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

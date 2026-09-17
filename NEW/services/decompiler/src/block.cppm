@@ -1,6 +1,6 @@
-module ghidra.decompiler;
+module recode.decompiler;
 import std;
-import ghidra.decompiler.block_switch;
+import recode.decompiler.block_switch;
 // Port provenance: mechanically copied from Ghidra/Features/Decompiler/src/decompile/cpp/block.cc.
 // The implementation is preserved from the original native decompiler source.
 /* ###

@@ -14,7 +14,7 @@ run the real native flow, SSA, actions, and C printer.
 [`native_funcproto_tests.cppm`](native_funcproto_tests.cppm) independently initializes a Toy-like
 native `Architecture`, decodes the three compiler-spec models used by
 [`Ghidra/Features/Decompiler/src/decompile/unittests/testfuncproto.cc`](../../../../Ghidra/Features/Decompiler/src/decompile/unittests/testfuncproto.cc),
-and drives the real `ghidra.decompiler.grammar`, `ProtoModel`, and `ParamActive` algorithms.
+and drives the real `recode.decompiler.grammar`, `ProtoModel`, and `ParamActive` algorithms.
 Its table-driven cases preserve the original storage-assignment and input-recovery scenarios
 without depending on the legacy test harness.
 

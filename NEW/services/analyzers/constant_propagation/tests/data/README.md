@@ -7,5 +7,5 @@ creates the human-readable [`test_constant_propagation.md`](test_constant_propag
 report.
 
 Run `build.bat` from this directory, then run
-`TEST\\run_ghidra_python.bat NEW\\features\\analyzers\\constant_propagation\\tests\\data\\run_ghidra.py`
+`TEST\\run_ghidra_python.bat \features\\analyzers\\constant_propagation\\tests\\data\\run_ghidra.py`
 from the repository root.

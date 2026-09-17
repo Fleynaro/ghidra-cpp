@@ -1,6 +1,6 @@
-# New C++23 Project
+# Binary ReCode C++23 Project
 
-`NEW` is the autonomous C++23 implementation. Feature code is owned by `services`; there is no parallel `features` build graph.
+Binary ReCode is the autonomous C++23 implementation. Feature code is owned by `services`; there is no parallel `features` build graph.
 
 ## Navigation
 

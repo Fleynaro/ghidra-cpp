@@ -8,7 +8,7 @@ import analyzer_aggressive_instruction_finder;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Seeds the twenty-four repeated function starts while leaving the candidate bytes undefined.
@@ -62,4 +62,4 @@ TEST(AggressiveInstructionFinderIntegrationTest, RequiresTwentyKnownFunctions) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

@@ -4,8 +4,8 @@ module;
 
 export module native_funcproto_tests;
 
-import ghidra.decompiler;
-import ghidra.decompiler.grammar;
+import recode.decompiler;
+import recode.decompiler.grammar;
 import std;
 
 // Coverage reference: Ghidra/Features/Decompiler/src/decompile/unittests/testfuncproto.cc.

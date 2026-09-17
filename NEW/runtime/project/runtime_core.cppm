@@ -1,14 +1,14 @@
-export module ghidra.runtime.project.runtime_core;
+export module recode.runtime.project.runtime_core;
 
 import std;
-import ghidra.core;
-import ghidra.runtime.event_bus;
-import ghidra.runtime.project.config;
-import ghidra.runtime.project.manager;
-import ghidra.runtime.project.session;
-import ghidra.runtime.workers.pool;
+import recode.core;
+import recode.runtime.event_bus;
+import recode.runtime.project.config;
+import recode.runtime.project.manager;
+import recode.runtime.project.session;
+import recode.runtime.workers.pool;
 
-export namespace ghidra::runtime::project {
+export namespace recode::runtime::project {
 
 /// Configures the process-wide native runtime infrastructure.
 struct RuntimeConfig {
@@ -65,4 +65,4 @@ private:
     bool shutdown_{};
 };
 
-} // namespace ghidra::runtime::project
+} // namespace recode::runtime::project

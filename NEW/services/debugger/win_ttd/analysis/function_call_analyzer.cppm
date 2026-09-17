@@ -1,23 +1,23 @@
 module;
 
-#if defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if defined(RECODE_HAS_TTD_REPLAY)
 #include <TTD/ErrorReporting.h>
 #include <TTD/IReplayEngineStl.h>
 #endif
 
-export module ghidra.service.debugger.win_ttd.analysis;
+export module recode.service.debugger.win_ttd.analysis;
 
 import std;
-import ghidra.core;
+import recode.core;
 
 // Microsoft reference: TEST/debugger/TTD/ReplayApi/TraceAnalysis/TraceAnalysis.cpp.
 // The implementation follows its TLS -> continuity queue -> progress merge model.
 
-export namespace ghidra::services::debugger::win_ttd::analysis {
+export namespace recode::services::debugger::win_ttd::analysis {
 
-namespace core = ghidra::core;
-namespace api = ghidra::core::contracts;
-namespace model = ghidra::core;
+namespace core = recode::core;
+namespace api = recode::core::contracts;
+namespace model = recode::core;
 
 namespace detail {
 
@@ -53,7 +53,7 @@ namespace detail {
     return name;
 }
 
-#if defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if defined(RECODE_HAS_TTD_REPLAY)
 
 /// Stores the native Replay diagnostic for the entire engine lifetime.
 class ErrorReporting final : public TTD::ErrorReporting {
@@ -309,7 +309,7 @@ public:
                                  [request = std::move(request), context = std::move(context), cancellation,
                                   control]() mutable -> core::Result<model::FunctionCallStatistics> {
                                      control->set_status(api::OperationStatus::running);
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
                                      static_cast<void>(request);
                                      static_cast<void>(context);
                                      control->set_status(api::OperationStatus::failed);
@@ -335,4 +335,4 @@ public:
     return std::shared_ptr<api::ITraceAnalyzer>{std::make_shared<WinTtdFunctionCallAnalyzer>()};
 }
 
-} // namespace ghidra::services::debugger::win_ttd::analysis
+} // namespace recode::services::debugger::win_ttd::analysis

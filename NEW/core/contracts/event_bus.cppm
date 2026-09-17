@@ -1,10 +1,10 @@
-export module ghidra.core.contracts.event_bus;
+export module recode.core.contracts.event_bus;
 
 import std;
-import ghidra.core.events.event;
-import ghidra.core.identifiers;
+import recode.core.events.event;
+import recode.core.identifiers;
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
 /// Identifies an in-process subscription.
 using SubscriptionId = std::uint64_t;
@@ -26,4 +26,4 @@ public:
     virtual void publish(std::span<const events::EventEnvelope> events) = 0;
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

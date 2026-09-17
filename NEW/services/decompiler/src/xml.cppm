@@ -1,6 +1,6 @@
 module;
 #include <pugixml.hpp>
-module ghidra.decompiler;
+module recode.decompiler;
 import std;
 
 // Port provenance: the public DOM and SAX-compatible API is preserved from

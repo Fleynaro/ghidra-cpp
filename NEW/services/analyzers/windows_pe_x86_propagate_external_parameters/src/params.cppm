@@ -7,7 +7,7 @@ import std;
 // Ghidra/Features/MicrosoftCodeAnalyzer/src/main/java/ghidra/app/plugin/prototype/MicrosoftCodeAnalyzerPlugin/PropagateExternalParametersAnalyzer.java
 
 /// Propagates already-known external x86 parameter metadata to pushed call arguments.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class WindowsPeX86PropagateExternalParametersAnalyzer final : public Analyzer {
 public:
     /// Returns the exact Java analyzer name and DATA_TYPE_PROPOGATION.after()^5 priority.
@@ -16,9 +16,9 @@ public:
     /// Creates parameter evidence for calls whose external function signature is public native state.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Returns whether an instruction is the x86 stack-argument PUSH operation.
@@ -123,4 +123,4 @@ void WindowsPeX86PropagateExternalParametersAnalyzer::analyze(AnalysisContext& c
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

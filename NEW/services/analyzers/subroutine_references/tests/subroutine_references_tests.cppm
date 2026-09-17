@@ -10,7 +10,7 @@ import analyzer_subroutine_references;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Returns the complete post-analysis body oracle copied from the Ghidra
@@ -378,4 +378,4 @@ TEST(SubroutineReferencesIntegrationTest, PreservesUndefinedGapsBetweenFlowClust
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

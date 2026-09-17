@@ -2,7 +2,7 @@ export module analyzer_cancellation_token;
 
 import std;
 
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 
 /// Carries cooperative cancellation state into an analyzer invocation.
 // Ported from the cooperative cancellation checks used by
@@ -31,4 +31,4 @@ private:
     std::atomic_bool cancelled_{false};
 };
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

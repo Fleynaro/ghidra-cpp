@@ -9,7 +9,7 @@ import analyzer_reference;
 import analyzer_windows_pe_x86_propagate_external_parameters;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies known external parameters are attached to the last matching PUSH instructions.
@@ -62,4 +62,4 @@ TEST(WindowsPeX86PropagateExternalParametersAnalyzerTest, DoesNotInventMissingSi
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

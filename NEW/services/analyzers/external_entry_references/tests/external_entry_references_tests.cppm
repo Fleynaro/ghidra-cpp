@@ -8,7 +8,7 @@ import analyzer_external_entry_references;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies all fixture export entries are marked while a fall-through entry is not made a function.
@@ -39,4 +39,4 @@ TEST(ExternalEntryReferencesAnalyzerTest, PreservesAnalyzerDescriptor) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

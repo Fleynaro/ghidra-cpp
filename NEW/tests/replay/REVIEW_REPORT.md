@@ -56,7 +56,7 @@
 
 ## Validation Results
 
-- [x] `ctest --test-dir NEW/build --output-on-failure`: 49/49 passed.
+- [x] `ctest --test-dir build --output-on-failure`: 49/49 passed.
 - [x] Event store/projection source and CMake registration inspected.
 - [ ] No fault-injection or multi-process replay test exists.
 

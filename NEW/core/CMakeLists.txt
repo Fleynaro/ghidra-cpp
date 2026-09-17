@@ -1,4 +1,4 @@
-set(NEW_GHIDRA_CORE_MODULES
+set(RECODE_CORE_MODULES
     core.cppm
     domain/domain.cppm
     domain/identifiers.cppm
@@ -79,33 +79,33 @@ if(MSVC)
     endif()
 endif()
 
-add_library(new_ghidra_std STATIC)
+add_library(recode_std STATIC)
 if(MSVC)
-    target_sources(new_ghidra_std
+    target_sources(recode_std
         PUBLIC
             FILE_SET cxx_modules TYPE CXX_MODULES
             BASE_DIRS "${CORE_MSVC_TOOLSET}/modules"
             FILES "${CORE_STD_MODULE}"
     )
 endif()
-add_library(NewGhidra::Std ALIAS new_ghidra_std)
-target_compile_features(new_ghidra_std PUBLIC cxx_std_23)
+add_library(ReCode::Std ALIAS recode_std)
+target_compile_features(recode_std PUBLIC cxx_std_23)
 
-add_library(new_ghidra_core STATIC)
-target_sources(new_ghidra_core
+add_library(recode_core STATIC)
+target_sources(recode_core
     PUBLIC
         FILE_SET cxx_modules TYPE CXX_MODULES
         BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}"
-        FILES ${NEW_GHIDRA_CORE_MODULES}
+        FILES ${RECODE_CORE_MODULES}
 )
-add_library(NewGhidra::Core ALIAS new_ghidra_core)
-target_compile_features(new_ghidra_core PUBLIC cxx_std_23)
-target_link_libraries(new_ghidra_core PUBLIC NewGhidra::Std)
+add_library(ReCode::Core ALIAS recode_core)
+target_compile_features(recode_core PUBLIC cxx_std_23)
+target_link_libraries(recode_core PUBLIC ReCode::Std)
 
 if(MSVC)
-    target_compile_options(new_ghidra_core PRIVATE /W3)
+    target_compile_options(recode_core PRIVATE /W3)
 else()
-    target_compile_options(new_ghidra_core PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(recode_core PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
 if(BUILD_TESTING)

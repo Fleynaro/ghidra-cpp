@@ -1,10 +1,10 @@
-export module ghidra.core.events.analysis;
+export module recode.core.events.analysis;
 
 import std;
-import ghidra.core.events.event;
-import ghidra.core.identifiers;
+import recode.core.events.event;
+import recode.core.identifiers;
 
-export namespace ghidra::core::events {
+export namespace recode::core::events {
 
 /// Creates an analysis-run lifecycle event; progress ticks remain transient.
 [[nodiscard]] inline EventDraft analysis_run_state_changed(const ProjectId& project, const AnalysisRunId& run,
@@ -21,4 +21,4 @@ export namespace ghidra::core::events {
                       encode_fields({{"run", run.value()}, {"status", std::move(status)}})};
 }
 
-} // namespace ghidra::core::events
+} // namespace recode::core::events

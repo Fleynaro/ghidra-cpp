@@ -1,15 +1,15 @@
-export module ghidra.bindings.cpp.runtime;
+export module recode.bindings.cpp.runtime;
 
 import std;
-import ghidra.core;
-import ghidra.bindings.cpp.project;
-import ghidra.runtime.project.config;
-import ghidra.runtime.project.runtime_core;
+import recode.core;
+import recode.bindings.cpp.project;
+import recode.runtime.project.config;
+import recode.runtime.project.runtime_core;
 
-export namespace ghidra::bindings::cpp {
+export namespace recode::bindings::cpp {
 
-namespace runtime = ghidra::runtime;
-namespace core = ghidra::core;
+namespace runtime = recode::runtime;
+namespace core = recode::core;
 
 /// Thread-safe native runtime handle that owns the shared C++ runtime instance.
 class Runtime final : public std::enable_shared_from_this<Runtime> {
@@ -39,4 +39,4 @@ private:
     std::shared_ptr<runtime::project::RuntimeCore> runtime_;
 };
 
-} // namespace ghidra::bindings::cpp
+} // namespace recode::bindings::cpp

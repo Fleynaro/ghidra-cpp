@@ -2,12 +2,12 @@ module;
 
 #include <gtest/gtest.h>
 
-export module ghidra.core.tests.domain;
+export module recode.core.tests.domain;
 
-import ghidra.core;
+import recode.core;
 import std;
 
-namespace ghidra::core::tests {
+namespace recode::core::tests {
 namespace {
 
 /// Verifies that address arithmetic preserves space identity and rejects overflow.
@@ -76,4 +76,4 @@ TEST(CoreDomainTest, EventFieldsRoundTripEscapedValues) {
 }
 
 } // namespace
-} // namespace ghidra::core::tests
+} // namespace recode::core::tests

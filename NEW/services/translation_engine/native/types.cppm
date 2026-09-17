@@ -1,13 +1,13 @@
-export module ghidra.service.translation_engine.native.types;
+export module recode.service.translation_engine.native.types;
 
-export import ghidra.core.scalar;
-export import ghidra.core.storage_location;
+export import recode.core.scalar;
+export import recode.core.storage_location;
 
-export namespace ghidra::services::translation_engine::native {
+export namespace recode::services::translation_engine::native {
 
 /// Canonical shared storage value replacing duplicated VarnodeData copies.
-using StorageLocation = ghidra::core::StorageLocation;
+using StorageLocation = recode::core::StorageLocation;
 /// Canonical scalar interpretation value.
-using Scalar = ghidra::core::Scalar;
+using Scalar = recode::core::Scalar;
 
-} // namespace ghidra::services::translation_engine::native
+} // namespace recode::services::translation_engine::native

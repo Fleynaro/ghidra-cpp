@@ -1,15 +1,15 @@
-export module ghidra.core.instruction;
+export module recode.core.instruction;
 
 import std;
-import ghidra.core.address;
-import ghidra.core.bytes;
-import ghidra.core.decoded_instruction;
-import ghidra.core.flow;
-import ghidra.core.identifiers;
-import ghidra.core.operand;
-import ghidra.core.pcode;
+import recode.core.address;
+import recode.core.bytes;
+import recode.core.decoded_instruction;
+import recode.core.flow;
+import recode.core.identifiers;
+import recode.core.operand;
+import recode.core.pcode;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Identifies an instruction entity and its current address.
 struct InstructionKey {
@@ -90,4 +90,4 @@ struct Instruction {
     return result;
 }
 
-} // namespace ghidra::core
+} // namespace recode::core

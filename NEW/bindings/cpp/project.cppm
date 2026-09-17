@@ -1,16 +1,16 @@
-export module ghidra.bindings.cpp.project;
+export module recode.bindings.cpp.project;
 
 import std;
-import ghidra.core;
-import ghidra.runtime.api.project;
-import ghidra.runtime.project.config;
-import ghidra.bindings.cpp.commands;
-import ghidra.bindings.cpp.queries;
-import ghidra.bindings.cpp.results;
+import recode.core;
+import recode.runtime.api.project;
+import recode.runtime.project.config;
+import recode.bindings.cpp.commands;
+import recode.bindings.cpp.queries;
+import recode.bindings.cpp.results;
 
-export namespace ghidra::bindings::cpp {
+export namespace recode::bindings::cpp {
 
-namespace runtime = ghidra::runtime;
+namespace runtime = recode::runtime;
 
 /// Stable native project handle used by future language bindings without implementing them here.
 class Project final {
@@ -54,4 +54,4 @@ private:
     std::shared_ptr<runtime::api::ProjectFacade> facade_;
 };
 
-} // namespace ghidra::bindings::cpp
+} // namespace recode::bindings::cpp

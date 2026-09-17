@@ -8,7 +8,7 @@ replace decompiler convention analysis with register or platform heuristics.
 - [`tests/call_convention_id_tests.cppm`](tests/call_convention_id_tests.cppm) contains hardcoded behavior tests.
 - [`tests/data/`](tests/data/) contains the original fixture and report.
 - [`CMakeLists.txt`](CMakeLists.txt) defines the library and CTest target.
-- [`build.bat`](build.bat) selects the focused build from `NEW/build.bat`.
+- [`build.bat`](build.bat) selects the focused build from `build.bat`.
 - [`../README.md`](../README.md) is the analyzer-family guide.
 - [`../../decompiler/README.md`](../../decompiler/README.md) documents the frontend boundary.
 - [`../../sleigh_runtime/README.md`](../../sleigh_runtime/README.md) documents the decoder dependency.

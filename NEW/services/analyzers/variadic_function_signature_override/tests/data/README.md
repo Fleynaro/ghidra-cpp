@@ -75,5 +75,5 @@ pointer (lines 122-132), finds callers (lines 138-157), parses P-code calls (lin
 call-site override with `HighFunctionDBUtil.writeOverride` (lines 327-363).
 
 Run `build.bat`, then execute
-`TEST\\run_ghidra_python.bat NEW\\features\\analyzer\\test_data\\variadic_function_signature_override\\run_ghidra.py`
+`TEST\\run_ghidra_python.bat \features\\analyzer\\test_data\\variadic_function_signature_override\\run_ghidra.py`
 from the repository root.

@@ -1,13 +1,13 @@
-export module ghidra.core.contracts.memory_provider;
+export module recode.core.contracts.memory_provider;
 
 import std;
-import ghidra.core.address;
-import ghidra.core.address_range;
-import ghidra.core.bytes;
-import ghidra.core.memory_region;
-import ghidra.core.diagnostics;
+import recode.core.address;
+import recode.core.address_range;
+import recode.core.bytes;
+import recode.core.memory_region;
+import recode.core.diagnostics;
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
 /// Supplies immutable bytes and mapped-region metadata to services.
 class IMemoryProvider {
@@ -31,4 +31,4 @@ public:
     }
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

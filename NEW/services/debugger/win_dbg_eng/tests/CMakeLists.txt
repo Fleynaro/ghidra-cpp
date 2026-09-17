@@ -23,8 +23,8 @@ target_sources(win_dbg_eng_tests PRIVATE
 )
 add_dependencies(win_dbg_eng_tests win_dbg_eng_debuggee)
 target_link_libraries(win_dbg_eng_tests PRIVATE
-    NewGhidra::WinDbgEng
-    NewGhidra::Std
+    ReCode::WinDbgEng
+    ReCode::Std
     GTest::gtest_main
 )
 if(WIN32)

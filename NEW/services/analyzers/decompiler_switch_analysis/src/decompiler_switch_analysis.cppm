@@ -9,7 +9,7 @@ import std;
 // DecompilerSwitchAnalyzer.java and
 // Ghidra/Features/Decompiler/src/main/java/ghidra/app/cmd/function/DecompilerSwitchAnalysisCmd.java.
 
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 
 /// Extracts native control-flow block addresses from a decompiler artifact.
 [[nodiscard]] std::vector<Address> decompiler_control_flow_addresses(std::string_view control_flow);
@@ -24,23 +24,23 @@ public:
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Supplies mapped PE bytes to the native frontend.
-class Memory final : public newghidra::decompiler::MemoryProvider {
+class Memory final : public recode::decompiler::MemoryProvider {
 public:
     /// Borrows the analysis context for one synchronous call.
     explicit Memory(const AnalysisContext& context) : context_(context) {}
 
     /// Reads one exact preferred-image range.
-    [[nodiscard]] std::expected<std::vector<std::uint8_t>, newghidra::decompiler::ProviderError>
+    [[nodiscard]] std::expected<std::vector<std::uint8_t>, recode::decompiler::ProviderError>
     read(std::uint64_t address, std::size_t size) const override {
         const auto bytes = context_.image().read_memory(address, size);
-        return bytes ? std::expected<std::vector<std::uint8_t>, newghidra::decompiler::ProviderError>{*bytes}
-                     : std::unexpected(newghidra::decompiler::ProviderError{bytes.error().message});
+        return bytes ? std::expected<std::vector<std::uint8_t>, recode::decompiler::ProviderError>{*bytes}
+                     : std::unexpected(recode::decompiler::ProviderError{bytes.error().message});
     }
 
 private:
@@ -48,17 +48,17 @@ private:
 };
 
 /// Converts production Sleigh p-code to the public decompiler provider format.
-class Pcode final : public newghidra::decompiler::PcodeProvider {
+class Pcode final : public recode::decompiler::PcodeProvider {
 public:
     /// Borrows the production decoder for one synchronous call.
     explicit Pcode(const AnalysisContext& context) : context_(context) {}
 
     /// Decodes one instruction without changing its control-flow p-code.
-    [[nodiscard]] std::expected<newghidra::decompiler::Instruction, newghidra::decompiler::ProviderError>
+    [[nodiscard]] std::expected<recode::decompiler::Instruction, recode::decompiler::ProviderError>
     decode(std::uint64_t address) const override {
         const auto decoded = context_.decode(address);
         if (!decoded)
-            return std::unexpected(newghidra::decompiler::ProviderError{decoded.error().message});
+            return std::unexpected(recode::decompiler::ProviderError{decoded.error().message});
         return *decoded;
     }
 
@@ -67,8 +67,8 @@ private:
 };
 
 /// Creates architecture facts used by the existing x86-64 frontend.
-[[nodiscard]] newghidra::decompiler::ArchitectureDescription architecture() {
-    return newghidra::decompiler::make_x86_64_architecture();
+[[nodiscard]] recode::decompiler::ArchitectureDescription architecture() {
+    return recode::decompiler::make_x86_64_architecture();
 }
 
 /// Returns the exclusive body bound used by the frontend.
@@ -79,20 +79,20 @@ private:
 }
 
 /// Runs native flow and switch recovery for one function.
-[[nodiscard]] std::optional<newghidra::decompiler::DecompilationResult> decompile(const AnalysisContext& context,
-                                                                                  const Function& function) {
+[[nodiscard]] std::optional<recode::decompiler::DecompilationResult> decompile(const AnalysisContext& context,
+                                                                               const Function& function) {
     const auto end = end_of(function);
     if (!end || *end <= function.entry)
         return std::nullopt;
-    newghidra::decompiler::Decompiler frontend(architecture(), std::make_shared<Pcode>(context),
-                                               std::make_shared<Memory>(context));
+    recode::decompiler::Decompiler frontend(architecture(), std::make_shared<Pcode>(context),
+                                            std::make_shared<Memory>(context));
     return frontend.decompile({function.name, function.entry, *end});
 }
 
 /// Selects native block starts that belong to a recovered indirect branch.
 [[nodiscard]] std::vector<Address> switch_targets(const AnalysisContext& context, const Function& function,
-                                                  const newghidra::decompiler::DecompilationResult& result,
-                                                  Address branch, std::size_t expected_case_count) {
+                                                  const recode::decompiler::DecompilationResult& result, Address branch,
+                                                  std::size_t expected_case_count) {
     const auto addresses = decompiler_control_flow_addresses(result.control_flow);
     std::set<Address> blocks(addresses.begin(), addresses.end());
     std::vector<Address> targets;
@@ -227,4 +227,4 @@ void DecompilerSwitchAnalysisAnalyzer::analyze(AnalysisContext& context, std::sp
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

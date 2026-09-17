@@ -1,10 +1,10 @@
-export module ghidra.core.basic_block;
+export module recode.core.basic_block;
 
 import std;
-import ghidra.core.address_range;
-import ghidra.core.identifiers;
+import recode.core.address_range;
+import recode.core.identifiers;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Classifies the role of a basic block in a control-flow graph.
 enum class BasicBlockKind : std::uint8_t { normal, entry, exit, thunk, external, unknown };
@@ -19,4 +19,4 @@ struct BasicBlock {
     BasicBlockKind kind{BasicBlockKind::normal};
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

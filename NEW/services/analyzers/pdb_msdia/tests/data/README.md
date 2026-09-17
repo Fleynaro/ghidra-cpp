@@ -70,5 +70,5 @@ mispaired PDB fails instead of producing misleading DIA output.
 ## Reproduction
 
 Run `build.bat` from this directory, then run
-`TEST\\run_ghidra_python.bat NEW\\features\\analyzer\\test_data\\pdb_msdia\\run_ghidra.py`
+`TEST\\run_ghidra_python.bat \features\\analyzer\\test_data\\pdb_msdia\\run_ghidra.py`
 from the repository root. Optional arguments are an executable, PDB, and report path.

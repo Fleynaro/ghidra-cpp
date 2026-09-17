@@ -79,8 +79,8 @@ No findings.
 - [x] Read-only original/native comparison completed.
 - [x] Read-only test, fixture, documentation, CMake, and wrapper inspection completed.
 - [ ] Focused build/test: not run by request.
-- [ ] `NEW/format.bat apply_data_archives`: not run by request.
-- [ ] `NEW/tidy.bat apply_data_archives --check`: not run by request.
+- [ ] `format.bat apply_data_archives`: not run by request.
+- [ ] `tidy.bat apply_data_archives --check`: not run by request.
 
 ## Unresolved Questions
 

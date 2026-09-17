@@ -1,12 +1,12 @@
-export module ghidra.core.contracts.function_id;
+export module recode.core.contracts.function_id;
 
 import std;
-import ghidra.core.diagnostics;
-import ghidra.core.function;
-import ghidra.core.function_id;
-import ghidra.core.contracts.operation;
+import recode.core.diagnostics;
+import recode.core.function;
+import recode.core.function_id;
+import recode.core.contracts.operation;
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
 /// Matches one immutable function snapshot against configured FID resources.
 class IFunctionIdMatcher {
@@ -19,4 +19,4 @@ public:
                                                                   OperationContext context) = 0;
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

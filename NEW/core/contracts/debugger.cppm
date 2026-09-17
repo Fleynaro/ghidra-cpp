@@ -1,20 +1,20 @@
-export module ghidra.core.contracts.debugger;
+export module recode.core.contracts.debugger;
 
 import std;
-import ghidra.core.debugger;
-import ghidra.core.replay;
-import ghidra.core.address;
-import ghidra.core.bytes;
-import ghidra.core.contracts.operation;
-import ghidra.core.diagnostics;
+import recode.core.debugger;
+import recode.core.replay;
+import recode.core.address;
+import recode.core.bytes;
+import recode.core.contracts.operation;
+import recode.core.diagnostics;
 
 // The contracts contain only portable values. Native DbgEng and TTD interfaces
 // remain implementation details of their Windows service adapters.
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
-namespace debugger = ghidra::core::debugger;
-namespace replay = ghidra::core::replay;
+namespace debugger = recode::core::debugger;
+namespace replay = recode::core::replay;
 
 /// Receives one translated debugger event after backend capture is complete.
 using DebugEventSink = std::function<void(const debugger::DebugEvent&)>;
@@ -43,24 +43,24 @@ public:
     /// Returns the selected thread identity.
     [[nodiscard]] virtual Result<debugger::ThreadId> current_thread() const = 0;
     /// Enumerates portable register descriptors.
-    [[nodiscard]] virtual Result<std::vector<debugger::Register>> registers(
-        std::optional<debugger::ThreadId> thread = std::nullopt) const = 0;
+    [[nodiscard]] virtual Result<std::vector<debugger::Register>>
+    registers(std::optional<debugger::ThreadId> thread = std::nullopt) const = 0;
     /// Reads one register value.
-    [[nodiscard]] virtual Result<debugger::RegisterValue> read_register(
-        std::string_view name, std::optional<debugger::ThreadId> thread = std::nullopt) const = 0;
+    [[nodiscard]] virtual Result<debugger::RegisterValue>
+    read_register(std::string_view name, std::optional<debugger::ThreadId> thread = std::nullopt) const = 0;
     /// Reads all register values.
-    [[nodiscard]] virtual Result<std::vector<debugger::RegisterValue>> read_registers(
-        std::optional<debugger::ThreadId> thread = std::nullopt) const = 0;
+    [[nodiscard]] virtual Result<std::vector<debugger::RegisterValue>>
+    read_registers(std::optional<debugger::ThreadId> thread = std::nullopt) const = 0;
     /// Reads a thread instruction pointer.
-    [[nodiscard]] virtual Result<Address> instruction_pointer(
-        std::optional<debugger::ThreadId> thread = std::nullopt) const = 0;
+    [[nodiscard]] virtual Result<Address>
+    instruction_pointer(std::optional<debugger::ThreadId> thread = std::nullopt) const = 0;
     /// Reads target virtual memory without modifying it.
     [[nodiscard]] virtual Result<debugger::MemoryReadResult> read_memory(Address address, std::size_t size) const = 0;
     /// Enumerates visible memory mappings.
     [[nodiscard]] virtual Result<std::vector<debugger::MemoryRegion>> memory_regions() const = 0;
     /// Walks a target stack.
-    [[nodiscard]] virtual Result<std::vector<debugger::StackFrame>> stack_trace(
-        std::optional<debugger::ThreadId> thread = std::nullopt, std::size_t maximum_frames = 64) const = 0;
+    [[nodiscard]] virtual Result<std::vector<debugger::StackFrame>>
+    stack_trace(std::optional<debugger::ThreadId> thread = std::nullopt, std::size_t maximum_frames = 64) const = 0;
     /// Enumerates modules visible at the current state.
     [[nodiscard]] virtual Result<std::vector<debugger::Module>> modules() const = 0;
     /// Resolves a backend-neutral symbol name.
@@ -78,10 +78,10 @@ public:
     ~ILiveDebugSession() override = default;
     /// Launches a target and stops at its initial event.
     [[nodiscard]] virtual Task<Result<debugger::Process>> launch(debugger::LaunchRequest request,
-                                                                  OperationContext context) = 0;
+                                                                 OperationContext context) = 0;
     /// Attaches to an existing target process.
     [[nodiscard]] virtual Task<Result<debugger::Process>> attach(debugger::AttachRequest request,
-                                                                  OperationContext context) = 0;
+                                                                 OperationContext context) = 0;
     /// Continues live execution until the next stop.
     [[nodiscard]] virtual Task<Result<debugger::StopReason>> continue_execution(OperationContext context) = 0;
     /// Interrupts live execution.
@@ -99,15 +99,16 @@ public:
     /// Writes live target memory.
     [[nodiscard]] virtual Result<void> write_memory(Address address, BytesView bytes) = 0;
     /// Installs a live code breakpoint.
-    [[nodiscard]] virtual Result<debugger::Breakpoint> add_breakpoint(
-        Address address, debugger::BreakpointKind kind = debugger::BreakpointKind::software, bool one_shot = false) = 0;
+    [[nodiscard]] virtual Result<debugger::Breakpoint>
+    add_breakpoint(Address address, debugger::BreakpointKind kind = debugger::BreakpointKind::software,
+                   bool one_shot = false) = 0;
     /// Enables or disables a live code breakpoint.
     [[nodiscard]] virtual Result<void> enable_breakpoint(debugger::BreakpointId id, bool enabled) = 0;
     /// Removes a live code breakpoint.
     [[nodiscard]] virtual Result<void> remove_breakpoint(debugger::BreakpointId id) = 0;
     /// Installs a live data watchpoint.
-    [[nodiscard]] virtual Result<debugger::Watchpoint> add_watchpoint(
-        Address address, std::size_t size, debugger::WatchpointAccess access) = 0;
+    [[nodiscard]] virtual Result<debugger::Watchpoint> add_watchpoint(Address address, std::size_t size,
+                                                                      debugger::WatchpointAccess access) = 0;
     /// Enables or disables a live data watchpoint.
     [[nodiscard]] virtual Result<void> enable_watchpoint(debugger::WatchpointId id, bool enabled) = 0;
     /// Removes a live data watchpoint.
@@ -123,8 +124,8 @@ public:
     /// Releases the live debugger service.
     virtual ~IDebugger() = default;
     /// Creates an isolated live session.
-    [[nodiscard]] virtual Result<std::shared_ptr<ILiveDebugSession>> create_session(
-        debugger::SessionOptions options = {}) = 0;
+    [[nodiscard]] virtual Result<std::shared_ptr<ILiveDebugSession>>
+    create_session(debugger::SessionOptions options = {}) = 0;
 };
 
 /// Defines replay-only timeline lifecycle and navigation operations.
@@ -147,8 +148,8 @@ public:
     /// Replays backward by a bounded number of positions/instructions.
     [[nodiscard]] virtual Result<replay::StepResult> step_backward(std::uint64_t count = 1) = 0;
     /// Finds the next or previous matching memory access without mutating the trace.
-    [[nodiscard]] virtual Result<replay::StepResult> seek_watchpoint(
-        Address address, std::size_t size, debugger::WatchpointAccess access, bool forward) = 0;
+    [[nodiscard]] virtual Result<replay::StepResult>
+    seek_watchpoint(Address address, std::size_t size, debugger::WatchpointAccess access, bool forward) = 0;
 };
 
 /// Creates replay debugger sessions without exposing TTD implementation types.
@@ -157,8 +158,8 @@ public:
     /// Releases the replay service.
     virtual ~IReplayDebugger() = default;
     /// Creates an isolated replay session.
-    [[nodiscard]] virtual Result<std::shared_ptr<IReplayDebugSession>> create_session(
-        debugger::SessionOptions options = {}) = 0;
+    [[nodiscard]] virtual Result<std::shared_ptr<IReplayDebugSession>>
+    create_session(debugger::SessionOptions options = {}) = 0;
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

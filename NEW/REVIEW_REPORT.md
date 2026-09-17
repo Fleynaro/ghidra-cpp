@@ -6,7 +6,7 @@
 - [x] **Review date:** 2026-09-16.
 - [x] **Reviewer:** Kilo, independent read-only review.
 - [x] **Scope areas:** feature-to-services migration, CMake graph, core contracts, service dependencies, tests/fixtures, lifecycle, persistence, and runtime behavior.
-- [x] **Assumption:** the committed range is reviewed as one change; paths below are relative to `NEW/`.
+- [x] **Assumption:** the committed range is reviewed as one change; paths below are relative to `this project`.
 - [x] **Source and test inspection completed.** Existing generated CMake/CTest metadata was inspected read-only; it is not treated as a successful build or test result.
 - [x] **No production source or test implementation was changed.** Review reports are the only files required by the repository review policy.
 
@@ -39,13 +39,13 @@
 ### HIGH-001: The default application still bypasses the service-platform runtime
 
 - [ ] **Remediation status:** Open.
-- **Source references:** `CMakeLists.txt:20-25` (`new_ghidra_app` links), `src/main.cpp:1-6` (legacy imports), `src/main.cpp:81-105` (direct `AnalysisContext`/`AutoAnalysisManager` path).
+- **Source references:** `CMakeLists.txt:20-25` (`recode_app` links), `src/main.cpp:1-6` (legacy imports), `src/main.cpp:81-105` (direct `AnalysisContext`/`AutoAnalysisManager` path).
 - **Affected component:** Default executable composition root.
-- **Technical evidence:** The application links `NewGhidra::DecompilerFrontend` and `NewGhidra::Analyzer`, constructs the legacy analyzer context directly, and never opens `RuntimeCore` or `ProjectFacade`.
+- **Technical evidence:** The application links `ReCode::DecompilerFrontend` and `ReCode::Analyzer`, constructs the legacy analyzer context directly, and never opens `RuntimeCore` or `ProjectFacade`.
 - **Expected behavior:** The application entry point should compose PE, Sleigh, analyzer, persistence, and decompiler services through core contracts and the native facade.
 - **Actual behavior:** The normal application path bypasses event history, projections, runtime scheduling, service lifecycle, and canonical service adapters.
 - **Impact:** The migration can pass service/integration tests while the shipped/default executable continues to run the old feature pipeline and does not exercise the new architecture.
-- **Reproduction/failure scenario:** Run `new_ghidra_app` with a PE and SLA; execution enters `AnalysisContext` and `AutoAnalysisManager`, not `ProjectFacade::open/load/analyze`.
+- **Reproduction/failure scenario:** Run `recode_app` with a PE and SLA; execution enters `AnalysisContext` and `AutoAnalysisManager`, not `ProjectFacade::open/load/analyze`.
 - **Root cause:** The new facade was added as a parallel test path rather than replacing the existing composition root.
 - **Recommended fix:** Replace the application composition path with `RuntimeCore`/`ProjectFacade`, retaining the legacy path only as an explicitly named compatibility diagnostic.
 - **Regression risks:** CLI output and failure behavior will change; preserve a separate raw analyzer diagnostic if needed.
@@ -131,13 +131,13 @@
 ### MEDIUM-001: The service aggregate target is incomplete and `services --no-test` selects a non-existent target
 
 - [ ] **Remediation status:** Open.
-- **Source references:** `services/CMakeLists.txt:13-24` (`new_ghidra_services`), `build.bat:257-263` (`--no-test` target overrides).
+- **Source references:** `services/CMakeLists.txt:13-24` (`recode_services`), `build.bat:257-263` (`--no-test` target overrides).
 - **Affected component:** CMake target graph and prescribed build wrapper.
-- **Technical evidence:** `new_ghidra_services` depends on legacy engine targets but omits `new_ghidra_translation_engine`, `new_ghidra_pe_loader_service`, `new_ghidra_sleigh_service`, `new_ghidra_function_id_service`, `new_ghidra_decompiler_service`, and the service test target's other composition dependencies. In `build.bat`, the `services` no-test assignment is first set to `new_ghidra_services` and immediately overwritten with `new_ghidra_service_tests`; with `BUILD_TESTING=0`, that target is not created.
+- **Technical evidence:** `recode_services` depends on legacy engine targets but omits `recode_translation_engine`, `recode_pe_loader_service`, `recode_sleigh_service`, `recode_function_id_service`, `recode_decompiler_service`, and the service test target's other composition dependencies. In `build.bat`, the `services` no-test assignment is first set to `recode_services` and immediately overwritten with `recode_service_tests`; with `BUILD_TESTING=0`, that target is not created.
 - **Expected behavior:** The services aggregate should build every service adapter, and `services --no-test` should build that aggregate with tests disabled.
 - **Actual behavior:** The aggregate can omit the migrated adapters, while the prescribed no-test mode requests an unavailable test target.
 - **Impact:** Clean/compile-only service validation is unreliable and can falsely omit the actual migration targets.
-- **Reproduction/failure scenario:** Invoke `NEW\build.bat services --no-test`; CMake is configured with testing disabled, then Ninja is asked for `new_ghidra_service_tests`.
+- **Reproduction/failure scenario:** Invoke `build.bat services --no-test`; CMake is configured with testing disabled, then Ninja is asked for `recode_service_tests`.
 - **Root cause:** The aggregate target and wrapper were not updated together with the new service target names.
 - **Recommended fix:** Make the aggregate depend on all public service targets and remove the later test-target override.
 - **Regression risks:** Focused build modes may become more complete and take longer; verify target aliases and CTest registration.
@@ -289,7 +289,7 @@
 - **Expected behavior:** Architecture evidence should describe the current committed source and target graph.
 - **Actual behavior:** Readers can follow incorrect feature paths or infer that core/runtime were not implemented.
 - **Impact:** Review and maintenance decisions may be based on obsolete dependency information.
-- **Reproduction/failure scenario:** Follow the build-root evidence table from `ARCHITECTURE.md`; it points to behavior that no longer matches `NEW/CMakeLists.txt`.
+- **Reproduction/failure scenario:** Follow the build-root evidence table from `ARCHITECTURE.md`; it points to behavior that no longer matches `CMakeLists.txt`.
 - **Root cause:** Migration updated service documentation but not all architecture evidence sections.
 - **Recommended fix:** Refresh stale tables and distinguish historical migration notes from current implementation facts.
 - **Regression risks:** Documentation links and source references must be rechecked after future moves.
@@ -313,8 +313,8 @@
 ## Validation Results
 
 - [x] `git log` and `git diff HEAD~2..HEAD` inspected for exactly the two requested commits.
-- [x] Existing generated `NEW/build/CTestTestfile.cmake`, `build.ninja`, and `.ninja_log` inspected read-only.
-- [x] `ctest --test-dir NEW/build --output-on-failure` executed during the review: **49/49 tests passed**.
+- [x] Existing generated `build/CTestTestfile.cmake`, `build.ninja`, and `.ninja_log` inspected read-only.
+- [x] `ctest --test-dir build --output-on-failure` executed during the review: **49/49 tests passed**.
 - [x] `git diff HEAD~2..HEAD --check` passed.
 - [ ] No sanitizer, race, fault-injection, multi-process lock, alternate-architecture, or standalone runtime stress validation was performed.
 

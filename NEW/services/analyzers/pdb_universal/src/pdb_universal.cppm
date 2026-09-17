@@ -9,7 +9,7 @@ import std;
 // PdbNewDebugInfo.java, SymbolRecords.java, and the TPI record classes.  The
 // applicator follows PdbUniversalAnalyzer.java and DefaultPdbApplicator.java.
 
-export namespace ghidra::pdb::universal {
+export namespace recode::pdb::universal {
 
 /// Reports a malformed or unsupported raw PDB input without exposing parser state.
 struct PdbError {
@@ -71,9 +71,9 @@ public:
     [[nodiscard]] static std::expected<PdbFile, PdbError> parse(const std::filesystem::path& path);
 };
 
-} // namespace ghidra::pdb::universal
+} // namespace recode::pdb::universal
 
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 
 /// Applies supported raw PDB symbols, procedures, globals, and TPI declarations.
 class PdbUniversalAnalyzer final : public Analyzer {
@@ -85,9 +85,9 @@ public:
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::pdb::universal {
+namespace recode::pdb::universal {
 namespace {
 
 /// Reads little-endian integers from a bounded byte span.
@@ -966,9 +966,9 @@ std::expected<PdbFile, PdbError> PdbReader::parse(const std::filesystem::path& p
     return parse_pdb(path);
 }
 
-} // namespace ghidra::pdb::universal
+} // namespace recode::pdb::universal
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Converts a PDB section/offset pair into a preferred-image address.
@@ -983,7 +983,7 @@ namespace {
 }
 
 /// Applies all records that the native AnalysisContext can represent faithfully.
-void apply_pdb(AnalysisContext& context, const ghidra::pdb::universal::PdbFile& pdb, CancellationToken& cancellation) {
+void apply_pdb(AnalysisContext& context, const recode::pdb::universal::PdbFile& pdb, CancellationToken& cancellation) {
     for (const auto& type : pdb.types) {
         if (cancellation.is_cancelled())
             return;
@@ -1049,10 +1049,10 @@ void PdbUniversalAnalyzer::analyze(AnalysisContext& context, std::span<const Ana
                                    CancellationToken& cancellation) {
     if (!context.options().pdb_universal || context.options().pdb_path.empty() || cancellation.is_cancelled())
         return;
-    const auto parsed = ghidra::pdb::universal::PdbReader::parse(context.options().pdb_path);
+    const auto parsed = recode::pdb::universal::PdbReader::parse(context.options().pdb_path);
     if (!parsed)
         throw std::runtime_error(parsed.error().message);
     apply_pdb(context, *parsed, cancellation);
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

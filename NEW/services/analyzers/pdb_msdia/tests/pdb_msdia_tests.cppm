@@ -19,7 +19,7 @@ namespace {
 /// Verifies the real Windows DIA boundary enumerates hardcoded fixture symbols.
 TEST(PdbMsdia, OpensThroughDiaProvider) {
 #ifdef _WIN32
-    const auto session = ghidra::pdb::msdia::MsdiaSession::open(fixture_path());
+    const auto session = recode::pdb::msdia::MsdiaSession::open(fixture_path());
     if (!session) {
         // Windows without the registered DIA COM class must report the
         // provider boundary rather than silently substituting another parser.
@@ -32,17 +32,17 @@ TEST(PdbMsdia, OpensThroughDiaProvider) {
     EXPECT_TRUE(function->function);
     EXPECT_EQ(function->virtual_address, 0x140001000ULL);
 #else
-    EXPECT_FALSE(ghidra::pdb::msdia::MsdiaSession::platform_supported());
+    EXPECT_FALSE(recode::pdb::msdia::MsdiaSession::platform_supported());
 #endif
 }
 
 /// Verifies non-Windows builds report a provider error instead of pretending to parse DIA records.
 TEST(PdbMsdia, ReportsPlatformBoundary) {
 #ifndef _WIN32
-    const auto session = ghidra::pdb::msdia::MsdiaSession::open(fixture_path());
+    const auto session = recode::pdb::msdia::MsdiaSession::open(fixture_path());
     ASSERT_FALSE(session);
     EXPECT_NE(session.error().message.find("requires Windows"), std::string::npos);
 #else
-    EXPECT_TRUE(ghidra::pdb::msdia::MsdiaSession::platform_supported());
+    EXPECT_TRUE(recode::pdb::msdia::MsdiaSession::platform_supported());
 #endif
 }

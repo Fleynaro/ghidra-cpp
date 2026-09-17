@@ -5,10 +5,10 @@ Ghidra `.fidb` databases.
 
 ## Usage
 
-Run from the repository root or from `NEW`:
+Run from the repository root or from this project root:
 
 ```text
-NEW/build/services/function_id/function_id_cli.exe --hex "48 8b d9 c3" --fidb vs2017_x64.fidb
+build/services/function_id/function_id_cli.exe --hex "48 8b d9 c3" --fidb vs2017_x64.fidb
 ```
 
 Use `--sla` to select another compiled Sleigh language, `--language` and `--compiler` to filter

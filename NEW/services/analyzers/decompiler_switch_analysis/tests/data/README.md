@@ -57,7 +57,7 @@ MSVC may choose a conditional chain for a dense switch under a different compile
 
 ## Reproduction
 
-Run `build.bat`, then from the repository root run `TEST\run_ghidra_python.bat NEW\\features\\analyzers\decompiler_switch_analysis\\tests\\data\\\\run_ghidra.py`. Optional executable/report arguments are supported.
+Run `build.bat`, then from the repository root run `TEST\run_ghidra_python.bat \features\\analyzers\decompiler_switch_analysis\\tests\\data\\\\run_ghidra.py`. Optional executable/report arguments are supported.
 
 ## Generated Artifacts
 

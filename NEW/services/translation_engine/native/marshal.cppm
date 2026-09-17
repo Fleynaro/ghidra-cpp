@@ -1,8 +1,8 @@
-export module ghidra.service.translation_engine.native.marshal;
+export module recode.service.translation_engine.native.marshal;
 
 import std;
 
-export namespace ghidra::services::translation_engine::native {
+export namespace recode::services::translation_engine::native {
 
 /// Provides endian-neutral unsigned integer marshaling for native adapters.
 class Marshal final {
@@ -14,4 +14,4 @@ public:
     }
 };
 
-} // namespace ghidra::services::translation_engine::native
+} // namespace recode::services::translation_engine::native

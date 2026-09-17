@@ -5,10 +5,10 @@ module;
 export module provider_contract_tests;
 
 import decompiler;
-import ghidra.decompiler;
+import recode.decompiler;
 import std;
 
-namespace newghidra::decompiler::provider_contract_tests {
+namespace recode::decompiler::provider_contract_tests {
 
 /// Returns a malformed branch with no destination so validation is exercised
 /// before the native `PcodeEmitFd::dump` operand array is indexed.
@@ -124,4 +124,4 @@ TEST(ProviderContract, PreservesMemorySpaceThroughLoadImage) {
     EXPECT_EQ(memory->last_space(), "io");
 }
 
-} // namespace newghidra::decompiler::provider_contract_tests
+} // namespace recode::decompiler::provider_contract_tests

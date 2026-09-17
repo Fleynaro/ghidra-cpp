@@ -1,4 +1,4 @@
-set(NEW_GHIDRA_RUNTIME_WORKER_MODULES
+set(RECODE_RUNTIME_WORKER_MODULES
     worker_pool.cppm
     workers.cppm
     task.cppm
@@ -6,13 +6,13 @@ set(NEW_GHIDRA_RUNTIME_WORKER_MODULES
     progress.cppm
 )
 
-add_library(new_ghidra_runtime_workers STATIC)
-target_sources(new_ghidra_runtime_workers
+add_library(recode_runtime_workers STATIC)
+target_sources(recode_runtime_workers
     PUBLIC
         FILE_SET cxx_modules TYPE CXX_MODULES
         BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}"
-        FILES ${NEW_GHIDRA_RUNTIME_WORKER_MODULES}
+        FILES ${RECODE_RUNTIME_WORKER_MODULES}
 )
-add_library(NewGhidra::RuntimeWorkers ALIAS new_ghidra_runtime_workers)
-target_link_libraries(new_ghidra_runtime_workers PUBLIC NewGhidra::Core)
-target_compile_features(new_ghidra_runtime_workers PUBLIC cxx_std_23)
+add_library(ReCode::RuntimeWorkers ALIAS recode_runtime_workers)
+target_link_libraries(recode_runtime_workers PUBLIC ReCode::Core)
+target_compile_features(recode_runtime_workers PUBLIC cxx_std_23)

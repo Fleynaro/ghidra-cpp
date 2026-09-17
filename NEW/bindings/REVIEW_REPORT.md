@@ -2,7 +2,7 @@
 
 ## Review Metadata
 
-- [x] **Scope:** exactly `HEAD~2..HEAD` (`778c5d87ad` and `3c123d1fda`), limited to the native C++ facade consumer under `NEW/bindings/cpp` and its CMake integration.
+- [x] **Scope:** exactly `HEAD~2..HEAD` (`778c5d87ad` and `3c123d1fda`), limited to the native C++ facade consumer under `bindings/cpp` and its CMake integration.
 - [x] **Date:** 2026-09-16.
 - [x] **Reviewer:** Kilo, independent read-only pass.
 - [x] **Assumption:** No Python, JavaScript, or Go binding implementation was added in the reviewed range.
@@ -34,7 +34,7 @@ The facade's queued-task lifetime risk is owned by runtime/services and is track
 
 ## Verified Strengths
 
-- [x] `bindings/cpp` exposes copied core values and depends on `NewGhidra::RuntimeProject` rather than native feature targets.
+- [x] `bindings/cpp` exposes copied core values and depends on `ReCode::RuntimeProject` rather than native feature targets.
 - [x] Binding CMake registration is separate from core/service implementation ownership.
 - [x] No direct native-engine pointer or SQLite dependency was found in the inspected binding modules.
 
@@ -48,7 +48,7 @@ The facade's queued-task lifetime risk is owned by runtime/services and is track
 ## Validation Results
 
 - [x] Binding source and target graph inspected read-only.
-- [x] `ctest --test-dir NEW/build --output-on-failure`: 49/49 passed.
+- [x] `ctest --test-dir build --output-on-failure`: 49/49 passed.
 - [x] `git diff HEAD~2..HEAD --check`: passed.
 - [ ] No ABI/export or external-consumer validation was performed.
 

@@ -49,7 +49,7 @@ analysis bookmarks actually created by Ghidra.
 ## Reproduction
 
 Run `build.bat` from this directory, then run
-`TEST\\run_ghidra_python.bat NEW\\features\\analyzer\\test_data\\embedded_media\\run_ghidra.py`
+`TEST\\run_ghidra_python.bat \features\\analyzer\\test_data\\embedded_media\\run_ghidra.py`
 from the repository root. The script accepts an optional executable and report
 path.
 

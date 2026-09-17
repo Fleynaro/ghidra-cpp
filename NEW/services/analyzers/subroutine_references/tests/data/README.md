@@ -18,7 +18,7 @@ source and scripts in this directory.
 ## Reproduction
 
 Run `build.bat` from this directory, then run
-`TEST\\run_ghidra_python.bat NEW\\features\\analyzers\\subroutine_references\\tests\\data\\run_ghidra.py`
+`TEST\\run_ghidra_python.bat \features\\analyzers\\subroutine_references\\tests\\data\\run_ghidra.py`
 from the repository root.
 
 The harness explicitly disassembles the executable section with code analysis disabled. It then

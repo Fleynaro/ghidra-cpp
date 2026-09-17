@@ -2,7 +2,7 @@
 
 ## Review Metadata
 
-- [x] **Scope:** exactly `HEAD~2..HEAD` (`778c5d87ad` and `3c123d1fda`), limited to `NEW/core` and the core-facing portions of the migration.
+- [x] **Scope:** exactly `HEAD~2..HEAD` (`778c5d87ad` and `3c123d1fda`), limited to `core` and the core-facing portions of the migration.
 - [x] **Date:** 2026-09-16.
 - [x] **Reviewer:** Kilo, independent read-only pass.
 - [x] **Assumption:** runtime/service implementation findings are recorded in sibling reports; this report covers the declarations and invariants exposed by core.
@@ -53,7 +53,7 @@ The PE/Sleigh field-loss finding is in the adapters, not in the core DTO declara
 
 - [x] Exact two-commit diff and current core source were inspected read-only.
 - [x] Existing core test registration was inspected.
-- [x] `ctest --test-dir NEW/build --output-on-failure`: 49/49 passed.
+- [x] `ctest --test-dir build --output-on-failure`: 49/49 passed.
 - [x] `git diff HEAD~2..HEAD --check`: passed.
 - [ ] Sanitizer, ABI, and module-interface stress validation were not executed.
 

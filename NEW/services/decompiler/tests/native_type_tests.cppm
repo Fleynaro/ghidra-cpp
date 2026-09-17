@@ -5,11 +5,11 @@ module;
 export module native_type_tests;
 
 import decompiler;
-import ghidra.decompiler;
-import ghidra.decompiler.grammar;
+import recode.decompiler;
+import recode.decompiler.grammar;
 import std;
 
-namespace newghidra::decompiler::tests {
+namespace recode::decompiler::tests {
 
 /// Provides the smallest provider-style architecture description needed by the
 /// native type and cast tests, replacing testtypes.cc's x86 XML document.
@@ -37,7 +37,7 @@ static ArchitectureDescription type_test_architecture() {
 /// Adapts provider architecture metadata to the native Translate interface
 /// without decoding instructions or consulting XML architecture specifications.
 /// Original source: Ghidra/Features/Decompiler/src/decompile/cpp/translate.cc and
-/// NEW/services/decompiler/src/decompiler_impl.cppm's ProviderTranslate.
+/// services/decompiler/src/decompiler_impl.cppm's ProviderTranslate.
 class TypeTestTranslate final : public ghidra::Translate {
 public:
     /// Constructs address spaces and register mappings from provider metadata.
@@ -689,4 +689,4 @@ TEST(NativeType, EnumMatchingTwo) {
     ASSERT_FALSE(representation.complement);
 }
 
-} // namespace newghidra::decompiler::tests
+} // namespace recode::decompiler::tests

@@ -1,10 +1,10 @@
-export module ghidra.core.function_signature;
+export module recode.core.function_signature;
 
 import std;
-import ghidra.core.data_type;
-import ghidra.core.storage_location;
+import recode.core.data_type;
+import recode.core.storage_location;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Describes one parameter in a recovered or user-assigned signature.
 struct FunctionParameter {
@@ -32,4 +32,4 @@ struct FunctionSignature {
     std::string source;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

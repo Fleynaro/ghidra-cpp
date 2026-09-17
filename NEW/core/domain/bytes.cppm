@@ -1,8 +1,8 @@
-export module ghidra.core.bytes;
+export module recode.core.bytes;
 
 import std;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Names one byte in an artifact or memory image.
 using Byte = std::uint8_t;
@@ -74,4 +74,4 @@ private:
     std::span<const Byte> view_;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

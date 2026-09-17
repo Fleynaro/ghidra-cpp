@@ -1,6 +1,6 @@
 # Review Report: Analyzer Port Audit
 
-- [x] Scope confirmed: current `NEW/services/analyzers` implementations, tests, fixture C++/RC/PDB sources, PyGhidra scripts and generated reports, module `README.md`/`GHIDRA_PORT.md`, CMake files, module/root build wrappers, and shared analyzer/test-support boundaries.
+- [x] Scope confirmed: current `services/analyzers` implementations, tests, fixture C++/RC/PDB sources, PyGhidra scripts and generated reports, module `README.md`/`GHIDRA_PORT.md`, CMake files, module/root build wrappers, and shared analyzer/test-support boundaries.
 - [x] Original sources inspected directly; prior review summaries were not used as evidence.
 - [x] Reviewed diff: working tree at 2026-09-15; no commit supplied.
 - [x] Reviewer: Kilo.
@@ -18,7 +18,7 @@
 
 - [ ] Remediation status: open.
 - Severity: critical.
-- Affected component: `NEW/services/analyzers/demangler_microsoft/src/demangler_microsoft.cppm`.
+- Affected component: `services/analyzers/demangler_microsoft/src/demangler_microsoft.cppm`.
 - Technical evidence: the current module is a 407-line compact parser and structured record; original `Ghidra/Features/MicrosoftDemangler` contains the full `mdemangler` parser/object/context/options implementation and broad tests.
 - Expected behavior: complete original grammar, object hierarchy, context-sensitive C-style handling, output options, errors, and exact rendering.
 - Actual behavior: narrow grammar with `unknown` fallback and no full object/options model.
@@ -50,7 +50,7 @@
 
 - [ ] Remediation status: open.
 - Severity: high.
-- Affected component: `NEW/services/analyzers/call_fixup_installer/src/call_fixup_installer.cppm` and `NEW/services/analyzers/shared/src/analyzer_context.cppm`.
+- Affected component: `services/analyzers/call_fixup_installer/src/call_fixup_installer.cppm` and `services/analyzers/shared/src/analyzer_context.cppm`.
 - Technical evidence: exact original `ClearFlowAndRepairCmd.java` is at `Ghidra/Features/Base/src/main/java/ghidra/app/plugin/core/clear/ClearFlowAndRepairCmd.java` and performs clearing, protected-set handling, bookmark cleanup, disassembly, data-reference analysis, and function repair across 1,022 lines. Native only sets `CALL_RETURN` and recomputes known CFG blocks.
 - Expected behavior: clear and repair all affected flow and dependent program state.
 - Actual behavior: stale instructions/data/bookmarks and unmodeled destinations remain.
@@ -136,10 +136,10 @@
 
 - [x] Direct original Java/C/script versus native source comparison completed.
 - [x] Native tests, fixture sources/scripts/reports, Markdown, CMake, module/root wrappers, and shared context/test support inspected.
-- [x] `NEW\build.bat analyzer`: 30/30 analyzer tests passed after remediation.
-- [x] Complete `ctest --test-dir NEW\build --output-on-failure`: 42/42 tests passed.
-- [x] `NEW\format.bat analyzer` completed.
-- [ ] `NEW\tidy.bat analyzer --check`: blocked by MSVC `.ifc` module-consumer parsing; three non-module fixture sources also report diagnostics.
+- [x] `build.bat analyzer`: 30/30 analyzer tests passed after remediation.
+- [x] Complete `ctest --test-dir build --output-on-failure`: 42/42 tests passed.
+- [x] `format.bat analyzer` completed.
+- [ ] `tidy.bat analyzer --check`: blocked by MSVC `.ifc` module-consumer parsing; three non-module fixture sources also report diagnostics.
 - [ ] PyGhidra fixture scripts remain disconnected from CTest and were not rerun because no fixture was strengthened during this pass.
 
 ## Unresolved Questions
@@ -160,9 +160,9 @@
 
 ## Post-Audit Remediation
 
-- [x] `NEW/services/analyzers/aggressive_instruction_finder/REVIEW_REPORT.md` records the terminal-flow failure classification and remaining ARM/scheduler gaps.
-- [x] `NEW/services/analyzers/embedded_media/REVIEW_REPORT.md` records the JPEG failure classification and remaining datatype-parser gaps.
-- [x] `NEW/services/analyzers/create_address_tables/REVIEW_REPORT.md` records the corrected pointer-per-entry expectation and incomplete Java algorithm.
-- [x] `NEW/services/analyzers/shared_return_calls/REVIEW_REPORT.md` records the lifecycle/options gaps.
+- [x] `services/analyzers/aggressive_instruction_finder/REVIEW_REPORT.md` records the terminal-flow failure classification and remaining ARM/scheduler gaps.
+- [x] `services/analyzers/embedded_media/REVIEW_REPORT.md` records the JPEG failure classification and remaining datatype-parser gaps.
+- [x] `services/analyzers/create_address_tables/REVIEW_REPORT.md` records the corrected pointer-per-entry expectation and incomplete Java algorithm.
+- [x] `services/analyzers/shared_return_calls/REVIEW_REPORT.md` records the lifecycle/options gaps.
 - [x] Shared, PE Loader, Sleigh Runtime, Decompiler, Function ID, and analyzer-module review reports remain linked from their module directories.
-- [x] The three decompiler-backed analyzer adapters now reuse `newghidra::decompiler::make_x86_64_architecture()`; the legacy mutable analyzer context/domain migration remains open.
+- [x] The three decompiler-backed analyzer adapters now reuse `recode::decompiler::make_x86_64_architecture()`; the legacy mutable analyzer context/domain migration remains open.

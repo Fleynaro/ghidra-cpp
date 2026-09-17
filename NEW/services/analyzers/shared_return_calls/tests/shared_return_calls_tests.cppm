@@ -8,7 +8,7 @@ import analyzer_shared_return_calls;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Builds the one-byte synthetic instructions used to isolate SharedReturnAnalysisCmd flow rules.
@@ -76,4 +76,4 @@ TEST(SharedReturnCallsIntegrationTest, IgnoresConditionalFunctionJumpByDefault) 
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

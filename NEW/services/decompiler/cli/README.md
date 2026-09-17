@@ -1,6 +1,6 @@
 # Native Decompiler CLI
 
-`decompiler_cli` is the standalone console frontend for [`NewGhidra::DecompilerFrontend`](../CMakeLists.txt). The built executable is named `new_ghidra_decompiler.exe` and accepts a compiled Sleigh `.sla`, machine-code bytes, a function range, and provider metadata. It has no dependency on GoogleTest or the decompiler test executable.
+`decompiler_cli` is the standalone console frontend for [`ReCode::DecompilerFrontend`](../CMakeLists.txt). The built executable is named `recode_decompiler.exe` and accepts a compiled Sleigh `.sla`, machine-code bytes, a function range, and provider metadata. It has no dependency on GoogleTest or the decompiler test executable.
 
 The CLI is intentionally built on the same public provider boundary as the library. It does not access Java, the original database, a running Ghidra process, or private Sleigh classes.
 
@@ -47,7 +47,7 @@ Available output sections are `summary`, `assembly`, `raw-pcode`, `high-pcode`, 
 
 ## Build
 
-Run the repository build entry point from `NEW`:
+Run the repository build entry point from this project root:
 
 ```powershell
 cmd /c .\build.bat
@@ -56,10 +56,10 @@ cmd /c .\build.bat
 The executable is generated at:
 
 ```text
-NEW/build/services/decompiler/new_ghidra_decompiler.exe
+build/services/decompiler/recode_decompiler.exe
 ```
 
-The logical CMake target is `decompiler_cli`; the output name is set to `new_ghidra_decompiler` so the binary name describes its purpose.
+The logical CMake target is `decompiler_cli`; the output name is set to `recode_decompiler` so the binary name describes its purpose.
 
 ## Output Model
 
@@ -89,7 +89,7 @@ For example, `--only c` prints only the generated C source, while `--only high-p
 The smallest complete invocation uses a `.sla`, bytes, and an entry point. The default entry point is `0x140000000`; the default function end is the first byte after `--hex`.
 
 ```powershell
-$cli = ".\build\services\decompiler\new_ghidra_decompiler.exe"
+$cli = ".\build\services\decompiler\recode_decompiler.exe"
 $sla = "x86-64.sla"
 
 & $cli --sla $sla --address 0x140000000 `

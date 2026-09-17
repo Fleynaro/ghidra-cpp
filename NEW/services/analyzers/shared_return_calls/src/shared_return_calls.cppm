@@ -4,7 +4,7 @@ import analyzer;
 import std;
 
 /// Owns the Shared Return Calls analyzer declaration and implementation.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class SharedReturnCallsAnalyzer final : public Analyzer {
 public:
     /// Returns the shared-return analyzer priority and event contract.
@@ -13,9 +13,9 @@ public:
     /// Converts eligible jumps to existing functions into CALL_RETURN flows.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Reports whether a reference is one of the jump categories considered by Ghidra.
@@ -159,4 +159,4 @@ void SharedReturnCallsAnalyzer::analyze(AnalysisContext& context, std::span<cons
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

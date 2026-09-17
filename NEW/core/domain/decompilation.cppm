@@ -1,14 +1,14 @@
-export module ghidra.core.decompilation;
+export module recode.core.decompilation;
 
 import std;
-import ghidra.core.analysis_fact;
-import ghidra.core.diagnostics;
-import ghidra.core.function;
-import ghidra.core.function_signature;
-import ghidra.core.instruction;
-import ghidra.core.variable;
+import recode.core.analysis_fact;
+import recode.core.diagnostics;
+import recode.core.function;
+import recode.core.function_signature;
+import recode.core.instruction;
+import recode.core.variable;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Classifies whether a decompilation completed, timed out, or failed.
 enum class DecompilationStatus : std::uint8_t { complete, timeout, cancelled, failed };
@@ -36,4 +36,4 @@ struct DecompileArtifact {
     Revision revision;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

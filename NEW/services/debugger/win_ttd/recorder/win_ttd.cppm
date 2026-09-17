@@ -4,20 +4,20 @@ module;
 #include <windows.h>
 #endif
 
-export module ghidra.service.debugger.win_ttd.recorder;
+export module recode.service.debugger.win_ttd.recorder;
 
 import std;
-import ghidra.core;
+import recode.core;
 
 // Porting references:
 // * Microsoft Time Travel Debugging documentation for `ttd.exe -launch`.
 // * Ghidra/Debug/Debugger-api/src/main/java/ghidra/app/services/DebuggerTraceManagerService.java
 //   (trace acquisition is represented as a replayable artifact, not a debugger session).
 
-export namespace ghidra::services::debugger::win_ttd::recorder {
+export namespace recode::services::debugger::win_ttd::recorder {
 
-namespace core = ghidra::core;
-namespace api = ghidra::core::contracts;
+namespace core = recode::core;
+namespace api = recode::core::contracts;
 
 /// Builds a quoted Windows command-line argument according to CommandLineToArgvW rules.
 [[nodiscard]] inline std::wstring quote_argument(std::wstring_view value) {
@@ -341,4 +341,4 @@ private:
     return std::shared_ptr<api::ITraceRecorder>{std::make_shared<WinTtdRecorder>()};
 }
 
-} // namespace ghidra::services::debugger::win_ttd::recorder
+} // namespace recode::services::debugger::win_ttd::recorder

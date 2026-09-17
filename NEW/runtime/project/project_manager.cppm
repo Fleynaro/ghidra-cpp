@@ -1,13 +1,13 @@
-export module ghidra.runtime.project.manager;
+export module recode.runtime.project.manager;
 
 import std;
-import ghidra.core;
-import ghidra.runtime.event_bus;
-import ghidra.runtime.project.config;
-import ghidra.runtime.project.session;
-import ghidra.runtime.workers.pool;
+import recode.core;
+import recode.runtime.event_bus;
+import recode.runtime.project.config;
+import recode.runtime.project.session;
+import recode.runtime.workers.pool;
 
-export namespace ghidra::runtime::project {
+export namespace recode::runtime::project {
 
 /// Owns project sessions while sharing one runtime worker pool and event bus.
 class ProjectManager final {
@@ -69,4 +69,4 @@ private:
     std::map<core::ProjectId, std::shared_ptr<ProjectSession>> projects_;
 };
 
-} // namespace ghidra::runtime::project
+} // namespace recode::runtime::project

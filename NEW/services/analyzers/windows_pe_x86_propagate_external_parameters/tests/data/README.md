@@ -75,5 +75,5 @@ before invoking the real target analyzer; it does not synthesize target comments
 labels, data, or report rows.
 
 Run `build.bat`, then execute
-`TEST\\run_ghidra_python.bat NEW\\features\\analyzer\\test_data\\windows_pe_x86_propagate_external_parameters\\run_ghidra.py`
+`TEST\\run_ghidra_python.bat \features\\analyzer\\test_data\\windows_pe_x86_propagate_external_parameters\\run_ghidra.py`
 from the repository root.

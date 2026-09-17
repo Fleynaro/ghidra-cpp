@@ -11,7 +11,7 @@ import analyzer_subroutine_references;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies scalar and p-code reference analyzers retain both positive and negative controls.
@@ -87,4 +87,4 @@ TEST(AnalyzerPipelineTest, PreservesExistingOperandReference) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

@@ -13,7 +13,7 @@ target_sources(decompiler_tests
             provenance_mapping_tests.cppm
 )
 target_link_libraries(decompiler_tests PRIVATE
-    NewGhidra::DecompilerFrontend
+    ReCode::DecompilerFrontend
     GTest::gtest_main
 )
 target_compile_features(decompiler_tests PRIVATE cxx_std_23)
@@ -29,7 +29,7 @@ target_sources(native_paramstore_tests
         FILE_SET cxx_modules TYPE CXX_MODULES FILES native_paramstore_tests.cppm
 )
 target_link_libraries(native_paramstore_tests PRIVATE
-    NewGhidra::Decompiler
+    ReCode::Decompiler
     GTest::gtest_main
 )
 target_compile_definitions(native_paramstore_tests PRIVATE
@@ -48,7 +48,7 @@ target_sources(native_circlerange_tests
         FILE_SET cxx_modules TYPE CXX_MODULES FILES native_circlerange_tests.cppm
 )
 target_link_libraries(native_circlerange_tests PRIVATE
-    NewGhidra::Decompiler
+    ReCode::Decompiler
     GTest::gtest_main
 )
 target_compile_features(native_circlerange_tests PRIVATE cxx_std_23)
@@ -64,7 +64,7 @@ target_sources(native_funcproto_tests
         FILE_SET cxx_modules TYPE CXX_MODULES FILES native_funcproto_tests.cppm
 )
 target_link_libraries(native_funcproto_tests PRIVATE
-    NewGhidra::Decompiler
+    ReCode::Decompiler
     GTest::gtest_main
 )
 target_compile_features(native_funcproto_tests PRIVATE cxx_std_23)
@@ -80,7 +80,7 @@ target_sources(decompiler_architecture_tests
         FILE_SET cxx_modules TYPE CXX_MODULES FILES decompiler_architecture_tests.cppm
 )
 target_link_libraries(decompiler_architecture_tests PRIVATE
-    NewGhidra::DecompilerFrontend
+    ReCode::DecompilerFrontend
     GTest::gtest_main
 )
 target_compile_features(decompiler_architecture_tests PRIVATE cxx_std_23)
@@ -97,7 +97,7 @@ target_sources(metadata_provider_tests
         FILE_SET cxx_modules TYPE CXX_MODULES FILES metadata_provider_tests.cppm
 )
 target_link_libraries(metadata_provider_tests PRIVATE
-    NewGhidra::DecompilerFrontend
+    ReCode::DecompilerFrontend
     GTest::gtest_main
 )
 target_compile_features(metadata_provider_tests PRIVATE cxx_std_23)

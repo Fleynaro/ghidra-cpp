@@ -56,7 +56,7 @@ No findings.
 - [ ] Remediation status: open.
 - Severity: medium.
 - Title: native application flattens PDB types and procedure signatures into strings and discards varargs/storage/source metadata.
-- Exact references: [`src/pdb_universal.cppm:1007-1025`](src/pdb_universal.cppm#L1007-L1025), symbol `apply_pdb`; [`NEW/services/analyzers/shared/src/analyzer_context.cppm:1141-1159`](../shared/src/analyzer_context.cppm#L1141-L1159); Ghidra [`DefaultPdbApplicator.java:289-308`](../../../../Ghidra/Features/PDB/src/main/java/ghidra/app/util/pdb/pdbapplicator/DefaultPdbApplicator.java#L289-L308) and [`:482-494`](../../../../Ghidra/Features/PDB/src/main/java/ghidra/app/util/pdb/pdbapplicator/DefaultPdbApplicator.java#L482-L494).
+- Exact references: [`src/pdb_universal.cppm:1007-1025`](src/pdb_universal.cppm#L1007-L1025), symbol `apply_pdb`; [`services/analyzers/shared/src/analyzer_context.cppm:1141-1159`](../shared/src/analyzer_context.cppm#L1141-L1159); Ghidra [`DefaultPdbApplicator.java:289-308`](../../../../Ghidra/Features/PDB/src/main/java/ghidra/app/util/pdb/pdbapplicator/DefaultPdbApplicator.java#L289-L308) and [`:482-494`](../../../../Ghidra/Features/PDB/src/main/java/ghidra/app/util/pdb/pdbapplicator/DefaultPdbApplicator.java#L482-L494).
 - Affected component: imported function signatures and type identity.
 - Technical evidence: native derives one convention/return spelling by splitting a compact string, creates `param_N` entries with zero storage and `variadic=false`, and stores fields as string pairs. Java resolves actual `DataType` objects, calling conventions, parameter storage/source, arrays/pointers/typedefs, and function internals through appliers.
 - Expected behavior: a supported PDB function should preserve its actual type graph, calling convention, parameter properties, and varargs/return details.
@@ -104,7 +104,7 @@ No findings.
 
 - [x] Original Universal analyzer, legacy common matching logic, raw parser/applicator entry points, native source, tests, fixture script/report, and CMake registration were inspected.
 - [ ] Focused build/test was not run by this audit.
-- [ ] `NEW\format.bat analyzer` and `NEW\tidy.bat analyzer --check` were not run by this audit.
+- [ ] `format.bat analyzer` and `tidy.bat analyzer --check` were not run by this audit.
 - [x] No implementation, test, fixture, or build source was edited.
 
 ## Unresolved Questions And Residual Risks

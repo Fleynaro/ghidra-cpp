@@ -1,10 +1,10 @@
-export module ghidra.core.instruction_reference;
+export module recode.core.instruction_reference;
 
 import std;
-import ghidra.core.address;
-import ghidra.core.flow;
+import recode.core.address;
+import recode.core.flow;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Retains operand-level evidence from which a projected reference is derived.
 struct InstructionReference {
@@ -17,4 +17,4 @@ struct InstructionReference {
     std::string source_classification;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

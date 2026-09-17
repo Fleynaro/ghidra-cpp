@@ -1,5 +1,5 @@
-export module ghidra.runtime.event_store;
+export module recode.runtime.event_store;
 
-export import ghidra.runtime.event_store.codec;
-export import ghidra.runtime.event_store.log;
-export import ghidra.runtime.event_store.replay;
+export import recode.runtime.event_store.codec;
+export import recode.runtime.event_store.log;
+export import recode.runtime.event_store.replay;

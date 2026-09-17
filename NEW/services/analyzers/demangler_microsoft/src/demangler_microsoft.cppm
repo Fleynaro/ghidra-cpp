@@ -31,7 +31,7 @@ public:
 };
 
 /// Applies Microsoft demangled names and recoverable signatures to native symbols and functions.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class DemanglerMicrosoftAnalyzer final : public Analyzer {
 public:
     /// Returns the demangler analyzer's late code priority and symbol events.
@@ -40,7 +40,7 @@ public:
     /// Demangles local/exported and external symbols without replacing the existing PE parser.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
 namespace {
 
@@ -344,7 +344,7 @@ MicrosoftDemangledSymbol MicrosoftDemangler::demangle(std::string_view name) con
     return result;
 }
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 
 /// Returns the Microsoft demangler's late code-analysis descriptor.
 AnalyzerDescriptor DemanglerMicrosoftAnalyzer::descriptor() const {
@@ -404,4 +404,4 @@ void DemanglerMicrosoftAnalyzer::analyze(AnalysisContext& context, std::span<con
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

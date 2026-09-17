@@ -1,11 +1,11 @@
-export module ghidra.core.events.type;
+export module recode.core.events.type;
 
 import std;
-import ghidra.core.data_type;
-import ghidra.core.events.event;
-import ghidra.core.identifiers;
+import recode.core.data_type;
+import recode.core.events.event;
+import recode.core.identifiers;
 
-export namespace ghidra::core::events {
+export namespace recode::core::events {
 
 /// Creates a serializable data-type descriptor event.
 [[nodiscard]] inline EventDraft type_state_changed(const ProjectId& project, const DataTypeDescriptor& type,
@@ -22,4 +22,4 @@ export namespace ghidra::core::events {
                       encode_fields({{"id", type.id}, {"name", type.name}, {"size", std::to_string(type.size)}})};
 }
 
-} // namespace ghidra::core::events
+} // namespace recode::core::events

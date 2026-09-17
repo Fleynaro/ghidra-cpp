@@ -1,9 +1,9 @@
-export module ghidra.runtime.resources.fid_cache;
+export module recode.runtime.resources.fid_cache;
 
 import std;
-import ghidra.core;
+import recode.core;
 
-export namespace ghidra::runtime::resources {
+export namespace recode::runtime::resources {
 
 /// Caches the exact Function ID database identity used by one project.
 class FidCache final {
@@ -22,4 +22,4 @@ private:
     std::optional<core::ResourceIdentity> identity_;
 };
 
-} // namespace ghidra::runtime::resources
+} // namespace recode::runtime::resources

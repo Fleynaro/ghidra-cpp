@@ -177,9 +177,9 @@ No findings.
 ## Validation
 
 - [x] `git diff --check` completed without whitespace errors; Git emitted only existing line-ending warnings for unrelated staged reports.
-- [x] `ctest --test-dir NEW/build -N` completed and listed 42 registered tests, including shared, Sleigh, PE Loader, Decompiler, Function ID, and analyzer tests.
+- [x] `ctest --test-dir build -N` completed and listed 42 registered tests, including shared, Sleigh, PE Loader, Decompiler, Function ID, and analyzer tests.
 - [ ] Build or test execution was not run because this was a strict read-only audit and executing the suite may write test logs or fixture outputs.
-- [ ] `NEW/tidy.bat analyzer --check` was not run for the same read-only constraint.
+- [ ] `tidy.bat analyzer --check` was not run for the same read-only constraint.
 - [ ] Runtime behavior against fresh fixtures was not newly executed; conclusions are source-contract findings, not claims of a passing implementation.
 
 ## Unresolved Questions And Residual Risks

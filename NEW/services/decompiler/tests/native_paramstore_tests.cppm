@@ -4,15 +4,15 @@ module;
 
 export module native_paramstore_tests;
 
-import ghidra.decompiler;
-import ghidra.decompiler.grammar;
+import recode.decompiler;
+import recode.decompiler.grammar;
 import std;
 
 // Port reference: Ghidra/Features/Decompiler/src/decompile/unittests/testparamstore.cc.
 // Native implementation references: architecture.cc, fspec.cc, grammar.cc, and the
 // compiler-spec model rules consumed by Architecture::restoreFromSpec.
 
-namespace newghidra::decompiler::tests {
+namespace recode::decompiler::tests {
 
 /// Identifies one architecture whose compiler-spec parameter rules are under test.
 enum class ParameterArchitecture {
@@ -1005,4 +1005,4 @@ TEST(NativeParamStore, ParameterMetadata) {
     EXPECT_EQ(normal[0].flags, 0U);
 }
 
-} // namespace newghidra::decompiler::tests
+} // namespace recode::decompiler::tests

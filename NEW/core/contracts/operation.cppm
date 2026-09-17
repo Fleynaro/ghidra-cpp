@@ -1,10 +1,10 @@
-export module ghidra.core.contracts.operation;
+export module recode.core.contracts.operation;
 
 import std;
-import ghidra.core.diagnostics;
-import ghidra.core.identifiers;
+import recode.core.diagnostics;
+import recode.core.identifiers;
 
-export namespace ghidra::core::contracts {
+export namespace recode::core::contracts {
 
 /// Selects whether a command executes inline or through the runtime pool.
 enum class ExecutionMode : std::uint8_t { inline_mode, queued };
@@ -113,4 +113,4 @@ struct OperationContext {
     std::shared_ptr<OperationControl> operation;
 };
 
-} // namespace ghidra::core::contracts
+} // namespace recode::core::contracts

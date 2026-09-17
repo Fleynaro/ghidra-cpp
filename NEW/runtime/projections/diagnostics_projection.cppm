@@ -1,12 +1,12 @@
-export module ghidra.runtime.projections.diagnostics;
+export module recode.runtime.projections.diagnostics;
 
 import std;
-import ghidra.core;
-import ghidra.core.diagnostics;
+import recode.core;
+import recode.core.diagnostics;
 
-export namespace ghidra::runtime::projections {
+export namespace recode::runtime::projections {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Retains runtime diagnostics as a bounded current query list.
 class DiagnosticsProjection final {
@@ -27,4 +27,4 @@ private:
     std::vector<core::Diagnostic> diagnostics_;
 };
 
-} // namespace ghidra::runtime::projections
+} // namespace recode::runtime::projections

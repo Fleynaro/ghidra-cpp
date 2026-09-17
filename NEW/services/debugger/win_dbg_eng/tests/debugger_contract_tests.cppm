@@ -5,18 +5,18 @@ module;
 #include <windows.h>
 #endif
 
-export module ghidra.services.debugger.win_dbg_eng.tests;
+export module recode.services.debugger.win_dbg_eng.tests;
 
-import ghidra.core.contracts.debugger;
-import ghidra.core.debugger;
-import ghidra.service.debugger.win_dbg_eng;
+import recode.core.contracts.debugger;
+import recode.core.debugger;
+import recode.service.debugger.win_dbg_eng;
 import std;
 
 namespace {
 
-namespace api = ghidra::core::contracts;
-namespace core = ghidra::core;
-namespace model = ghidra::core::debugger;
+namespace api = recode::core::contracts;
+namespace core = recode::core;
+namespace model = recode::core::debugger;
 
 /// Waits for the detached fixture process so CTest does not retain its captured stdout pipe.
 [[nodiscard]] bool wait_for_detached_debuggee(const model::ProcessId& process) {
@@ -54,7 +54,7 @@ namespace model = ghidra::core::debugger;
 class DebuggerFixture : public ::testing::Test {
 protected:
     void SetUp() override {
-        auto backend = ghidra::services::debugger::win_dbg_eng::create_win_dbg_eng();
+        auto backend = recode::services::debugger::win_dbg_eng::create_win_dbg_eng();
         if (!backend)
             DEBUGGER_SETUP_ERROR(backend.error().message);
         backend_ = std::move(*backend);

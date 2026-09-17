@@ -18,7 +18,7 @@ The original Microsoft sample call sites studied for the port remain available u
 - **Real implemented and tested:** trace lifecycle, opaque positions, forward/backward stepping, memory reads, x64 scalar register reads, active thread snapshots, module snapshots, process metadata, and one-shot memory watchpoint navigation. The native path was compiled against `Microsoft.TimeTravelDebugging.Apis` 0.9.5, loaded `TTDReplay.dll`/`TTDReplayCPU.dll`, opened a `.run` recorded from the multi-thread debugger fixture, and passed contract assertions for modules, threads, registers, memory, positions, seeking, and both replay directions.
 - **Partial:** register descriptors currently cover x64 scalar registers; x86, ARM, ARM64, vector register enumeration, and symbolized stack walking require additional architecture adapters.
 - **Intentionally unsupported:** process launch/attach, memory writes, live breakpoints, and name-based symbol resolution. These are live-only or require a separate symbol provider.
-- **Fallback only:** when the optional API package is not discoverable, CMake can still build a portability fallback that returns a clear `unsupported` diagnostic. `NEW\build.bat ttd_replay` sets `NEW_GHIDRA_REQUIRE_TTD_REPLAY=ON` and refuses this fallback; ordinary aggregate builds may retain it for machines without the Microsoft SDK.
+- **Fallback only:** when the optional API package is not discoverable, CMake can still build a portability fallback that returns a clear `unsupported` diagnostic. `build.bat ttd_replay` sets `RECODE_REQUIRE_TTD_REPLAY=ON` and refuses this fallback; ordinary aggregate builds may retain it for machines without the Microsoft SDK.
 
 ## Future instruction profiling
 

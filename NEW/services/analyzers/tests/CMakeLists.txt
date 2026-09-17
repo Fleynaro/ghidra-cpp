@@ -6,7 +6,7 @@ if(BUILD_TESTING)
     )
     target_link_libraries(analyzer_global_integration_tests PRIVATE
         analyzer
-        NewGhidra::AnalyzerTestSupport
+        ReCode::AnalyzerTestSupport
         GTest::gtest_main
     )
     target_compile_features(analyzer_global_integration_tests PRIVATE cxx_std_23)

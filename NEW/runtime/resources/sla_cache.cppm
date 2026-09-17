@@ -1,9 +1,9 @@
-export module ghidra.runtime.resources.sla_cache;
+export module recode.runtime.resources.sla_cache;
 
 import std;
-import ghidra.core;
+import recode.core;
 
-export namespace ghidra::runtime::resources {
+export namespace recode::runtime::resources {
 
 /// Caches the validated location/identity of one compiled SLA resource.
 class SlaCache final {
@@ -22,4 +22,4 @@ private:
     std::optional<core::ResourceIdentity> identity_;
 };
 
-} // namespace ghidra::runtime::resources
+} // namespace recode::runtime::resources

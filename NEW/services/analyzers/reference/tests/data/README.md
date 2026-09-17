@@ -75,5 +75,5 @@ compiler-dependent instruction addresses unasserted.
 ## Reproduction
 
 Run `build.bat`, then
-`TEST\\run_ghidra_python.bat NEW\\features\\analyzer\\test_data\\reference\\run_ghidra.py`
+`TEST\\run_ghidra_python.bat \features\\analyzer\\test_data\\reference\\run_ghidra.py`
 from the repository root.

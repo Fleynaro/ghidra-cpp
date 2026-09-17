@@ -1,15 +1,15 @@
 module;
 
-#if defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if defined(RECODE_HAS_TTD_REPLAY)
 #include <TTD/ErrorReporting.h>
 #include <TTD/IReplayEngineRegisters.h>
 #include <TTD/IReplayEngineStl.h>
 #endif
 
-export module ghidra.service.debugger.win_ttd;
+export module recode.service.debugger.win_ttd;
 
 import std;
-import ghidra.core;
+import recode.core;
 
 // Implementation references:
 // TEST/debugger/TTD/ReplayApi/TraceDebugger/TraceDebugger.cpp
@@ -17,12 +17,12 @@ import ghidra.core;
 // dependencies/Microsoft.TimeTravelDebugging.Apis.0.9.5/CMake/Microsoft.TimeTravelDebugging.ApisConfig.cmake
 // The service intentionally keeps all TTD interfaces behind this module.
 
-export namespace ghidra::services::debugger::win_ttd {
+export namespace recode::services::debugger::win_ttd {
 
-namespace core = ghidra::core;
-namespace api = ghidra::core::contracts;
-namespace model = ghidra::core::debugger;
-namespace replay = ghidra::core::replay;
+namespace core = recode::core;
+namespace api = recode::core::contracts;
+namespace model = recode::core::debugger;
+namespace replay = recode::core::replay;
 
 namespace detail {
 
@@ -55,7 +55,7 @@ namespace detail {
 }
 
 /// Converts a native position into the portable replay position.
-#if defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if defined(RECODE_HAS_TTD_REPLAY)
 /// Captures Replay API diagnostics without writing to the process console.
 class ErrorReporting final : public TTD::ErrorReporting {
 public:
@@ -121,7 +121,7 @@ public:
     /// Opens and initializes a finalized .run trace with Microsoft's Replay API.
     [[nodiscard]] core::Result<void> open_trace(std::filesystem::path trace) override {
         std::scoped_lock lock(mutex_);
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
         static_cast<void>(trace);
         return std::unexpected(detail::unsupported());
 #else
@@ -160,14 +160,14 @@ public:
     /// Releases the cursor and replay engine and returns to the created state.
     [[nodiscard]] core::Result<void> close_trace() override {
         std::scoped_lock lock(mutex_);
-#if defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if defined(RECODE_HAS_TTD_REPLAY)
         cursor_.reset();
         engine_.reset();
 #endif
         trace_.clear();
         state_ = model::SessionState::created;
         selected_thread_.reset();
-#if defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if defined(RECODE_HAS_TTD_REPLAY)
         selected_thread_native_.reset();
 #endif
         return {};
@@ -176,7 +176,7 @@ public:
     /// Reports trace lifetime and global metadata.
     [[nodiscard]] core::Result<replay::TraceInfo> trace_info() const override {
         std::scoped_lock lock(mutex_);
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
         return std::unexpected(detail::unsupported());
 #else
         if (!engine_)
@@ -195,7 +195,7 @@ public:
     /// Returns the cursor's current valid timeline position.
     [[nodiscard]] core::Result<replay::Position> position() const override {
         std::scoped_lock lock(mutex_);
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
         return std::unexpected(detail::unsupported());
 #else
         if (!cursor_)
@@ -207,7 +207,7 @@ public:
     /// Moves the cursor to a caller-supplied valid timeline position.
     [[nodiscard]] core::Result<void> seek(replay::Position target) override {
         std::scoped_lock lock(mutex_);
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
         static_cast<void>(target);
         return std::unexpected(detail::unsupported());
 #else
@@ -242,7 +242,7 @@ public:
     [[nodiscard]] core::Result<replay::StepResult>
     seek_watchpoint(core::Address address, std::size_t size, model::WatchpointAccess access, bool forward) override {
         std::scoped_lock lock(mutex_);
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
         static_cast<void>(address);
         static_cast<void>(size);
         static_cast<void>(access);
@@ -287,7 +287,7 @@ public:
     /// Returns the process represented by the trace.
     [[nodiscard]] core::Result<model::Process> process() const override {
         std::scoped_lock lock(mutex_);
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
         return std::unexpected(detail::unsupported());
 #else
         if (!engine_)
@@ -331,7 +331,7 @@ public:
     /// Enumerates active threads at the current cursor position.
     [[nodiscard]] core::Result<std::vector<model::Thread>> threads() const override {
         std::scoped_lock lock(mutex_);
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
         return std::unexpected(detail::unsupported());
 #else
         if (!cursor_)
@@ -363,7 +363,7 @@ public:
             return std::unexpected(
                 core::Error::make(core::DiagnosticCode::invalid_argument, "Thread is not active at this TTD position"));
         selected_thread_ = thread.value;
-#if defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if defined(RECODE_HAS_TTD_REPLAY)
         selected_thread_native_.reset();
         for (std::size_t index = 0; index < cursor_->GetThreadCount(); ++index) {
             const auto& active = cursor_->GetThreadList()[index];
@@ -379,7 +379,7 @@ public:
     /// Returns the selected thread or the cursor's current thread.
     [[nodiscard]] core::Result<model::ThreadId> current_thread() const override {
         std::scoped_lock lock(mutex_);
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
         return std::unexpected(detail::unsupported());
 #else
         if (!cursor_)
@@ -404,7 +404,7 @@ public:
     [[nodiscard]] core::Result<model::RegisterValue>
     read_register(std::string_view name, std::optional<model::ThreadId> thread) const override {
         std::scoped_lock lock(mutex_);
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
         static_cast<void>(name);
         return std::unexpected(detail::unsupported());
 #else
@@ -448,7 +448,7 @@ public:
     [[nodiscard]] core::Result<core::Address>
     instruction_pointer(std::optional<model::ThreadId> thread) const override {
         std::scoped_lock lock(mutex_);
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
         return std::unexpected(detail::unsupported());
 #else
         if (!cursor_)
@@ -462,7 +462,7 @@ public:
     [[nodiscard]] core::Result<model::MemoryReadResult> read_memory(core::Address address,
                                                                     std::size_t size) const override {
         std::scoped_lock lock(mutex_);
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
         static_cast<void>(address);
         static_cast<void>(size);
         return std::unexpected(detail::unsupported());
@@ -501,7 +501,7 @@ public:
     /// Enumerates module instances currently active at the cursor position.
     [[nodiscard]] core::Result<std::vector<model::Module>> modules() const override {
         std::scoped_lock lock(mutex_);
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
         return std::unexpected(detail::unsupported());
 #else
         if (!cursor_)
@@ -544,7 +544,7 @@ private:
     /// Executes one bounded replay operation and maps its result.
     [[nodiscard]] core::Result<replay::StepResult> step(std::uint64_t count, bool forward) {
         std::scoped_lock lock(mutex_);
-#if !defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if !defined(RECODE_HAS_TTD_REPLAY)
         static_cast<void>(count);
         static_cast<void>(forward);
         return std::unexpected(detail::unsupported());
@@ -560,7 +560,7 @@ private:
 #endif
     }
 
-#if defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if defined(RECODE_HAS_TTD_REPLAY)
     /// Maps a native replay result without leaking its event enumeration.
     template <class NativeResult>
     [[nodiscard]] replay::StepResult make_step_result(const NativeResult& result,
@@ -634,7 +634,7 @@ private:
     std::filesystem::path trace_;
     std::optional<std::string> selected_thread_;
     mutable std::recursive_mutex mutex_;
-#if defined(NEW_GHIDRA_HAS_TTD_REPLAY)
+#if defined(RECODE_HAS_TTD_REPLAY)
     std::optional<TTD::ThreadId> selected_thread_native_;
     detail::ErrorReporting error_reporting_;
     TTD::Replay::UniqueReplayEngine engine_;
@@ -663,4 +663,4 @@ private:
     return std::shared_ptr<api::IReplayDebugger>{std::make_shared<WinTtdReplayDebugger>()};
 }
 
-} // namespace ghidra::services::debugger::win_ttd
+} // namespace recode::services::debugger::win_ttd

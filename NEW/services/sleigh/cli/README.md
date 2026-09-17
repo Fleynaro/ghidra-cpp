@@ -4,7 +4,7 @@
 
 ## Basic Usage
 
-Run from the `NEW` directory:
+Run from the project root directory:
 
 ```powershell
 .\build\services\sleigh_runtime\sleigh_runtime_decode.exe `

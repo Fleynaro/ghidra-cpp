@@ -5,16 +5,16 @@ module;
 export module decompiler_tests;
 
 import decompiler;
-import ghidra.decompiler;
+import recode.decompiler;
 import sleigh_runtime;
 import std;
 
-static_assert(std::is_same_v<newghidra::decompiler::Storage, ghidra::core::StorageLocation>);
-static_assert(std::is_same_v<newghidra::decompiler::PcodeOperation, ghidra::core::PcodeOp>);
-static_assert(std::is_same_v<newghidra::decompiler::Instruction, ghidra::core::DecodedInstruction>);
-static_assert(std::is_same_v<newghidra::decompiler::PcodeOpcode, ghidra::core::PcodeOpcode>);
+static_assert(std::is_same_v<recode::decompiler::Storage, recode::core::StorageLocation>);
+static_assert(std::is_same_v<recode::decompiler::PcodeOperation, recode::core::PcodeOp>);
+static_assert(std::is_same_v<recode::decompiler::Instruction, recode::core::DecodedInstruction>);
+static_assert(std::is_same_v<recode::decompiler::PcodeOpcode, recode::core::PcodeOpcode>);
 
-namespace newghidra::decompiler::tests {
+namespace recode::decompiler::tests {
 
 /// Provides one deterministic instruction so the frontend can be tested independently of decoding.
 class SingleInstructionProvider final : public PcodeProvider {
@@ -2423,7 +2423,7 @@ ulonglong __cdecl FUN_141500c44(longlong param_1,int param_2)
     }
 }
 
-/// Verifies that the production p-code provider consumes bytes through NEW's
+/// Verifies that the production p-code provider consumes bytes through ReCode's
 /// compiled Sleigh runtime rather than a decoder embedded in this module.
 TEST(SleighProvider, DecodesX86BytesIntoProviderPcode) {
     // This is the x86-64 instruction `sub rsp, 0x40` used by the runtime's
@@ -2684,4 +2684,4 @@ TEST(DecompilerXml, PreservesDeepNesting) {
     EXPECT_EQ(current->getContent(), "payload");
 }
 
-} // namespace newghidra::decompiler::tests
+} // namespace recode::decompiler::tests

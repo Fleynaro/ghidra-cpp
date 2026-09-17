@@ -2,21 +2,21 @@ module;
 
 #include <gtest/gtest.h>
 
-export module ghidra.runtime.project.tests;
+export module recode.runtime.project.tests;
 
-import ghidra.core;
-import ghidra.runtime.api.project;
-import ghidra.runtime.project.config;
-import ghidra.runtime.project.runtime_core;
-import ghidra.runtime.workers.pool;
+import recode.core;
+import recode.runtime.api.project;
+import recode.runtime.project.config;
+import recode.runtime.project.runtime_core;
+import recode.runtime.workers.pool;
 import std;
 
-namespace ghidra::runtime::project::tests {
+namespace recode::runtime::project::tests {
 namespace {
 
 /// Creates a deterministic copy-on-test project path under the platform temp directory.
 [[nodiscard]] std::filesystem::path test_directory() {
-    const auto path = std::filesystem::temp_directory_path() / "new-ghidra-end-to-end-project";
+    const auto path = std::filesystem::temp_directory_path() / "recode-end-to-end-project";
     std::error_code error;
     std::filesystem::remove_all(path, error);
     std::filesystem::create_directories(path, error);
@@ -25,10 +25,10 @@ namespace {
 
 /// Exercises opening, PE loading, event-backed listing materialization, analysis, and native decompilation.
 TEST(ProjectRuntimeTest, RealExecutableCompletesNativePipeline) {
-    const auto fixture = std::filesystem::path(NEW_GHIDRA_PROJECT_FIXTURE_DIR) / "services" / "analyzers" / "tests" /
+    const auto fixture = std::filesystem::path(RECODE_PROJECT_FIXTURE_DIR) / "services" / "analyzers" / "tests" /
                          "data" / "test_analyzers_integration.exe";
-    const auto specification = std::filesystem::path(NEW_GHIDRA_PROJECT_FIXTURE_DIR) / "services" / "sleigh" /
-                               "specifications" / "x86-64.sla";
+    const auto specification =
+        std::filesystem::path(RECODE_PROJECT_FIXTURE_DIR) / "services" / "sleigh" / "specifications" / "x86-64.sla";
     ProjectConfig config;
     config.id = core::ProjectId{"end-to-end-project"};
     config.directory = test_directory();
@@ -37,7 +37,7 @@ TEST(ProjectRuntimeTest, RealExecutableCompletesNativePipeline) {
     config.sleigh_specification = specification;
     std::shared_ptr<RuntimeCore> runtime;
     try {
-        runtime = std::make_shared<RuntimeCore>(RuntimeConfig{ghidra::runtime::workers::WorkerPoolConfig{2, 64}});
+        runtime = std::make_shared<RuntimeCore>(RuntimeConfig{recode::runtime::workers::WorkerPoolConfig{2, 64}});
     } catch (const std::exception& error) {
         FAIL() << "runtime construction threw: " << error.what();
         return;
@@ -45,9 +45,9 @@ TEST(ProjectRuntimeTest, RealExecutableCompletesNativePipeline) {
         FAIL() << "runtime construction threw an unknown exception";
         return;
     }
-    core::Result<std::shared_ptr<ghidra::runtime::api::ProjectFacade>> facade;
+    core::Result<std::shared_ptr<recode::runtime::api::ProjectFacade>> facade;
     try {
-        facade = ghidra::runtime::api::ProjectFacade::open(runtime, config);
+        facade = recode::runtime::api::ProjectFacade::open(runtime, config);
     } catch (const std::exception& error) {
         FAIL() << "open threw: " << error.what();
         return;
@@ -134,4 +134,4 @@ TEST(ProjectRuntimeTest, RealExecutableCompletesNativePipeline) {
 }
 
 } // namespace
-} // namespace ghidra::runtime::project::tests
+} // namespace recode::runtime::project::tests

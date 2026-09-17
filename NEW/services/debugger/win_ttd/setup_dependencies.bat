@@ -17,10 +17,10 @@ if not exist "%PACKAGES_CONFIG%" (
 if defined NUGET_EXE goto nuget_ready
 for /f "delims=" %%I in ('where nuget.exe 2^>nul') do if not defined NUGET_EXE set "NUGET_EXE=%%I"
 if defined NUGET_EXE goto nuget_ready
-set "NUGET_EXE=%TEMP%\ghidra-nuget.exe"
+set "NUGET_EXE=%TEMP%\recode-nuget.exe"
 if exist "%NUGET_EXE%" goto nuget_ready
 echo NuGet was not found on PATH. Downloading the official command-line client...
-powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe' -OutFile (Join-Path $env:TEMP 'ghidra-nuget.exe')"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe' -OutFile (Join-Path $env:TEMP 'recode-nuget.exe')"
 if errorlevel 1 (
     echo ERROR: NuGet download failed.
     exit /b 1
@@ -62,6 +62,6 @@ echo.
 echo Run from the repository root with:
 echo   set TTD_APIS_PACKAGE_DIR=%DEPENDENCY_ROOT%\Microsoft.TimeTravelDebugging.Apis.0.9.5
 echo   set TTD_RUNTIME_DIR=%RUNTIME_DIR%
-echo   NEW\build.bat ttd_replay
+echo   build.bat ttd_replay
 endlocal
 exit /b 0

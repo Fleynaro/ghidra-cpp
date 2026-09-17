@@ -1,11 +1,11 @@
-export module ghidra.core.operand;
+export module recode.core.operand;
 
 import std;
-import ghidra.core.address;
-import ghidra.core.scalar;
-import ghidra.core.storage_location;
+import recode.core.address;
+import recode.core.scalar;
+import recode.core.storage_location;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Classifies one decoded operand.
 enum class OperandKind : std::uint8_t { unknown, register_value, immediate, memory, address };
@@ -31,4 +31,4 @@ struct InstructionOperand {
     std::vector<OperandObject> objects;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

@@ -1,9 +1,9 @@
-export module ghidra.core.relocation;
+export module recode.core.relocation;
 
 import std;
-import ghidra.core.address;
+import recode.core.address;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Represents loader-neutral relocation evidence.
 struct Relocation {
@@ -14,4 +14,4 @@ struct Relocation {
     std::string source_loader;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

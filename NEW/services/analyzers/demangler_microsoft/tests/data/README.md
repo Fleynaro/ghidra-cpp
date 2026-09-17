@@ -57,7 +57,7 @@ Decorated spelling and signature rendering are compiler/Ghidra-version outputs. 
 
 ## Reproduction
 
-Run `build.bat`, then from the repository root run `TEST\run_ghidra_python.bat NEW\\features\\analyzers\demangler_microsoft\\tests\\data\\\\run_ghidra.py`. Optional executable/report arguments are accepted.
+Run `build.bat`, then from the repository root run `TEST\run_ghidra_python.bat \features\\analyzers\demangler_microsoft\\tests\\data\\\\run_ghidra.py`. Optional executable/report arguments are accepted.
 
 ## Generated Artifacts
 

@@ -1,10 +1,10 @@
-export module ghidra.service.translation_engine.native.pcoderaw;
+export module recode.service.translation_engine.native.pcoderaw;
 
-export import ghidra.core.pcode;
+export import recode.core.pcode;
 
-export namespace ghidra::services::translation_engine::native {
+export namespace recode::services::translation_engine::native {
 
 /// Canonical raw p-code operation value at the service boundary.
-using PcodeOp = ghidra::core::PcodeOp;
+using PcodeOp = recode::core::PcodeOp;
 
-} // namespace ghidra::services::translation_engine::native
+} // namespace recode::services::translation_engine::native

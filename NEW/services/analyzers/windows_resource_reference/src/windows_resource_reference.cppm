@@ -8,7 +8,7 @@ import std;
 // Ghidra/Features/Decompiler/ghidra_scripts/WindowsResourceReference.java
 
 /// Adds DATA references from constant Windows resource IDs to PE resource payloads.
-export namespace ghidra::analyzer {
+export namespace recode::analyzer {
 class WindowsResourceReferenceAnalyzer final : public Analyzer {
 public:
     /// Returns the one-time analyzer's data-type propagation priority.
@@ -17,9 +17,9 @@ public:
     /// Resolves supported Windows API calls through existing constants and resource leaves.
     void analyze(AnalysisContext&, std::span<const AnalysisEvent>, CancellationToken&) override;
 };
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer
 
-namespace ghidra::analyzer {
+namespace recode::analyzer {
 namespace {
 
 /// Returns a case-insensitive copy of a symbol name.
@@ -251,4 +251,4 @@ void WindowsResourceReferenceAnalyzer::analyze(AnalysisContext& context, std::sp
     }
 }
 
-} // namespace ghidra::analyzer
+} // namespace recode::analyzer

@@ -4,16 +4,16 @@ module;
 
 export module native_circlerange_tests;
 
-import ghidra.decompiler;
+import recode.decompiler;
 import std;
 
 // Port provenance: the scenario vectors and behavioral contracts originate in
 // Ghidra/Features/Decompiler/src/decompile/unittests/testcirclerange.cc.
 // This test uses the exported CircleRange implementation from
-// NEW/services/decompiler/src/rangeutil.cppm and the exported OpBehavior
-// implementations from NEW/services/decompiler/src/opbehavior.cppm directly.
+// services/decompiler/src/rangeutil.cppm and the exported OpBehavior
+// implementations from services/decompiler/src/opbehavior.cppm directly.
 
-namespace newghidra::decompiler::tests {
+namespace recode::decompiler::tests {
 
 using ghidra::CircleRange;
 using ghidra::int4;
@@ -930,4 +930,4 @@ TEST_F(NativeCircleRangeTest, ZextElementEnumerationOracle) {
     }
 }
 
-} // namespace newghidra::decompiler::tests
+} // namespace recode::decompiler::tests

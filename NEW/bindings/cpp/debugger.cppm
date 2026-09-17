@@ -1,22 +1,22 @@
-export module ghidra.bindings.cpp.debugger;
+export module recode.bindings.cpp.debugger;
 
 import std;
-import ghidra.core.contracts.debugger;
-import ghidra.core.contracts.operation;
-import ghidra.core.debugger;
-import ghidra.core.diagnostics;
-import ghidra.core.address;
-import ghidra.core.bytes;
+import recode.core.contracts.debugger;
+import recode.core.contracts.operation;
+import recode.core.debugger;
+import recode.core.diagnostics;
+import recode.core.address;
+import recode.core.bytes;
 
 // This module is an adapter only.  It intentionally does not import the
 // WinDbgEng service or expose any native engine pointer.  Applications choose
 // a backend at composition time and hand its generic IDebugger to this facade.
 
-export namespace ghidra::bindings::cpp {
+export namespace recode::bindings::cpp {
 
-namespace core = ghidra::core;
-namespace api = ghidra::core::contracts;
-namespace model = ghidra::core::debugger;
+namespace core = recode::core;
+namespace api = recode::core::contracts;
+namespace model = recode::core::debugger;
 
 /// Native binding handle for one backend-independent debugger session.
 class DebugSession final {
@@ -236,4 +236,4 @@ private:
     std::shared_ptr<api::IDebugger> debugger_;
 };
 
-} // namespace ghidra::bindings::cpp
+} // namespace recode::bindings::cpp

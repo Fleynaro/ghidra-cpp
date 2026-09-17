@@ -1,10 +1,10 @@
-export module ghidra.core.memory_region;
+export module recode.core.memory_region;
 
 import std;
-import ghidra.core.address_range;
-import ghidra.core.identifiers;
+import recode.core.address_range;
+import recode.core.identifiers;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Represents effective permissions of a mapped memory region.
 struct MemoryPermissions {
@@ -26,4 +26,4 @@ struct MemoryRegion {
     std::string provenance;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core

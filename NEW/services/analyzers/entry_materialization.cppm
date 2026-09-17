@@ -1,11 +1,11 @@
-export module ghidra.service.analyzers.entry_materialization;
+export module recode.service.analyzers.entry_materialization;
 
 import std;
-import ghidra.core;
+import recode.core;
 
-export namespace ghidra::services::analyzers {
+export namespace recode::services::analyzers {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Verifies that loader/disassembler materialization produced a coherent entry function.
 class EntryMaterializationAnalyzer final : public core::contracts::IAnalyzer {
@@ -56,4 +56,4 @@ public:
     }
 };
 
-} // namespace ghidra::services::analyzers
+} // namespace recode::services::analyzers

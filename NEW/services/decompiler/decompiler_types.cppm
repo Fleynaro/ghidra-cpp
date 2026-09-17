@@ -1,10 +1,10 @@
-export module ghidra.service.decompiler.types;
+export module recode.service.decompiler.types;
 
-export import ghidra.core.decompilation;
+export import recode.core.decompilation;
 
-export namespace ghidra::services::decompiler {
+export namespace recode::services::decompiler {
 
 /// Names the canonical structured decompiler result used by the service boundary.
-using DecompilerTypes = ghidra::core::Decompilation;
+using DecompilerTypes = recode::core::Decompilation;
 
-} // namespace ghidra::services::decompiler
+} // namespace recode::services::decompiler

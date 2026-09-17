@@ -2,12 +2,12 @@ module;
 
 #include <gtest/gtest.h>
 
-export module ghidra.core.tests.events;
+export module recode.core.tests.events;
 
-import ghidra.core;
+import recode.core;
 import std;
 
-namespace ghidra::core::tests {
+namespace recode::core::tests {
 namespace {
 
 /// Verifies event envelope payload fields remain stable for persistence/replay codecs.
@@ -19,4 +19,4 @@ TEST(CoreEventTest, EnvelopePayloadLengthAndChecksumAreDeterministic) {
 }
 
 } // namespace
-} // namespace ghidra::core::tests
+} // namespace recode::core::tests

@@ -1,6 +1,6 @@
-export module ghidra.runtime.workers;
+export module recode.runtime.workers;
 
-export import ghidra.runtime.workers.pool;
-export import ghidra.runtime.workers.task;
-export import ghidra.runtime.workers.cancellation;
-export import ghidra.runtime.workers.progress;
+export import recode.runtime.workers.pool;
+export import recode.runtime.workers.task;
+export import recode.runtime.workers.cancellation;
+export import recode.runtime.workers.progress;

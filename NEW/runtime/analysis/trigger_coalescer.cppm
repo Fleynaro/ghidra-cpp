@@ -1,11 +1,11 @@
-export module ghidra.runtime.analysis.coalescer;
+export module recode.runtime.analysis.coalescer;
 
 import std;
-import ghidra.core;
+import recode.core;
 
-export namespace ghidra::runtime::analysis {
+export namespace recode::runtime::analysis {
 
-namespace core = ghidra::core;
+namespace core = recode::core;
 
 /// Coalesces duplicate event triggers while retaining all event payloads for replay-safe analyzers.
 class TriggerCoalescer final {
@@ -34,4 +34,4 @@ private:
     std::set<core::EventId> seen_;
 };
 
-} // namespace ghidra::runtime::analysis
+} // namespace recode::runtime::analysis

@@ -5,11 +5,11 @@ module;
 export module decompiler_datatests;
 
 import decompiler;
-import ghidra.decompiler;
+import recode.decompiler;
 import sleigh_runtime;
 import std;
 
-namespace newghidra::decompiler::datatests {
+namespace recode::decompiler::datatests {
 
 /// Provides the compact symbol table used by the embedded datatest programs.
 /// Original contract: `Ghidra/Features/Decompiler/src/decompile/database.cc`
@@ -3163,4 +3163,4 @@ TEST(DecompilerDatatestsManifest, AccountsForEveryOriginalDatatest) {
     EXPECT_EQ(coverage.size(), portable_count);
 }
 
-} // namespace newghidra::decompiler::datatests
+} // namespace recode::decompiler::datatests

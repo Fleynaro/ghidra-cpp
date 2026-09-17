@@ -1,8 +1,8 @@
 // Port provenance: BlockSwitch declarations and definitions originate from
 // Ghidra/Features/Decompiler/src/decompile/cpp/block.hh and block.cc.
-export module ghidra.decompiler.block_switch;
+export module recode.decompiler.block_switch;
 import std;
-import ghidra.decompiler;
+import recode.decompiler;
 
 export namespace ghidra {
 export class BlockSwitch : public BlockGraph {

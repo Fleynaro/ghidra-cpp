@@ -10,7 +10,7 @@ import analyzer_windows_resource_reference;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies string-table resource IDs resolve to the individual UTF-16 payload entries.
@@ -49,4 +49,4 @@ TEST(WindowsResourceReferenceAnalyzerTest, HonorsDisableOption) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

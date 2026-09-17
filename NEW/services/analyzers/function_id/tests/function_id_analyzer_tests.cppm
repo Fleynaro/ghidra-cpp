@@ -8,7 +8,7 @@ import analyzer_function_id;
 import analyzer_test_support;
 import std;
 
-namespace ghidra::analyzer::tests {
+namespace recode::analyzer::tests {
 namespace {
 
 /// Verifies a real checked-in packed FID database labels the byte-identical fixture function.
@@ -47,4 +47,4 @@ TEST(FunctionIdAnalyzerTest, HonorsDisableOption) {
 }
 
 } // namespace
-} // namespace ghidra::analyzer::tests
+} // namespace recode::analyzer::tests

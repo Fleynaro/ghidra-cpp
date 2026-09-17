@@ -1,11 +1,11 @@
-export module ghidra.core.function_id;
+export module recode.core.function_id;
 
 import std;
-import ghidra.core.analysis_fact;
-import ghidra.core.function;
-import ghidra.core.identifiers;
+import recode.core.analysis_fact;
+import recode.core.function;
+import recode.core.identifiers;
 
-export namespace ghidra::core {
+export namespace recode::core {
 
 /// Captures parent/child hashes used by relation-aware Function ID scoring.
 struct FunctionHashFamily {
@@ -43,4 +43,4 @@ struct FunctionIdResult {
     AnalysisEvidence evidence;
 };
 
-} // namespace ghidra::core
+} // namespace recode::core
