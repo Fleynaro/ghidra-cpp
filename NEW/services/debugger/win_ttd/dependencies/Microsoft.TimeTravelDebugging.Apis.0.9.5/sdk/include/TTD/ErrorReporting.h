@@ -1,15 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 #pragma once
 
+#include <cstdarg>
 #include <sal.h>
 #include <string>
-#include <cstdarg>
 
-namespace TTD
-{
+namespace TTD {
 
-class ErrorReporting
-{
+class ErrorReporting {
 public:
     ErrorReporting() = default;
     virtual ~ErrorReporting() = default;
@@ -23,9 +21,7 @@ public:
     // Keeping this here helps flag any leftover calls that would have invoked the method.
     void __fastcall PrintError(_In_ std::string const&) = delete;
 
-    inline
-    void PrintError(_Printf_format_string_ char const* pFmt, ...)
-    {
+    inline void PrintError(_Printf_format_string_ char const* pFmt, ...) {
         va_list args;
         va_start(args, pFmt);
         VPrintError(pFmt, args);
@@ -33,24 +29,15 @@ public:
     }
 };
 
-inline
-void TryPrintError(
-    _Inout_opt_ ErrorReporting * const   pErrorReporting,
-    _In_        std::string      const & errorMessage)
-{
-    if (pErrorReporting != nullptr)
-    {
+inline void TryPrintError(_Inout_opt_ ErrorReporting* const pErrorReporting, _In_ std::string const& errorMessage) {
+    if (pErrorReporting != nullptr) {
         pErrorReporting->PrintError("%s", errorMessage.c_str());
     }
 }
 
-inline
-void TryPrintError(
-    _Inout_opt_            ErrorReporting * const pErrorReporting,
-    _Printf_format_string_ char const     * const pFmt, ...)
-{
-    if (pErrorReporting != nullptr)
-    {
+inline void TryPrintError(_Inout_opt_ ErrorReporting* const pErrorReporting,
+                          _Printf_format_string_ char const* const pFmt, ...) {
+    if (pErrorReporting != nullptr) {
         va_list args;
         va_start(args, pFmt);
         pErrorReporting->VPrintError(pFmt, args);
@@ -58,15 +45,11 @@ void TryPrintError(
     }
 }
 
-inline
-void TryVPrintError(
-    _Inout_opt_            ErrorReporting * const pErrorReporting,
-    _Printf_format_string_ char const     * const pFmt, _In_ va_list argList)
-{
-    if (pErrorReporting != nullptr)
-    {
+inline void TryVPrintError(_Inout_opt_ ErrorReporting* const pErrorReporting,
+                           _Printf_format_string_ char const* const pFmt, _In_ va_list argList) {
+    if (pErrorReporting != nullptr) {
         pErrorReporting->VPrintError(pFmt, argList);
     }
 }
 
-}// namespace TTD
+} // namespace TTD

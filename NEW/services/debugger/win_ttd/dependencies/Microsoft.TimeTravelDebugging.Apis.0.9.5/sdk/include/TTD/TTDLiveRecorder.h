@@ -79,8 +79,7 @@
 
 #include <Windows.h>
 
-namespace TTD
-{
+namespace TTD {
 
 // The exposed interface is retrieved by using this GUID.
 // Any revisions to the interface will get a new GUID, to avoid interface mismatches.
@@ -100,8 +99,7 @@ class __declspec(uuid("{1173F92A-535A-4D75-A1A5-6040B589E6F5}")) ILiveRecorder;
 // - The physical ABI is as defined by the MSVC compiler on Windows.
 //   This defines placement of arguments and return values, callee-preserved registers and
 //   vtable access and layout.
-class ILiveRecorder : public IUnknown
-{
+class ILiveRecorder : public IUnknown {
 public:
     // Returns false if Close() has been called.
     virtual bool IsOpen() const noexcept = 0;
@@ -110,27 +108,19 @@ public:
     // Possible use for this data is to precord a summary of the recording peformed.
     // Note that a recording can be ended asynchronously before releasing the client,
     // so there's no guarantee that this data will make it into the file.
-    virtual void Close(
-        _When_(userDataSizeInBytes == 0, _Maybenull_)
-        _In_reads_bytes_(userDataSizeInBytes) void const* pUserData,
-        _In_range_(0, MaxUserDataSizeInBytes) size_t      userDataSizeInBytes
-    ) noexcept = 0;
+    virtual void Close(_When_(userDataSizeInBytes == 0, _Maybenull_)
+                           _In_reads_bytes_(userDataSizeInBytes) void const* pUserData,
+                       _In_range_(0, MaxUserDataSizeInBytes) size_t userDataSizeInBytes) noexcept = 0;
 
     // Retrieves the path to the file containing the recording.
     // Returns the length of the string written to pFileName.
-    virtual size_t GetFileName(
-        _Out_writes_z_(fileNameSize) wchar_t* pFileName,
-                                     size_t   fileNameSize
-    ) const noexcept = 0;
+    virtual size_t GetFileName(_Out_writes_z_(fileNameSize) wchar_t* pFileName, size_t fileNameSize) const noexcept = 0;
 
     // Insert in the file the current contents of memory between the two given addresses.
     // pBeginAddress is inclusive and pEndAddress is not, similar to C++ iterators.
     // If 'synchronous' is false, the function may return before the operation is complete.
-    virtual void DumpSnapshot(
-        _In_reads_to_ptr_(pEndAddress) void const* pBeginAddress,
-        _In_reads_bytes_(0)            void const* pEndAddress,
-                                       bool        synchronous
-    ) noexcept = 0;
+    virtual void DumpSnapshot(_In_reads_to_ptr_(pEndAddress) void const* pBeginAddress,
+                              _In_reads_bytes_(0) void const* pEndAddress, bool synchronous) noexcept = 0;
 
     // Insert in the file the current contents of memory of the given loaded module.
     // If 'writableOnly' is true, only writable memory will be recorded (usually the module's global data segment).
@@ -151,13 +141,10 @@ public:
     //  - Marking points of interest in the timeline.
     //  - Signaling actions taken by the client.
     //  - Recording some meaningful piece of metadata.
-    virtual void AddCustomEvent(
-                                              CustomEventType,
-                                              CustomEventFlags,
-        _When_(userDataSizeInBytes == 0, _Maybenull_)
-        _In_reads_bytes_(userDataSizeInBytes) void const* pUserData,
-        _In_range_(0, MaxUserDataSizeInBytes) size_t      userDataSizeInBytes
-    ) noexcept = 0;
+    virtual void AddCustomEvent(CustomEventType, CustomEventFlags,
+                                _When_(userDataSizeInBytes == 0, _Maybenull_)
+                                    _In_reads_bytes_(userDataSizeInBytes) void const* pUserData,
+                                _In_range_(0, MaxUserDataSizeInBytes) size_t userDataSizeInBytes) noexcept = 0;
 
     // Start recording a new island in the calling thread with the given Activity ID.
     // A throttle may be specified as a maximum count of instructions to record,
@@ -167,18 +154,14 @@ public:
     // and then started anew using the new activity ID and throttle.
     // The provided user data, if any, will be associated with the new island.
     // This operation is always synchronous, and the current thread will already be recording when the function returns.
-    virtual void StartRecordingCurrentThread(
-                                              ActivityId,
-                                              InstructionCount maxInstructionsToRecord,
-        _When_(userDataSizeInBytes == 0, _Maybenull_)
-        _In_reads_bytes_(userDataSizeInBytes) void const*      pUserData,
-        _In_range_(0, MaxUserDataSizeInBytes) size_t           userDataSizeInBytes
-    ) noexcept = 0;
+    virtual void StartRecordingCurrentThread(ActivityId, InstructionCount maxInstructionsToRecord,
+                                             _When_(userDataSizeInBytes == 0, _Maybenull_)
+                                                 _In_reads_bytes_(userDataSizeInBytes) void const* pUserData,
+                                             _In_range_(0, MaxUserDataSizeInBytes)
+                                                 size_t userDataSizeInBytes) noexcept = 0;
 
     // Utility inlined overload without user data, because this should be fairly common.
-    inline
-    void StartRecordingCurrentThread(ActivityId activity, InstructionCount maxInstructionsToRecord) noexcept
-    {
+    inline void StartRecordingCurrentThread(ActivityId activity, InstructionCount maxInstructionsToRecord) noexcept {
         return StartRecordingCurrentThread(activity, maxInstructionsToRecord, nullptr, 0);
     }
 
@@ -198,9 +181,7 @@ public:
     virtual void GetThrottleState(_Out_ ThrottleState&) const noexcept = 0;
 
     // Convenience overload to get the throttle state as a return value.
-    inline
-    ThrottleState GetThrottleState() const noexcept
-    {
+    inline ThrottleState GetThrottleState() const noexcept {
         ThrottleState result;
         GetThrottleState(result);
         return result;
@@ -235,32 +216,19 @@ public:
 
     // Templates added for convenience, they all adapt to interface functions defined above:
 
-    template < typename UserData >
-    inline
-    void Close(_In_ UserData const& userData) noexcept
-    {
+    template <typename UserData> inline void Close(_In_ UserData const& userData) noexcept {
         return Close(&userData, sizeof(userData));
     }
 
-    template < typename UserData >
-    inline
-    void AddCustomEvent(
-             CustomEventType  const type,
-             CustomEventFlags const flags,
-        _In_ UserData        const& userData
-    ) noexcept
-    {
+    template <typename UserData>
+    inline void AddCustomEvent(CustomEventType const type, CustomEventFlags const flags,
+                               _In_ UserData const& userData) noexcept {
         return AddCustomEvent(type, flags, &userData, sizeof(userData));
     }
 
-    template < typename UserData >
-    inline
-    void StartRecordingCurrentThread(
-             ActivityId       const activity,
-             InstructionCount const maxInstructionsToRecord,
-        _In_ UserData        const& userData
-    ) noexcept
-    {
+    template <typename UserData>
+    inline void StartRecordingCurrentThread(ActivityId const activity, InstructionCount const maxInstructionsToRecord,
+                                            _In_ UserData const& userData) noexcept {
         return StartRecordingCurrentThread(activity, maxInstructionsToRecord, &userData, sizeof(userData));
     }
 
@@ -269,23 +237,29 @@ public:
     // this class will automatically resume recording in the middle of the stack unwinding,
     // when the unwinder goes past the function that used it.
     // This is perfectly safe, but it might look disconcerting on replay.
-    class ScopedPauseRecording
-    {
+    class ScopedPauseRecording {
     public:
         // Note: we want the emulated portion of the pause/resume sequence to be as lean as possible.
         // __forceinline expresses this intent: we'd rather not emulate the call into the constructor,
         // or the return from the destructor, when not inlined.
-        __forceinline ScopedPauseRecording(_Inout_ ILiveRecorder* const pLiveRecorder) noexcept : m_pLiveRecorder(pLiveRecorder->TryPauseRecording() ? pLiveRecorder : nullptr) {}
-        __forceinline ~ScopedPauseRecording() noexcept { if (m_pLiveRecorder != nullptr) { m_pLiveRecorder->ResumeRecording(); } }
+        __forceinline ScopedPauseRecording(_Inout_ ILiveRecorder* const pLiveRecorder) noexcept
+            : m_pLiveRecorder(pLiveRecorder->TryPauseRecording() ? pLiveRecorder : nullptr) {}
+        __forceinline ~ScopedPauseRecording() noexcept {
+            if (m_pLiveRecorder != nullptr) {
+                m_pLiveRecorder->ResumeRecording();
+            }
+        }
 
         // true if the current thread was originally recording (if the destructor will resume recording).
-        bool WasRecording() const noexcept { return m_pLiveRecorder != nullptr; }
+        bool WasRecording() const noexcept {
+            return m_pLiveRecorder != nullptr;
+        }
 
         // No copying or moving. Just pure RAII.
-        ScopedPauseRecording           (ScopedPauseRecording const&) = delete;
-        ScopedPauseRecording           (ScopedPauseRecording&&)      = delete;
+        ScopedPauseRecording(ScopedPauseRecording const&) = delete;
+        ScopedPauseRecording(ScopedPauseRecording&&) = delete;
         ScopedPauseRecording& operator=(ScopedPauseRecording const&) = delete;
-        ScopedPauseRecording& operator=(ScopedPauseRecording&&)      = delete;
+        ScopedPauseRecording& operator=(ScopedPauseRecording&&) = delete;
 
     private:
         ILiveRecorder* m_pLiveRecorder; // Set to nullptr if recording was off, so we won't resume.
@@ -297,24 +271,17 @@ public:
 // writerGuid must be the GUID of this ILiveRecorder interface.
 // This will ensure we can't get a different incompatible version of this interface.
 // Note that it's defaulted to the correct value for convenience, so the calling code doesn't need to specify it.
-extern "C" ILiveRecorder* __cdecl TTDMakeLiveRecorder(
-    _In_                                  GUID const& clientGuid,
-    _When_(userDataSizeInBytes == 0, _Maybenull_)
-    _In_reads_bytes_(userDataSizeInBytes) void const* pUserData,
-    _In_range_(0, MaxUserDataSizeInBytes) size_t      userDataSizeInBytes,
-    _In_                                  GUID const& recorderGuid        = __uuidof(ILiveRecorder)
-) noexcept;
+extern "C" ILiveRecorder* __cdecl TTDMakeLiveRecorder(_In_ GUID const& clientGuid,
+                                                      _When_(userDataSizeInBytes == 0, _Maybenull_)
+                                                          _In_reads_bytes_(userDataSizeInBytes) void const* pUserData,
+                                                      _In_range_(0, MaxUserDataSizeInBytes) size_t userDataSizeInBytes,
+                                                      _In_ GUID const& recorderGuid = __uuidof(ILiveRecorder)) noexcept;
 
-template < typename UserData >
-inline
-ILiveRecorder* MakeLiveRecorder(
-    _In_ GUID     const& clientGuid,
-    _In_ UserData const& userData,
-    _In_ GUID     const& recorderGuid = __uuidof(ILiveRecorder)
-) noexcept
-{
+template <typename UserData>
+inline ILiveRecorder* MakeLiveRecorder(_In_ GUID const& clientGuid, _In_ UserData const& userData,
+                                       _In_ GUID const& recorderGuid = __uuidof(ILiveRecorder)) noexcept {
     return TTDMakeLiveRecorder(clientGuid, &userData, sizeof(userData), recorderGuid);
 }
 
-}
+} // namespace TTD
 // namespace TTD

@@ -11,18 +11,17 @@
 
 #endif // !defined(INCLUDE_IREPLAYENGINE_REGISTERS)
 
-
 // These definitions come from ntdbg.h. To make it easier to include this header in mixed environments,
 // only provide the defintions if ntdbg.h has *not* been included. To force the use of the types below:
 //     #define INCLUDE_IREPLAYENGINE_REGISTERS.
 #if defined(INCLUDE_IREPLAYENGINE_REGISTERS) || !defined(_NTDBG_)
 
 #pragma warning(push)
-#pragma warning(disable: 4201) // nonstandard extension used: nameless struct/union
+#pragma warning(disable : 4201) // nonstandard extension used: nameless struct/union
 
 struct M128BIT {
     uint64_t Low;
-    int64_t  High;
+    int64_t High;
 };
 
 struct M256BIT {
@@ -35,96 +34,92 @@ struct M512BIT {
     M256BIT High;
 };
 
-
-#define MAXIMUM_SUPPORTED_EXTENSION     512
-#define X86_CONTEXT_ALIGN               4
+#define MAXIMUM_SUPPORTED_EXTENSION 512
+#define X86_CONTEXT_ALIGN 4
 
 //
 // Define the size of FP registers in the FXSAVE format
 //
-#define X86_SIZE_OF_FX_REGISTERS        128
+#define X86_SIZE_OF_FX_REGISTERS 128
 
 struct X86_FXSAVE_FORMAT {
-    uint16_t  ControlWord;
-    uint16_t  StatusWord;
-    uint16_t  TagWord;
-    uint16_t  ErrorOpcode;
-    uint32_t  ErrorOffset;
-    uint32_t  ErrorSelector;
-    uint32_t  DataOffset;
-    uint32_t  DataSelector;
-    uint32_t  MXCsr;
-    uint32_t  Reserved2;
-    uint8_t   RegisterArea[X86_SIZE_OF_FX_REGISTERS];
-    uint8_t   Reserved3[X86_SIZE_OF_FX_REGISTERS];
-    uint8_t   Reserved4[224];
+    uint16_t ControlWord;
+    uint16_t StatusWord;
+    uint16_t TagWord;
+    uint16_t ErrorOpcode;
+    uint32_t ErrorOffset;
+    uint32_t ErrorSelector;
+    uint32_t DataOffset;
+    uint32_t DataSelector;
+    uint32_t MXCsr;
+    uint32_t Reserved2;
+    uint8_t RegisterArea[X86_SIZE_OF_FX_REGISTERS];
+    uint8_t Reserved3[X86_SIZE_OF_FX_REGISTERS];
+    uint8_t Reserved4[224];
 };
 
 //  Define the size of the 80387 save area, which is in the context frame.
-#define X86_SIZE_OF_80387_REGISTERS      80
+#define X86_SIZE_OF_80387_REGISTERS 80
 struct X86_FLOATING_SAVE_AREA {
-    uint32_t   ControlWord;
-    uint32_t   StatusWord;
-    uint32_t   TagWord;
-    uint32_t   ErrorOffset;
-    uint32_t   ErrorSelector;
-    uint32_t   DataOffset;
-    uint32_t   DataSelector;
-    uint8_t    RegisterArea[X86_SIZE_OF_80387_REGISTERS];
-    uint32_t   Cr0NpxState;
+    uint32_t ControlWord;
+    uint32_t StatusWord;
+    uint32_t TagWord;
+    uint32_t ErrorOffset;
+    uint32_t ErrorSelector;
+    uint32_t DataOffset;
+    uint32_t DataSelector;
+    uint8_t RegisterArea[X86_SIZE_OF_80387_REGISTERS];
+    uint32_t Cr0NpxState;
 };
 
-#define VDMCONTEXT_i386    0x00010000
+#define VDMCONTEXT_i386 0x00010000
 
-#define VDMCONTEXT_CONTROL         (VDMCONTEXT_i386 | 0x00000001L) // SS:SP, CS:IP, FLAGS, BP
-#define VDMCONTEXT_INTEGER         (VDMCONTEXT_i386 | 0x00000002L) // AX, BX, CX, DX, SI, DI
-#define VDMCONTEXT_SEGMENTS        (VDMCONTEXT_i386 | 0x00000004L) // DS, ES, FS, GS
-#define VDMCONTEXT_FLOATING_POINT  (VDMCONTEXT_i386 | 0x00000008L) // 387 state
-#define VDMCONTEXT_DEBUG_REGISTERS (VDMCONTEXT_i386 | 0x00000010L) // DB 0-3,6,7
-#define VDMCONTEXT_EXTENDED_REGISTERS  (VDMCONTEXT_i386 | 0x00000020L) // cpu specific extensions
+#define VDMCONTEXT_CONTROL (VDMCONTEXT_i386 | 0x00000001L)            // SS:SP, CS:IP, FLAGS, BP
+#define VDMCONTEXT_INTEGER (VDMCONTEXT_i386 | 0x00000002L)            // AX, BX, CX, DX, SI, DI
+#define VDMCONTEXT_SEGMENTS (VDMCONTEXT_i386 | 0x00000004L)           // DS, ES, FS, GS
+#define VDMCONTEXT_FLOATING_POINT (VDMCONTEXT_i386 | 0x00000008L)     // 387 state
+#define VDMCONTEXT_DEBUG_REGISTERS (VDMCONTEXT_i386 | 0x00000010L)    // DB 0-3,6,7
+#define VDMCONTEXT_EXTENDED_REGISTERS (VDMCONTEXT_i386 | 0x00000020L) // cpu specific extensions
 
 struct X86_NT5_CONTEXT {
 
-    uint32_t               ContextFlags;
-    uint32_t               Dr0;
-    uint32_t               Dr1;
-    uint32_t               Dr2;
-    uint32_t               Dr3;
-    uint32_t               Dr6;
-    uint32_t               Dr7;
+    uint32_t ContextFlags;
+    uint32_t Dr0;
+    uint32_t Dr1;
+    uint32_t Dr2;
+    uint32_t Dr3;
+    uint32_t Dr6;
+    uint32_t Dr7;
     X86_FLOATING_SAVE_AREA FloatSave;
-    uint32_t               SegGs;
-    uint32_t               SegFs;
-    uint32_t               SegEs;
-    uint32_t               SegDs;
-    uint32_t               Edi;
-    uint32_t               Esi;
-    uint32_t               Ebx;
-    uint32_t               Edx;
-    uint32_t               Ecx;
-    uint32_t               Eax;
-    uint32_t               Ebp;
-    uint32_t               Eip;
-    uint32_t               SegCs;              // MUST BE SANITIZED
-    uint32_t               EFlags;             // MUST BE SANITIZED
-    uint32_t               Esp;
-    uint32_t               SegSs;
+    uint32_t SegGs;
+    uint32_t SegFs;
+    uint32_t SegEs;
+    uint32_t SegDs;
+    uint32_t Edi;
+    uint32_t Esi;
+    uint32_t Ebx;
+    uint32_t Edx;
+    uint32_t Ecx;
+    uint32_t Eax;
+    uint32_t Ebp;
+    uint32_t Eip;
+    uint32_t SegCs;  // MUST BE SANITIZED
+    uint32_t EFlags; // MUST BE SANITIZED
+    uint32_t Esp;
+    uint32_t SegSs;
     union {
-        uint8_t   ExtendedRegisters[MAXIMUM_SUPPORTED_EXTENSION];
+        uint8_t ExtendedRegisters[MAXIMUM_SUPPORTED_EXTENSION];
         X86_FXSAVE_FORMAT FxSave;
     };
-
 };
 
-
-typedef M128BIT  M128BIT;
-
+typedef M128BIT M128BIT;
 
 struct AMD64_XMM_SAVE_AREA32 {
     uint16_t ControlWord;
     uint16_t StatusWord;
-    uint8_t  TagWord;
-    uint8_t  Reserved1;
+    uint8_t TagWord;
+    uint8_t Reserved1;
     uint16_t ErrorOpcode;
     uint32_t ErrorOffset;
     uint16_t ErrorSelector;
@@ -134,17 +129,17 @@ struct AMD64_XMM_SAVE_AREA32 {
     uint16_t Reserved3;
     uint32_t MxCsr;
     uint32_t MxCsr_Mask;
-    M128BIT  FloatRegisters[8];
-    M128BIT  XmmRegisters[16];
-    uint8_t  Reserved4[96];
+    M128BIT FloatRegisters[8];
+    M128BIT XmmRegisters[16];
+    uint8_t Reserved4[96];
 };
 
-#define AMD64_CONTEXT_AMD64             0x00100000L
-#define AMD64_CONTEXT_CONTROL           (AMD64_CONTEXT_AMD64 | 0x00000001L)
-#define AMD64_CONTEXT_INTEGER           (AMD64_CONTEXT_AMD64 | 0x00000002L)
-#define AMD64_CONTEXT_SEGMENTS          (AMD64_CONTEXT_AMD64 | 0x00000004L)
-#define AMD64_CONTEXT_FLOATING_POINT    (AMD64_CONTEXT_AMD64 | 0x00000008L)
-#define AMD64_CONTEXT_DEBUG_REGISTERS   (AMD64_CONTEXT_AMD64 | 0x00000010L)
+#define AMD64_CONTEXT_AMD64 0x00100000L
+#define AMD64_CONTEXT_CONTROL (AMD64_CONTEXT_AMD64 | 0x00000001L)
+#define AMD64_CONTEXT_INTEGER (AMD64_CONTEXT_AMD64 | 0x00000002L)
+#define AMD64_CONTEXT_SEGMENTS (AMD64_CONTEXT_AMD64 | 0x00000004L)
+#define AMD64_CONTEXT_FLOATING_POINT (AMD64_CONTEXT_AMD64 | 0x00000008L)
+#define AMD64_CONTEXT_DEBUG_REGISTERS (AMD64_CONTEXT_AMD64 | 0x00000010L)
 
 struct AMD64_CONTEXT {
 
@@ -262,17 +257,16 @@ struct AMD64_CONTEXT {
     uint64_t LastExceptionFromRip;
 };
 
-#define AMD64_CONTEXT_ALIGN     16
+#define AMD64_CONTEXT_ALIGN 16
 
+#define ARM_MAX_BREAKPOINTS 8
+#define ARM_MAX_WATCHPOINTS 1
 
-#define ARM_MAX_BREAKPOINTS     8
-#define ARM_MAX_WATCHPOINTS     1
-
-#define ARM_CONTEXT_ARM                 0x00200000L
-#define ARM_CONTEXT_CONTROL             (ARM_CONTEXT_ARM | 0x00000001L)
-#define ARM_CONTEXT_INTEGER             (ARM_CONTEXT_ARM | 0x00000002L)
-#define ARM_CONTEXT_FLOATING_POINT      (ARM_CONTEXT_ARM | 0x00000004L)
-#define ARM_CONTEXT_DEBUG_REGISTERS     (ARM_CONTEXT_ARM | 0x00000008L)
+#define ARM_CONTEXT_ARM 0x00200000L
+#define ARM_CONTEXT_CONTROL (ARM_CONTEXT_ARM | 0x00000001L)
+#define ARM_CONTEXT_INTEGER (ARM_CONTEXT_ARM | 0x00000002L)
+#define ARM_CONTEXT_FLOATING_POINT (ARM_CONTEXT_ARM | 0x00000004L)
+#define ARM_CONTEXT_DEBUG_REGISTERS (ARM_CONTEXT_ARM | 0x00000008L)
 
 struct ARM_CONTEXT {
     //
@@ -348,18 +342,17 @@ struct ARM_CONTEXT {
     uint32_t Wcr[ARM_MAX_WATCHPOINTS];
 
     uint32_t Padding2[2];
-
 };
 
-#define ARM_CONTEXT_ALIGN   8
+#define ARM_CONTEXT_ALIGN 8
 
-#define ARM64_MAX_BREAKPOINTS     8
-#define ARM64_MAX_WATCHPOINTS     2
+#define ARM64_MAX_BREAKPOINTS 8
+#define ARM64_MAX_WATCHPOINTS 2
 
-#define ARM64_CONTEXT_ARM64   0x00400000L
+#define ARM64_CONTEXT_ARM64 0x00400000L
 #define ARM64_CONTEXT_CONTROL (ARM64_CONTEXT_ARM64 | 0x1L)
 #define ARM64_CONTEXT_INTEGER (ARM64_CONTEXT_ARM64 | 0x2L)
-#define ARM64_CONTEXT_FLOATING_POINT  (ARM64_CONTEXT_ARM64 | 0x4L)
+#define ARM64_CONTEXT_FLOATING_POINT (ARM64_CONTEXT_ARM64 | 0x4L)
 #define ARM64_CONTEXT_DEBUG_REGISTERS (ARM64_CONTEXT_ARM64 | 0x8L)
 
 typedef union _ARM64_NEON128 {
@@ -385,7 +378,7 @@ typedef struct _ARM64_CONTEXT {
     // Integer registers
     //
 
-    /* +0x004 */ uint32_t Cpsr;       // NZVF + DAIF + CurrentEL + SPSel
+    /* +0x004 */ uint32_t Cpsr; // NZVF + DAIF + CurrentEL + SPSel
     /* +0x008 */ uint64_t X[29];
     /* +0x0f0 */ uint64_t Fp;
     /* +0x0f8 */ uint64_t Lr;
@@ -412,10 +405,7 @@ typedef struct _ARM64_CONTEXT {
 
 } ARM64_CONTEXT, *PARM64_CONTEXT;
 
-#define ARM64_CONTEXT_ALIGN  16
-
-
-
+#define ARM64_CONTEXT_ALIGN 16
 
 struct VECTOR_128BIT_REGISTERS {
     M128BIT Ymm0;
@@ -440,13 +430,13 @@ struct VECTOR_128BIT_REGISTERS {
 //	Number of AVX512 registers on x86 bits system
 //
 
-#define	NUMBER_AVX512_REGISTERS_X86	8
+#define NUMBER_AVX512_REGISTERS_X86 8
 
 //
 //	Number of AVX512 registers on AMD64 bits system
 //
 
-#define	NUMBER_AVX512_REGISTERS_AMD64	32
+#define NUMBER_AVX512_REGISTERS_AMD64 32
 
 typedef struct _VECTOR_256BIT_REGISTERS {
     M256BIT Zmm0;
@@ -531,16 +521,15 @@ typedef struct _AVX_512_K_REGISTERS {
 
 constexpr size_t c_avxExtraReserved = (16 * 32) + (32 * 64) + (32 * 128) + (8 * 8);
 
- typedef struct _CROSS_PLATFORM_CONTEXT {
+typedef struct _CROSS_PLATFORM_CONTEXT {
     union {
-        X86_NT5_CONTEXT   X86Nt5Context;
-        AMD64_CONTEXT     Amd64Context;
-        ARM_CONTEXT       ArmContext;
-        ARM64_CONTEXT     Arm64Context;
-        uint8_t           ContextPadding[2672];
+        X86_NT5_CONTEXT X86Nt5Context;
+        AMD64_CONTEXT Amd64Context;
+        ARM_CONTEXT ArmContext;
+        ARM64_CONTEXT Arm64Context;
+        uint8_t ContextPadding[2672];
     };
 } CROSS_PLATFORM_CONTEXT;
-
 
 typedef struct _AVX_EXTENDED_CONTEXT {
     union {
@@ -554,25 +543,27 @@ typedef struct _AVX_EXTENDED_CONTEXT {
 
 #pragma warning(pop)
 
-#endif  // defined(INCLUDE_IREPLAYENGINE_REGISTERS) || !defined(_NTDBG_)
+#endif // defined(INCLUDE_IREPLAYENGINE_REGISTERS) || !defined(_NTDBG_)
 
 #if !defined(INCLUDE_IREPLAYENGINE_REGISTERS)
 
-static_assert(sizeof (TTD::Replay::RegisterContext) <= sizeof (CROSS_PLATFORM_CONTEXT), "TTD::Replay::RegisterContext must be smaller than CROSS_PLATFORM_CONTEXT");
-static_assert(alignof(TTD::Replay::RegisterContext) <= alignof(CROSS_PLATFORM_CONTEXT), "TTD::Replay::RegisterContext must align less strictly than CROSS_PLATFORM_CONTEXT");
+static_assert(sizeof(TTD::Replay::RegisterContext) <= sizeof(CROSS_PLATFORM_CONTEXT),
+              "TTD::Replay::RegisterContext must be smaller than CROSS_PLATFORM_CONTEXT");
+static_assert(alignof(TTD::Replay::RegisterContext) <= alignof(CROSS_PLATFORM_CONTEXT),
+              "TTD::Replay::RegisterContext must align less strictly than CROSS_PLATFORM_CONTEXT");
 
-static_assert(sizeof (TTD::Replay::ExtendedRegisterContext) <= sizeof (AVX_EXTENDED_CONTEXT), "TTD::Replay::ExtendedRegisterContext must be smaller than AVX_EXTENDED_CONTEXT");
-static_assert(alignof(TTD::Replay::ExtendedRegisterContext) <= alignof(AVX_EXTENDED_CONTEXT), "TTD::Replay::ExtendedRegisterContext must align less strictly than AVX_EXTENDED_CONTEXT");
+static_assert(sizeof(TTD::Replay::ExtendedRegisterContext) <= sizeof(AVX_EXTENDED_CONTEXT),
+              "TTD::Replay::ExtendedRegisterContext must be smaller than AVX_EXTENDED_CONTEXT");
+static_assert(alignof(TTD::Replay::ExtendedRegisterContext) <= alignof(AVX_EXTENDED_CONTEXT),
+              "TTD::Replay::ExtendedRegisterContext must align less strictly than AVX_EXTENDED_CONTEXT");
 
-inline TTD::Replay::RegisterContext::operator CROSS_PLATFORM_CONTEXT() const noexcept
-{
+inline TTD::Replay::RegisterContext::operator CROSS_PLATFORM_CONTEXT() const noexcept {
     CROSS_PLATFORM_CONTEXT result{};
     *reinterpret_cast<RegisterContext*>(&result) = *this;
     return result;
 }
 
-inline TTD::Replay::ExtendedRegisterContext::operator AVX_EXTENDED_CONTEXT() const noexcept
-{
+inline TTD::Replay::ExtendedRegisterContext::operator AVX_EXTENDED_CONTEXT() const noexcept {
     AVX_EXTENDED_CONTEXT result{};
     *reinterpret_cast<ExtendedRegisterContext*>(&result) = *this;
     return result;
