@@ -2,10 +2,6 @@ export module recode.service.bsim;
 
 import std;
 import recode.core.contracts.bsim;
-import recode.core.function;
-import decompiler;
-import recode.service.bsim.decompiler_adapter;
-import recode.service.bsim.graph_signature;
 import recode.service.bsim.resource;
 import recode.service.bsim.vector_factory;
 
@@ -58,26 +54,38 @@ public:
         return selected_resource_;
     }
 
-    /// Generates sorted duplicate-preserving Ghidra feature hashes.
+    /// Validates and canonicalizes the sorted feature result produced by the Decompiler.
     [[nodiscard]] recode::core::Result<recode::core::contracts::FunctionSimilarityFeatures>
-    generate_signature(const recode::core::NormalizedFunction& function) const override {
-        return generator_.generate(function, options_.settings, options_.max_iterations, options_.max_block_iterations,
-                                   options_.max_varnodes);
+    generate_signature(const recode::core::contracts::FunctionSimilarityFeatures& features) const override {
+        if (!std::ranges::is_sorted(features.hashes))
+            return std::unexpected(
+                recode::core::Error::make(recode::core::DiagnosticCode::invalid_argument,
+                                          "BSim feature hashes must be sorted as unsigned 32-bit values",
+                                          "Use the sorted feature vector returned by the native Decompiler."));
+        if (features.settings != 0U && features.settings != options_.settings)
+            return std::unexpected(
+                recode::core::Error::make(recode::core::DiagnosticCode::invalid_argument,
+                                          "BSim feature settings do not match the loaded vector resource",
+                                          "Use the same signature settings for native generation and vectorization."));
+        auto result = features;
+        if (result.settings == 0U)
+            result.settings = options_.settings;
+        return result;
     }
 
-    /// Generates a weighted sparse vector from one normalized function.
+    /// Generates a weighted sparse vector from one analyzed function result.
     [[nodiscard]] recode::core::Result<recode::core::contracts::SimilarityVector>
-    generate_vector(const recode::core::NormalizedFunction& function) const override {
-        auto signature = generate_signature(function);
+    generate_vector(const recode::core::contracts::FunctionSimilarityFeatures& features) const override {
+        auto signature = generate_signature(features);
         if (!signature)
             return std::unexpected(signature.error());
         return vector_factory_.build_vector(signature->hashes);
     }
 
-    /// Generates both signature and vector stages without recomputing the graph.
+    /// Generates both the canonical feature result and weighted vector without recomputing the graph.
     [[nodiscard]] recode::core::Result<recode::core::contracts::FunctionSimilarityResult>
-    analyze(const recode::core::NormalizedFunction& function) const override {
-        auto signature = generate_signature(function);
+    analyze(const recode::core::contracts::FunctionSimilarityFeatures& features) const override {
+        auto signature = generate_signature(features);
         if (!signature)
             return std::unexpected(signature.error());
         recode::core::contracts::FunctionSimilarityResult result;
@@ -91,25 +99,6 @@ public:
     compare(const recode::core::contracts::SimilarityVector& first,
             const recode::core::contracts::SimilarityVector& second) const override {
         return vector_factory_.compare(first, second);
-    }
-
-    /// Converts a native decompiler value result into the independent BSim result.
-    [[nodiscard]] recode::core::Result<recode::core::contracts::FunctionSimilarityResult>
-    analyze_decompiler(const recode::core::FunctionSnapshot& snapshot,
-                       const recode::decompiler::DecompilationResult& decompilation) const {
-        if (!decompilation.signature_features.empty()) {
-            recode::core::contracts::FunctionSimilarityResult result;
-            result.features.function = snapshot.key;
-            result.features.hashes = decompilation.signature_features;
-            result.features.direct_call_addresses = decompilation.signature_call_addresses;
-            result.features.has_unimplemented = decompilation.signature_has_unimplemented;
-            result.features.has_bad_data = decompilation.signature_has_bad_data;
-            result.features.settings = options_.settings;
-            result.features.overall_hash = decompilation.signature_overall_hash;
-            result.vector = vector_factory_.build_vector(result.features.hashes);
-            return result;
-        }
-        return analyze(make_normalized_function(snapshot, decompilation));
     }
 
 private:
@@ -138,7 +127,6 @@ private:
     }
 
     recode::core::contracts::SimilarityOptions options_;
-    GraphSignatureGenerator generator_;
     VectorFactory vector_factory_;
     bool loaded_resource_{};
     std::string fallback_error_;

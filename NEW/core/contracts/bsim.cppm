@@ -3,7 +3,6 @@ export module recode.core.contracts.bsim;
 import std;
 import recode.core.diagnostics;
 import recode.core.function;
-import recode.core.normalized_function;
 
 export namespace recode::core::contracts {
 
@@ -58,9 +57,6 @@ struct FunctionSimilarityResult {
 /// Configures native Ghidra signature settings and vector resource selection.
 struct SimilarityOptions {
     std::uint32_t settings{0x49U};
-    std::int32_t max_iterations{3};
-    std::int32_t max_block_iterations{1};
-    std::uint32_t max_varnodes{};
     std::string language_id{"x86:LE:64:default"};
     std::filesystem::path resource_directory;
 };
@@ -71,17 +67,17 @@ public:
     /// Releases a similarity service through its contract.
     virtual ~IFunctionSimilarityService() = default;
 
-    /// Generates sorted, duplicate-preserving function feature hashes.
+    /// Validates and canonicalizes the sorted feature result produced by analysis.
     [[nodiscard]] virtual Result<FunctionSimilarityFeatures>
-    generate_signature(const NormalizedFunction& function) const = 0;
+    generate_signature(const FunctionSimilarityFeatures& features) const = 0;
 
-    /// Generates the weighted sparse vector for one normalized function.
+    /// Generates the weighted sparse vector for one analyzed function result.
     [[nodiscard]] virtual Result<SimilarityVector>
-    generate_vector(const NormalizedFunction& function) const = 0;
+    generate_vector(const FunctionSimilarityFeatures& features) const = 0;
 
-    /// Generates both the raw signature and weighted vector in one pass.
+    /// Generates both the analyzed feature result and weighted vector in one pass.
     [[nodiscard]] virtual Result<FunctionSimilarityResult>
-    analyze(const NormalizedFunction& function) const = 0;
+    analyze(const FunctionSimilarityFeatures& features) const = 0;
 
     /// Compares two vectors using cosine and Ghidra’s significance calculation.
     [[nodiscard]] virtual Result<SimilarityComparison>

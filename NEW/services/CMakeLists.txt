@@ -21,6 +21,7 @@ add_dependencies(recode_services
     recode_decompiler
     recode_decompiler_frontend
     recode_bsim
+    recode_bsim_decompiler_adapter
     analyzer
     recode_analyzer_services
     recode_win_dbg_eng

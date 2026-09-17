@@ -1,8 +1,8 @@
 # BSim Tests
 
-`bsim_tests.cppm` covers fixed-width signature hashing, duplicate-preserving
-TF construction, cosine/significance behavior, deterministic graph features,
-and the fixture target. `bsim_similarity_integration_tests.cppm` runs the real
+`bsim_tests.cppm` covers duplicate-preserving TF construction,
+cosine/significance behavior, feature-result validation, resource loading, and
+the fixture target. `bsim_similarity_integration_tests.cppm` runs the real
 PE Loader -> Sleigh -> native Decompiler -> BSim pipeline and checks five
 semantic-twin pairs against an unrelated function.
 

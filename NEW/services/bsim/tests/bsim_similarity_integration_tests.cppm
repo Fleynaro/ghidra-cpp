@@ -9,6 +9,7 @@ import pe_loader;
 import recode.decompiler;
 import recode.core;
 import recode.service.bsim;
+import recode.service.bsim.decompiler_adapter;
 import sleigh_runtime;
 import std;
 
@@ -90,7 +91,7 @@ analyze_fixture(const std::shared_ptr<const pe::LoadedPeImage>& image, const std
         } catch (...) {
             throw std::runtime_error("Native decompiler threw while analyzing fixture export: " + name);
         }
-        auto result = service.analyze_decompiler(snapshot_for(name, *address), native);
+        auto result = recode::services::bsim::analyze_decompiler(service, snapshot_for(name, *address), native);
         if (!result)
             throw std::runtime_error("BSim analysis failed for " + name + ": " + result.error().message);
         std::cout << name << " features=" << result->features.hashes.size()

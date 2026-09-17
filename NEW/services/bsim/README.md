@@ -1,20 +1,20 @@
 # BSim Service
 
-This service ports Ghidra’s computational BSim pipeline: normalized function
-graph, iterative data/control-flow signatures, sorted 32-bit feature hashes,
-weighted sparse vector, and cosine/significance comparison. It contains no
+This service ports Ghidra’s computational BSim vector pipeline: sorted 32-bit
+feature hashes from the existing native Decompiler, weighted sparse vector,
+and cosine/significance comparison. It contains no
 Ghidra Java runtime, Python bridge, database, or server dependency.
 
 ## API
 
 `recode.core.contracts.bsim` defines the independent value contract:
 
-- `NormalizedFunction` is the normalized SSA/control-flow input produced by
-  analysis/decompiler adapters.
-- `IFunctionSimilarityService::generate_signature` returns sorted feature
-  hashes and decompiler status metadata.
+- `FunctionSimilarityFeatures` is the value-owned signature result produced by
+  the native Decompiler.
+- `IFunctionSimilarityService::generate_signature` validates and canonicalizes
+  that sorted feature result.
 - `IFunctionSimilarityService::generate_vector` returns a sparse weighted
-  `SimilarityVector`.
+  `SimilarityVector` from it.
 - `IFunctionSimilarityService::analyze` returns both stages.
 - `IFunctionSimilarityService::compare` returns cosine, dot-product, counts,
   intersection, and normalized significance metadata.
@@ -24,17 +24,18 @@ The implementation is `recode.service.bsim` and is exposed as
 
 ## Architecture
 
-`bsim_service.cppm` implements the public service boundary. Signature work is
-split across `bsim_signature.cppm`, `bsim_signature_entry.cppm`,
-`bsim_block_signature.cppm`, and `bsim_graph_signature.cppm`. Vector work is
-split across `bsim_hash_entry.cppm`, `bsim_weight_factory.cppm`,
+`bsim_service.cppm` implements the public vector/service boundary.
+`bsim_decompiler_adapter.cppm` is a thin adapter to the existing
+`NEW/services/decompiler/src/signature.cppm` and
+`NEW/services/decompiler/src/decompiler_impl.cppm`; it does not duplicate
+GraphSigManager, SignatureEntry, or block hashing. Vector work is split across
+`bsim_hash_entry.cppm`, `bsim_weight_factory.cppm`,
 `bsim_idf.cppm`, `bsim_vector_compare.cppm`, `bsim_cosine_vector.cppm`, and
 `bsim_vector_factory.cppm`.
 
-The service consumes normalized values from `NEW/core/domain/normalized_function.cppm`.
-At runtime, callers should use the existing `NEW/services/sleigh` and
-`NEW/services/decompiler` contracts to obtain that normalized representation;
-BSim does not embed either implementation.
+At runtime, callers use the existing Sleigh and Decompiler services. The
+Decompiler owns normalized SSA, GraphSigManager, signature settings, and
+feature generation; BSim consumes only its value-owned result.
 
 ## Vectors
 
@@ -60,7 +61,7 @@ ctest --test-dir NEW\build -R bsim --output-on-failure
 ```
 
 The fixture source and reproducible build wrapper are under `tests/data/`.
-The tests cover exact hash primitives, graph signature edge cases, weighted
-vector mathematics, determinism, resource loading, semantic function groups,
+The tests cover weighted vector mathematics, feature-result validation,
+determinism, resource loading, semantic function groups,
 and the end-to-end PE Loader -> Sleigh -> native Decompiler -> BSim ranking
 pipeline in `tests/bsim_similarity_integration_tests.cppm`.

@@ -2,30 +2,21 @@
 
 import std;
 import recode.core.contracts.bsim;
-import recode.core.normalized_function;
-import recode.core.pcode_opcode;
 import recode.service.bsim;
 import recode.service.bsim.cosine_vector;
-import recode.service.bsim.graph_signature;
 import recode.service.bsim.idf;
 import recode.service.bsim.vector_factory;
 import recode.service.bsim.weight_factory;
 
 namespace {
 
-/// Builds a small SSA graph with one commutative arithmetic operation and one block.
-[[nodiscard]] recode::core::NormalizedFunction arithmetic_function() {
-    recode::core::NormalizedFunction function;
-    function.name = "synthetic_add";
-    function.varnodes = {
-        recode::core::NormalizedVarnode{1, {"register", 0, 4}, 4, false, 0, true, false, false, false, std::nullopt},
-        recode::core::NormalizedVarnode{2, {"const", 7, 4}, 4, true, 7, false, false, false, false, std::nullopt},
-        recode::core::NormalizedVarnode{3, {"unique", 0, 4}, 4, false, 0, false, false, false, true, 10},
-    };
-    function.operations = {
-        recode::core::NormalizedOperation{10, recode::core::PcodeOpcode::int_add, 3, {1, 2}, 0, false, true}};
-    function.blocks = {recode::core::NormalizedBasicBlock{0, {10}, {}, {}}};
-    return function;
+/// Builds a sorted value-only signature result for vector and contract tests.
+[[nodiscard]] recode::core::contracts::FunctionSimilarityFeatures synthetic_features() {
+    recode::core::contracts::FunctionSimilarityFeatures features;
+    features.hashes = {0x10U, 0x10U, 0x20U, 0x80U};
+    features.settings = 0x49U;
+    features.overall_hash = 0x1234U;
+    return features;
 }
 
 /// Verifies the fixed-width empty-vector unique hash from LSHCosineVector.java.
@@ -101,17 +92,17 @@ TEST(BsimVector, AccumulatorFinalizesOnce) {
     accumulator.add_hash(7U, 2.0);
     accumulator.add_hash(7U, 9.0);
     EXPECT_EQ(accumulator.num_entries(), 1U);
-    accumulator.do_finalize();
+    (void)accumulator.do_finalize();
     EXPECT_THROW(accumulator.add_hash(8U, 1.0), std::runtime_error);
-    EXPECT_THROW(accumulator.num_entries(), std::logic_error);
+    EXPECT_THROW((void)accumulator.num_entries(), std::logic_error);
 }
 
-/// Verifies the native GraphSigManager iteration is deterministic and sorted.
-TEST(BsimSignature, DeterministicSortedFeatures) {
-    const auto function = arithmetic_function();
+/// Verifies the Decompiler-produced feature value is deterministic and remains sorted.
+TEST(BsimFeatures, DeterministicCanonicalFeatures) {
+    const auto features = synthetic_features();
     recode::services::bsim::BsimService service;
-    const auto first = service.generate_signature(function);
-    const auto second = service.generate_signature(function);
+    const auto first = service.generate_signature(features);
+    const auto second = service.generate_signature(features);
     ASSERT_TRUE(first.has_value());
     ASSERT_TRUE(second.has_value());
     EXPECT_EQ(first->hashes, second->hashes);
@@ -120,22 +111,22 @@ TEST(BsimSignature, DeterministicSortedFeatures) {
     EXPECT_FALSE(first->hashes.empty());
 }
 
-/// Verifies invalid native setting bits are rejected instead of silently changing feature semantics.
-TEST(BsimSignature, InvalidSettingsReturnAnError) {
-    recode::core::contracts::SimilarityOptions options;
-    options.settings = 0x2U;
-    recode::services::bsim::BsimService service(options);
-    const auto result = service.generate_signature(arithmetic_function());
+/// Verifies feature settings incompatible with the loaded vector resource are rejected.
+TEST(BsimFeatures, InvalidSettingsReturnAnError) {
+    recode::services::bsim::BsimService service;
+    auto features = synthetic_features();
+    features.settings = 0x4dU;
+    const auto result = service.generate_signature(features);
     EXPECT_FALSE(result.has_value());
 }
 
-/// Verifies an empty normalized graph is a valid deterministic zero-feature input.
-TEST(BsimSignature, EmptyFunctionProducesEmptyFeatures) {
+/// Verifies an empty Decompiler feature result is a valid deterministic zero-feature input.
+TEST(BsimFeatures, EmptyFunctionProducesEmptyFeatures) {
     recode::services::bsim::BsimService service;
-    const auto result = service.generate_signature(recode::core::NormalizedFunction{});
+    const auto result = service.generate_signature({});
     ASSERT_TRUE(result.has_value());
     EXPECT_TRUE(result->hashes.empty());
-    EXPECT_EQ(result->overall_hash, 0x12349876abacabULL);
+    EXPECT_EQ(result->overall_hash, 0U);
 }
 
 /// Verifies that one service call returns both raw duplicate-preserving features and a vector.
@@ -143,7 +134,7 @@ TEST(BsimService, AnalyzeReturnsBothStages) {
     recode::services::bsim::BsimService service;
     EXPECT_TRUE(service.resource_loaded()) << service.resource_error();
     EXPECT_EQ(service.resource_name(), "lshweights_64.xml");
-    const auto result = service.analyze(arithmetic_function());
+    const auto result = service.analyze(synthetic_features());
     ASSERT_TRUE(result.has_value());
     EXPECT_EQ(result->vector.hash_count, result->features.hashes.size());
     EXPECT_EQ(result->features.settings, 0x49U);

@@ -22,7 +22,6 @@ set(RECODE_CORE_MODULES
     domain/basic_block.cppm
     domain/function_signature.cppm
     domain/function.cppm
-    domain/normalized_function.cppm
     domain/memory_region.cppm
     domain/symbol.cppm
     domain/reference.cppm

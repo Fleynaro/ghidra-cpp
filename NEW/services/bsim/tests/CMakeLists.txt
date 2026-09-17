@@ -15,7 +15,7 @@ target_sources(bsim_similarity_integration_tests PRIVATE FILE_SET cxx_modules TY
     FILES bsim_similarity_integration_tests.cppm)
 target_compile_features(bsim_similarity_integration_tests PRIVATE cxx_std_23)
 target_compile_definitions(bsim_similarity_integration_tests PRIVATE BSIM_FIXTURE_PATH="$<TARGET_FILE:bsim_fixture>")
-target_link_libraries(bsim_similarity_integration_tests PRIVATE ReCode::Bsim ReCode::PeLoader ReCode::DecompilerFrontend
+target_link_libraries(bsim_similarity_integration_tests PRIVATE ReCode::BsimDecompilerAdapter ReCode::PeLoader
                                                                    GTest::gtest_main)
 add_dependencies(bsim_similarity_integration_tests bsim_fixture)
 
