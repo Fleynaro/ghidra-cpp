@@ -71,11 +71,14 @@ signature result, but no database link is created.
 ## Compatibility Risks
 
 Exact feature equality is provided by the existing native Decompiler, whose
-input is normalized SSA p-code with the same Varnode flags, operation input
-conventions, marker classification, and CFG edge order as Ghidra. BSim receives
-that value-owned result instead of inferring features from C text or machine
-bytes. The fixture integration test (`tests/bsim_similarity_integration_tests.cppm`) now
-exercises the real PE Loader -> Sleigh -> native Decompiler -> BSim path and
-validates semantic ranking. Differential tests can compare the resulting
-sorted feature arrays when both pipelines receive equivalent normalized
-graphs.
+signature request now follows Ghidra's `signature_ghidra.cc` lifecycle: it
+captures `GraphSigManager` output immediately after `normalize`, then rebuilds
+the function graph for ordinary decompiler artifacts. This prevents the full
+decompiler action chain from contaminating the BSim graph while preserving the
+normal C-output path for callers that request it. BSim receives the resulting
+value-owned signature instead of inferring features from C text or machine
+bytes. The fixture integration test
+(`tests/bsim_similarity_integration_tests.cppm`) exercises the real PE Loader
+-> Sleigh -> native Decompiler -> BSim path, validates semantic ranking, and
+compares twelve weighted cosine pairs with the independent PyGhidra oracle in
+(`tests/data/run_ghidra.py`).

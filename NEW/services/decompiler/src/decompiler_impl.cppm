@@ -2527,39 +2527,50 @@ DecompilationResult Decompiler::decompile(const FunctionDescription& function) c
     result.raw_pcode = raw.str();
 
     ghidra::Action* action = state_->architecture->allacts.getCurrent();
+    std::string previous_action;
+    if (function.generate_signature) {
+        // Ported from Ghidra/Features/Decompiler/src/decompile/cpp/signature_ghidra.cc:
+        // SignaturesAt runs only normalize before GraphSigManager. Capture the
+        // BSim result at that boundary, then restore the caller's action and
+        // finish the ordinary decompiler pipeline for the other artifacts.
+        previous_action = state_->architecture->allacts.getCurrentName();
+        ghidra::Action* normalize = state_->architecture->allacts.setCurrent("normalize");
+        if (normalize == nullptr) {
+            throw ghidra::LowlevelError("Unable to select the normalize action for signature generation");
+        }
+        try {
+            normalize->reset(*data);
+            normalize->perform(*data);
+            ghidra::SigManager::setSettings(function.signature_settings);
+            ghidra::GraphSigManager signature_manager;
+            signature_manager.setMaxIteration(function.signature_max_iterations);
+            signature_manager.setMaxBlockIteration(function.signature_max_block_iterations);
+            signature_manager.setMaxVarnode(static_cast<ghidra::int4>(function.signature_max_varnodes));
+            signature_manager.setCurrentFunction(data);
+            signature_manager.generate();
+            signature_manager.getSignatureVector(result.signature_features);
+            result.signature_overall_hash = signature_manager.getOverallHash();
+            result.signature_has_unimplemented = data->hasUnimplemented();
+            result.signature_has_bad_data = data->hasBadData();
+            for (ghidra::uint4 index = 0; index < data->numCalls(); ++index) {
+                const ghidra::Address& call_address = data->getCallSpecs(index)->getEntryAddress();
+                if (!call_address.isInvalid())
+                    result.signature_call_addresses.push_back(call_address.getOffset());
+            }
+        } catch (...) {
+            state_->architecture->allacts.setCurrent(previous_action);
+            throw;
+        }
+        state_->architecture->allacts.setCurrent(previous_action);
+        // Normalize marks the Funcdata as processed. Rebuild the root graph so
+        // the normal decompiler action can still produce C output without
+        // contaminating the already-captured signature snapshot.
+        data->clear();
+        data->followFlow(entry, ghidra::Address(code_space, function.end));
+    }
     if (action != nullptr) {
         action->reset(*data);
         action->perform(*data);
-    }
-    if (function.generate_signature) {
-        // Ported from Ghidra/Features/Decompiler/src/decompile/cpp/signature_ghidra.cc:
-        // SignaturesAt runs the normalize action before GraphSigManager. Restore the
-        // caller's action after the value-owned signature result is captured.
-        if (!data->isProcStarted()) {
-            const std::string previous_action = state_->architecture->allacts.getCurrentName();
-            ghidra::Action* normalize = state_->architecture->allacts.setCurrent("normalize");
-            if (normalize != nullptr) {
-                normalize->reset(*data);
-                normalize->perform(*data);
-            }
-            state_->architecture->allacts.setCurrent(previous_action);
-        }
-        ghidra::SigManager::setSettings(function.signature_settings);
-        ghidra::GraphSigManager signature_manager;
-        signature_manager.setMaxIteration(function.signature_max_iterations);
-        signature_manager.setMaxBlockIteration(function.signature_max_block_iterations);
-        signature_manager.setMaxVarnode(static_cast<ghidra::int4>(function.signature_max_varnodes));
-        signature_manager.setCurrentFunction(data);
-        signature_manager.generate();
-        signature_manager.getSignatureVector(result.signature_features);
-        result.signature_overall_hash = signature_manager.getOverallHash();
-        result.signature_has_unimplemented = data->hasUnimplemented();
-        result.signature_has_bad_data = data->hasBadData();
-        for (ghidra::uint4 index = 0; index < data->numCalls(); ++index) {
-            const ghidra::Address& call_address = data->getCallSpecs(index)->getEntryAddress();
-            if (!call_address.isInvalid())
-                result.signature_call_addresses.push_back(call_address.getOffset());
-        }
     }
     // Install provider-owned dynamic constant formats after native action
     // analysis and before C printing. This is the same lifecycle point used by
