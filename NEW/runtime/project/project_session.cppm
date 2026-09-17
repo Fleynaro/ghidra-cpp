@@ -117,6 +117,10 @@ public:
         drafts.push_back(core::events::project_inputs_changed(config_.id, config_.primary_artifact, correlation));
         for (const auto& region : image_->regions())
             drafts.push_back(core::events::memory_state_changed(config_.id, region, correlation));
+        for (const auto& symbol : loaded->exported_symbols)
+            drafts.push_back(core::events::symbol_state_changed(config_.id, symbol, correlation));
+        for (const auto& symbol : loaded->imported_symbols)
+            drafts.push_back(core::events::symbol_state_changed(config_.id, symbol, correlation));
         if (const auto committed = commit(drafts, std::nullopt); !committed) {
             state_.status = ProjectStatus::failed;
             return std::unexpected(committed.error());
@@ -130,34 +134,85 @@ public:
         auto entry = image_->entry_point();
         if (!entry)
             return std::unexpected(entry.error());
-        auto body = decode_entry(*entry, correlation);
-        if (!body) {
-            state_.status = ProjectStatus::failed;
-            return std::unexpected(body.error());
-        }
-        if (!body->instructions.empty()) {
+
+        /// Couples one PE export-derived function snapshot with its bounded decode batch.
+        struct FunctionSeed {
             core::FunctionSnapshot function;
-            function.key = core::FunctionKey{core::EntityId{core::make_identifier("function", entry->offset)}, *entry};
-            function.name = "entry";
+            core::contracts::DecodeBatchResult body;
+        };
+        std::vector<FunctionSeed> seeds;
+        std::set<core::Address> seed_addresses;
+        // Each executable PE export is a deterministic seed; duplicate RVAs are
+        // intentionally coalesced before event creation.
+        const auto add_seed = [&](core::Address address, std::string name) -> core::Result<void> {
+            if (!image_->is_executable(address) || !seed_addresses.insert(address).second)
+                return {};
+            auto body = decode_entry(address, correlation);
+            if (!body)
+                return std::unexpected(body.error());
+            if (body->instructions.empty())
+                return {};
+            core::FunctionSnapshot function;
+            function.key =
+                core::FunctionKey{core::EntityId{core::make_identifier("function", address.offset)}, address};
+            function.name = std::move(name);
             function.analysis_status = "decoded";
             function.instruction_starts.reserve(body->instructions.size());
-            std::vector<core::events::EventDraft> listing;
             for (const auto& decoded_instruction : body->instructions) {
                 const auto instruction = core::materialize_decoded_instruction(
-                    decoded_instruction, core::Address{entry->space, decoded_instruction.address});
-                listing.push_back(core::events::listing_state_changed(config_.id, instruction, correlation));
+                    decoded_instruction, core::Address{address.space, decoded_instruction.address});
+                if (instruction.length == 0 ||
+                    instruction.length > std::numeric_limits<std::uint64_t>::max() - instruction.key.address.offset)
+                    continue;
                 function.instruction_starts.push_back(instruction.key.address.offset);
                 const auto end = instruction.key.address.offset + instruction.length - 1;
                 function.body.add(
                     core::AddressRange{instruction.key.address, core::Address{instruction.key.address.space, end}});
             }
-            listing.push_back(core::events::function_state_changed(config_.id, function, correlation, "sleigh"));
+            if (function.body.empty())
+                return {};
+            seeds.push_back(FunctionSeed{std::move(function), std::move(*body)});
+            return {};
+        };
+
+        std::string entry_name = "entry";
+        for (const auto& symbol : loaded->exported_symbols)
+            if (symbol.address && symbol.address->offset == entry->offset && !symbol.name.empty())
+                entry_name = symbol.name;
+        if (const auto seeded = add_seed(*entry, std::move(entry_name)); !seeded) {
+            state_.status = ProjectStatus::failed;
+            return std::unexpected(seeded.error());
+        }
+        for (const auto& symbol : loaded->exported_symbols)
+            if (symbol.address && !symbol.name.empty())
+                if (const auto seeded = add_seed(*symbol.address, symbol.name); !seeded) {
+                    state_.status = ProjectStatus::failed;
+                    return std::unexpected(seeded.error());
+                }
+
+        if (!seeds.empty()) {
+            std::vector<core::events::EventDraft> listing;
+            std::set<core::Address> materialized_addresses;
+            std::size_t decoded_instructions{};
+            for (auto& seed : seeds) {
+                decoded_instructions += seed.body.instructions.size();
+                for (const auto& decoded_instruction : seed.body.instructions) {
+                    const auto instruction = core::materialize_decoded_instruction(
+                        decoded_instruction, core::Address{seed.function.key.entry.space, decoded_instruction.address});
+                    if (instruction.length == 0 || !materialized_addresses.insert(instruction.key.address).second)
+                        continue;
+                    listing.push_back(core::events::listing_state_changed(config_.id, instruction, correlation));
+                }
+                listing.push_back(
+                    core::events::function_state_changed(config_.id, seed.function, correlation, "sleigh"));
+            }
             if (const auto committed = commit(listing, std::nullopt); !committed)
                 return std::unexpected(committed.error());
             decompiler_ = std::make_shared<decompiler_service::DecompilerService>(config_.sleigh_specification,
                                                                                   projection_, image_, workers_);
             state_.status = ProjectStatus::ready;
-            return LoadSummary{state_.revision, image_->regions().size(), body->instructions.size(), function.key, {}};
+            return LoadSummary{
+                state_.revision, image_->regions().size(), decoded_instructions, seeds.front().function.key, {}};
         }
         state_.status = ProjectStatus::ready;
         return LoadSummary{state_.revision, image_->regions().size(), 0, std::nullopt, {}};
@@ -255,12 +310,16 @@ private:
             return std::unexpected(
                 core::Error::make(core::DiagnosticCode::resource_unavailable, "Sleigh decoder is not initialized"));
         core::contracts::DecodeBatchResult result;
+        // The x86-64 SLA requires the same processor context used by the
+        // Sleigh contract tests; an empty context silently selects legacy
+        // 16-bit decoding for a PE32+ image.
+        const core::ProcessorContext context{{{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}}};
         auto address = entry;
         for (std::size_t count = 0; count < 64; ++count) {
             auto bytes = image_->read(address, 16);
             if (!bytes)
                 break;
-            core::contracts::DecodeRequest request{address, std::move(*bytes), {}};
+            core::contracts::DecodeRequest request{address, std::move(*bytes), context};
             auto decoded = decoder_->decode(request);
             if (!decoded)
                 break;

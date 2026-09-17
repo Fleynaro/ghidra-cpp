@@ -59,12 +59,31 @@ public:
             }
             control->set_status(contracts::OperationStatus::running);
             try {
-                if constexpr (std::is_invocable_v<Callable, contracts::CancellationToken>)
-                    promise->set_value(std::invoke(callable, control->cancellation()));
-                else
-                    promise->set_value(std::invoke(callable));
-                control->set_status(control->cancellation().stop_requested() ? contracts::OperationStatus::cancelled
-                                                                             : contracts::OperationStatus::completed);
+                if constexpr (std::is_void_v<ResultType>) {
+                    if constexpr (std::is_invocable_v<Callable, contracts::CancellationToken>)
+                        std::invoke(callable, control->cancellation());
+                    else
+                        std::invoke(callable);
+                    control->set_status(control->cancellation().stop_requested()
+                                            ? contracts::OperationStatus::cancelled
+                                            : contracts::OperationStatus::completed);
+                    promise->set_value();
+                } else {
+                    // Publish the operation state before making the shared future
+                    // ready. Otherwise wait()/get() can observe a ready result
+                    // while status() still reports running.
+                    auto value = [&] {
+                        if constexpr (std::is_invocable_v<Callable, contracts::CancellationToken>)
+                            return std::invoke(callable, control->cancellation());
+                        else
+                            return std::invoke(callable);
+                    }();
+                    control->set_status(control->cancellation().stop_requested()
+                                            ? contracts::OperationStatus::cancelled
+                                            : contracts::OperationStatus::completed);
+                    promise->set_value(std::move(value));
+                    return;
+                }
             } catch (...) {
                 control->set_status(contracts::OperationStatus::failed);
                 promise->set_exception(std::current_exception());

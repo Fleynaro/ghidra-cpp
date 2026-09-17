@@ -439,7 +439,7 @@ bool FlowInfo::processInstruction(const Address& curaddr, bool& startbasic)
             // Add infinite loop instruction
             step = 1; // Pretend size 1
             artificialHalt(curaddr, PcodeOp::badinstruction);
-            data.warning("Bad instruction - Truncating control flow here", curaddr);
+            data.warning("Bad instruction - Truncating control flow here: " + err.explain, curaddr);
             if (!hasBadData()) {
                 flags |= baddata_present;
                 data.warningHeader("Control flow encountered bad instruction data");
