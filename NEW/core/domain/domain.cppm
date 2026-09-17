@@ -21,6 +21,7 @@ export import recode.core.instruction_reference;
 export import recode.core.basic_block;
 export import recode.core.function_signature;
 export import recode.core.function;
+export import recode.core.normalized_function;
 export import recode.core.memory_region;
 export import recode.core.symbol;
 export import recode.core.reference;

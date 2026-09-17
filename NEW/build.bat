@@ -91,6 +91,11 @@ if /I "%MODE%"=="debugger" (
     set "TEST_FILTER=^win_dbg_eng_tests$"
     goto mode_selected
 )
+if /I "%MODE%"=="bsim" (
+    set "BUILD_TARGET=bsim_tests bsim_similarity_integration_tests"
+    set "TEST_FILTER=^(bsim_tests|bsim_similarity_integration_tests)$"
+    goto mode_selected
+)
 if /I "%MODE%"=="trace_recorder" (
     set "BUILD_TARGET=ttd_recorder_tests"
     set "TEST_FILTER=^ttd_recorder_tests$"
@@ -396,9 +401,7 @@ if "%RUN_TESTS%"=="1" (
     if errorlevel 1 exit /b 1
 )
 
-if "%RUN_TESTS%"=="1" if "%AUTO_TTD_TRACE%"=="1" if exist "%TTD_AUTO_TRACE_PATH%" del /q /f "%TTD_AUTO_TRACE_PATH%"
-if "%RUN_TESTS%"=="1" if "%AUTO_TTD_TRACE%"=="1" if exist "%TTD_AUTO_TRACE_PATH:.run=.idx%" del /q /f "%TTD_AUTO_TRACE_PATH:.run=.idx%"
-if "%RUN_TESTS%"=="1" if "%AUTO_TTD_TRACE%"=="1" if exist "%TTD_AUTO_TRACE_PATH%.idx" del /q /f "%TTD_AUTO_TRACE_PATH%.idx"
+if "%RUN_TESTS%"=="1" if "%AUTO_TTD_TRACE%"=="1" call :cleanup_ttd_trace
 
 echo Build completed successfully.
 echo Build mode: %MODE%
@@ -412,6 +415,12 @@ if exist "%TTD_DEPENDENCY_ROOT%\Microsoft.TimeTravelDebugging.Apis.0.9.5\CMake\M
 echo TTD dependencies are missing; running the local dependency setup target...
 call "%SCRIPT_DIR%services\debugger\win_ttd\setup_dependencies.bat"
 exit /b %errorlevel%
+
+:cleanup_ttd_trace
+if exist "%TTD_AUTO_TRACE_PATH%" del /q /f "%TTD_AUTO_TRACE_PATH%"
+if exist "%TTD_AUTO_TRACE_PATH:.run=.idx%" del /q /f "%TTD_AUTO_TRACE_PATH:.run=.idx%"
+if exist "%TTD_AUTO_TRACE_PATH%.idx" del /q /f "%TTD_AUTO_TRACE_PATH%.idx"
+exit /b 0
 
 :prepare_ttd_trace
 set "TTD_AUTO_TRACE_PATH=%TEMP%\recode-ttd-recorder-test.run"
@@ -440,7 +449,7 @@ set "TTD_ANALYSIS_PROGRAM=%TTD_DEBUGGEE%"
 exit /b 0
 
 :usage
-echo Usage: build.bat [app^|hello^|sleigh^|pe^|function_id^|decompiler^|debugger^|ttd_setup^|ttd_replay^|ttd_all^|trace_recorder^|analyzer^|analyzer_global_integration^|shared_function_body^|all] [--no-test] [--clean]
+echo Usage: build.bat [app^|hello^|sleigh^|pe^|function_id^|decompiler^|bsim^|debugger^|ttd_setup^|ttd_replay^|ttd_all^|trace_recorder^|analyzer^|analyzer_global_integration^|shared_function_body^|all] [--no-test] [--clean]
 echo.
 echo Default mode: all. The build directory is preserved for fast incremental builds.
 echo Use a module mode to build and test only that module.

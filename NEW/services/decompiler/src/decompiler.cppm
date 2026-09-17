@@ -527,6 +527,16 @@ struct FunctionDescription {
     /// Disabled by default so callers that only need legacy artifacts avoid the
     /// additional markup serialization pass.
     bool capture_provenance = false;
+    /// Requests the native Ghidra signature pass after normalization.
+    bool generate_signature = false;
+    /// Encodes GraphSigManager modifiers using the native `(mods << 2) | 1` form.
+    std::uint32_t signature_settings = 0x49U;
+    /// Controls native data-flow signature iteration count.
+    std::int32_t signature_max_iterations = 3;
+    /// Controls native control-flow signature iteration count.
+    std::int32_t signature_max_block_iterations = 1;
+    /// Limits native Varnode overlays when non-zero.
+    std::uint32_t signature_max_varnodes = 0;
 };
 
 /// Captures one native Varnode identity used by high-level Clang markup.
@@ -622,6 +632,15 @@ struct DecompilationResult {
     std::vector<VarnodeProvenance> varnode_provenance;
     /// Direct reverse index from originating ASM addresses to PcodeOps and nodes.
     std::vector<InstructionProvenance> instruction_provenance;
+    /// Sorted duplicate-preserving native Ghidra feature hashes when requested.
+    std::vector<std::uint32_t> signature_features;
+    /// Overall 64-bit hash over the sorted native feature sequence.
+    std::uint64_t signature_overall_hash = 0;
+    /// Direct call addresses emitted by the native signature pass.
+    std::vector<std::uint64_t> signature_call_addresses;
+    /// Native decompiler status flags accompanying signature generation.
+    bool signature_has_unimplemented = false;
+    bool signature_has_bad_data = false;
 };
 
 /// Provides sparse immutable bytes for tests, loaders, and decoder adapters.

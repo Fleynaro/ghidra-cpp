@@ -1,6 +1,7 @@
 export module recode.core.contracts;
 
 export import recode.core.contracts.operation;
+export import recode.core.contracts.bsim;
 export import recode.core.contracts.memory_provider;
 export import recode.core.contracts.architecture_provider;
 export import recode.core.contracts.project_query;

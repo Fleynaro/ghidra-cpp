@@ -22,6 +22,7 @@ set(RECODE_CORE_MODULES
     domain/basic_block.cppm
     domain/function_signature.cppm
     domain/function.cppm
+    domain/normalized_function.cppm
     domain/memory_region.cppm
     domain/symbol.cppm
     domain/reference.cppm
@@ -40,6 +41,7 @@ set(RECODE_CORE_MODULES
     domain/trace_analysis.cppm
     contracts/contracts.cppm
     contracts/operation.cppm
+    contracts/bsim.cppm
     contracts/memory_provider.cppm
     contracts/architecture_provider.cppm
     contracts/project_query.cppm

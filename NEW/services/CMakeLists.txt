@@ -4,6 +4,7 @@ add_subdirectory(pe_loader)
 add_subdirectory(sleigh)
 add_subdirectory(function_id)
 add_subdirectory(decompiler)
+add_subdirectory(bsim)
 add_subdirectory(analyzers)
 add_subdirectory(debugger)
 
@@ -19,6 +20,7 @@ add_dependencies(recode_services
     function_id
     recode_decompiler
     recode_decompiler_frontend
+    recode_bsim
     analyzer
     recode_analyzer_services
     recode_win_dbg_eng
