@@ -14,4 +14,4 @@ if(WIN32 AND TTD_RUNTIME_DIR AND EXISTS "${TTD_RUNTIME_DIR}/TTDReplay.dll" AND E
     )
 endif()
 add_test(NAME win_ttd_tests COMMAND win_ttd_tests)
-set_tests_properties(win_ttd_tests PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.." TIMEOUT 120)
+set_tests_properties(win_ttd_tests PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.." TIMEOUT 120 RUN_SERIAL TRUE RESOURCE_LOCK win_debugger_runtime)

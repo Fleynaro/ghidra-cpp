@@ -68,3 +68,4 @@ if(BUILD_TESTING)
 endif()
 
 add_subdirectory(recorder)
+add_subdirectory(analysis)

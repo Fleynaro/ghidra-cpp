@@ -185,10 +185,14 @@ TEST(WinTtdRecorder, RecordsProvidedProgram) {
     request.output_trace = output;
     if (std::getenv("TTD_TEST_AUTO_EXIT") != nullptr)
         request.arguments.emplace_back("--auto-exit");
+    const auto recording_started = std::chrono::steady_clock::now();
     const auto result = (*recorder_service)->record(std::move(request), {}).get();
+    const auto recording_elapsed =
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - recording_started);
     ASSERT_TRUE(result) << result.error().message;
     ASSERT_TRUE(result->completed) << result->diagnostic;
     EXPECT_TRUE(std::filesystem::is_regular_file(result->trace));
+    std::cout << "recording_wall_ms=" << recording_elapsed.count() << '\n';
     if (std::getenv("TTD_KEEP_TRACE") == nullptr)
         std::filesystem::remove(output, cleanup_error);
 #endif

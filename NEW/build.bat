@@ -397,6 +397,8 @@ if "%RUN_TESTS%"=="1" (
 )
 
 if "%RUN_TESTS%"=="1" if "%AUTO_TTD_TRACE%"=="1" if exist "%TTD_AUTO_TRACE_PATH%" del /q /f "%TTD_AUTO_TRACE_PATH%"
+if "%RUN_TESTS%"=="1" if "%AUTO_TTD_TRACE%"=="1" if exist "%TTD_AUTO_TRACE_PATH:.run=.idx%" del /q /f "%TTD_AUTO_TRACE_PATH:.run=.idx%"
+if "%RUN_TESTS%"=="1" if "%AUTO_TTD_TRACE%"=="1" if exist "%TTD_AUTO_TRACE_PATH%.idx" del /q /f "%TTD_AUTO_TRACE_PATH%.idx"
 
 echo Build completed successfully.
 echo Build mode: %MODE%
@@ -414,10 +416,14 @@ exit /b %errorlevel%
 :prepare_ttd_trace
 set "TTD_AUTO_TRACE_PATH=%TEMP%\new-ghidra-ttd-recorder-test.run"
 if exist "%TTD_AUTO_TRACE_PATH%" del /q /f "%TTD_AUTO_TRACE_PATH%"
-set "TTD_DEBUGGEE=%SCRIPT_DIR%services\debugger\win_dbg_eng\tests\data\debugger_debuggee.exe"
-if not exist "%TTD_DEBUGGEE%" call "%SCRIPT_DIR%services\debugger\win_dbg_eng\tests\data\build.bat"
+if exist "%TTD_AUTO_TRACE_PATH:.run=.idx%" del /q /f "%TTD_AUTO_TRACE_PATH:.run=.idx%"
+if exist "%TTD_AUTO_TRACE_PATH%.idx" del /q /f "%TTD_AUTO_TRACE_PATH%.idx"
+if exist "%TTD_AUTO_TRACE_PATH%.idxt" del /q /f "%TTD_AUTO_TRACE_PATH%.idxt"
+set "TTD_DEBUGGEE=%SCRIPT_DIR%services\debugger\win_ttd\tests\data\debugger_debuggee.exe"
 if not exist "%TTD_DEBUGGEE%" (
-    echo ERROR: The multi-thread TTD recording debuggee could not be built.
+    echo ERROR: The prebuilt multi-thread TTD debuggee is missing:
+    echo        "%TTD_DEBUGGEE%"
+    echo Build it explicitly with the fixture's tests\data\build.bat before running ttd_all.
     exit /b 1
 )
 "%CMAKE_EXE%" --build "%BUILD_DIR%" --target ttd_recorder_tests --parallel
@@ -430,6 +436,7 @@ if not exist "%TTD_AUTO_TRACE_PATH%" (
     exit /b 1
 )
 set "TTD_TEST_TRACE=%TTD_AUTO_TRACE_PATH%"
+set "TTD_ANALYSIS_PROGRAM=%TTD_DEBUGGEE%"
 exit /b 0
 
 :usage

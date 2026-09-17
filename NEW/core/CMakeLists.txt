@@ -37,6 +37,7 @@ set(NEW_GHIDRA_CORE_MODULES
     domain/debugger.cppm
     domain/replay.cppm
     domain/trace_recording.cppm
+    domain/trace_analysis.cppm
     contracts/contracts.cppm
     contracts/operation.cppm
     contracts/memory_provider.cppm
@@ -55,6 +56,7 @@ set(NEW_GHIDRA_CORE_MODULES
     contracts/resource_manager.cppm
     contracts/debugger.cppm
     contracts/trace_recorder.cppm
+    contracts/trace_analysis.cppm
     events/events.cppm
     events/event.cppm
     events/project_events.cppm

@@ -32,11 +32,14 @@ if errorlevel 1 (
 
 echo Formatting C and C++ files under "%SOURCE_DIR%"...
 for /r "%SOURCE_DIR%" %%F in (*.c *.cc *.cpp *.cxx *.h *.hh *.hpp *.hxx *.cppm *.inl *.ipp) do (
-    set /a FILE_COUNT+=1
-    clang-format --style=file --fallback-style=Microsoft -i "%%~fF"
+    echo "%%~fF" | findstr /I /C:"\dependencies\" >nul
     if errorlevel 1 (
-        echo ERROR: failed to format "%%~fF".
-        set /a ERROR_COUNT+=1
+        set /a FILE_COUNT+=1
+        clang-format --style=file --fallback-style=Microsoft -i "%%~fF"
+        if errorlevel 1 (
+            echo ERROR: failed to format "%%~fF".
+            set /a ERROR_COUNT+=1
+        )
     )
 )
 if !ERROR_COUNT! gtr 0 (
