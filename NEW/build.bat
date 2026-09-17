@@ -15,6 +15,9 @@ set "BUILD_TARGET=new_ghidra_app"
 set "TEST_FILTER=^new_ghidra_app_smoke$"
 set "RUN_TESTS=1"
 set "FULL_BUILD=0"
+set "TTD_CMAKE_OPTION="
+set "TTD_TEST_ENV="
+set "AUTO_TTD_TRACE=0"
 
 if /I "%MODE%"=="all" (
     set "FULL_BUILD=1"
@@ -86,6 +89,32 @@ if /I "%MODE%"=="decompiler" (
 if /I "%MODE%"=="debugger" (
     set "BUILD_TARGET=win_dbg_eng_tests"
     set "TEST_FILTER=^win_dbg_eng_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="trace_recorder" (
+    set "BUILD_TARGET=ttd_recorder_tests"
+    set "TEST_FILTER=^ttd_recorder_tests$"
+    goto mode_selected
+)
+if /I "%MODE%"=="ttd_replay" (
+    set "BUILD_TARGET=win_ttd_tests"
+    set "TEST_FILTER=^win_ttd_tests$"
+    set "TTD_CMAKE_OPTION=-DNEW_GHIDRA_REQUIRE_TTD_REPLAY=ON"
+    set "TTD_TEST_ENV=TTD_TEST_REQUIRED=1"
+    goto mode_selected
+)
+if /I "%MODE%"=="ttd_all" (
+    set "FULL_BUILD=1"
+    set "BUILD_TARGET="
+    set "TEST_FILTER="
+    set "TTD_CMAKE_OPTION=-DNEW_GHIDRA_REQUIRE_TTD_REPLAY=ON"
+    set "TTD_TEST_ENV=TTD_TEST_REQUIRED=1"
+    set "AUTO_TTD_TRACE=1"
+    goto mode_selected
+)
+if /I "%MODE%"=="ttd_setup" (
+    set "BUILD_TARGET=new_ghidra_win_ttd_setup"
+    set "RUN_TESTS=0"
     goto mode_selected
 )
 if /I "%MODE%"=="constant_propagation" (
@@ -274,6 +303,8 @@ if "%RUN_TESTS%"=="0" (
     if /I "%MODE%"=="function_id" set "BUILD_TARGET=function_id function_id_cli"
     if /I "%MODE%"=="decompiler" set "BUILD_TARGET=new_ghidra_decompiler_frontend decompiler_cli"
     if /I "%MODE%"=="debugger" set "BUILD_TARGET=new_ghidra_win_dbg_eng"
+    if /I "%MODE%"=="ttd_replay" set "BUILD_TARGET=new_ghidra_win_ttd_replay"
+    if /I "%MODE%"=="trace_recorder" set "BUILD_TARGET=new_ghidra_ttd_recorder"
     if /I "%MODE%"=="analyzer" set "BUILD_TARGET=analyzer"
     if /I "%MODE%"=="constant_propagation" set "BUILD_TARGET=analyzer_constant_propagation"
     if /I "%MODE%"=="data_reference" set "BUILD_TARGET=analyzer_data_reference"
@@ -336,11 +367,14 @@ if not exist "%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake" (
 set "CMAKE_EXE=%VCPKG_ROOT%\downloads\tools\cmake-4.4.2-windows\cmake-4.4.2-windows-x86_64\bin\cmake.exe"
 if not exist "%CMAKE_EXE%" set "CMAKE_EXE=cmake"
 
+if "%AUTO_TTD_TRACE%"=="1" call :ensure_ttd_dependencies
+if errorlevel 1 exit /b 1
+
 "%CMAKE_EXE%" -S "%SCRIPT_DIR%." -B "%SCRIPT_DIR%build" -G "Ninja" ^
     -DCMAKE_TOOLCHAIN_FILE="%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake" ^
     -DVCPKG_TARGET_TRIPLET=x64-windows ^
     -DCMAKE_BUILD_TYPE=Debug ^
-    -DBUILD_TESTING=%RUN_TESTS%
+    -DBUILD_TESTING=%RUN_TESTS% %TTD_CMAKE_OPTION%
 if errorlevel 1 exit /b 1
 
 if "%FULL_BUILD%"=="1" (
@@ -350,14 +384,19 @@ if "%FULL_BUILD%"=="1" (
 )
 if errorlevel 1 exit /b 1
 
+if "%RUN_TESTS%"=="1" if "%AUTO_TTD_TRACE%"=="1" call :prepare_ttd_trace
+if errorlevel 1 exit /b 1
+
 if "%RUN_TESTS%"=="1" (
     if "%FULL_BUILD%"=="1" (
-        "%CMAKE_EXE%" -E env CTEST_OUTPUT_ON_FAILURE=1 ctest --test-dir "%BUILD_DIR%" --parallel
+        "%CMAKE_EXE%" -E env CTEST_OUTPUT_ON_FAILURE=1 %TTD_TEST_ENV% ctest --test-dir "%BUILD_DIR%" --parallel
     ) else (
-        "%CMAKE_EXE%" -E env CTEST_OUTPUT_ON_FAILURE=1 ctest --test-dir "%BUILD_DIR%" -R "%TEST_FILTER%" --parallel
+        "%CMAKE_EXE%" -E env CTEST_OUTPUT_ON_FAILURE=1 %TTD_TEST_ENV% ctest --test-dir "%BUILD_DIR%" -R "%TEST_FILTER%" --parallel
     )
     if errorlevel 1 exit /b 1
 )
+
+if "%RUN_TESTS%"=="1" if "%AUTO_TTD_TRACE%"=="1" if exist "%TTD_AUTO_TRACE_PATH%" del /q /f "%TTD_AUTO_TRACE_PATH%"
 
 echo Build completed successfully.
 echo Build mode: %MODE%
@@ -365,8 +404,36 @@ echo Build directory: "%BUILD_DIR%"
 endlocal
 exit /b 0
 
+:ensure_ttd_dependencies
+set "TTD_DEPENDENCY_ROOT=%SCRIPT_DIR%services\debugger\win_ttd\dependencies"
+if exist "%TTD_DEPENDENCY_ROOT%\Microsoft.TimeTravelDebugging.Apis.0.9.5\CMake\Microsoft.TimeTravelDebugging.ApisConfig.cmake" if exist "%TTD_DEPENDENCY_ROOT%\runtime\x64\TTDReplay.dll" if exist "%TTD_DEPENDENCY_ROOT%\runtime\x64\TTDReplayCPU.dll" exit /b 0
+echo TTD dependencies are missing; running the local dependency setup target...
+call "%SCRIPT_DIR%services\debugger\win_ttd\setup_dependencies.bat"
+exit /b %errorlevel%
+
+:prepare_ttd_trace
+set "TTD_AUTO_TRACE_PATH=%TEMP%\new-ghidra-ttd-recorder-test.run"
+if exist "%TTD_AUTO_TRACE_PATH%" del /q /f "%TTD_AUTO_TRACE_PATH%"
+set "TTD_DEBUGGEE=%SCRIPT_DIR%services\debugger\win_dbg_eng\tests\data\debugger_debuggee.exe"
+if not exist "%TTD_DEBUGGEE%" call "%SCRIPT_DIR%services\debugger\win_dbg_eng\tests\data\build.bat"
+if not exist "%TTD_DEBUGGEE%" (
+    echo ERROR: The multi-thread TTD recording debuggee could not be built.
+    exit /b 1
+)
+"%CMAKE_EXE%" --build "%BUILD_DIR%" --target ttd_recorder_tests --parallel
+if errorlevel 1 exit /b 1
+echo Recording the automatic multi-thread TTD fixture...
+"%CMAKE_EXE%" -E env "TTD_TEST_PROGRAM=%TTD_DEBUGGEE%" TTD_TEST_AUTO_EXIT=1 TTD_KEEP_TRACE=1 ctest --test-dir "%BUILD_DIR%" --output-on-failure -R "^ttd_recorder_tests$"
+if errorlevel 1 exit /b 1
+if not exist "%TTD_AUTO_TRACE_PATH%" (
+    echo ERROR: The recorder did not produce the automatic TTD trace.
+    exit /b 1
+)
+set "TTD_TEST_TRACE=%TTD_AUTO_TRACE_PATH%"
+exit /b 0
+
 :usage
-echo Usage: build.bat [app^|hello^|sleigh^|pe^|function_id^|decompiler^|debugger^|analyzer^|analyzer_global_integration^|shared_function_body^|all] [--no-test] [--clean]
+echo Usage: build.bat [app^|hello^|sleigh^|pe^|function_id^|decompiler^|debugger^|ttd_setup^|ttd_replay^|ttd_all^|trace_recorder^|analyzer^|analyzer_global_integration^|shared_function_body^|all] [--no-test] [--clean]
 echo.
 echo Default mode: all. The build directory is preserved for fast incremental builds.
 echo Use a module mode to build and test only that module.

@@ -48,4 +48,5 @@ add_test(NAME win_dbg_eng_tests COMMAND win_dbg_eng_tests)
 set_tests_properties(win_dbg_eng_tests PROPERTIES
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/.."
     TIMEOUT 60
+    RUN_SERIAL TRUE
 )

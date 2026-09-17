@@ -1,0 +1,16 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\sdk\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link Condition="'$(Platform)'=='Win32'">
+      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\..\sdk\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Link Condition="'$(Platform)'=='x64'">
+      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\..\sdk\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Link Condition="'$(Platform)'=='ARM64'">
+      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\..\sdk\lib\arm64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>

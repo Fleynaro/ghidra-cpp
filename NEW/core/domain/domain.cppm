@@ -34,3 +34,5 @@ export import ghidra.core.variable;
 export import ghidra.core.function_id;
 export import ghidra.core.decompilation;
 export import ghidra.core.debugger;
+export import ghidra.core.replay;
+export import ghidra.core.trace_recording;

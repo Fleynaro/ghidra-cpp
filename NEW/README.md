@@ -25,9 +25,14 @@ Requirements are MSVC with C++23, CMake 3.28+, Ninja, vcpkg, and the packages in
 .\build.bat integration
 .\build.bat replay
 .\build.bat decompiler --no-test
+.\build.bat trace_recorder
+.\build.bat ttd_replay
+.\build.bat ttd_all
 ```
 
 The focused service modes preserve the existing names (`sleigh`, `pe`, `function_id`, `decompiler`, `hello`, and `analyzer`). Use `--no-test` only for compile-only checks and `--clean` only when the build graph changes. Inspect registered tests with `ctest --test-dir build -N`.
+
+`ttd_all` is the explicit end-to-end Windows TTD workflow: it provisions local dependencies when needed, records a temporary multi-thread `.run`, and runs the full test suite through the recorder and Replay API. Plain `all` does not launch `ttd.exe` or record a process.
 
 The executable pipeline loads a PE through [`services/pe_loader`](services/pe_loader/README.md), decodes it through [`services/sleigh`](services/sleigh/README.md), schedules analyzer services through [`runtime/analysis`](runtime/analysis/README.md), and exposes decompilation through the native facade.
 

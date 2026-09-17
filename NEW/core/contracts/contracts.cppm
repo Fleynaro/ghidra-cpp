@@ -16,3 +16,4 @@ export import ghidra.core.contracts.projection;
 export import ghidra.core.contracts.event_bus;
 export import ghidra.core.contracts.resource_manager;
 export import ghidra.core.contracts.debugger;
+export import ghidra.core.contracts.trace_recorder;

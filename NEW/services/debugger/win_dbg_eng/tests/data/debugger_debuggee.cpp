@@ -10,6 +10,7 @@
 #include <iostream>
 #include <memory>
 #include <mutex>
+#include <string_view>
 #include <thread>
 #include <vector>
 #include <windows.h>
@@ -90,7 +91,13 @@ extern "C" __declspec(noinline) void debugger_ready_break() {
     DebugBreak();
 }
 
-int main() {
+int main(int argc, char** argv) {
+    // The normal debugger fixture remains paused for live tests; recorder runs
+    // may opt into a finite execution after exercising the same worker graph.
+    if (argc > 1 && std::string_view(argv[1]) == "--auto-exit") {
+        g_debugger_hold = 0U;
+        g_release_workers.store(true, std::memory_order_release);
+    }
     g_heap_value = std::make_unique<std::uint64_t>(0xAABBCCDDEEFF0011ULL);
     std::vector<std::thread> workers;
     workers.reserve(3);

@@ -37,6 +37,11 @@ rules.ninja
 *.pch
 *.pdb
 *.dSYM/
+!**/data/*.exe
+!**/data/*.lib
+!**/data/*.pdb
+!services/debugger/win_ttd/dependencies/
+!services/debugger/win_ttd/dependencies/**
 
 # Generated compiler and module dependency files
 *.ddi
@@ -59,6 +64,10 @@ lcov.info
 # Test and runtime output
 *.log
 *.stackdump
+*.out
+*.out.*
+*.err
+*.err.*
 core.*
 !core/core.cppm
 Testing/Temporary/

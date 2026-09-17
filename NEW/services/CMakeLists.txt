@@ -22,4 +22,6 @@ add_dependencies(new_ghidra_services
     analyzer
     new_ghidra_analyzer_services
     new_ghidra_win_dbg_eng
+    new_ghidra_win_ttd_replay
+    new_ghidra_ttd_recorder
 )
