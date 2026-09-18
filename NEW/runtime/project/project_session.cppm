@@ -2,6 +2,7 @@ export module recode.runtime.project.session;
 
 import std;
 import recode.core;
+import analyzer;
 import recode.runtime.event_bus;
 import recode.runtime.analysis.registry;
 import recode.runtime.analysis.scheduler;
@@ -12,6 +13,7 @@ import recode.runtime.storage.projection;
 import recode.runtime.workers.pool;
 import recode.service.decompiler;
 import recode.service.pe_loader;
+import pe_loader;
 import recode.service.sleigh;
 import recode.service.analyzers.entry_materialization;
 import recode.runtime.project.config;
@@ -20,9 +22,59 @@ import recode.runtime.project.state;
 export namespace recode::runtime::project {
 
 namespace core = recode::core;
+namespace legacy = recode::analyzer;
 namespace pe_service = recode::services::pe_loader;
 namespace sleigh_service = recode::services::sleigh;
 namespace decompiler_service = recode::services::decompiler;
+
+/// Enables the complete built-in analyzer profile for the facade analysis stage
+/// while domain-event adapters are migrated incrementally.
+void configure_complete_legacy_profile(legacy::AnalysisContext& context) {
+    auto& options = context.options();
+    options.aggressive_instruction_finder = true;
+    options.apply_data_archives = true;
+    options.ascii_strings = true;
+    options.call_convention_id = true;
+    options.call_fixup_installer = true;
+    options.condense_filler_bytes = true;
+    options.constant_propagation = true;
+    options.create_address_tables = true;
+    options.data_reference = true;
+    options.decompiler_parameter_id = true;
+    options.decompiler_switch_analysis = true;
+    options.demangler_microsoft = true;
+    options.disassemble_entry_points = true;
+    options.embedded_media = true;
+    options.external_entry_references = true;
+    options.function_id = true;
+    options.function_start_search = true;
+    options.non_returning_functions = true;
+    options.known_non_returning_functions = true;
+    options.discovered_non_returning_functions = true;
+    options.reference = true;
+    options.scalar_operand_references = true;
+    options.shared_return_calls = true;
+    options.stack = true;
+    options.subroutine_references = true;
+    options.variadic_function_signature_override = true;
+    options.windows_pe_x86_propagate_external_parameters = true;
+    options.windows_resource_reference = true;
+    options.x86_constant_reference = true;
+    options.pdb_msdia = false;
+    options.pdb_universal = false;
+    options.pdb_path.clear();
+    options.address_table_alignment = 8U;
+    options.address_table_minimum_entries = 4U;
+    options.address_table_auto_label = true;
+    options.create_stack_parameters = true;
+    options.aggressive_minimum_functions = 20U;
+    options.ascii_minimum_length = 5U;
+    options.ascii_require_null_termination = true;
+    options.ascii_end_alignment = 4U;
+    options.filler_minimum_length = 1U;
+    options.maximum_disassembly_instructions = 200000U;
+    options.maximum_events = 300000U;
+}
 
 /// Owns one project's lifecycle, services, authoritative history, and current projection.
 class ProjectSession final : public core::contracts::ICommandHandler,
@@ -44,11 +96,6 @@ public:
         if (const auto opened = projection_store->open(config.id); !opened)
             return std::unexpected(opened.error());
         auto projection = std::make_shared<projections::SoftwareModelProjection>(config.id);
-        auto stream = (*log)->read(config.id, core::Revision{1});
-        if (!stream)
-            return std::unexpected(stream.error());
-        if (const auto rebuilt = projection->rebuild(stream->events); !rebuilt)
-            return std::unexpected(rebuilt.error());
         auto session = std::shared_ptr<ProjectSession>(
             new ProjectSession(std::move(config), std::move(workers), std::move(bus), std::move(*log),
                                std::move(projection_store), std::move(projection)));
@@ -56,6 +103,8 @@ public:
                 std::make_shared<recode::services::analyzers::EntryMaterializationAnalyzer>());
             !registered)
             return std::unexpected(registered.error());
+        if (const auto rebuilt = session->coordinator_.rebuild(session->config_.id); !rebuilt)
+            return std::unexpected(rebuilt.error());
         session->state_.status = ProjectStatus::open;
         session->state_.revision = session->projection_->checkpoint();
         if (session->state_.revision.value == 0) {
@@ -117,6 +166,10 @@ public:
         drafts.push_back(core::events::project_inputs_changed(config_.id, config_.primary_artifact, correlation));
         for (const auto& region : image_->regions())
             drafts.push_back(core::events::memory_state_changed(config_.id, region, correlation));
+        for (const auto& symbol : loaded->exported_symbols)
+            drafts.push_back(core::events::symbol_state_changed(config_.id, symbol, correlation));
+        for (const auto& symbol : loaded->imported_symbols)
+            drafts.push_back(core::events::symbol_state_changed(config_.id, symbol, correlation));
         if (const auto committed = commit(drafts, std::nullopt); !committed) {
             state_.status = ProjectStatus::failed;
             return std::unexpected(committed.error());
@@ -130,34 +183,93 @@ public:
         auto entry = image_->entry_point();
         if (!entry)
             return std::unexpected(entry.error());
-        auto body = decode_entry(*entry, correlation);
-        if (!body) {
-            state_.status = ProjectStatus::failed;
-            return std::unexpected(body.error());
-        }
-        if (!body->instructions.empty()) {
+
+        /// Couples one PE export-derived function snapshot with its bounded decode batch.
+        struct FunctionSeed {
             core::FunctionSnapshot function;
-            function.key = core::FunctionKey{core::EntityId{core::make_identifier("function", entry->offset)}, *entry};
-            function.name = "entry";
+            core::contracts::DecodeBatchResult body;
+        };
+        std::vector<FunctionSeed> seeds;
+        std::set<core::Address> function_boundaries{*entry};
+        for (const auto& symbol : loaded->exported_symbols)
+            if (symbol.address && image_->is_executable(*symbol.address))
+                function_boundaries.insert(*symbol.address);
+        std::set<core::Address> seed_addresses;
+        // Each executable PE export is a deterministic seed; duplicate RVAs are
+        // intentionally coalesced before event creation.
+        const auto add_seed = [&](core::Address address, std::string name) -> core::Result<void> {
+            if (!image_->is_executable(address) || !seed_addresses.insert(address).second)
+                return {};
+            const auto next_boundary = function_boundaries.upper_bound(address);
+            auto body =
+                decode_entry(address, correlation,
+                             next_boundary == function_boundaries.end() ? std::nullopt
+                                                                        : std::optional<core::Address>{*next_boundary});
+            if (!body)
+                return std::unexpected(body.error());
+            if (body->instructions.empty())
+                return {};
+            core::FunctionSnapshot function;
+            function.key =
+                core::FunctionKey{core::EntityId{core::make_identifier("function", address.offset)}, address};
+            function.name = std::move(name);
             function.analysis_status = "decoded";
             function.instruction_starts.reserve(body->instructions.size());
-            std::vector<core::events::EventDraft> listing;
             for (const auto& decoded_instruction : body->instructions) {
                 const auto instruction = core::materialize_decoded_instruction(
-                    decoded_instruction, core::Address{entry->space, decoded_instruction.address});
-                listing.push_back(core::events::listing_state_changed(config_.id, instruction, correlation));
+                    decoded_instruction, core::Address{address.space, decoded_instruction.address});
+                if (instruction.length == 0 ||
+                    instruction.length > std::numeric_limits<std::uint64_t>::max() - instruction.key.address.offset)
+                    continue;
                 function.instruction_starts.push_back(instruction.key.address.offset);
                 const auto end = instruction.key.address.offset + instruction.length - 1;
                 function.body.add(
                     core::AddressRange{instruction.key.address, core::Address{instruction.key.address.space, end}});
             }
-            listing.push_back(core::events::function_state_changed(config_.id, function, correlation, "sleigh"));
+            if (function.body.empty())
+                return {};
+            seeds.push_back(FunctionSeed{std::move(function), std::move(*body)});
+            return {};
+        };
+
+        std::string entry_name = "entry";
+        for (const auto& symbol : loaded->exported_symbols)
+            if (symbol.address && symbol.address->offset == entry->offset && !symbol.name.empty())
+                entry_name = symbol.name;
+        if (const auto seeded = add_seed(*entry, std::move(entry_name)); !seeded) {
+            state_.status = ProjectStatus::failed;
+            return std::unexpected(seeded.error());
+        }
+        for (const auto& symbol : loaded->exported_symbols)
+            if (symbol.address && !symbol.name.empty())
+                if (const auto seeded = add_seed(*symbol.address, symbol.name); !seeded) {
+                    state_.status = ProjectStatus::failed;
+                    return std::unexpected(seeded.error());
+                }
+
+        if (!seeds.empty()) {
+            std::vector<core::events::EventDraft> listing;
+            std::set<core::Address> materialized_addresses;
+            std::size_t decoded_instructions{};
+            for (auto& seed : seeds) {
+                decoded_instructions += seed.body.instructions.size();
+                for (const auto& decoded_instruction : seed.body.instructions) {
+                    const auto instruction = core::materialize_decoded_instruction(
+                        decoded_instruction, core::Address{seed.function.key.entry.space, decoded_instruction.address});
+                    if (instruction.length == 0 || !materialized_addresses.insert(instruction.key.address).second)
+                        continue;
+                    listing.push_back(core::events::listing_state_changed(config_.id, instruction, correlation));
+                }
+                listing.push_back(
+                    core::events::function_state_changed(config_.id, seed.function, correlation, "sleigh"));
+            }
             if (const auto committed = commit(listing, std::nullopt); !committed)
                 return std::unexpected(committed.error());
             decompiler_ = std::make_shared<decompiler_service::DecompilerService>(config_.sleigh_specification,
                                                                                   projection_, image_, workers_);
             state_.status = ProjectStatus::ready;
-            return LoadSummary{state_.revision, image_->regions().size(), body->instructions.size(), function.key, {}};
+            return LoadSummary{
+                state_.revision, image_->regions().size(), decoded_instructions, seeds.front().function.key, {}};
         }
         state_.status = ProjectStatus::ready;
         return LoadSummary{state_.revision, image_->regions().size(), 0, std::nullopt, {}};
@@ -195,6 +307,49 @@ public:
             core::contracts::OperationContext{config_.id, state_.revision, operation->cancellation(), operation});
         if (!report)
             return std::unexpected(report.error());
+        auto legacy_image = pe::PeLoader::load_file(config_.primary_artifact.locator);
+        if (!legacy_image)
+            return std::unexpected(core::Error::make(core::DiagnosticCode::parse_failure,
+                                                     "Legacy analyzer profile could not load the primary PE: " +
+                                                         legacy_image.error().message));
+        legacy::AnalysisContext legacy_context(std::move(*legacy_image), config_.sleigh_specification.string());
+        configure_complete_legacy_profile(legacy_context);
+        legacy::AutoAnalysisManager legacy_manager(legacy_context);
+        legacy_manager.register_builtin_analyzers();
+        const auto legacy_result = legacy_manager.analyze();
+        if (!legacy_result.completed || !legacy_result.errors.empty()) {
+            const auto details = std::accumulate(
+                legacy_result.errors.begin(), legacy_result.errors.end(), std::string{},
+                [](std::string left, const std::string& right) { return left.empty() ? right : left + "; " + right; });
+            return std::unexpected(core::Error::make(core::DiagnosticCode::unsupported,
+                "Complete legacy analyzer profile failed: " + details));
+        }
+        std::set<std::string> unique_legacy_analyzers(legacy_result.executed_analyzers.begin(),
+                                                       legacy_result.executed_analyzers.end());
+        if (unique_legacy_analyzers.size() != 34U)
+            return std::unexpected(core::Error::make(
+                core::DiagnosticCode::unsupported,
+                "Complete legacy analyzer profile executed " + std::to_string(unique_legacy_analyzers.size()) +
+                " unique analyzers; expected 34"));
+        report->executed_analyzers.insert(report->executed_analyzers.end(), legacy_result.executed_analyzers.begin(),
+                                          legacy_result.executed_analyzers.end());
+        std::ranges::sort(report->executed_analyzers);
+        report->executed_analyzers.erase(
+            std::ranges::unique(report->executed_analyzers).begin(), report->executed_analyzers.end());
+        if (!report->commands.empty()) {
+            std::vector<core::events::EventDraft> mutations;
+            mutations.reserve(report->commands.size());
+            for (const auto& command : report->commands)
+                mutations.push_back(core::events::EventDraft{
+                    config_.id, command.aggregate_kind, command.aggregate_id, command.event_type, 1, correlation,
+                    std::nullopt, command.source_service,
+                    "mutation-" + command.aggregate_kind + "-" + command.aggregate_id + "-" + command.event_type,
+                    command.payload});
+            if (const auto committed = commit(mutations, state_.revision); !committed) {
+                state_.status = ProjectStatus::failed;
+                return std::unexpected(committed.error());
+            }
+        }
         const auto finished = core::events::analysis_run_state_changed(config_.id, run, "completed", correlation);
         if (const auto committed = commit(std::span{&finished, 1}, state_.revision); !committed)
             return std::unexpected(committed.error());
@@ -249,27 +404,48 @@ private:
     }
 
     /// Decodes a bounded entry-point window using the canonical Sleigh service.
-    [[nodiscard]] core::Result<core::contracts::DecodeBatchResult> decode_entry(core::Address entry,
-                                                                                const core::CorrelationId&) const {
+    [[nodiscard]] core::Result<core::contracts::DecodeBatchResult>
+    decode_entry(core::Address entry, const core::CorrelationId&, std::optional<core::Address> upper_bound) const {
         if (!decoder_)
             return std::unexpected(
                 core::Error::make(core::DiagnosticCode::resource_unavailable, "Sleigh decoder is not initialized"));
         core::contracts::DecodeBatchResult result;
-        auto address = entry;
-        for (std::size_t count = 0; count < 64; ++count) {
+        // The x86-64 SLA requires the same processor context used by the
+        // Sleigh contract tests; an empty context silently selects legacy
+        // 16-bit decoding for a PE32+ image.
+        const core::ProcessorContext context{{{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}}};
+        std::set<core::Address> pending{entry};
+        std::set<core::Address> visited;
+        while (!pending.empty() && result.instructions.size() < 256U) {
+            const auto address = *pending.begin();
+            pending.erase(pending.begin());
+            if (!visited.insert(address).second)
+                continue;
+            if (upper_bound && address >= *upper_bound)
+                continue;
             auto bytes = image_->read(address, 16);
             if (!bytes)
-                break;
-            core::contracts::DecodeRequest request{address, std::move(*bytes), {}};
+                continue;
+            core::contracts::DecodeRequest request{address, std::move(*bytes), context};
             auto decoded = decoder_->decode(request);
             if (!decoded)
-                break;
+                continue;
             result.instructions.push_back(std::move(*decoded));
             const auto& instruction = result.instructions.back();
             if (instruction.flow.terminal || instruction.length == 0)
-                break;
-            address.offset += instruction.length;
+                continue;
+            const auto next = instruction.address + instruction.length;
+            if (instruction.flow.has_fallthrough && (!upper_bound || next < upper_bound->offset))
+                pending.insert(core::Address{entry.space, next});
+            if (instruction.flow.target && (instruction.flow.kind == core::FlowKind::branch ||
+                                            instruction.flow.kind == core::FlowKind::conditional_branch)) {
+                const core::Address target{entry.space, instruction.flow.target->offset};
+                if ((!upper_bound || target < *upper_bound) && target.offset >= entry.offset)
+                    pending.insert(target);
+            }
         }
+        std::ranges::sort(result.instructions,
+                          [](const auto& left, const auto& right) { return left.address < right.address; });
         return result;
     }
 

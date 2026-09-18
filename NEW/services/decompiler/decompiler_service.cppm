@@ -4,11 +4,17 @@ import std;
 import recode.core;
 import recode.runtime.workers.pool;
 import decompiler;
+import recode.decompiler;
 
 export namespace recode::services::decompiler {
 
 namespace core = recode::core;
 namespace runtime = recode::runtime;
+
+/// Supplies the processor mode required by the x86-64 SLA for provider reads.
+[[nodiscard]] core::ProcessorContext x86_64_processor_context() {
+    return core::ProcessorContext{{{"addrsize", 2}, {"opsize", 1}, {"rexprefix", 0}, {"longMode", 1}}};
+}
 
 /// Bridges canonical memory reads to the native decompiler LoadImage contract.
 class LegacyMemoryProvider final : public recode::decompiler::MemoryProvider {
@@ -62,9 +68,17 @@ public:
         core::contracts::DecodeRequest request;
         request.address = core::Address{address_space_, address};
         request.bytes = std::move(*bytes);
+        request.context = x86_64_processor_context();
         auto decoded = decoder_->decode(request);
         if (!decoded)
             return std::unexpected(recode::decompiler::ProviderError{decoded.error().message});
+        // The Sleigh adapter records LOAD/STORE's legacy address-space selector
+        // as a pointer into its own native runtime. That pointer is not valid in
+        // the separately constructed decompiler architecture, so retain the
+        // canonical space name and let the native adapter create its own selector.
+        for (auto& operation : decoded->pcode)
+            if (operation.memory_space && !operation.inputs.empty() && operation.inputs.front().space.name() == "const")
+                operation.inputs.erase(operation.inputs.begin());
         return *decoded;
     }
 
@@ -72,6 +86,121 @@ private:
     std::shared_ptr<const core::contracts::IPCodeDecoder> decoder_;
     std::shared_ptr<const core::contracts::IMemoryProvider> memory_;
     core::AddressSpaceId address_space_;
+};
+
+/// Supplies only direct callees reachable from the requested root, avoiding a
+/// global child-function table that can mix unrelated native body ranges.
+class QueryFunctionProvider final : public recode::decompiler::FunctionProvider {
+public:
+    /// Captures the immutable query and root entry used for bounded call discovery.
+    QueryFunctionProvider(std::shared_ptr<const core::contracts::IProjectQuery> query, std::uint64_t root_entry)
+        : query_(std::move(query)), root_entry_(root_entry) {}
+
+    /// Returns direct-call child bodies whose ranges are known by the projection.
+    [[nodiscard]] std::vector<recode::decompiler::FunctionDescription> functions() const override {
+        const auto functions = query_ ? query_->functions() : std::vector<core::FunctionSnapshot>{};
+        const auto root = std::ranges::find_if(functions,
+                                               [&](const auto& function) { return function.key.entry.offset == root_entry_; });
+        if (root == functions.end())
+            return {};
+        std::set<std::uint64_t> callees;
+        if (!query_)
+            return {};
+        for (const auto& instruction : query_->instructions()) {
+            const bool in_root_body = std::ranges::any_of(root->body.ranges(), [&](const auto& range) {
+                return instruction.key.address.space == range.start.space &&
+                       instruction.key.address.offset >= range.start.offset &&
+                       instruction.key.address.offset <= range.end.offset;
+            });
+            if (!in_root_body)
+                continue;
+            const auto mnemonic = instruction.mnemonic;
+            if (mnemonic != "CALL" && (mnemonic.empty() || mnemonic.front() != 'J'))
+                continue;
+            const auto marker_start = instruction.assembly.find("0x");
+            if (marker_start == std::string::npos)
+                continue;
+            const auto marker = marker_start + 2U;
+            const auto end = instruction.assembly.find_first_not_of("0123456789abcdefABCDEF", marker);
+            const auto text =
+                instruction.assembly.substr(marker, end == std::string::npos ? std::string::npos : end - marker);
+            std::uint64_t target{};
+            const auto [parsed_end, parse_error] = std::from_chars(text.data(), text.data() + text.size(), target, 16);
+            if (parse_error == std::errc{} && parsed_end == text.data() + text.size())
+                callees.insert(target);
+        }
+        std::vector<recode::decompiler::FunctionDescription> result;
+        for (const auto& function : functions) {
+            if (function.key.entry.offset == root_entry_ || !callees.contains(function.key.entry.offset) ||
+                function.body.ranges().empty())
+                continue;
+            const auto maximum = std::ranges::max_element(function.body.ranges(), {},
+                                                          [](const auto& range) { return range.end.offset; });
+            if (maximum->end.offset == std::numeric_limits<std::uint64_t>::max())
+                continue;
+            result.push_back(recode::decompiler::FunctionDescription{function.name, function.key.entry.offset,
+                                                                     maximum->end.offset + 1U});
+        }
+        return result;
+    }
+
+private:
+    std::shared_ptr<const core::contracts::IProjectQuery> query_;
+    std::uint64_t root_entry_{};
+};
+
+/// Marks direct jumps into known function entries as bounded tail calls so the
+/// native flow engine does not search for the callee's operation in the root body.
+class QueryFlowProvider final : public recode::decompiler::FlowProvider {
+public:
+    /// Retains the immutable query and root address used to construct overrides.
+    QueryFlowProvider(std::shared_ptr<const core::contracts::IProjectQuery> query, std::uint64_t root_entry)
+        : query_(std::move(query)), root_entry_(root_entry) {}
+
+    /// Returns CALL_RETURN overrides for direct JMP/Jcc destinations that name a known function.
+    [[nodiscard]] std::optional<recode::decompiler::FlowDescription> flow_at(std::uint64_t address) const override {
+        if (!query_)
+            return std::nullopt;
+        const auto functions = query_->functions();
+        std::set<std::uint64_t> function_entries;
+        for (const auto& function : functions)
+            function_entries.insert(function.key.entry.offset);
+        const auto root = std::ranges::find_if(functions,
+                                               [&](const auto& function) { return function.key.entry.offset == address; });
+        if (root == functions.end())
+            return std::nullopt;
+        recode::decompiler::FlowDescription description;
+        for (const auto& instruction : query_->instructions()) {
+            const bool in_root_body = std::ranges::any_of(root->body.ranges(), [&](const auto& range) {
+                return instruction.key.address.space == range.start.space &&
+                       instruction.key.address.offset >= range.start.offset &&
+                       instruction.key.address.offset <= range.end.offset;
+            });
+            if (!in_root_body)
+                continue;
+            const auto mnemonic = instruction.mnemonic;
+            if (mnemonic != "JMP" && (mnemonic.empty() || mnemonic.front() != 'J'))
+                continue;
+            const auto marker_start = instruction.assembly.find("0x");
+            if (marker_start == std::string::npos)
+                continue;
+            const auto marker = marker_start + 2U;
+            const auto end = instruction.assembly.find_first_not_of("0123456789abcdefABCDEF", marker);
+            const auto text =
+                instruction.assembly.substr(marker, end == std::string::npos ? std::string::npos : end - marker);
+            std::uint64_t target{};
+            const auto [parsed_end, parse_error] = std::from_chars(text.data(), text.data() + text.size(), target, 16);
+            if (parse_error == std::errc{} && parsed_end == text.data() + text.size() && target != root_entry_ &&
+                function_entries.contains(target))
+                description.flow_overrides.push_back(
+                    recode::decompiler::FlowOverrideDescription{instruction.key.address.offset, "callreturn"});
+        }
+        return description.flow_overrides.empty() ? std::nullopt : std::optional{std::move(description)};
+    }
+
+private:
+    std::shared_ptr<const core::contracts::IProjectQuery> query_;
+    std::uint64_t root_entry_{};
 };
 
 /// Adapts project query/memory values to the native decompiler provider frontend.
@@ -104,6 +233,11 @@ public:
     [[nodiscard]] core::Result<core::Decompilation>
     decompile_now(const core::contracts::DecompileRequest& request) override {
         try {
+            // The migrated native engine keeps process-global XML/attribute tables. The
+            // public task contract remains asynchronous, but native sessions must be
+            // serialized until those tables become explicitly thread-safe.
+            static std::mutex native_pipeline_mutex;
+            std::scoped_lock native_pipeline_lock(native_pipeline_mutex);
             const auto provider_memory = request.providers.memory ? request.providers.memory : memory_;
             if (!provider_memory)
                 return std::unexpected(core::Error::make(core::DiagnosticCode::resource_unavailable,
@@ -115,20 +249,30 @@ public:
                                                          "Decompiler requires an IPCodeDecoder contract"));
             auto legacy_pcode =
                 std::make_shared<ContractPcodeProvider>(request.providers.pcode, provider_memory, address_space);
-            const auto architecture = request.providers.architecture
-                                          ? make_native_architecture(*request.providers.architecture)
-                                          : default_native_architecture();
-            recode::decompiler::Decompiler native{architecture, legacy_pcode, legacy_memory};
+            const auto architecture =
+                request.providers.architecture && !request.providers.architecture->registers.empty()
+                    ? make_native_architecture(*request.providers.architecture)
+                    : default_native_architecture();
+            recode::decompiler::ProviderContext native_context;
+            native_context.pcode = legacy_pcode;
+            native_context.memory = legacy_memory;
+            native_context.functions = std::make_shared<QueryFunctionProvider>(
+                request.providers.project ? request.providers.project : query_, request.function.key.entry.offset);
+            native_context.flow = std::make_shared<QueryFlowProvider>(
+                request.providers.project ? request.providers.project : query_, request.function.key.entry.offset);
+            recode::decompiler::Decompiler native{architecture, std::move(native_context)};
             const auto ranges = request.function.body.ranges();
             if (ranges.empty())
                 return std::unexpected(core::Error::make(core::DiagnosticCode::invalid_argument,
                                                          "Cannot decompile a function with an empty body"));
             const auto body_end =
                 std::ranges::max_element(ranges, {}, [](const auto& range) { return range.end.offset; });
-            if (body_end->end.offset > std::numeric_limits<std::uint64_t>::max() - 16U)
+            if (body_end->end.offset == std::numeric_limits<std::uint64_t>::max())
                 return std::unexpected(core::Error::make(core::DiagnosticCode::invalid_argument,
                                                          "Function body is too close to the address-space limit"));
-            const auto native_end = body_end->end.offset + 16U;
+            // The native FunctionDescription range is exclusive and is bounded
+            // to the decoded function body so neighboring exports are not read.
+            const auto native_end = body_end->end.offset + 1U;
             const auto result = native.decompile(recode::decompiler::FunctionDescription{
                 request.function.name, request.function.key.entry.offset, native_end});
             core::Decompilation decompilation;
@@ -147,6 +291,10 @@ public:
                         instruction.key.address.offset <= body_end->end.offset)
                         decompilation.raw_instructions.push_back(instruction);
             return decompilation;
+        } catch (const ghidra::DecoderError& error) {
+            return fallback(request, std::string("Native decompiler decoder failure: ") + error.explain);
+        } catch (const ghidra::LowlevelError& error) {
+            return fallback(request, std::string("Native decompiler failure: ") + error.explain);
         } catch (const std::exception& error) {
             return fallback(request, std::string("Native decompiler range recovery used: ") + error.what());
         } catch (...) {
@@ -183,27 +331,10 @@ private:
 
     /// Provides the explicit compatibility architecture for callers that have no architecture contract yet.
     [[nodiscard]] static recode::decompiler::ArchitectureDescription default_native_architecture() {
-        core::ArchitectureDescription source;
-        source.language_id = "x86:LE:64:default";
-        source.architecture_id = "x86:LE:64:default:gcc";
-        source.pointer_size = 8;
-        source.calling_conventions = {"__cdecl"};
-        source.spaces = {
-            core::AddressSpaceDescriptor{core::AddressSpaceId{"ram"}, core::AddressSpaceKind::ram, 64, 1, 8, false,
-                                         false, true},
-            core::AddressSpaceDescriptor{core::AddressSpaceId{"register"}, core::AddressSpaceKind::reg, 64, 1, 8, false,
-                                         false, true},
-        };
-        source.registers = {
-            core::RegisterDescriptor{"RAX", {"register", 0, 8}},
-            core::RegisterDescriptor{"RCX", {"register", 8, 8}},
-            core::RegisterDescriptor{"RDX", {"register", 0x10, 8}},
-            core::RegisterDescriptor{"RBX", {"register", 0x18, 8}},
-            core::RegisterDescriptor{"RSP", {"register", 0x20, 8}},
-            core::RegisterDescriptor{"R8", {"register", 0x80, 8}},
-            core::RegisterDescriptor{"R9", {"register", 0x88, 8}},
-        };
-        return make_native_architecture(source);
+        // Keep the provider's tested native space identifiers and register indexes.
+        // A hand-written two-space approximation assigns the RAM id zero and
+        // collides with the native processor-space conventions.
+        return recode::decompiler::make_x86_64_architecture();
     }
 
     /// Produces a revision-stamped listing-backed C artifact when native flow discovers an unbounded target.
@@ -213,7 +344,7 @@ private:
         core::Decompilation result;
         result.function = request.function.key;
         result.read_revision = request.read_revision;
-        result.status = core::DecompilationStatus::complete;
+        result.status = core::DecompilationStatus::failed;
         result.c_source =
             "void " + (request.function.name.empty() ? std::string("entry") : request.function.name) + "() {\n";
         const auto provider_project = request.providers.project ? request.providers.project : query_;

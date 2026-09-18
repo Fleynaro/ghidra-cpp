@@ -50,24 +50,32 @@ export namespace recode::core::events {
 /// Creates a compact instruction state event suitable for replay.
 [[nodiscard]] inline EventDraft listing_state_changed(const ProjectId& project, const Instruction& instruction,
                                                       const CorrelationId& correlation) {
-    return EventDraft{project,
-                      "instruction",
-                      instruction.key.entity.value(),
-                      "ListingStateChanged",
-                      1,
-                      correlation,
-                      std::nullopt,
-                      instruction.provenance.empty() ? "sleigh" : instruction.provenance,
-                      "instruction-" + instruction.key.entity.value(),
-                      encode_fields({{"id", instruction.key.entity.value()},
-                                     {"space", instruction.key.address.space.name()},
-                                     {"address", std::to_string(instruction.key.address.offset)},
-                                     {"length", std::to_string(instruction.length)},
-                                     {"mnemonic", instruction.mnemonic},
-                                     {"assembly", instruction.assembly},
-                                     {"bytes", encode_hex(instruction.bytes.values())},
-                                     {"instruction_mask", encode_hex(instruction.instruction_mask)},
-                                     {"operands", encode_operands(instruction.operands)}})};
+    return EventDraft{
+        project,
+        "instruction",
+        instruction.key.entity.value(),
+        "ListingStateChanged",
+        1,
+        correlation,
+        std::nullopt,
+        instruction.provenance.empty() ? "sleigh" : instruction.provenance,
+        "instruction-" + instruction.key.entity.value(),
+        encode_fields({{"id", instruction.key.entity.value()},
+                       {"space", instruction.key.address.space.name()},
+                       {"address", std::to_string(instruction.key.address.offset)},
+                       {"length", std::to_string(instruction.length)},
+                       {"mnemonic", instruction.mnemonic},
+                       {"assembly", instruction.assembly},
+                       {"bytes", encode_hex(instruction.bytes.values())},
+                       {"instruction_mask", encode_hex(instruction.instruction_mask)},
+                       {"operands", encode_operands(instruction.operands)},
+                       {"flow_kind", std::to_string(std::to_underlying(instruction.flow.kind))},
+                       {"flow_fallthrough", instruction.flow.has_fallthrough ? "1" : "0"},
+                       {"flow_terminal", instruction.flow.terminal ? "1" : "0"},
+                       {"flow_target", instruction.flow.target && instruction.flow.kind != FlowKind::return_op
+                                           ? std::to_string(instruction.flow.target->offset)
+                                           : ""},
+                       {"pcode_count", std::to_string(instruction.pcode.operations.size())}})};
 }
 
 } // namespace recode::core::events

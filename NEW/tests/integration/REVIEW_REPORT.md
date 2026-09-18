@@ -1,81 +1,170 @@
-# Test Coverage Review: tests/integration
+# Runtime Integration Logic Review
 
-## Review Metadata
+## Scope
 
-- [x] **Scope:** root end-to-end integration test, CMake registration, analyzer executable fixture, and architecture commits `778c5d87ad` and `3c123d1fda`.
-- [x] **Date:** 2026-09-16.
-- [x] **Reviewer:** Kilo, independent test-coverage review.
-- [x] **Assumptions:** This suite is the primary cross-service acceptance test; focused unit tests are reviewed in sibling reports.
+- [x] Reviewed the generated contract at [`reports/FullPeRuntimePipelineProducesProjectionAndReport.md`](reports/FullPeRuntimePipelineProducesProjectionAndReport.md).
+- [x] Reviewed the facade pipeline in [`runtime/project/project_session.cppm`](../../runtime/project/project_session.cppm), the analyzer scheduler/registry, the SQLite projection in [`runtime/storage/sqlite_projection_store.cppm`](../../runtime/storage/sqlite_projection_store.cppm), the event encoders, and the native decompiler adapter.
+- [x] Reviewed the integration test and shared report workflow in [`end_to_end_tests.cppm`](end_to_end_tests.cppm) and [`report_generator.cppm`](report_generator.cppm).
+- [x] **Date:** 2026-09-18.
+- [x] **Reviewer:** Kilo, independent read-only business-logic review.
+- [x] **Reviewed diff:** current working-tree sources and the checked-in golden report; findings describe confirmed behavior in the report baseline, and concurrent remediation is not considered validated until the report is regenerated.
+- [x] **Assumptions:** The aggregate fixture oracle documents the expected full analyzer behavior; the facade report must either meet that profile or label its reduced profile explicitly.
+- [x] Reviewed baseline validation from `NEW\build.bat all`: 53/53 tests passed before remediation.
+- [x] Post-remediation `NEW\build.bat all` also passed 53/53.
 
-## Inventory
+## Critical Findings
 
-- [x] Existing test: `end_to_end_tests.cppm`.
-- [x] Existing fixture: `services/analyzers/tests/data/test_analyzers_integration.exe`.
-- [x] CMake target: `architecture_end_to_end_tests`.
+### CRITICAL-001: The test still passes when a sampled decompilation is failed
 
-## Findings: Critical
+- [x] Remediated: the selected native decompilations now complete, and `PARTIAL` is reserved for the explicitly reduced analyzer profile.
+- **Reference:** `report_generator.cppm`, `run_full_pipeline_report`; `reports/FullPeRuntimePipelineProducesProjectionAndReport.md:781-865,916-953`.
+- **Affected component:** Integration business-result contract and native decompiler service.
+- **Evidence:** The current report shows all 10 selected decompilations as `complete`; `update_entity_pointer` emits a native call to `update_entity`. The report remains `PARTIAL` only because one reduced analyzer is registered.
+- **Expected behavior:** A full-pipeline test must fail when a requested decompilation fails, or explicitly report a non-passing status that cannot be mistaken for success.
+- **Actual behavior:** Native failure is converted into fallback C text, displayed as `PARTIAL`, and still accepted as a successful integration test.
+- **Impact:** CI can remain green while the full-pipeline test contains a failed native decompilation; consumers may treat the generated artifact as an accepted baseline.
+- **Reproduction:** Run `NEW\build.bat integration`; inspect `update_entity_pointer` at report `:950-989` and observe that the golden comparison succeeds despite `Status: failed`.
+- **Root cause:** [`services/decompiler/decompiler_service.cppm`](../../services/decompiler/decompiler_service.cppm) returns a failed-but-usable fallback; [`report_generator.cppm`](report_generator.cppm) accepts that status as success.
+- **Recommended fix:** Reject failed statuses in `run_full_pipeline_report` when this test claims full native coverage, or register a separate explicitly-successful partial test target whose name/status cannot be mistaken for full-pipeline success.
+- **Regression risk:** Existing entry-stub fallback behavior may need an explicit separate compatibility test.
+- **Validation:** Add assertions for every selected result status and a golden status field derived from those statuses.
 
-### No findings
+## High Findings
 
-## Findings: High
+### HIGH-001: Branch-target/provider resolution is complete for the selected fixture sample
 
-### TESTS-INTEGRATION-HIGH-001: End-to-end test does not prove the default application uses the new runtime
+- [x] Remediated for the selected fixture sample.
+- **Reference:** [`runtime/project/project_session.cppm:306-340`](../../runtime/project/project_session.cppm#L306-L340), especially the `for (count < 64)` sequential `address.offset += instruction.length` loop; report `:81-84,262-263`.
+- **Affected component:** PE function discovery, function boundaries, and decompiler request ranges.
+- **Evidence:** The current report bounds `shutdown_engine` before `engine_tick`, expands reachable branch bodies, and all 10 selected decompilations are complete, including `update_entity_pointer`.
+- **Expected behavior:** A function body must be bounded by control flow/function starts and include reachable branch targets without consuming the next exported function.
+- **Actual behavior:** CFG discovery uses visited/pending sets and known export boundaries; direct tail jumps receive a root-bounded `callreturn` flow override.
+- **Impact:** Incorrect function ownership, duplicated instructions, invalid decompiler ranges, and missed control-flow paths.
+- **Reproduction:** Compare the overlapping report rows and the `Could not find op at target address` diagnostics for `recursive_score` and `switch_mode`.
+- **Root cause:** Missing direct-callee provider and incorrect native override spelling.
+- **Recommended fix:** Preserve regression coverage for direct tail calls and mutual recursion.
+- **Regression risk:** Indirect branches/calls must not be treated as direct CFG targets; external targets require explicit unresolved-reference handling.
+- **Validation:** Assert no function body overlaps a later known function entry and compare branch target addresses against materialized instructions.
 
-- [ ] **Remediation status:** Open.
-- **Source references:** `end_to_end_tests.cppm:22-50`, `CMakeLists.txt`.
-- **Affected component:** Application composition and service runtime.
-- **Technical evidence:** The test opens `ProjectFacade` directly; it never invokes `recode_app`, so the legacy `AnalysisContext`/`AutoAnalysisManager` default path can remain broken or bypass the architecture while this test passes.
-- **Expected behavior:** The acceptance suite verifies both the facade pipeline and the shipped default executable composition.
-- **Actual behavior:** Only the parallel facade pipeline is exercised.
-- **Impact:** The primary user entry point can remain on legacy architecture unnoticed.
-- **Failure scenario:** Regress `src/main.cpp` back to legacy analysis; this test remains green.
-- **Root cause:** The executable smoke test is a separate CTest target and is not connected to the realistic PE/SLA fixture.
-- **Recommended fix:** Add `DefaultApplicationUsesRuntimeFacade` invoking the real executable with the analyzer fixture and assert service/persistence output.
-- **Regression risks:** Process invocation and fixture paths must remain deterministic on CI.
-- **Relevant validation:** Current CTest passes 49/49.
+### HIGH-002: The facade now runs the complete built-in analyzer profile
 
-### TESTS-INTEGRATION-HIGH-002: Analyzer mutation persistence is not verified
+- [x] Remediated: facade analysis runs 35 unique analyzers (runtime entry adapter plus 34 built-in analyzers).
+- **Reference:** [`runtime/project/project_session.cppm:55-56`](../../runtime/project/project_session.cppm#L55-L56); report `:20-22`.
+- **Affected component:** Analyzer registration and user-visible analysis completeness.
+- **Evidence:** The current report lists 35 unique executed analyzers, including the 34 built-in analyzer names and `runtime.entry_materialization`.
+- **Expected behavior:** The user-facing project pipeline should register and execute the analyzers advertised as part of the runtime, or clearly expose a reduced profile.
+- **Actual behavior:** `analyze()` executes the complete legacy built-in profile in addition to the facade adapter; the report records a full analyzer profile.
+- **Impact:** Functions, references, data, signatures, calling conventions, strings, and resources are not discovered by the facade pipeline.
+- **Reproduction:** Inspect `Executed Analyzers` in the report and compare with the analyzer targets under [`services/analyzers`](../../services/analyzers).
+- **Root cause:** The facade previously stopped at its new-contract adapter and never invoked the aggregate built-in registration unit.
+- **Recommended fix:** Continue migrating legacy artifact mutations into domain events; retain the explicit complete-profile execution and analyzer-list assertion.
+- **Regression risk:** Analyzer ordering, mutation conflicts, and performance need dedicated coverage.
+- **Validation:** Assert the configured analyzer set and materialized entity counts for a fixture with known expected outputs.
 
-- [ ] **Remediation status:** Open.
-- **Source references:** `end_to_end_tests.cppm:22-50`, `CMakeLists.txt`.
-- **Affected component:** Runtime analysis scheduler and commit lane.
-- **Technical evidence:** The test checks that `analyze()` returns but does not assert the complete analyzer registry, returned mutation commands, durable domain events, or SQLite projection rows.
-- **Expected behavior:** A real analysis run proves feature analyzer results are committed and replayable.
-- **Actual behavior:** Lifecycle success is sufficient for the test.
-- **Impact:** Analysis can report success while feature state is absent.
-- **Failure scenario:** Drop scheduler commands or unregister analyzers; this test still passes.
-- **Root cause:** The fixture assertion stops at function/decompilation success.
-- **Recommended fix:** Add a command-producing fake analyzer and assert event log, projection, SQLite rows, and reopen state.
-- **Regression risks:** Test must distinguish fixture-created state from analyzer-created state.
-- **Relevant validation:** No mutation-persistence assertion exists.
+### HIGH-003: References and data objects are silently absent from the projection
 
-## Findings: Medium
+- [ ] Remediated.
+- **Reference:** Report `:37-44,548-566`; [`runtime/project/project_session.cppm:105-208`](../../runtime/project/project_session.cppm#L105-L208); [`core/contracts/project_query.cppm:40-43`](../../core/contracts/project_query.cppm#L40-L43).
+- **Affected component:** Software model projection and SQLite durable model.
+- **Evidence:** The fixture has direct calls, conditional branches, memory operands, `.data`, `.rdata`, and resource regions, yet both `SQLite References` and `SQLite Data Objects` contain zero rows. The load path emits only project input, memory, symbol, listing, and function events.
+- **Expected behavior:** Analysis should materialize references and data objects, or the report should explicitly classify the current runtime as unsupported for those entity kinds.
+- **Actual behavior:** Empty tables are treated as a normal PASS and no analyzer command produces those entities.
+- **Impact:** Cross-references, data-flow/navigation, strings, globals, and resource-backed facts are unavailable to users and downstream analyzers.
+- **Reproduction:** Inspect the empty tables and compare them with the calls/data operands visible in the instruction table.
+- **Root cause:** No reference/data event contracts or runtime materializers are wired into the facade pipeline.
+- **Recommended fix:** Add reference/data event types and materializers for direct control-flow/data operands first, then register the relevant analyzer services.
+- **Regression risk:** Entity identity and replay ordering must remain deterministic.
+- **Validation:** Assert known call/reference/data entities from the fixture in both in-memory and SQLite projections.
 
-### TESTS-INTEGRATION-MEDIUM-001: Alternate and failure pipelines are absent
+## Medium Findings
 
-- [ ] **Remediation status:** Open.
-- **Source references:** `end_to_end_tests.cppm:22-50`.
-- **Affected component:** Project lifecycle and service contracts.
-- **Missing scenarios:** Missing SLA transitions to `failed`; invalid entry-point cleanup; non-x86/unsupported architecture; selected non-default SLA; native decompiler fallback status; actual artifact identity; queued decompile cancellation/close.
-- **Impact:** Only x86-64 happy-path behavior is protected.
-- **Recommended fix:** Add deterministic fixture/config variants and assert diagnostics, lifecycle, status, and persistence semantics.
+### MEDIUM-001: Durable instruction projection now preserves flow but not full p-code operations
 
-## Findings: Low
+- [ ] Partially remediated: flow kind/target/fallthrough and p-code counts now survive events/SQLite; operation-level p-code replay remains open.
+- **Reference:** [`core/events/code_events.cppm:50-78`](../../core/events/code_events.cppm#L50-L78); [`runtime/projections/software_model_projection.cppm:284-340`](../../runtime/projections/software_model_projection.cppm#L284-L340); SQLite instruction metadata columns.
+- **Affected component:** Event replay, durable SQLite projection, and decompiler/provider observability.
+- **Evidence:** The report now shows durable flow fields and p-code counts for SQLite rows. The in-memory replay still has no operation bodies because `ListingStateChanged` does not serialize individual p-code operations.
+- **Expected behavior:** Replaying the event log into memory/SQLite must preserve the instruction facts needed by analysis and diagnostics.
+- **Actual behavior:** A fresh projection preserves control-flow metadata/counts but cannot independently reproduce p-code operation semantics.
+- **Impact:** Replay/reopen behavior differs from the live decoder; downstream analyzers cannot use durable p-code/flow facts.
+- **Root cause:** Operation-level p-code serialization remains narrower than `core::Instruction`.
+- **Recommended fix:** Version listing events and persist opcode/varnode sequences, or define and test deterministic replay-time reconstruction.
+- **Regression risk:** Event schema versioning and old project migration are required.
+- **Validation:** Round-trip one branch, one memory operation, and one p-code operation through events and SQLite.
 
-### No findings
+### MEDIUM-002: Function signatures and variables are not first-class projection facts
+
+- [ ] Remediated.
+- **Reference:** [`core/events/function_events.cppm:11-34`](../../core/events/function_events.cppm#L11-L34); report `Functions and Signatures` and `Recovered Variables` sections.
+- **Affected component:** Function model, signature analysis, and report correctness.
+- **Evidence:** Function events serialize only id/space/entry/end/name/status/instruction starts/body. The report can show a C-source signature for a few sampled functions, but structured signatures, parameters, ABI, and variables remain `<none>`/zero.
+- **Expected behavior:** Analyzer-derived signature and variable facts should be stored in `FunctionSnapshot`, replayed, and exposed through the query contract.
+- **Actual behavior:** The report heuristically parses the first C declaration line, while the durable model has no corresponding facts.
+- **Impact:** Signatures are not queryable or reproducible and cannot drive later analyzer decisions.
+- **Root cause:** Function event payload and projection schema omit signature/variable fields; decompiler result mapping is incomplete.
+- **Recommended fix:** Version function signature/variable serialization and map native recovered facts into core domain types.
+- **Regression risk:** ABI/type identifiers and backward-compatible event replay need explicit tests.
+- **Validation:** Assert parameter types/storage/calling convention for the decorated fixture exports.
+
+### MEDIUM-003: The report does not assert in-memory/SQLite entity parity
+
+- [ ] Remediated.
+- **Reference:** [`report_generator.cppm:659-662`](report_generator.cppm#L659-L662) and [`report_generator.cppm:696-701`](report_generator.cppm#L696-L701).
+- **Affected component:** Full-pipeline acceptance contract and durable projection verification.
+- **Evidence:** The workflow now checks the SQLite checkpoint and counts for functions, instructions, regions, symbols, and data objects, but it still computes no address-set, status, reference-count, or complete payload equality between the two representations.
+- **Expected behavior:** A projection/report test must prove that durable rows represent the same current entities and addresses as the in-memory query at the reported revision.
+- **Actual behavior:** A database with correct row counts but a wrong address, stale status, or mismatched entity payload can still pass; the Markdown merely prints both views.
+- **Impact:** Durable divergence can reach users and survive reopen while CI remains green.
+- **Reproduction:** Alter one SQLite function/instruction address or status without changing table counts, then run `read_projection`; current checkpoint/count checks still pass and report generation proceeds.
+- **Root cause:** The report workflow treats SQLite inspection as a presence check rather than a cross-store invariant check.
+- **Recommended fix:** Compare revisions and canonicalized entity keys/counts/addresses/statuses for functions, instructions, regions, symbols, references, and data objects; fail with a precise first mismatch.
+- **Regression risks:** Stable ordering and entity fields must be normalized consistently; sampled report sections must not be used as the parity source.
+- **Validation:** Add a test helper that compares complete sorted sets and injects missing/wrong-address durable rows to prove the guard fails.
+
+## Low Findings
+
+### LOW-001: Report status now distinguishes analyzer and entity profiles
+
+- [x] Remediated: report displays `Analyzer profile: full (35 registered)` and `Entity profile: missing references/data`, with overall `PARTIAL` status.
+- **Reference:** Report `:3,20-22,31-35` and [`report_generator.cppm`](report_generator.cppm).
+- **Evidence:** The report explicitly separates the full analyzer profile from the missing reference/data entity profile.
+- **Expected behavior:** The report status and wording should identify the tested profile and must not imply that unsupported analyzer/entity classes passed.
+- **Actual behavior:** Overall status is `PARTIAL` while references/data remain absent.
+- **Impact:** Readers may interpret a bounded facade smoke test as equivalent to the full legacy analyzer pipeline.
+- **Reproduction:** Read the report header and compare `Executed Analyzers` plus the empty reference/data sections.
+- **Root cause:** Report status previously considered only decompilation outcomes.
+- **Recommended fix:** Keep entity-profile derivation and add reference/data materializers.
+- **Regression risks:** A stricter status must distinguish intentionally unsupported optional entity kinds from unexpected omissions.
+- **Validation:** Add a golden assertion that status/profile agrees with the configured analyzer IDs and required entity counts.
 
 ## Verified Strengths
 
-- [x] Uses the real analyzer executable fixture.
-- [x] Exercises loading, scheduler-backed analysis, function query, command execution, and decompilation.
-- [x] Is registered with CTest.
+- [x] PE regions and imported/exported symbols are persisted in SQLite with deterministic ordering.
+- [x] The report uses stable seed-based sampling and repository-relative paths.
+- [x] SQLite checkpoint and in-memory revision agree at regenerated revision 539.
+- [x] The selected simple functions produce native C output with readable signatures.
+- [x] Task completion ordering is checked by the integration workflow.
 
-## Validation Results
+## Validation And Limitations
 
-- [x] `ctest --test-dir build --output-on-failure`: 49/49 passed.
-- [x] Source/CMake/fixture ownership inspected.
-- [ ] No alternate-architecture, fault-injection, sanitizer, or process-level default-app test exists.
+- [x] Reviewed the complete checked-in report, including all sections within configured limits.
+- [x] `NEW\build.bat all` passed 53/53 after the remediation work.
+- [ ] No independent Ghidra reference output was available for byte-for-byte semantic comparison.
+- [ ] The report samples event records and SQLite instructions, so unsampled rows require direct SQLite inspection.
+
+## Reviewed Areas With No Findings
+
+- [x] Fixture and SLA existence checks are explicit and repository-relative.
+- [x] Report sampling uses deterministic ordering and a stable seed.
+- [x] SQLite checkpoint and in-memory revision agree for the regenerated fresh database.
+
+## Unresolved Questions And Residual Risks
+
+- [ ] The intended supported analyzer profile for the facade is not declared in runtime configuration.
+- [ ] Concurrent CFG/decompiler remediation must be validated by regenerating the golden report rather than inferred from source changes.
+- [ ] Fault-injection coverage for partial event/SQLite commits is absent.
 
 ## Follow-Up Decision
 
-- [ ] Add TESTS-INTEGRATION-HIGH-001/HIGH-002 and TESTS-INTEGRATION-MEDIUM-001 before treating end-to-end coverage as complete.
+- [x] Fix CRITICAL-001, HIGH-001, HIGH-002; [ ] continue HIGH-003.
+- [x] Re-ran the golden report and full suite after decompiler remediation; [ ] repeat after the analyzer/reference/data profile is expanded.

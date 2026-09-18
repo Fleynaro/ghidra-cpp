@@ -12,8 +12,15 @@ export namespace recode::core::events {
                                                        const CorrelationId& correlation,
                                                        std::string source = "analysis") {
     std::string end = "0";
-    if (!function.body.ranges().empty())
-        end = std::to_string(function.body.ranges().front().end.offset);
+    if (!function.body.ranges().empty()) {
+        // CFG decoding can insert a backward branch target before the entry
+        // range; the event end is the maximum body endpoint, not the first
+        // range's endpoint.
+        const auto maximum = std::ranges::max_element(function.body.ranges(), [](const auto& left, const auto& right) {
+            return left.end.offset < right.end.offset;
+        });
+        end = std::to_string(maximum->end.offset);
+    }
     return EventDraft{project,
                       "function",
                       function.key.entity.value(),

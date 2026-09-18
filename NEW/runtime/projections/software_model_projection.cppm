@@ -313,6 +313,23 @@ private:
                     return std::unexpected(operands.error());
                 instruction.operands = std::move(*operands);
             }
+            if (fields.contains("flow_kind")) {
+                auto flow_kind = number("flow_kind");
+                if (!flow_kind || *flow_kind > std::to_underlying(core::FlowKind::return_op))
+                    return std::unexpected(
+                        core::Error::make(core::DiagnosticCode::event_corrupt, "Invalid listing flow kind"));
+                instruction.flow.kind = static_cast<core::FlowKind>(*flow_kind);
+            }
+            if (fields.contains("flow_fallthrough"))
+                instruction.flow.has_fallthrough = fields.at("flow_fallthrough") == "1";
+            if (fields.contains("flow_terminal"))
+                instruction.flow.terminal = fields.at("flow_terminal") == "1";
+            if (fields.contains("flow_target") && !fields.at("flow_target").empty()) {
+                auto target = number("flow_target");
+                if (!target)
+                    return std::unexpected(target.error());
+                instruction.flow.target = core::Address{instruction.key.address.space, *target};
+            }
             instruction.mnemonic = std::move(*mnemonic);
             instruction.assembly = std::move(*assembly);
             instruction.pcode.instruction = instruction.key.address;

@@ -100,6 +100,12 @@ The project uses environment variables. Keep this table up to date.
 - Review the final diff for accidental files, hard-coded local values, secrets, non-English content, and missing documentation updates.
 - Report validation failures clearly instead of hiding or ignoring them.
 
+### Markdown Golden Reports
+
+- Integration tests may use a generated Markdown report as a golden contract. Keep the checked-in baseline under the owning test's `reports/` directory and compare the complete generated text with it, using deterministic ordering and repository-relative paths.
+- When a golden Markdown comparison fails, first inspect the generated-versus-fixed diff and determine whether it demonstrates a logic, ordering, serialization, or runtime behavior regression. Do not blindly replace the baseline.
+- If the difference is expected and does not demonstrate a program-logic violation, update the fixed Markdown report deliberately, rerun the owning integration test, and document the reason in the change.
+
 ## Mandatory Code Review Reporting
 
 - Whenever an agent performs any code review, it must create or update [`REVIEW_REPORT.md`](REVIEW_REPORT.md) directly inside the directory of the reviewed module before completing the review. This requirement applies to `/review` commands, requested reviews, self-reviews, and reviews performed as part of another task. The report must not be placed only at repository root. If a review covers multiple modules, create or update one report in each reviewed module directory and link every report in the final chat response.

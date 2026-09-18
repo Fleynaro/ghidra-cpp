@@ -7,5 +7,5 @@ The decompiler service uses its native frontend in [`src/decompiler.cppm`](src/d
 - [`src/decompiler.cppm`](src/decompiler.cppm) aliases `core::StorageLocation`, `core::PcodeOp`, `core::PcodeOpcode`, `core::DecodedInstruction`, and `core::DecodeError`; only mutable native engine descriptions remain frontend-owned.
 - [`src/decompiler_impl.cppm`](src/decompiler_impl.cppm) performs the explicit domain-to-native materialization and normalizes only the native LOAD/STORE selector representation.
 - `IMemoryProvider::volatile_ranges()` is forwarded by [`decompiler_service.cppm`](decompiler_service.cppm), so native LoadImage does not silently lose side-effect-sensitive memory metadata.
-- Native state is created per task, so concurrent requests do not share mutable `Architecture`/`Funcdata` state.
+- Native state is created per task, so concurrent requests do not share mutable `Architecture`/`Funcdata` state. The native call is guarded by a process-wide mutex because the migrated engine still initializes process-global XML/attribute tables; tasks remain asynchronous and are serialized only at that unsafe native boundary.
 - The service is scheduled by [`../../runtime/workers`](../../runtime/workers/README.md); no direct `std::async` is introduced.
