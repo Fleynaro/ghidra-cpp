@@ -1001,8 +1001,17 @@ private:
             if (stop.stop_requested())
                 break;
             if (stopping_.load(std::memory_order_acquire) && !interrupt_requested_ && !timed_out)
+                interrupt_condition_.wait_for(lock, std::chrono::milliseconds(10), [&] {
+                    return stop.stop_requested() || interrupt_requested_ || deadline_.has_value();
+                });
+            if (stop.stop_requested())
                 break;
-            const bool should_interrupt = interrupt_requested_ || timed_out;
+            // Keep the interrupt worker alive while the engine thread is
+            // shutting down. The first SetInterrupt can race with the
+            // engine entering WaitForEvent, so repeated calls are required
+            // until the engine has left that call and joined successfully.
+            const bool should_interrupt =
+                interrupt_requested_ || timed_out || stopping_.load(std::memory_order_acquire);
             interrupt_requested_ = false;
             if (!should_interrupt)
                 continue;
@@ -1020,8 +1029,14 @@ private:
         if (client_) {
             const auto current = state();
             if (current != model::SessionState::created && current != model::SessionState::detached &&
-                current != model::SessionState::exited && current != model::SessionState::failed)
+                current != model::SessionState::exited && current != model::SessionState::failed) {
                 static_cast<void>(client_.get()->TerminateProcesses());
+                // EndSession releases DbgEng's process/event ownership after
+                // an interrupted WaitForEvent. Without this final handshake,
+                // a later session in the same test process can inherit a
+                // stale engine event stream and miss its initial stop.
+                static_cast<void>(client_.get()->EndSession(DEBUG_END_ACTIVE_TERMINATE));
+            }
             static_cast<void>(client_.get()->SetEventCallbacks(nullptr));
             static_cast<void>(client_.get()->SetOutputCallbacks(nullptr));
         }

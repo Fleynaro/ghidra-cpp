@@ -70,7 +70,27 @@ if(WIN32)
         )
     endif()
     target_include_directories(analyzer_pdb_msdia PRIVATE "${DIA_INCLUDE_DIR}")
-    target_link_libraries(analyzer_pdb_msdia PUBLIC ole32 oleaut32 "${DIA_GUIDS_LIBRARY}")
+
+    # Ninja does not inherit Visual Studio's LIB environment from editor
+    # sessions. Resolve the Windows SDK libraries to absolute paths so every
+    # consumer of this analyzer links reliably from the repository wrapper.
+    get_filename_component(DIA_RC_BIN_DIR "${CMAKE_RC_COMPILER}" DIRECTORY)
+    get_filename_component(DIA_SDK_VERSION_DIR "${DIA_RC_BIN_DIR}/.." ABSOLUTE)
+    get_filename_component(DIA_SDK_ROOT "${DIA_SDK_VERSION_DIR}/../.." ABSOLUTE)
+    get_filename_component(DIA_SDK_VERSION "${DIA_SDK_VERSION_DIR}" NAME)
+    find_library(DIA_OLE32_LIBRARY NAMES ole32
+                 HINTS "${DIA_SDK_ROOT}/Lib/${DIA_SDK_VERSION}/um/x64")
+    find_library(DIA_OLEAUT32_LIBRARY NAMES oleaut32
+                 HINTS "${DIA_SDK_ROOT}/Lib/${DIA_SDK_VERSION}/um/x64")
+    if(NOT DIA_OLE32_LIBRARY OR NOT DIA_OLEAUT32_LIBRARY)
+        message(FATAL_ERROR
+            "PDB MSDIA requires ole32.lib and oleaut32.lib from the Windows SDK.")
+    endif()
+    target_link_libraries(analyzer_pdb_msdia PUBLIC
+        "${DIA_OLE32_LIBRARY}"
+        "${DIA_OLEAUT32_LIBRARY}"
+        "${DIA_GUIDS_LIBRARY}"
+    )
 endif()
 
 if(BUILD_TESTING)

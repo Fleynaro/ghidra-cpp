@@ -178,7 +178,8 @@ export [[nodiscard]] std::expected<SqliteReportData, std::string> read_projectio
     return result;
 }
 
-/// Reads a generated or checked-in Markdown artifact as canonical bytes.
+/// Reads a generated or checked-in Markdown artifact after normalizing it to
+/// canonical LF line endings for platform-independent golden comparisons.
 export [[nodiscard]] std::expected<std::string, std::string> read_text_file(const std::filesystem::path& path) {
     std::ifstream input(path, std::ios::binary);
     if (!input)
@@ -187,7 +188,9 @@ export [[nodiscard]] std::expected<std::string, std::string> read_text_file(cons
     contents << input.rdbuf();
     if (!input.good() && !input.eof())
         return std::unexpected("Unable to read Markdown artifact: " + path.string());
-    return contents.str();
+    auto result = contents.str();
+    result.erase(std::remove(result.begin(), result.end(), '\r'), result.end());
+    return result;
 }
 
 /// Derives a stable domain-specific seed without relying on implementation-defined
