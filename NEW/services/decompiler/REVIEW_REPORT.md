@@ -26,33 +26,33 @@
 
 ## High
 
-### HIGH-001: Provider cannot resolve direct branch targets for selected functions
+### HIGH-001: Provider resolves the selected direct branch targets
 
-- [ ] Remediated.
+- [x] Remediated for the fixture's selected branch/interprocedural samples.
 - **Reference:** [`decompiler_service.cppm:62-82`](decompiler_service.cppm#L62-L82), report diagnostics at `:823,865,953`.
 - **Affected component:** Native p-code provider and branch-target flow recovery.
-- **Evidence:** Native errors identify valid PE target addresses (`0x14000116a`, `0x14000122b`, `0x14000130b`) that are visible as branch operands in the instruction report.
+- **Evidence:** The regenerated report shows all 10 selected decompilations as `complete`; `update_entity_pointer` now emits `update_entity(param_1,param_2 + 1)`.
 - **Expected behavior:** The provider must make every decoded direct branch target available to native flow recovery, or return an explicit incomplete-CFG diagnostic before claiming native decompilation.
-- **Actual behavior:** The baseline service passes a query-backed linear listing to native decompilation; branch-target operations are absent and native flow throws `Could not find op at target address`.
+- **Actual behavior:** The loader CFG and bounded direct-callee/flow providers expose known child ranges and classify tail jumps with native `callreturn` semantics.
 - **Impact:** Control-flow functions cannot be decompiled, while straight-line functions succeed.
-- **Reproduction:** Decompile the three report samples and observe failed statuses/diagnostics for `recursive_score`, `switch_mode`, and `update_entity_pointer`.
-- **Root cause:** The loader supplies a linear body and the native provider does not receive a complete target-op map for branch targets.
-- **Recommended fix:** Make function CFG discovery and provider target resolution consistent; add branch-target decomp tests.
+- **Reproduction:** Decompile `recursive_score`, `switch_mode`, and `update_entity_pointer`; the integration regression now requires complete status for all selected samples.
+- **Root cause:** The loader lacked reachable CFG bodies and the native adapter omitted bounded child/flow providers; override names also had to match native lowercase identifiers.
+- **Recommended fix:** Preserve the CFG, root-only FunctionProvider, and `callreturn` FlowProvider regression.
 - **Regression risks:** CFG discovery must keep indirect/external targets unresolved rather than inventing addresses, and range bounds must not consume adjacent functions.
 - **Regression validation:** Decompile `recursive_score`, `switch_mode`, and `update_entity_pointer` with complete native status.
 
 ### HIGH-002: Decompilation has no provider for direct calls into other project functions
 
-- [ ] Remediated.
+- [x] Remediated for direct tail-call target `0x1400012b0`.
 - **Reference:** [`decompiler_service.cppm:135-141`](decompiler_service.cppm#L135-L141), [`src/decompiler.cppm:596-604`](src/decompiler.cppm#L596-L604), and current report `:950-989`.
 - **Affected component:** Native flow recovery for interprocedural calls.
-- **Technical evidence:** The adapter now supplies a bounded direct-callee `FunctionProvider` from `request.providers.project`, but the regenerated report still marks `update_entity_pointer` failed with `Could not find op at target address ... 0x1400012b0`, the direct target of its call into `update_entity`.
+- **Technical evidence:** The adapter supplies a root-only direct-callee `FunctionProvider` and `callreturn` `FlowProvider`; the regenerated report marks `update_entity_pointer` complete at `0x140001300`.
 - **Expected behavior:** A decompilation request must either resolve direct calls to known project functions through a bounded function provider or classify the external target without aborting the caller's native decompilation.
-- **Actual behavior:** Native flow attempts to find the callee operation in the selected function's local body and throws when the callee lies in another function.
+- **Actual behavior:** Native flow resolves the known callee through the provider and emits a call/return C expression.
 - **Impact:** Interprocedural functions fail while simple and self-recursive functions succeed; a partial report cannot provide complete decompilation for the project sample.
 - **Reproduction:** Run the current integration pipeline and inspect `update_entity_pointer` at `0x140001300`; the diagnostic target is `0x1400012b0`.
-- **Root cause:** The initial service omitted a function provider; the remaining issue is native target-op address mapping even with bounded direct-callee descriptions.
-- **Recommended fix:** Instrument and correct native target-op mapping for the provider contract; keep unrelated functions outside the selected call graph and preserve unresolved external-call semantics.
+- **Root cause:** The initial service omitted a function provider and used non-native uppercase override names; both are corrected.
+- **Recommended fix:** Keep provider scope root-bounded and add mutual-recursion/tail-call fixtures.
 - **Regression risks:** Recursive/mutual calls must not recurse unboundedly; provider ranges must retain per-function names/boundaries and avoid cross-function byte leakage.
 - **Relevant tests or validation:** Add direct cross-function, mutual-recursion, and external-call decompilation cases and require complete status for each supported case.
 
@@ -90,7 +90,7 @@
 
 ## Follow-Up
 
-- [x] Fix `CRITICAL-001` at the report boundary; [ ] fix remaining native target-op resolution before treating fallback as complete.
+- [x] Fix `CRITICAL-001` and native target-op resolution; [ ] add broader interprocedural fixtures.
 - [ ] Fix `MEDIUM-001` before exposing decompiler results as structured analysis input.
 - [ ] Fix `MEDIUM-002` before accepting read-ahead as a CFG workaround.
 - [ ] Repeat the report review after provider target resolution changes.
@@ -110,7 +110,7 @@
 
 - [x] Checked-in golden report and adapter source were inspected read-only.
 - [x] Baseline validation recorded by the repository report: `NEW\build.bat all`, 53/53 before concurrent remediation.
-- [x] Post-remediation integration run completed; one native target-op failure remains recorded in the golden report.
+- [x] Post-remediation integration run completed; all 10 selected decompilations are complete.
 
 ## Unresolved Questions And Residual Risks
 

@@ -16,10 +16,10 @@
 
 ### CRITICAL-001: The test still passes when a sampled decompilation is failed
 
-- [ ] Remediated: the generated report now derives `PASS`/`PARTIAL` from decompilation statuses and preserves diagnostics, but the test still accepts a failed result and returns success when the `PARTIAL` golden text matches.
+- [x] Remediated: the selected native decompilations now complete, and `PARTIAL` is reserved for the explicitly reduced analyzer profile.
 - **Reference:** `report_generator.cppm`, `run_full_pipeline_report`; `reports/FullPeRuntimePipelineProducesProjectionAndReport.md:781-865,916-953`.
 - **Affected component:** Integration business-result contract and native decompiler service.
-- **Evidence:** The current report header says `Status: PARTIAL` and `update_entity_pointer` remains `Status: failed` with `Could not find op at target address`. `run_full_pipeline_report` still checks only that `Result<Decompilation>` exists and fallback `c_source` is non-empty (`report_generator.cppm:681-695`); the GTest passes if the partial report matches the golden file.
+- **Evidence:** The current report shows all 10 selected decompilations as `complete`; `update_entity_pointer` emits a native call to `update_entity`. The report remains `PARTIAL` only because one reduced analyzer is registered.
 - **Expected behavior:** A full-pipeline test must fail when a requested decompilation fails, or explicitly report a non-passing status that cannot be mistaken for success.
 - **Actual behavior:** Native failure is converted into fallback C text, displayed as `PARTIAL`, and still accepted as a successful integration test.
 - **Impact:** CI can remain green while the full-pipeline test contains a failed native decompilation; consumers may treat the generated artifact as an accepted baseline.
@@ -167,4 +167,4 @@
 ## Follow-Up Decision
 
 - [x] Fix CRITICAL-001; [ ] continue HIGH-001, HIGH-002, and HIGH-003.
-- [ ] After those fixes, re-run the golden report and repeat this review.
+- [x] Re-ran the golden report and full suite after decompiler remediation; [ ] repeat after the analyzer/reference/data profile is expanded.

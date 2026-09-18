@@ -72,7 +72,7 @@
 | ram | 5368713824 | sparse_mode |  | false | false | decoded | 13 | ram:5368713824-5368713862 | <none> | blocks=0, thunk=<none>, variables=0 |
 | ram | 5368713872 | invoke_callback |  | false | false | decoded | 6 | ram:5368713872-5368713892 | <none> | blocks=0, thunk=<none>, variables=0 |
 | ram | 5368713904 | update_entity |  | false | false | decoded | 19 | ram:5368713904-5368713962 | C source: uint8 default update_entity(int8 *param_1) | blocks=0, thunk=<none>, variables=0 |
-| ram | 5368713984 | update_entity_pointer |  | false | false | decoded | 6 | ram:5368713984-5368713999 | C source: <none> | blocks=0, thunk=<none>, variables=0 |
+| ram | 5368713984 | update_entity_pointer |  | false | false | decoded | 6 | ram:5368713984-5368713999 | C source: undefined8 default update_entity_pointer(int8 param_1,int4 param_2) | blocks=0, thunk=<none>, variables=0 |
 | ram | 5368714016 | engine_abort |  | false | false | decoded | 5 | ram:5368714016-5368714036 | C source: void default engine_abort(void) | blocks=0, thunk=<none>, variables=0 |
 | ram | 5368714048 | abort_path_one |  | false | false | decoded | 19 | ram:5368714048-5368714095 | <none> | blocks=0, thunk=<none>, variables=0 |
 | ram | 5368714096 | abort_path_two |  | false | false | decoded | 18 | ram:5368714096-5368714143 | <none> | blocks=0, thunk=<none>, variables=0 |
@@ -950,28 +950,37 @@ uint8 default update_entity(int8 *param_1)
 
 ### `0x140001300` update_entity_pointer
 
-- Status: `failed`
+- Status: `complete`
 - Read revision: 539
-- Signature: `C source: <none>`
+- Signature: `C source: undefined8 default update_entity_pointer(int8 param_1,int4 param_2)`
 - Raw instructions: 6
-- Control-flow chars: 0
+- Control-flow chars: 169
 - Switches: 0
 - Evidence: 0
 - Cache identity: ``
 
 ```c
-void update_entity_pointer() {
-  /* RCX,RCX */
-  /* 0x140001309 */
-  /* EAX,[RCX + -0x1] */
-  /*  */
-  /* EDX */
-  /* 0x1400012b0 */
+
+undefined8 default update_entity_pointer(int8 param_1,int4 param_2)
+
+{
+  undefined8 xVar1;
+
+  if (param_1 == 0) {
+    return 0xffffffff;
+  }
+  xVar1 = update_entity(param_1,param_2 + 1);
+  return xVar1;
 }
 
 ```
 
 ```text
+0
+  If (no exit) block 0
+    Basic Block 0 0x000140001300-0x000140001303
+    Basic Block 2 0x000140001305-0x000140001308
+    Basic Block 1 0x000140001309-0x00014000130b
 
 ```
 
@@ -984,10 +993,10 @@ void update_entity_pointer() {
 
 #### Diagnostics
 
-- Total items: 1
-- Items shown: 1
+- Total items: 0
+- Items shown: 0
 
-- `Native decompiler failure: Could not find op at target address: (ram,0x0001400012b0)`
+- _none_
 
 ### `0x140001320` engine_abort
 

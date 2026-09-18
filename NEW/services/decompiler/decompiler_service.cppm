@@ -98,12 +98,23 @@ public:
 
     /// Returns direct-call child bodies whose ranges are known by the projection.
     [[nodiscard]] std::vector<recode::decompiler::FunctionDescription> functions() const override {
+        const auto functions = query_ ? query_->functions() : std::vector<core::FunctionSnapshot>{};
+        const auto root = std::ranges::find_if(functions,
+                                               [&](const auto& function) { return function.key.entry.offset == root_entry_; });
+        if (root == functions.end())
+            return {};
         std::set<std::uint64_t> callees;
         if (!query_)
             return {};
         for (const auto& instruction : query_->instructions()) {
-            const auto mnemonic_end = instruction.assembly.find(' ');
-            const auto mnemonic = instruction.assembly.substr(0, mnemonic_end);
+            const bool in_root_body = std::ranges::any_of(root->body.ranges(), [&](const auto& range) {
+                return instruction.key.address.space == range.start.space &&
+                       instruction.key.address.offset >= range.start.offset &&
+                       instruction.key.address.offset <= range.end.offset;
+            });
+            if (!in_root_body)
+                continue;
+            const auto mnemonic = instruction.mnemonic;
             if (mnemonic != "CALL" && (mnemonic.empty() || mnemonic.front() != 'J'))
                 continue;
             const auto marker_start = instruction.assembly.find("0x");
@@ -119,7 +130,7 @@ public:
                 callees.insert(target);
         }
         std::vector<recode::decompiler::FunctionDescription> result;
-        for (const auto& function : query_->functions()) {
+        for (const auto& function : functions) {
             if (function.key.entry.offset == root_entry_ || !callees.contains(function.key.entry.offset) ||
                 function.body.ranges().empty())
                 continue;
@@ -131,6 +142,60 @@ public:
                                                                      maximum->end.offset + 1U});
         }
         return result;
+    }
+
+private:
+    std::shared_ptr<const core::contracts::IProjectQuery> query_;
+    std::uint64_t root_entry_{};
+};
+
+/// Marks direct jumps into known function entries as bounded tail calls so the
+/// native flow engine does not search for the callee's operation in the root body.
+class QueryFlowProvider final : public recode::decompiler::FlowProvider {
+public:
+    /// Retains the immutable query and root address used to construct overrides.
+    QueryFlowProvider(std::shared_ptr<const core::contracts::IProjectQuery> query, std::uint64_t root_entry)
+        : query_(std::move(query)), root_entry_(root_entry) {}
+
+    /// Returns CALL_RETURN overrides for direct JMP/Jcc destinations that name a known function.
+    [[nodiscard]] std::optional<recode::decompiler::FlowDescription> flow_at(std::uint64_t address) const override {
+        if (!query_)
+            return std::nullopt;
+        const auto functions = query_->functions();
+        std::set<std::uint64_t> function_entries;
+        for (const auto& function : functions)
+            function_entries.insert(function.key.entry.offset);
+        const auto root = std::ranges::find_if(functions,
+                                               [&](const auto& function) { return function.key.entry.offset == address; });
+        if (root == functions.end())
+            return std::nullopt;
+        recode::decompiler::FlowDescription description;
+        for (const auto& instruction : query_->instructions()) {
+            const bool in_root_body = std::ranges::any_of(root->body.ranges(), [&](const auto& range) {
+                return instruction.key.address.space == range.start.space &&
+                       instruction.key.address.offset >= range.start.offset &&
+                       instruction.key.address.offset <= range.end.offset;
+            });
+            if (!in_root_body)
+                continue;
+            const auto mnemonic = instruction.mnemonic;
+            if (mnemonic != "JMP" && (mnemonic.empty() || mnemonic.front() != 'J'))
+                continue;
+            const auto marker_start = instruction.assembly.find("0x");
+            if (marker_start == std::string::npos)
+                continue;
+            const auto marker = marker_start + 2U;
+            const auto end = instruction.assembly.find_first_not_of("0123456789abcdefABCDEF", marker);
+            const auto text =
+                instruction.assembly.substr(marker, end == std::string::npos ? std::string::npos : end - marker);
+            std::uint64_t target{};
+            const auto [parsed_end, parse_error] = std::from_chars(text.data(), text.data() + text.size(), target, 16);
+            if (parse_error == std::errc{} && parsed_end == text.data() + text.size() && target != root_entry_ &&
+                function_entries.contains(target))
+                description.flow_overrides.push_back(
+                    recode::decompiler::FlowOverrideDescription{instruction.key.address.offset, "callreturn"});
+        }
+        return description.flow_overrides.empty() ? std::nullopt : std::optional{std::move(description)};
     }
 
 private:
@@ -192,6 +257,8 @@ public:
             native_context.pcode = legacy_pcode;
             native_context.memory = legacy_memory;
             native_context.functions = std::make_shared<QueryFunctionProvider>(
+                request.providers.project ? request.providers.project : query_, request.function.key.entry.offset);
+            native_context.flow = std::make_shared<QueryFlowProvider>(
                 request.providers.project ? request.providers.project : query_, request.function.key.entry.offset);
             recode::decompiler::Decompiler native{architecture, std::move(native_context)};
             const auto ranges = request.function.body.ranges();
