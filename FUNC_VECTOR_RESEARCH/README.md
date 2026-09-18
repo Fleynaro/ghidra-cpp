@@ -56,3 +56,29 @@ python pairwise_similarity.py --model all
 ```
 
 The individual reports are `pairwise_qwen.md` and `pairwise_jina.md`; `--model all` also writes `pairwise_comparison.md`. The same seeded selection is verified for both models.
+
+## Ghidra BSim Comparison
+
+The BSim experiment uses the same `database/` and `input/` snippets, but
+compiles them into separate x64 PE files so Ghidra analyzes machine code rather
+than source text. `prepare_bsim_inputs.py` creates `database.cpp` with 50
+exported `db_*` functions and `input.cpp` with 10 exported `input_*` functions.
+The local MSVC wrapper `build_bsim.bat` builds `database.exe` and `input.exe`.
+
+Run the complete BSim experiment from the repository root with:
+
+```text
+python FUNC_VECTOR_RESEARCH\prepare_bsim_inputs.py
+FUNC_VECTOR_RESEARCH\build_bsim.bat
+TEST\run_ghidra_python.bat FUNC_VECTOR_RESEARCH\run_bsim.py
+```
+
+`run_bsim.py` uses `DecompInterface.generateSignatures` with call lists,
+signature settings `0x49`, Ghidra's x64 `lshweights_64.xml`,
+`WeightedLSHCosineVectorFactory`, and `VectorCompare`. It writes the same
+full-ranking format as the embedding evaluation to `output_bsim/` and
+`RESULT_bsim.md`. `pairwise_bsim.md` provides an additional all-database
+collision summary, and [`BSIM_VS_EMBEDDINGS.md`](BSIM_VS_EMBEDDINGS.md)
+compares the measured retrieval metrics. The PE files and PDBs are deliberately
+kept beside the generated sources so the BSim run can be reproduced without
+creating a second fixture definition.
