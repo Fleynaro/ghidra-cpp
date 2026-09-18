@@ -88,6 +88,56 @@ private:
     core::AddressSpaceId address_space_;
 };
 
+/// Supplies only direct callees reachable from the requested root, avoiding a
+/// global child-function table that can mix unrelated native body ranges.
+class QueryFunctionProvider final : public recode::decompiler::FunctionProvider {
+public:
+    /// Captures the immutable query and root entry used for bounded call discovery.
+    QueryFunctionProvider(std::shared_ptr<const core::contracts::IProjectQuery> query, std::uint64_t root_entry)
+        : query_(std::move(query)), root_entry_(root_entry) {}
+
+    /// Returns direct-call child bodies whose ranges are known by the projection.
+    [[nodiscard]] std::vector<recode::decompiler::FunctionDescription> functions() const override {
+        std::set<std::uint64_t> callees;
+        if (!query_)
+            return {};
+        for (const auto& instruction : query_->instructions()) {
+            const auto mnemonic_end = instruction.assembly.find(' ');
+            const auto mnemonic = instruction.assembly.substr(0, mnemonic_end);
+            if (mnemonic != "CALL" && (mnemonic.empty() || mnemonic.front() != 'J'))
+                continue;
+            const auto marker_start = instruction.assembly.find("0x");
+            if (marker_start == std::string::npos)
+                continue;
+            const auto marker = marker_start + 2U;
+            const auto end = instruction.assembly.find_first_not_of("0123456789abcdefABCDEF", marker);
+            const auto text =
+                instruction.assembly.substr(marker, end == std::string::npos ? std::string::npos : end - marker);
+            std::uint64_t target{};
+            const auto [parsed_end, parse_error] = std::from_chars(text.data(), text.data() + text.size(), target, 16);
+            if (parse_error == std::errc{} && parsed_end == text.data() + text.size())
+                callees.insert(target);
+        }
+        std::vector<recode::decompiler::FunctionDescription> result;
+        for (const auto& function : query_->functions()) {
+            if (function.key.entry.offset == root_entry_ || !callees.contains(function.key.entry.offset) ||
+                function.body.ranges().empty())
+                continue;
+            const auto maximum = std::ranges::max_element(function.body.ranges(), {},
+                                                          [](const auto& range) { return range.end.offset; });
+            if (maximum->end.offset == std::numeric_limits<std::uint64_t>::max())
+                continue;
+            result.push_back(recode::decompiler::FunctionDescription{function.name, function.key.entry.offset,
+                                                                     maximum->end.offset + 1U});
+        }
+        return result;
+    }
+
+private:
+    std::shared_ptr<const core::contracts::IProjectQuery> query_;
+    std::uint64_t root_entry_{};
+};
+
 /// Adapts project query/memory values to the native decompiler provider frontend.
 class DecompilerService final : public core::contracts::IDecompiler {
 public:
@@ -138,7 +188,12 @@ public:
                 request.providers.architecture && !request.providers.architecture->registers.empty()
                     ? make_native_architecture(*request.providers.architecture)
                     : default_native_architecture();
-            recode::decompiler::Decompiler native{architecture, legacy_pcode, legacy_memory};
+            recode::decompiler::ProviderContext native_context;
+            native_context.pcode = legacy_pcode;
+            native_context.memory = legacy_memory;
+            native_context.functions = std::make_shared<QueryFunctionProvider>(
+                request.providers.project ? request.providers.project : query_, request.function.key.entry.offset);
+            recode::decompiler::Decompiler native{architecture, std::move(native_context)};
             const auto ranges = request.function.body.ranges();
             if (ranges.empty())
                 return std::unexpected(core::Error::make(core::DiagnosticCode::invalid_argument,

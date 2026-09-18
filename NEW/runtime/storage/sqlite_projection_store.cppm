@@ -32,7 +32,9 @@ public:
             "CREATE TABLE IF NOT EXISTS project_metadata(project_id TEXT PRIMARY KEY, state TEXT NOT NULL);"
             "CREATE TABLE IF NOT EXISTS instructions(entity_id TEXT PRIMARY KEY, space TEXT NOT NULL, address "
             "INTEGER NOT NULL, length INTEGER NOT NULL, mnemonic TEXT NOT NULL, assembly TEXT NOT NULL, bytes TEXT "
-            "NOT NULL, instruction_mask TEXT NOT NULL, source_service TEXT NOT NULL);"
+            "NOT NULL, instruction_mask TEXT NOT NULL, flow_kind INTEGER NOT NULL, flow_fallthrough INTEGER NOT NULL, "
+            "flow_terminal INTEGER NOT NULL, flow_target INTEGER, pcode_count INTEGER NOT NULL, source_service TEXT "
+            "NOT NULL);"
             "CREATE TABLE IF NOT EXISTS functions(entity_id TEXT PRIMARY KEY, space TEXT NOT NULL, entry_address "
             "INTEGER NOT NULL, end_address INTEGER NOT NULL, name TEXT NOT NULL, status TEXT NOT NULL, "
             "source_service TEXT NOT NULL);"
@@ -130,15 +132,28 @@ public:
             auto length = number("length");
             if (!address || !length)
                 return fail((!address ? address.error() : length.error()));
-            const std::vector<std::string> values{
-                field("id"),         field("space"),    *address,       *length,
-                field("mnemonic"),   field("assembly"), field("bytes"), field("instruction_mask"),
-                event.source_service};
+            const std::vector<std::string> values{field("id"),
+                                                  field("space"),
+                                                  *address,
+                                                  *length,
+                                                  field("mnemonic"),
+                                                  field("assembly"),
+                                                  field("bytes"),
+                                                  field("instruction_mask"),
+                                                  field("flow_kind"),
+                                                  field("flow_fallthrough"),
+                                                  field("flow_terminal"),
+                                                  field("flow_target"),
+                                                  field("pcode_count"),
+                                                  event.source_service};
             entity_result = connection_->execute(
                 "INSERT INTO instructions(entity_id,space,address,length,mnemonic,assembly,bytes,instruction_mask,"
-                "source_service) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(entity_id) DO UPDATE SET space=excluded.space,"
+                "flow_kind,flow_fallthrough,flow_terminal,flow_target,pcode_count,source_service) "
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(entity_id) DO UPDATE SET space=excluded.space,"
                 "address=excluded.address,length=excluded.length,mnemonic=excluded.mnemonic,assembly=excluded.assembly,"
-                "bytes=excluded.bytes,instruction_mask=excluded.instruction_mask,source_service=excluded.source_"
+                "bytes=excluded.bytes,instruction_mask=excluded.instruction_mask,flow_kind=excluded.flow_kind,"
+                "flow_fallthrough=excluded.flow_fallthrough,flow_terminal=excluded.flow_terminal,"
+                "flow_target=excluded.flow_target,pcode_count=excluded.pcode_count,source_service=excluded.source_"
                 "service;",
                 values);
         } else if (event.event_type == "FunctionStateChanged") {

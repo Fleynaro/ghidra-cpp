@@ -8,6 +8,7 @@
 - **Limits:** functions=50, decompilations=10, instructions=1000, sqlite_instructions=200, text_chars=100
 - **Load revision:** 537
 - **Analysis revision:** 539
+- **Analyzer profile:** reduced (1 registered)
 - **SQLite checkpoint:** 539
 
 ## Pipeline
@@ -270,208 +271,208 @@
 - Rows shown: 200
 - Sampling: stable-random
 
-| Space | Address | Length | Mnemonic | Assembly | Bytes | Mask | Producer | Metadata |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| ram | 5368713225 | 6 | MOV | dword ptr [0x14000302c],EAX | 89051d200000 | ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713248 | 6 | MOV | EAX,dword ptr [0x14000302c] | 8b0506200000 | ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713280 | 6 | MOV | EAX,dword ptr [0x14000302c] | 8b05e61f0000 | ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713286 | 3 | ADD | EAX,0x33 | 83c033 | fff800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713289 | 6 | MOV | dword ptr [0x14000302c],EAX | 8905dd1f0000 | ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713295 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368713327 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368713332 | 6 | MOV | dword ptr [0x14000302c],EAX | 8905b21f0000 | ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713344 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368713360 | 3 | LEA | EAX,[RCX + RCX*0x2] | 8d0449 | ffc700 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713375 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368713392 | 3 | LEA | EAX,[RDX + 0x7] | 8d4207 | ffc000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713420 | 4 | ADDSS | XMM0, XMM1 | f30f58c1 | ffffffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713424 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368713440 | 3 | LEA | EAX,[RCX + 0x11] | 8d4111 | ffc000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713443 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368713461 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368713484 | 2 | MOV | EAX,ECX | 8bc1 | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713504 | 3 | LEA | EAX,[RDX + 0x21] | 8d4221 | ffc000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713509 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368713536 | 4 | ADDSS | XMM0, XMM1 | f30f58c1 | ffffffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713540 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368713563 | 2 | JG | 0x140001168 | 7f0b | ff00 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368713565 | 5 | MOV | EAX,0x1 | b801000000 | f800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713570 | 4 | ADD | RSP,0x20 | 4883c420 | f8fff800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713585 | 4 | ADD | RSP,0x20 | 4883c420 | f8fff800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713589 | 1 | POP | RBX | 5b | f8 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368713604 | 2 | TEST | ECX,ECX | 85c9 | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713608 | 5 | MOV | EAX,0x2 | b802000000 | f800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713613 | 4 | ADD | RSP,0x28 | 4883c428 | f8fff800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713617 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368713618 | 2 | DEC | ECX | ffc9 | fff8 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368713620 | 5 | CALL | 0x1400011b0 | e817000000 | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368713627 | 4 | ADD | RSP,0x28 | 4883c428 | f8fff800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713631 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368713656 | 5 | MOV | EAX,0x3 | b803000000 | f800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713673 | 3 | ADD | EAX,0x2 | 83c002 | fff800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713676 | 4 | ADD | RSP,0x28 | 4883c428 | f8fff800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713699 | 2 | JA | 0x14000122b | 7746 | ff00 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368713718 | 3 | ADD | RCX,RDX | 4803ca | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713771 | 5 | MOV | EAX,0xffffffff | b8ffffffff | f800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713836 | 5 | MOV | EAX,0x3 | b803000000 | f800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713841 | 6 | CMP | ECX,0x3e8 | 81f9e8030000 | fff800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713847 | 3 | CMOVNZ | EAX,EDX | 0f45c2 | ffffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713850 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368713851 | 5 | MOV | EAX,0x2 | b802000000 | f800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713862 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368713872 | 2 | MOV | EAX,ECX | 8bc1 | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713874 | 7 | LEA | RCX,[0x1400021b0] | 488d0d170f0000 | f8ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713888 | 2 | MOV | ECX,EDX | 8bca | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713890 | 3 | JMP | RAX | 48ffe0 | f8fff8 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368713917 | 3 | MOV | RBX,RCX | 488bd9 | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713920 | 2 | CALL | qword ptr [RAX] | ff10 | fff8 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368713925 | 3 | MOV | RCX,RBX | 488bcb | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713933 | 6 | MOV | EDX,dword ptr [0x14000302c] | 8b15591d0000 | ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713947 | 2 | MOV | EAX,EDI | 8bc7 | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713949 | 2 | XOR | EDX,ECX | 33d1 | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713951 | 6 | MOV | dword ptr [0x14000302c],EDX | 8915471d0000 | ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713957 | 4 | ADD | RSP,0x20 | 4883c420 | f8fff800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368713987 | 2 | JNZ | 0x140001309 | 7504 | ff00 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368713993 | 2 | INC | EDX | ffc2 | fff8 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714016 | 2 | NOP |  | 6690 | ffff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714024 | 5 | XOR | EAX,0xdeadbeef | 35efbeadde | ff00000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714058 | 3 | CMP | EAX,-0x1 | 83f8ff | fff800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714063 | 6 | MOV | EAX,dword ptr [0x14000302c] | 8b05d71c0000 | ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714081 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714082 | 5 | CALL | 0x140001320 | e8b9ffffff | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714089 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714090 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714093 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714094 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714096 | 4 | SUB | RSP,0x28 | 4883ec28 | f8fff800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714100 | 6 | MOV | EAX,dword ptr [0x140003000] | 8b05861c0000 | ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714109 | 2 | JZ | 0x140001393 | 7414 | ff00 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714130 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714137 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714139 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714140 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714141 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714143 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714144 | 4 | SUB | RSP,0x28 | 4883ec28 | f8fff800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714154 | 3 | CMP | EAX,-0x3 | 83f8fd | fff800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714165 | 3 | ADD | EAX,0x3 | 83c003 | fff800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714168 | 6 | MOV | dword ptr [0x14000302c],EAX | 89056e1c0000 | ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714184 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714185 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714188 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714192 | 3 | MOV | RAX,RSP | 488bc4 | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714202 | 3 | XORPS | XMM0, XMM0 | 0f57c0 | ffffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714223 | 4 | MOVUPS | xmmword ptr [RAX + -0x78], XMM0 | 0f114088 | ffffc000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714227 | 4 | MOVUPS | xmmword ptr [RAX + -0x68], XMM0 | 0f114098 | ffffc000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714239 | 4 | MOVUPS | xmmword ptr [RAX + -0x48], XMM0 | 0f1140b8 | ffffc000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714261 | 6 | MOV | R9D,0x40 | 41b940000000 | f8f800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714267 | 5 | LEA | R8,[RSP + 0x20] | 4c8d442420 | f8ffc73800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714280 | 4 | LEA | EDX,[R9 + 0x26] | 418d5126 | f8ffc000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714290 | 6 | MOV | ECX,dword ptr [0x14000302c] | 8b0df41b0000 | ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714298 | 6 | MOV | dword ptr [0x14000302c],EAX | 8905ec1b0000 | ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714304 | 7 | ADD | RSP,0xa8 | 4881c4a8000000 | f8fff800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714331 | 6 | CALL | qword ptr [0x140002010] | ff15af0b0000 | ffff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714337 | 6 | CALL | qword ptr [0x140002000] | ff15990b0000 | ffff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714355 | 7 | MOV | qword ptr [0x140003030],RCX | 48890db61b0000 | f8ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714366 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714388 | 6 | MOV | ECX,dword ptr [0x14000302c] | 8b0d921b0000 | ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714394 | 6 | CALL | qword ptr [0x140002008] | ff15680b0000 | ffff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714400 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714402 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714403 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714409 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714410 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714411 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714413 | 1 | INT3 |  | cc | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368714416 | 5 | MOV | qword ptr [RSP + 0x10],RBX | 48895c2410 | f8ffc73800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714421 | 4 | MOV | dword ptr [RSP + 0x8],ECX | 894c2408 | ffc73800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714426 | 1 | PUSH | RSI | 56 | f8 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714427 | 1 | PUSH | RDI | 57 | f8 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714428 | 2 | PUSH | R12 | 4154 | f8f8 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714432 | 2 | PUSH | R14 | 4156 | f8f8 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714443 | 2 | MOV | EAX,ECX | 8bc1 | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714458 | 6 | MOV | R9D,0x5a | 41b95a000000 | f8f800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714464 | 7 | MOV | dword ptr [RSP + 0x128],EAX | 89842428010000 | ffc73800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714495 | 3 | ADD | R8,RAX | 4c03c0 | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714503 | 3 | MOV | R8,RDX | 4c8bc2 | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714513 | 4 | LEA | EDX,[R9 + -0x4f] | 418d51b1 | f8ffc000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714543 | 3 | MOV | R8,RBX | 4c8bc3 | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714546 | 8 | LEA | RCX,[RSP + 0x98] | 488d8c2498000000 | f8ffc73800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714554 | 4 | LEA | EDX,[R9 + -0x4e] | 418d51b2 | f8ffc000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714569 | 5 | LEA | RCX,[RSP + 0x60] | 488d4c2460 | f8ffc73800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714583 | 5 | CALL | 0x1400018e0 | e884030000 | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714593 | 5 | LEA | RCX,[RSP + 0x48] | 488d4c2448 | f8ffc73800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714598 | 6 | MOV | R8D,0x1000 | 41b800100000 | f8f800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714604 | 5 | CALL | 0x1400018b0 | e83f030000 | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714616 | 5 | MOV | qword ptr [RSP + 0x38],RAX | 4889442438 | f8ffc73800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714634 | 5 | MOV | qword ptr [RSP + 0x40],RAX | 4889442440 | f8ffc73800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714644 | 5 | CALL | 0x140001300 | e867fdffff | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714659 | 3 | MOV | R12D,EAX | 448be0 | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714662 | 5 | CALL | 0x140001a50 | e8a5040000 | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714672 | 8 | LEA | RCX,[RSP + 0x98] | 488d8c2498000000 | f8ffc73800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714680 | 5 | CALL | 0x140001a60 | e8a3040000 | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714685 | 2 | MOV | EBP,EDI | 8bef | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714695 | 3 | AND | EBP,0x3 | 83e503 | fff800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714700 | 5 | CALL | 0x140001a00 | e82f040000 | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714717 | 5 | CALL | 0x1400019f0 | e80e040000 | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714727 | 3 | MOV | R13D,EAX | 448be8 | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714730 | 5 | CALL | 0x140001aa0 | e8b1040000 | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714735 | 5 | LEA | RCX,[RSP + 0x48] | 488d4c2448 | f8ffc73800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714740 | 3 | ADD | R13D,EAX | 4403e8 | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714743 | 5 | CALL | 0x140001a80 | e884040000 | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714757 | 3 | ADD | R13D,EAX | 4403e8 | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714771 | 8 | LEA | RCX,[RSP + 0x128] | 488d8c2428010000 | f8ffc73800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714779 | 2 | MOV | EDX,EDI | 8bd7 | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714781 | 3 | MOV | R15D,EAX | 448bf8 | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714784 | 5 | CALL | 0x140001070 | e84bfaffff | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714794 | 3 | MOV | R14D,EAX | 448bf0 | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714797 | 5 | CALL | 0x140001090 | e85efaffff | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714808 | 3 | ADD | R14D,EAX | 4403f0 | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714822 | 2 | MOV | EDI,EAX | 8bf8 | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714831 | 3 | LEA | ECX,[RBP + 0x2] | 8d4d02 | ffc000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714839 | 2 | MOV | ECX,EBP | 8bcd | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714843 | 5 | CALL | 0x140001180 | e820fbffff | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714855 | 2 | ADD | ESI,EAX | 03f0 | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714865 | 4 | MOVD | XMM0, EBP | 660f6ec5 | ffffffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714877 | 2 | MOV | EDX,EDI | 8bd7 | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714879 | 3 | MOV | ECX,R12D | 418bcc | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714882 | 3 | MOVAPS | XMM6, XMM0 | 0f28f0 | ffffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714885 | 5 | CALL | 0x140001120 | e896faffff | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368714897 | 2 | MOV | EBX,EAX | 8bd8 | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714919 | 2 | ADD | EBX,ECX | 03d9 | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714936 | 2 | ADD | EDI,ESI | 03fe | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714938 | 3 | ADD | EDI,R14D | 4103fe | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714955 | 7 | MOV | RDX,qword ptr [0x140003030] | 488b155e190000 | f8ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714962 | 2 | MOV | ECX,EDI | 8bcf | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714964 | 3 | ADD | RDX,RCX | 4803d1 | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714967 | 5 | LEA | RCX,[RSP + 0x48] | 488d4c2448 | f8ffc73800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714972 | 7 | MOV | qword ptr [0x140003030],RDX | 4889154d190000 | f8ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714984 | 5 | LEA | RCX,[RSP + 0x60] | 488d4c2460 | f8ffc73800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368714994 | 8 | LEA | RCX,[RSP + 0x98] | 488d8c2498000000 | f8ffc73800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368715007 | 5 | LEA | RCX,[RSP + 0x78] | 488d4c2478 | f8ffc73800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368715012 | 5 | CALL | 0x1400019d0 | e8c7020000 | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368715017 | 8 | MOV | RBX,qword ptr [RSP + 0x118] | 488b9c2418010000 | f8ffc73800000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368715048 | 2 | POP | R12 | 415c | f8f8 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368715051 | 1 | POP | RSI | 5e | f8 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368715053 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368715080 | 1 | RET |  | c3 | ff | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
-| ram | 5368715093 | 1 | PUSH | RDI | 57 | f8 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368715094 | 4 | SUB | RSP,0x20 | 4883ec20 | f8fff800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368715113 | 5 | CALL | 0x140001060 | e8f2f8ffff | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368715118 | 5 | CALL | 0x1400013d0 | e85dfcffff | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368715123 | 5 | CALL | 0x140001450 | e8d8fcffff | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368715128 | 5 | CALL | 0x140001340 | e8c3fbffff | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368715138 | 5 | CALL | 0x1400013a0 | e819fcffff | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368715164 | 6 | MOV | dword ptr [0x14000302c],EAX | 89058a180000 | ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368715170 | 2 | XOR | EBX,EBX | 33db | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368715184 | 6 | MOV | EDX,dword ptr [0x14000302c] | 8b1576180000 | ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368715190 | 2 | MOV | ECX,EBX | 8bcb | ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368715192 | 5 | CALL | 0x140001290 | e8d3faffff | ff00000000 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
-| ram | 5368715207 | 6 | MOV | dword ptr [0x14000302c],EAX | 89055f180000 | ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368715218 | 7 | MOV | RAX,qword ptr [0x140003030] | 488b0557180000 | f8ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368715235 | 5 | MOV | RBX,qword ptr [RSP + 0x30] | 488b5c2430 | f8ffc73800 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368715243 | 7 | MOV | qword ptr [0x140003030],RAX | 4889053e180000 | f8ffc700000000 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
-| ram | 5368715257 | 3 | XOR | RAX,RDI | 4833c7 | f8ffc0 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| Space | Address | Length | Mnemonic | Assembly | Bytes | Mask | Flow | Fallthrough | Terminal | Target | P-code | Producer | Metadata |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| ram | 5368713225 | 6 | MOV | dword ptr [0x14000302c],EAX | 89051d200000 | ffc700000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713248 | 6 | MOV | EAX,dword ptr [0x14000302c] | 8b0506200000 | ffc700000000 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713280 | 6 | MOV | EAX,dword ptr [0x14000302c] | 8b05e61f0000 | ffc700000000 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713286 | 3 | ADD | EAX,0x33 | 83c033 | fff800 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713289 | 6 | MOV | dword ptr [0x14000302c],EAX | 8905dd1f0000 | ffc700000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713295 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368713327 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368713332 | 6 | MOV | dword ptr [0x14000302c],EAX | 8905b21f0000 | ffc700000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713344 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368713360 | 3 | LEA | EAX,[RCX + RCX*0x2] | 8d0449 | ffc700 | 0 | 1 | 0 |  | 4 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713375 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368713392 | 3 | LEA | EAX,[RDX + 0x7] | 8d4207 | ffc000 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713420 | 4 | ADDSS | XMM0, XMM1 | f30f58c1 | ffffffc0 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713424 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368713440 | 3 | LEA | EAX,[RCX + 0x11] | 8d4111 | ffc000 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713443 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368713461 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368713484 | 2 | MOV | EAX,ECX | 8bc1 | ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713504 | 3 | LEA | EAX,[RDX + 0x21] | 8d4221 | ffc000 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713509 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368713536 | 4 | ADDSS | XMM0, XMM1 | f30f58c1 | ffffffc0 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713540 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368713563 | 2 | JG | 0x140001168 | 7f0b | ff00 | 2 | 1 | 0 | 5368713576 | 4 | sleigh | operands=1, flow=2, target=5368713576, pcode=0 |
+| ram | 5368713565 | 5 | MOV | EAX,0x1 | b801000000 | f800000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713570 | 4 | ADD | RSP,0x20 | 4883c420 | f8fff800 | 0 | 1 | 0 |  | 9 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713585 | 4 | ADD | RSP,0x20 | 4883c420 | f8fff800 | 0 | 1 | 0 |  | 9 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713589 | 1 | POP | RBX | 5b | f8 | 0 | 1 | 0 |  | 4 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
+| ram | 5368713604 | 2 | TEST | ECX,ECX | 85c9 | ffc0 | 0 | 1 | 0 |  | 9 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713608 | 5 | MOV | EAX,0x2 | b802000000 | f800000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713613 | 4 | ADD | RSP,0x28 | 4883c428 | f8fff800 | 0 | 1 | 0 |  | 9 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713617 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368713618 | 2 | DEC | ECX | ffc9 | fff8 | 0 | 1 | 0 |  | 9 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
+| ram | 5368713620 | 5 | CALL | 0x1400011b0 | e817000000 | ff00000000 | 4 | 1 | 0 | 5368713648 | 3 | sleigh | operands=1, flow=4, target=5368713648, pcode=0 |
+| ram | 5368713627 | 4 | ADD | RSP,0x28 | 4883c428 | f8fff800 | 0 | 1 | 0 |  | 9 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713631 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368713656 | 5 | MOV | EAX,0x3 | b803000000 | f800000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713673 | 3 | ADD | EAX,0x2 | 83c002 | fff800 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713676 | 4 | ADD | RSP,0x28 | 4883c428 | f8fff800 | 0 | 1 | 0 |  | 9 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713699 | 2 | JA | 0x14000122b | 7746 | ff00 | 2 | 1 | 0 | 5368713771 | 3 | sleigh | operands=1, flow=2, target=5368713771, pcode=0 |
+| ram | 5368713718 | 3 | ADD | RCX,RDX | 4803ca | f8ffc0 | 0 | 1 | 0 |  | 9 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713771 | 5 | MOV | EAX,0xffffffff | b8ffffffff | f800000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713836 | 5 | MOV | EAX,0x3 | b803000000 | f800000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713841 | 6 | CMP | ECX,0x3e8 | 81f9e8030000 | fff800000000 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713847 | 3 | CMOVNZ | EAX,EDX | 0f45c2 | ffffc0 | 2 | 1 | 0 | 5368713850 | 6 | sleigh | operands=2, flow=2, target=5368713850, pcode=0 |
+| ram | 5368713850 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368713851 | 5 | MOV | EAX,0x2 | b802000000 | f800000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713862 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368713872 | 2 | MOV | EAX,ECX | 8bc1 | ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713874 | 7 | LEA | RCX,[0x1400021b0] | 488d0d170f0000 | f8ffc700000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713888 | 2 | MOV | ECX,EDX | 8bca | ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713890 | 3 | JMP | RAX | 48ffe0 | f8fff8 | 5 | 0 | 1 |  | 1 | sleigh | operands=1, flow=5, target=<none>, pcode=0 |
+| ram | 5368713917 | 3 | MOV | RBX,RCX | 488bd9 | f8ffc0 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713920 | 2 | CALL | qword ptr [RAX] | ff10 | fff8 | 6 | 1 | 0 |  | 5 | sleigh | operands=1, flow=6, target=<none>, pcode=0 |
+| ram | 5368713925 | 3 | MOV | RCX,RBX | 488bcb | f8ffc0 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713933 | 6 | MOV | EDX,dword ptr [0x14000302c] | 8b15591d0000 | ffc700000000 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713947 | 2 | MOV | EAX,EDI | 8bc7 | ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713949 | 2 | XOR | EDX,ECX | 33d1 | ffc0 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713951 | 6 | MOV | dword ptr [0x14000302c],EDX | 8915471d0000 | ffc700000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713957 | 4 | ADD | RSP,0x20 | 4883c420 | f8fff800 | 0 | 1 | 0 |  | 9 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368713987 | 2 | JNZ | 0x140001309 | 7504 | ff00 | 2 | 1 | 0 | 5368713993 | 2 | sleigh | operands=1, flow=2, target=5368713993, pcode=0 |
+| ram | 5368713993 | 2 | INC | EDX | ffc2 | fff8 | 0 | 1 | 0 |  | 9 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
+| ram | 5368714016 | 2 | NOP |  | 6690 | ffff | 0 | 1 | 0 |  | 0 | sleigh | operands=0, flow=0, target=<none>, pcode=0 |
+| ram | 5368714024 | 5 | XOR | EAX,0xdeadbeef | 35efbeadde | ff00000000 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714058 | 3 | CMP | EAX,-0x1 | 83f8ff | fff800 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714063 | 6 | MOV | EAX,dword ptr [0x14000302c] | 8b05d71c0000 | ffc700000000 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714081 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368714082 | 5 | CALL | 0x140001320 | e8b9ffffff | ff00000000 | 4 | 1 | 0 | 5368714016 | 3 | sleigh | operands=1, flow=4, target=5368714016, pcode=0 |
+| ram | 5368714089 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714090 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714093 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714094 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714096 | 4 | SUB | RSP,0x28 | 4883ec28 | f8fff800 | 0 | 1 | 0 |  | 9 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714100 | 6 | MOV | EAX,dword ptr [0x140003000] | 8b05861c0000 | ffc700000000 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714109 | 2 | JZ | 0x140001393 | 7414 | ff00 | 2 | 1 | 0 | 5368714131 | 1 | sleigh | operands=1, flow=2, target=5368714131, pcode=0 |
+| ram | 5368714130 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368714137 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714139 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714140 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714141 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714143 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714144 | 4 | SUB | RSP,0x28 | 4883ec28 | f8fff800 | 0 | 1 | 0 |  | 9 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714154 | 3 | CMP | EAX,-0x3 | 83f8fd | fff800 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714165 | 3 | ADD | EAX,0x3 | 83c003 | fff800 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714168 | 6 | MOV | dword ptr [0x14000302c],EAX | 89056e1c0000 | ffc700000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714184 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714185 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714188 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714192 | 3 | MOV | RAX,RSP | 488bc4 | f8ffc0 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714202 | 3 | XORPS | XMM0, XMM0 | 0f57c0 | ffffc0 | 0 | 1 | 0 |  | 4 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714223 | 4 | MOVUPS | xmmword ptr [RAX + -0x78], XMM0 | 0f114088 | ffffc000 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714227 | 4 | MOVUPS | xmmword ptr [RAX + -0x68], XMM0 | 0f114098 | ffffc000 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714239 | 4 | MOVUPS | xmmword ptr [RAX + -0x48], XMM0 | 0f1140b8 | ffffc000 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714261 | 6 | MOV | R9D,0x40 | 41b940000000 | f8f800000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714267 | 5 | LEA | R8,[RSP + 0x20] | 4c8d442420 | f8ffc73800 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714280 | 4 | LEA | EDX,[R9 + 0x26] | 418d5126 | f8ffc000 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714290 | 6 | MOV | ECX,dword ptr [0x14000302c] | 8b0df41b0000 | ffc700000000 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714298 | 6 | MOV | dword ptr [0x14000302c],EAX | 8905ec1b0000 | ffc700000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714304 | 7 | ADD | RSP,0xa8 | 4881c4a8000000 | f8fff800000000 | 0 | 1 | 0 |  | 9 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714331 | 6 | CALL | qword ptr [0x140002010] | ff15af0b0000 | ffff00000000 | 6 | 1 | 0 |  | 4 | sleigh | operands=1, flow=6, target=<none>, pcode=0 |
+| ram | 5368714337 | 6 | CALL | qword ptr [0x140002000] | ff15990b0000 | ffff00000000 | 6 | 1 | 0 |  | 4 | sleigh | operands=1, flow=6, target=<none>, pcode=0 |
+| ram | 5368714355 | 7 | MOV | qword ptr [0x140003030],RCX | 48890db61b0000 | f8ffc700000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714366 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368714388 | 6 | MOV | ECX,dword ptr [0x14000302c] | 8b0d921b0000 | ffc700000000 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714394 | 6 | CALL | qword ptr [0x140002008] | ff15680b0000 | ffff00000000 | 6 | 1 | 0 |  | 4 | sleigh | operands=1, flow=6, target=<none>, pcode=0 |
+| ram | 5368714400 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714402 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714403 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714409 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714410 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714411 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714413 | 1 | INT3 |  | cc | ff | 6 | 1 | 0 |  | 3 | sleigh | operands=0, flow=6, target=<none>, pcode=0 |
+| ram | 5368714416 | 5 | MOV | qword ptr [RSP + 0x10],RBX | 48895c2410 | f8ffc73800 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714421 | 4 | MOV | dword ptr [RSP + 0x8],ECX | 894c2408 | ffc73800 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714426 | 1 | PUSH | RSI | 56 | f8 | 0 | 1 | 0 |  | 3 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
+| ram | 5368714427 | 1 | PUSH | RDI | 57 | f8 | 0 | 1 | 0 |  | 3 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
+| ram | 5368714428 | 2 | PUSH | R12 | 4154 | f8f8 | 0 | 1 | 0 |  | 3 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
+| ram | 5368714432 | 2 | PUSH | R14 | 4156 | f8f8 | 0 | 1 | 0 |  | 3 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
+| ram | 5368714443 | 2 | MOV | EAX,ECX | 8bc1 | ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714458 | 6 | MOV | R9D,0x5a | 41b95a000000 | f8f800000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714464 | 7 | MOV | dword ptr [RSP + 0x128],EAX | 89842428010000 | ffc73800000000 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714495 | 3 | ADD | R8,RAX | 4c03c0 | f8ffc0 | 0 | 1 | 0 |  | 9 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714503 | 3 | MOV | R8,RDX | 4c8bc2 | f8ffc0 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714513 | 4 | LEA | EDX,[R9 + -0x4f] | 418d51b1 | f8ffc000 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714543 | 3 | MOV | R8,RBX | 4c8bc3 | f8ffc0 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714546 | 8 | LEA | RCX,[RSP + 0x98] | 488d8c2498000000 | f8ffc73800000000 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714554 | 4 | LEA | EDX,[R9 + -0x4e] | 418d51b2 | f8ffc000 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714569 | 5 | LEA | RCX,[RSP + 0x60] | 488d4c2460 | f8ffc73800 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714583 | 5 | CALL | 0x1400018e0 | e884030000 | ff00000000 | 4 | 1 | 0 | 5368715488 | 3 | sleigh | operands=1, flow=4, target=5368715488, pcode=0 |
+| ram | 5368714593 | 5 | LEA | RCX,[RSP + 0x48] | 488d4c2448 | f8ffc73800 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714598 | 6 | MOV | R8D,0x1000 | 41b800100000 | f8f800000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714604 | 5 | CALL | 0x1400018b0 | e83f030000 | ff00000000 | 4 | 1 | 0 | 5368715440 | 3 | sleigh | operands=1, flow=4, target=5368715440, pcode=0 |
+| ram | 5368714616 | 5 | MOV | qword ptr [RSP + 0x38],RAX | 4889442438 | f8ffc73800 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714634 | 5 | MOV | qword ptr [RSP + 0x40],RAX | 4889442440 | f8ffc73800 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714644 | 5 | CALL | 0x140001300 | e867fdffff | ff00000000 | 4 | 1 | 0 | 5368713984 | 3 | sleigh | operands=1, flow=4, target=5368713984, pcode=0 |
+| ram | 5368714659 | 3 | MOV | R12D,EAX | 448be0 | f8ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714662 | 5 | CALL | 0x140001a50 | e8a5040000 | ff00000000 | 4 | 1 | 0 | 5368715856 | 3 | sleigh | operands=1, flow=4, target=5368715856, pcode=0 |
+| ram | 5368714672 | 8 | LEA | RCX,[RSP + 0x98] | 488d8c2498000000 | f8ffc73800000000 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714680 | 5 | CALL | 0x140001a60 | e8a3040000 | ff00000000 | 4 | 1 | 0 | 5368715872 | 3 | sleigh | operands=1, flow=4, target=5368715872, pcode=0 |
+| ram | 5368714685 | 2 | MOV | EBP,EDI | 8bef | ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714695 | 3 | AND | EBP,0x3 | 83e503 | fff800 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714700 | 5 | CALL | 0x140001a00 | e82f040000 | ff00000000 | 4 | 1 | 0 | 5368715776 | 3 | sleigh | operands=1, flow=4, target=5368715776, pcode=0 |
+| ram | 5368714717 | 5 | CALL | 0x1400019f0 | e80e040000 | ff00000000 | 4 | 1 | 0 | 5368715760 | 3 | sleigh | operands=1, flow=4, target=5368715760, pcode=0 |
+| ram | 5368714727 | 3 | MOV | R13D,EAX | 448be8 | f8ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714730 | 5 | CALL | 0x140001aa0 | e8b1040000 | ff00000000 | 4 | 1 | 0 | 5368715936 | 3 | sleigh | operands=1, flow=4, target=5368715936, pcode=0 |
+| ram | 5368714735 | 5 | LEA | RCX,[RSP + 0x48] | 488d4c2448 | f8ffc73800 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714740 | 3 | ADD | R13D,EAX | 4403e8 | f8ffc0 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714743 | 5 | CALL | 0x140001a80 | e884040000 | ff00000000 | 4 | 1 | 0 | 5368715904 | 3 | sleigh | operands=1, flow=4, target=5368715904, pcode=0 |
+| ram | 5368714757 | 3 | ADD | R13D,EAX | 4403e8 | f8ffc0 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714771 | 8 | LEA | RCX,[RSP + 0x128] | 488d8c2428010000 | f8ffc73800000000 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714779 | 2 | MOV | EDX,EDI | 8bd7 | ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714781 | 3 | MOV | R15D,EAX | 448bf8 | f8ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714784 | 5 | CALL | 0x140001070 | e84bfaffff | ff00000000 | 4 | 1 | 0 | 5368713328 | 3 | sleigh | operands=1, flow=4, target=5368713328, pcode=0 |
+| ram | 5368714794 | 3 | MOV | R14D,EAX | 448bf0 | f8ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714797 | 5 | CALL | 0x140001090 | e85efaffff | ff00000000 | 4 | 1 | 0 | 5368713360 | 3 | sleigh | operands=1, flow=4, target=5368713360, pcode=0 |
+| ram | 5368714808 | 3 | ADD | R14D,EAX | 4403f0 | f8ffc0 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714822 | 2 | MOV | EDI,EAX | 8bf8 | ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714831 | 3 | LEA | ECX,[RBP + 0x2] | 8d4d02 | ffc000 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714839 | 2 | MOV | ECX,EBP | 8bcd | ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714843 | 5 | CALL | 0x140001180 | e820fbffff | ff00000000 | 4 | 1 | 0 | 5368713600 | 3 | sleigh | operands=1, flow=4, target=5368713600, pcode=0 |
+| ram | 5368714855 | 2 | ADD | ESI,EAX | 03f0 | ffc0 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714865 | 4 | MOVD | XMM0, EBP | 660f6ec5 | ffffffc0 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714877 | 2 | MOV | EDX,EDI | 8bd7 | ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714879 | 3 | MOV | ECX,R12D | 418bcc | f8ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714882 | 3 | MOVAPS | XMM6, XMM0 | 0f28f0 | ffffc0 | 0 | 1 | 0 |  | 4 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714885 | 5 | CALL | 0x140001120 | e896faffff | ff00000000 | 4 | 1 | 0 | 5368713504 | 3 | sleigh | operands=1, flow=4, target=5368713504, pcode=0 |
+| ram | 5368714897 | 2 | MOV | EBX,EAX | 8bd8 | ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714919 | 2 | ADD | EBX,ECX | 03d9 | ffc0 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714936 | 2 | ADD | EDI,ESI | 03fe | ffc0 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714938 | 3 | ADD | EDI,R14D | 4103fe | f8ffc0 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714955 | 7 | MOV | RDX,qword ptr [0x140003030] | 488b155e190000 | f8ffc700000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714962 | 2 | MOV | ECX,EDI | 8bcf | ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714964 | 3 | ADD | RDX,RCX | 4803d1 | f8ffc0 | 0 | 1 | 0 |  | 9 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714967 | 5 | LEA | RCX,[RSP + 0x48] | 488d4c2448 | f8ffc73800 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714972 | 7 | MOV | qword ptr [0x140003030],RDX | 4889154d190000 | f8ffc700000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714984 | 5 | LEA | RCX,[RSP + 0x60] | 488d4c2460 | f8ffc73800 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368714994 | 8 | LEA | RCX,[RSP + 0x98] | 488d8c2498000000 | f8ffc73800000000 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368715007 | 5 | LEA | RCX,[RSP + 0x78] | 488d4c2478 | f8ffc73800 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368715012 | 5 | CALL | 0x1400019d0 | e8c7020000 | ff00000000 | 4 | 1 | 0 | 5368715728 | 3 | sleigh | operands=1, flow=4, target=5368715728, pcode=0 |
+| ram | 5368715017 | 8 | MOV | RBX,qword ptr [RSP + 0x118] | 488b9c2418010000 | f8ffc73800000000 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368715048 | 2 | POP | R12 | 415c | f8f8 | 0 | 1 | 0 |  | 4 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
+| ram | 5368715051 | 1 | POP | RSI | 5e | f8 | 0 | 1 | 0 |  | 4 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
+| ram | 5368715053 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368715080 | 1 | RET |  | c3 | ff | 7 | 0 | 1 |  | 3 | sleigh | operands=0, flow=7, target=<none>, pcode=0 |
+| ram | 5368715093 | 1 | PUSH | RDI | 57 | f8 | 0 | 1 | 0 |  | 3 | sleigh | operands=1, flow=0, target=<none>, pcode=0 |
+| ram | 5368715094 | 4 | SUB | RSP,0x20 | 4883ec20 | f8fff800 | 0 | 1 | 0 |  | 9 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368715113 | 5 | CALL | 0x140001060 | e8f2f8ffff | ff00000000 | 4 | 1 | 0 | 5368713312 | 3 | sleigh | operands=1, flow=4, target=5368713312, pcode=0 |
+| ram | 5368715118 | 5 | CALL | 0x1400013d0 | e85dfcffff | ff00000000 | 4 | 1 | 0 | 5368714192 | 3 | sleigh | operands=1, flow=4, target=5368714192, pcode=0 |
+| ram | 5368715123 | 5 | CALL | 0x140001450 | e8d8fcffff | ff00000000 | 4 | 1 | 0 | 5368714320 | 3 | sleigh | operands=1, flow=4, target=5368714320, pcode=0 |
+| ram | 5368715128 | 5 | CALL | 0x140001340 | e8c3fbffff | ff00000000 | 4 | 1 | 0 | 5368714048 | 3 | sleigh | operands=1, flow=4, target=5368714048, pcode=0 |
+| ram | 5368715138 | 5 | CALL | 0x1400013a0 | e819fcffff | ff00000000 | 4 | 1 | 0 | 5368714144 | 3 | sleigh | operands=1, flow=4, target=5368714144, pcode=0 |
+| ram | 5368715164 | 6 | MOV | dword ptr [0x14000302c],EAX | 89058a180000 | ffc700000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368715170 | 2 | XOR | EBX,EBX | 33db | ffc0 | 0 | 1 | 0 |  | 10 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368715184 | 6 | MOV | EDX,dword ptr [0x14000302c] | 8b1576180000 | ffc700000000 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368715190 | 2 | MOV | ECX,EBX | 8bcb | ffc0 | 0 | 1 | 0 |  | 2 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368715192 | 5 | CALL | 0x140001290 | e8d3faffff | ff00000000 | 4 | 1 | 0 | 5368713872 | 3 | sleigh | operands=1, flow=4, target=5368713872, pcode=0 |
+| ram | 5368715207 | 6 | MOV | dword ptr [0x14000302c],EAX | 89055f180000 | ffc700000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368715218 | 7 | MOV | RAX,qword ptr [0x140003030] | 488b0557180000 | f8ffc700000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368715235 | 5 | MOV | RBX,qword ptr [RSP + 0x30] | 488b5c2430 | f8ffc73800 | 0 | 1 | 0 |  | 3 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368715243 | 7 | MOV | qword ptr [0x140003030],RAX | 4889053e180000 | f8ffc700000000 | 0 | 1 | 0 |  | 1 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
+| ram | 5368715257 | 3 | XOR | RAX,RDI | 4833c7 | f8ffc0 | 0 | 1 | 0 |  | 9 | sleigh | operands=2, flow=0, target=<none>, pcode=0 |
 
 ### SQLite Symbols
 

@@ -78,17 +78,17 @@
 
 ## Medium Findings
 
-### MEDIUM-001: Durable instruction projection drops p-code and flow-target facts
+### MEDIUM-001: Durable instruction projection now preserves flow but not full p-code operations
 
-- [ ] Remediated.
-- **Reference:** [`core/events/code_events.cppm:50-70`](../../core/events/code_events.cppm#L50-L70); [`runtime/projections/software_model_projection.cppm:284-320`](../../runtime/projections/software_model_projection.cppm#L284-L320); report instruction metadata `pcode=0` and `target=<none>`.
+- [ ] Partially remediated: flow kind/target/fallthrough and p-code counts now survive events/SQLite; operation-level p-code replay remains open.
+- **Reference:** [`core/events/code_events.cppm:50-78`](../../core/events/code_events.cppm#L50-L78); [`runtime/projections/software_model_projection.cppm:284-340`](../../runtime/projections/software_model_projection.cppm#L284-L340); SQLite instruction metadata columns.
 - **Affected component:** Event replay, durable SQLite projection, and decompiler/provider observability.
-- **Evidence:** `ListingStateChanged` serializes bytes, mask, and operands but not flow kind/target or p-code operations. The projection initializes `instruction.pcode.instruction` but never restores operations. The report consequently shows `pcode=0` and no targets even for visible `JG/JZ/CALL/JMP` instructions.
+- **Evidence:** The report now shows durable flow fields and p-code counts for SQLite rows. The in-memory replay still has no operation bodies because `ListingStateChanged` does not serialize individual p-code operations.
 - **Expected behavior:** Replaying the event log into memory/SQLite must preserve the instruction facts needed by analysis and diagnostics.
-- **Actual behavior:** A fresh projection loses p-code and control-flow metadata and cannot independently explain the decompiler result.
+- **Actual behavior:** A fresh projection preserves control-flow metadata/counts but cannot independently reproduce p-code operation semantics.
 - **Impact:** Replay/reopen behavior differs from the live decoder; downstream analyzers cannot use durable p-code/flow facts.
-- **Root cause:** Event schema and SQLite instruction table are narrower than `core::Instruction`.
-- **Recommended fix:** Extend event/schema serialization for flow, operands, and p-code (or explicitly define a replay-time decoder contract and test it).
+- **Root cause:** Operation-level p-code serialization remains narrower than `core::Instruction`.
+- **Recommended fix:** Version listing events and persist opcode/varnode sequences, or define and test deterministic replay-time reconstruction.
 - **Regression risk:** Event schema versioning and old project migration are required.
 - **Validation:** Round-trip one branch, one memory operation, and one p-code operation through events and SQLite.
 

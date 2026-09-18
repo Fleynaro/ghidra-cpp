@@ -31,17 +31,17 @@
 
 ## Medium
 
-### MEDIUM-001: Listing events do not persist p-code or control-flow facts
+### MEDIUM-001: Listing events now persist flow but not full p-code operations
 
-- [ ] Remediated.
+- [ ] Partially remediated: flow fields and p-code counts are durable; operation bodies remain open.
 - **Reference:** [`../../core/events/code_events.cppm:50-70`](../../core/events/code_events.cppm#L50-L70), [`../projections/software_model_projection.cppm:284-320`](../projections/software_model_projection.cppm#L284-L320).
-- **Evidence:** The report's SQLite instruction metadata shows `pcode=0` and `target=<none>` for branch instructions because the event payload carries bytes/operands only and replay initializes only the instruction address.
+- **Evidence:** The report's SQLite instruction metadata now includes flow/fallthrough/terminal/target and p-code-count columns; replay still lacks operation-level p-code.
 - **Expected behavior:** The durable instruction row and replayed in-memory instruction must preserve flow kind/target and p-code operations needed by analysis and navigation.
-- **Actual behavior:** The report exposes mnemonic/bytes/operands but replay leaves `FlowInfo` defaulted and `PcodeSequence` empty; SQLite cannot represent those facts at all.
+- **Actual behavior:** Replay preserves flow metadata/counts but `PcodeSequence` operation bodies remain empty; SQLite has no opcode/varnode representation.
 - **Impact:** A reopened projection is not equivalent to the live decoded model and cannot support p-code/flow-driven analyzers.
 - **Reproduction:** Inspect `SQLite Instructions` metadata for visible `JG`, `CALL`, or `JMP` rows; each reports `flow=0`, `target=<none>`, and `pcode=0`.
-- **Root cause:** Event/schema serialization omits flow and p-code fields.
-- **Recommended fix:** Version listing events and persist flow/p-code or define and test deterministic replay-time decoder reconstruction.
+- **Root cause:** Operation-level p-code serialization remains omitted.
+- **Recommended fix:** Version listing events and persist opcode/varnode sequences or define/test deterministic replay-time reconstruction.
 - **Regression risks:** Existing event frames need a migration/default policy; malformed p-code must fail transactionally rather than silently default.
 - **Regression validation:** Round-trip branch, memory, and p-code instructions through events and SQLite.
 

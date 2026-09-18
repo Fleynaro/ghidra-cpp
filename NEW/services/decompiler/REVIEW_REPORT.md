@@ -46,13 +46,13 @@
 - [ ] Remediated.
 - **Reference:** [`decompiler_service.cppm:135-141`](decompiler_service.cppm#L135-L141), [`src/decompiler.cppm:596-604`](src/decompiler.cppm#L596-L604), and current report `:950-989`.
 - **Affected component:** Native flow recovery for interprocedural calls.
-- **Technical evidence:** The adapter constructs `recode::decompiler::Decompiler` with only architecture, p-code, and memory providers; it does not supply a `FunctionProvider` populated from `request.providers.project`. The regenerated report still marks `update_entity_pointer` failed with `Could not find op at target address ... 0x1400012b0`, which is the direct target of its call into `update_entity`.
+- **Technical evidence:** The adapter now supplies a bounded direct-callee `FunctionProvider` from `request.providers.project`, but the regenerated report still marks `update_entity_pointer` failed with `Could not find op at target address ... 0x1400012b0`, the direct target of its call into `update_entity`.
 - **Expected behavior:** A decompilation request must either resolve direct calls to known project functions through a bounded function provider or classify the external target without aborting the caller's native decompilation.
 - **Actual behavior:** Native flow attempts to find the callee operation in the selected function's local body and throws when the callee lies in another function.
 - **Impact:** Interprocedural functions fail while simple and self-recursive functions succeed; a partial report cannot provide complete decompilation for the project sample.
 - **Reproduction:** Run the current integration pipeline and inspect `update_entity_pointer` at `0x140001300`; the diagnostic target is `0x1400012b0`.
-- **Root cause:** The service owns a project query but never adapts its function snapshots into the native `FunctionProvider` contract.
-- **Recommended fix:** Implement a bounded query-backed `FunctionProvider` for known functions and pass it to the native architecture/context; keep unrelated functions outside the selected call graph and preserve unresolved external-call semantics.
+- **Root cause:** The initial service omitted a function provider; the remaining issue is native target-op address mapping even with bounded direct-callee descriptions.
+- **Recommended fix:** Instrument and correct native target-op mapping for the provider contract; keep unrelated functions outside the selected call graph and preserve unresolved external-call semantics.
 - **Regression risks:** Recursive/mutual calls must not recurse unboundedly; provider ranges must retain per-function names/boundaries and avoid cross-function byte leakage.
 - **Relevant tests or validation:** Add direct cross-function, mutual-recursion, and external-call decompilation cases and require complete status for each supported case.
 
@@ -78,7 +78,7 @@
 - [x] Remediated: native range is again bounded to `body_end + 1`; CFG boundary work is handled in the project loader.
 - **Reference:** [`decompiler_service.cppm:146-156`](decompiler_service.cppm#L146-L156) and the fixture function boundaries in [`../../services/analyzers/tests/data/test_analyzers_integration.md:773-835`](../../services/analyzers/tests/data/test_analyzers_integration.md#L773-L835).
 - **Affected component:** Native function range construction and decompiler isolation.
-- **Technical evidence:** The current adapter turns an inclusive function end into `native_end = body_end + 16`, but the request carries no next-function upper bound. The fixture's `fixture_entry` ends at `0x140001808` and `Asset` begins at `0x140001810`; a request for `fixture_entry` therefore permits native reads through `0x140001818`, inside the next function.
+- **Technical evidence:** The adapter now uses `native_end = body_end + 1`; CFG seed boundaries and the loader body range prevent unconditional read-ahead into the next export.
 - **Expected behavior:** Native decompilation must read only the requested function body and its explicitly reachable blocks, never bytes belonging to an adjacent function.
 - **Actual behavior:** The previous fixed read-ahead was removed; the native range now stops at the exclusive end of the materialized body.
 - **Impact:** C output, CFG, raw instructions, and signatures can include instructions attributed to the wrong function; end-of-image/adjacent-function behavior becomes data-dependent.
@@ -110,7 +110,7 @@
 
 - [x] Checked-in golden report and adapter source were inspected read-only.
 - [x] Baseline validation recorded by the repository report: `NEW\build.bat all`, 53/53 before concurrent remediation.
-- [ ] No post-remediation native decompiler run was performed during this review.
+- [x] Post-remediation integration run completed; one native target-op failure remains recorded in the golden report.
 
 ## Unresolved Questions And Residual Risks
 

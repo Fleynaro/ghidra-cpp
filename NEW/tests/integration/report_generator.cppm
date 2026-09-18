@@ -146,9 +146,9 @@ export [[nodiscard]] std::expected<SqliteReportData, std::string> read_projectio
               "start_address;");
     auto functions = query(
         "SELECT space,entry_address,end_address,name,status,source_service FROM functions ORDER BY entry_address;");
-    auto instructions = query("SELECT space,address,length,mnemonic,assembly,bytes,instruction_mask,source_service "
-                              "FROM instructions ORDER BY "
-                              "address;");
+    auto instructions = query("SELECT space,address,length,mnemonic,assembly,bytes,instruction_mask,flow_kind,"
+                              "flow_fallthrough,flow_terminal,COALESCE(flow_target,''),pcode_count,source_service "
+                              "FROM instructions ORDER BY address;");
     auto symbols = query(
         "SELECT COALESCE(space,''),COALESCE(address,''),name,namespace,priority FROM symbols ORDER BY entity_id;");
     auto analysis_runs = query("SELECT run_id,status,sequence FROM analysis_runs ORDER BY sequence,run_id;");
@@ -428,15 +428,13 @@ export [[nodiscard]] std::expected<std::string, std::string> generate_report(con
                                                                              const ReportLimits& limits) {
     if (!input.query)
         return std::unexpected("Cannot generate report without an in-memory project query");
+    const bool partial_profile = input.analyzed.analyzers.size() < 2U;
+    const bool failed_decompilation = std::ranges::any_of(input.decompilations, [](const auto& item) {
+        return item.result.status != core::DecompilationStatus::complete;
+    });
     std::ostringstream output;
     output << "# ReCode Integration Report\n\n"
-           << "- **Status:** "
-           << (std::ranges::any_of(
-                   input.decompilations,
-                   [](const auto& item) { return item.result.status != core::DecompilationStatus::complete; })
-                   ? "PARTIAL"
-                   : "PASS")
-           << "\n"
+           << "- **Status:** " << (partial_profile || failed_decompilation ? "PARTIAL" : "PASS") << "\n"
            << "- **Test:** `" << input.test_name << "`\n"
            << "- **Fixture:** `" << input.fixture_label << "`\n"
            << "- **SQLite projection:** `" << input.database_label << "`\n"
@@ -446,6 +444,8 @@ export [[nodiscard]] std::expected<std::string, std::string> generate_report(con
            << ", text_chars=" << limits.max_text_chars << "\n"
            << "- **Load revision:** " << input.loaded.revision.value << "\n"
            << "- **Analysis revision:** " << input.analyzed.committed_revision.value << "\n"
+           << "- **Analyzer profile:** " << (partial_profile ? "reduced" : "full") << " ("
+           << input.analyzed.analyzers.size() << " registered)\n"
            << "- **SQLite checkpoint:** " << input.sqlite.checkpoint << "\n\n";
 
     output << "## Pipeline\n\n"
@@ -545,7 +545,8 @@ export [[nodiscard]] std::expected<std::string, std::string> generate_report(con
                                   iterator->pcode.operations.size()));
     }
     write_table(output, "SQLite Instructions",
-                {"Space", "Address", "Length", "Mnemonic", "Assembly", "Bytes", "Mask", "Producer", "Metadata"},
+                {"Space", "Address", "Length", "Mnemonic", "Assembly", "Bytes", "Mask", "Flow", "Fallthrough",
+                 "Terminal", "Target", "P-code", "Producer", "Metadata"},
                 sqlite_instructions, limits.max_sqlite_instructions, limits.seed, "sqlite-instructions", limits);
     write_table(output, "SQLite Symbols", {"Space", "Address", "Name", "Namespace", "Priority"}, input.sqlite.symbols,
                 limits.max_symbols, limits.seed, "symbols", limits);
