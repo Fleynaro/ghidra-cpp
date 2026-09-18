@@ -8,7 +8,8 @@
 - **Limits:** functions=50, decompilations=10, instructions=1000, sqlite_instructions=200, text_chars=100
 - **Load revision:** 537
 - **Analysis revision:** 539
-- **Analyzer profile:** reduced (1 registered)
+- **Analyzer profile:** full (35 registered)
+- **Entity profile:** missing references/data
 - **SQLite checkpoint:** 539
 
 ## Pipeline
@@ -20,7 +21,41 @@
 
 ### Executed Analyzers
 
+- `ASCII Strings`
+- `Aggressive Instruction Finder`
+- `Apply Data Archives`
+- `Call Convention ID`
+- `Call-Fixup Installer`
+- `Condense Filler Bytes`
+- `Constant Propagation`
+- `Create Address Tables`
+- `Data Reference`
+- `Decompiler Parameter ID`
+- `Decompiler Switch Analysis`
+- `Demangler Microsoft`
+- `Disassemble Entry Points`
+- `Embedded Media`
+- `External Entry References`
+- `Function ID`
+- `Function Start Pre Search`
+- `Function Start Search`
+- `Function Start Search After Code`
+- `Function Start Search After Data`
+- `Function Start Search In Functions`
+- `Non-Returning Functions - Discovered`
+- `Non-Returning Functions - Known`
+- `PDB MSDIA`
+- `PDB Universal`
+- `Reference`
+- `Scalar Operand References`
+- `Shared Return Calls`
+- `Stack`
+- `Subroutine References`
+- `Variadic Function Signature Override`
+- `WindowsPE x86 Propagate External Parameters`
+- `WindowsResourceReference`
 - `runtime.entry_materialization`
+- `x86 Constant Reference Analyzer`
 
 #### Analysis Diagnostics
 

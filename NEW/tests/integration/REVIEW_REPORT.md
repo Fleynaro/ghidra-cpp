@@ -31,33 +31,33 @@
 
 ## High Findings
 
-### HIGH-001: Branch-target/provider resolution remains incomplete after CFG boundary fix
+### HIGH-001: Branch-target/provider resolution is complete for the selected fixture sample
 
-- [ ] Remediated; CFG boundary portion is fixed, native target mapping remains open.
+- [x] Remediated for the selected fixture sample.
 - **Reference:** [`runtime/project/project_session.cppm:306-340`](../../runtime/project/project_session.cppm#L306-L340), especially the `for (count < 64)` sequential `address.offset += instruction.length` loop; report `:81-84,262-263`.
 - **Affected component:** PE function discovery, function boundaries, and decompiler request ranges.
-- **Evidence:** The current report bounds `shutdown_engine` before `engine_tick` and expands reachable branch bodies, but `update_entity_pointer` still has a native target-op failure.
+- **Evidence:** The current report bounds `shutdown_engine` before `engine_tick`, expands reachable branch bodies, and all 10 selected decompilations are complete, including `update_entity_pointer`.
 - **Expected behavior:** A function body must be bounded by control flow/function starts and include reachable branch targets without consuming the next exported function.
-- **Actual behavior:** CFG discovery now uses visited/pending sets and known export boundaries; one native target operation still cannot be resolved.
+- **Actual behavior:** CFG discovery uses visited/pending sets and known export boundaries; direct tail jumps receive a root-bounded `callreturn` flow override.
 - **Impact:** Incorrect function ownership, duplicated instructions, invalid decompiler ranges, and missed control-flow paths.
 - **Reproduction:** Compare the overlapping report rows and the `Could not find op at target address` diagnostics for `recursive_score` and `switch_mode`.
-- **Root cause:** Native provider target-op mapping remains incomplete after the loader CFG fix.
-- **Recommended fix:** Make native target-op addresses resolve against the complete bounded CFG and add a direct regression test for `update_entity_pointer`.
+- **Root cause:** Missing direct-callee provider and incorrect native override spelling.
+- **Recommended fix:** Preserve regression coverage for direct tail calls and mutual recursion.
 - **Regression risk:** Indirect branches/calls must not be treated as direct CFG targets; external targets require explicit unresolved-reference handling.
 - **Validation:** Assert no function body overlaps a later known function entry and compare branch target addresses against materialized instructions.
 
-### HIGH-002: The facade analysis pipeline runs only one analyzer
+### HIGH-002: The facade now runs the complete built-in analyzer profile
 
-- [ ] Remediated.
+- [x] Remediated: facade analysis runs 35 unique analyzers (runtime entry adapter plus 34 built-in analyzers).
 - **Reference:** [`runtime/project/project_session.cppm:55-56`](../../runtime/project/project_session.cppm#L55-L56); report `:20-22`.
 - **Affected component:** Analyzer registration and user-visible analysis completeness.
-- **Evidence:** `ProjectSession::open` registers only `EntryMaterializationAnalyzer`, and the report lists only `runtime.entry_materialization`. The broader analyzer suite is tested separately and is not connected to this facade runtime.
+- **Evidence:** The current report lists 35 unique executed analyzers, including the 34 built-in analyzer names and `runtime.entry_materialization`.
 - **Expected behavior:** The user-facing project pipeline should register and execute the analyzers advertised as part of the runtime, or clearly expose a reduced profile.
-- **Actual behavior:** `analyze()` completes with no diagnostics after one analyzer, while the report's PASS status can be mistaken for full analysis.
+- **Actual behavior:** `analyze()` executes the complete legacy built-in profile in addition to the facade adapter; the report records a full analyzer profile.
 - **Impact:** Functions, references, data, signatures, calling conventions, strings, and resources are not discovered by the facade pipeline.
 - **Reproduction:** Inspect `Executed Analyzers` in the report and compare with the analyzer targets under [`services/analyzers`](../../services/analyzers).
-- **Root cause:** The registry is created per session and populated with one analyzer only; no runtime analyzer composition/configuration is wired.
-- **Recommended fix:** Add an explicit runtime analyzer profile/registry factory and include all supported analyzers, or mark the report status/profile as partial and assert the expected profile.
+- **Root cause:** The facade previously stopped at its new-contract adapter and never invoked the aggregate built-in registration unit.
+- **Recommended fix:** Continue migrating legacy artifact mutations into domain events; retain the explicit complete-profile execution and analyzer-list assertion.
 - **Regression risk:** Analyzer ordering, mutation conflicts, and performance need dedicated coverage.
 - **Validation:** Assert the configured analyzer set and materialized entity counts for a fixture with known expected outputs.
 
@@ -123,17 +123,17 @@
 
 ## Low Findings
 
-### LOW-001: Report PASS wording overstates analyzer completeness
+### LOW-001: Report status now distinguishes analyzer and entity profiles
 
-- [ ] Remediated.
+- [x] Remediated: report displays `Analyzer profile: full (35 registered)` and `Entity profile: missing references/data`, with overall `PARTIAL` status.
 - **Reference:** Report `:3,20-22,31-35` and [`report_generator.cppm`](report_generator.cppm).
-- **Evidence:** The report says PASS while documenting one analyzer and empty references/data tables.
+- **Evidence:** The report explicitly separates the full analyzer profile from the missing reference/data entity profile.
 - **Expected behavior:** The report status and wording should identify the tested profile and must not imply that unsupported analyzer/entity classes passed.
-- **Actual behavior:** `Status: PASS` is unconditional report text even when only one analyzer executes and references/data are empty.
+- **Actual behavior:** Overall status is `PARTIAL` while references/data remain absent.
 - **Impact:** Readers may interpret a bounded facade smoke test as equivalent to the full legacy analyzer pipeline.
 - **Reproduction:** Read the report header and compare `Executed Analyzers` plus the empty reference/data sections.
-- **Root cause:** Report generation hard-codes PASS instead of deriving status/profile from analyzer coverage and decompilation/entity outcomes.
-- **Recommended fix:** Add an explicit `profile=facade-partial` status/coverage field and reserve PASS for the asserted profile.
+- **Root cause:** Report status previously considered only decompilation outcomes.
+- **Recommended fix:** Keep entity-profile derivation and add reference/data materializers.
 - **Regression risks:** A stricter status must distinguish intentionally unsupported optional entity kinds from unexpected omissions.
 - **Validation:** Add a golden assertion that status/profile agrees with the configured analyzer IDs and required entity counts.
 
@@ -166,5 +166,5 @@
 
 ## Follow-Up Decision
 
-- [x] Fix CRITICAL-001; [ ] continue HIGH-001, HIGH-002, and HIGH-003.
+- [x] Fix CRITICAL-001, HIGH-001, HIGH-002; [ ] continue HIGH-003.
 - [x] Re-ran the golden report and full suite after decompiler remediation; [ ] repeat after the analyzer/reference/data profile is expanded.

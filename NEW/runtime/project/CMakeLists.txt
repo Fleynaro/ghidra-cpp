@@ -23,6 +23,7 @@ target_link_libraries(recode_runtime_project PUBLIC
     ReCode::DecompilerService
     ReCode::FunctionIdService
     ReCode::AnalyzerServices
+    ReCode::Analyzer
 )
 target_compile_features(recode_runtime_project PUBLIC cxx_std_23)
 target_compile_definitions(recode_runtime_project PUBLIC

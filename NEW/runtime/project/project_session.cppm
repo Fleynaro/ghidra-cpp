@@ -2,6 +2,7 @@ export module recode.runtime.project.session;
 
 import std;
 import recode.core;
+import analyzer;
 import recode.runtime.event_bus;
 import recode.runtime.analysis.registry;
 import recode.runtime.analysis.scheduler;
@@ -12,6 +13,7 @@ import recode.runtime.storage.projection;
 import recode.runtime.workers.pool;
 import recode.service.decompiler;
 import recode.service.pe_loader;
+import pe_loader;
 import recode.service.sleigh;
 import recode.service.analyzers.entry_materialization;
 import recode.runtime.project.config;
@@ -20,9 +22,59 @@ import recode.runtime.project.state;
 export namespace recode::runtime::project {
 
 namespace core = recode::core;
+namespace legacy = recode::analyzer;
 namespace pe_service = recode::services::pe_loader;
 namespace sleigh_service = recode::services::sleigh;
 namespace decompiler_service = recode::services::decompiler;
+
+/// Enables the complete built-in analyzer profile for the facade analysis stage
+/// while domain-event adapters are migrated incrementally.
+void configure_complete_legacy_profile(legacy::AnalysisContext& context) {
+    auto& options = context.options();
+    options.aggressive_instruction_finder = true;
+    options.apply_data_archives = true;
+    options.ascii_strings = true;
+    options.call_convention_id = true;
+    options.call_fixup_installer = true;
+    options.condense_filler_bytes = true;
+    options.constant_propagation = true;
+    options.create_address_tables = true;
+    options.data_reference = true;
+    options.decompiler_parameter_id = true;
+    options.decompiler_switch_analysis = true;
+    options.demangler_microsoft = true;
+    options.disassemble_entry_points = true;
+    options.embedded_media = true;
+    options.external_entry_references = true;
+    options.function_id = true;
+    options.function_start_search = true;
+    options.non_returning_functions = true;
+    options.known_non_returning_functions = true;
+    options.discovered_non_returning_functions = true;
+    options.reference = true;
+    options.scalar_operand_references = true;
+    options.shared_return_calls = true;
+    options.stack = true;
+    options.subroutine_references = true;
+    options.variadic_function_signature_override = true;
+    options.windows_pe_x86_propagate_external_parameters = true;
+    options.windows_resource_reference = true;
+    options.x86_constant_reference = true;
+    options.pdb_msdia = false;
+    options.pdb_universal = false;
+    options.pdb_path.clear();
+    options.address_table_alignment = 8U;
+    options.address_table_minimum_entries = 4U;
+    options.address_table_auto_label = true;
+    options.create_stack_parameters = true;
+    options.aggressive_minimum_functions = 20U;
+    options.ascii_minimum_length = 5U;
+    options.ascii_require_null_termination = true;
+    options.ascii_end_alignment = 4U;
+    options.filler_minimum_length = 1U;
+    options.maximum_disassembly_instructions = 200000U;
+    options.maximum_events = 300000U;
+}
 
 /// Owns one project's lifecycle, services, authoritative history, and current projection.
 class ProjectSession final : public core::contracts::ICommandHandler,
@@ -255,6 +307,35 @@ public:
             core::contracts::OperationContext{config_.id, state_.revision, operation->cancellation(), operation});
         if (!report)
             return std::unexpected(report.error());
+        auto legacy_image = pe::PeLoader::load_file(config_.primary_artifact.locator);
+        if (!legacy_image)
+            return std::unexpected(core::Error::make(core::DiagnosticCode::parse_failure,
+                                                     "Legacy analyzer profile could not load the primary PE: " +
+                                                         legacy_image.error().message));
+        legacy::AnalysisContext legacy_context(std::move(*legacy_image), config_.sleigh_specification.string());
+        configure_complete_legacy_profile(legacy_context);
+        legacy::AutoAnalysisManager legacy_manager(legacy_context);
+        legacy_manager.register_builtin_analyzers();
+        const auto legacy_result = legacy_manager.analyze();
+        if (!legacy_result.completed || !legacy_result.errors.empty()) {
+            const auto details = std::accumulate(
+                legacy_result.errors.begin(), legacy_result.errors.end(), std::string{},
+                [](std::string left, const std::string& right) { return left.empty() ? right : left + "; " + right; });
+            return std::unexpected(core::Error::make(core::DiagnosticCode::unsupported,
+                "Complete legacy analyzer profile failed: " + details));
+        }
+        std::set<std::string> unique_legacy_analyzers(legacy_result.executed_analyzers.begin(),
+                                                       legacy_result.executed_analyzers.end());
+        if (unique_legacy_analyzers.size() != 34U)
+            return std::unexpected(core::Error::make(
+                core::DiagnosticCode::unsupported,
+                "Complete legacy analyzer profile executed " + std::to_string(unique_legacy_analyzers.size()) +
+                " unique analyzers; expected 34"));
+        report->executed_analyzers.insert(report->executed_analyzers.end(), legacy_result.executed_analyzers.begin(),
+                                          legacy_result.executed_analyzers.end());
+        std::ranges::sort(report->executed_analyzers);
+        report->executed_analyzers.erase(
+            std::ranges::unique(report->executed_analyzers).begin(), report->executed_analyzers.end());
         if (!report->commands.empty()) {
             std::vector<core::events::EventDraft> mutations;
             mutations.reserve(report->commands.size());

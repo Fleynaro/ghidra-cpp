@@ -16,31 +16,31 @@
 
 ## High
 
-### HIGH-001: Native branch-target resolution remains incomplete after CFG boundary fix
+### HIGH-001: Native branch-target resolution is complete for the fixture sample
 
-- [ ] Remediated; CFG boundary portion is fixed.
+- [x] Remediated for the selected fixture sample.
 - **Reference:** [`project_session.cppm:306-340`](project_session.cppm#L306-L340), report function rows at `:81-84`.
-- **Evidence:** The loader now uses a bounded CFG worklist and known export boundaries, eliminating the shutdown/engine_tick overlap; `update_entity_pointer` still fails in native target-op resolution.
+- **Evidence:** The bounded CFG and root flow provider eliminate the overlap; all selected report decompilations, including `update_entity_pointer`, are complete.
 - **Expected behavior:** Each function body should contain its own reachable instructions and stop before the next known function seed; direct branch targets must be represented in the body.
 - **Actual behavior:** The baseline loader advances linearly and imposes a fixed cap, so it consumes later exported functions and omits branch-target blocks.
 - **Impact:** Incorrect function ownership and invalid native decompilation ranges.
 - **Reproduction:** Compare the overlapping baseline report rows and decompile `recursive_score`/`switch_mode`; the report records native target-op failures.
-- **Root cause:** Native target-op mapping remains incomplete after the loader CFG fix.
-- **Recommended fix:** Complete native target-op mapping and add branch-target regression coverage.
+- **Root cause:** Missing direct-callee provider and native override spelling.
+- **Recommended fix:** Preserve direct tail-call regression coverage.
 - **Regression risks:** Indirect branches and terminal calls need explicit unresolved-target semantics; a read-ahead range must not cross the next function.
 - **Regression validation:** Assert no body contains a later function entry and that direct branch targets have materialized instructions.
 
-### HIGH-002: Only EntryMaterializationAnalyzer is registered
+### HIGH-002: The complete built-in analyzer profile now runs in facade analyze
 
-- [ ] Remediated.
+- [x] Remediated: the report lists 35 unique executed analyzers (34 built-ins plus the runtime adapter).
 - **Reference:** [`project_session.cppm:55-56`](project_session.cppm#L55-L56), report `Executed Analyzers`.
-- **Evidence:** The facade analysis report contains only `runtime.entry_materialization`; no references, data objects, signatures, or analyzer-derived facts are produced.
+- **Evidence:** The facade analysis report lists the 34 aggregate built-in analyzer names plus `runtime.entry_materialization`.
 - **Expected behavior:** The configured facade profile must register and execute every supported analyzer, or identify itself as an intentionally partial profile.
-- **Actual behavior:** `analyze()` completes after one read-only invariant checker while the report is labeled PASS without a profile qualifier.
+- **Actual behavior:** `analyze()` executes the full legacy profile and records a full analyzer profile; artifact event adapters remain a separate gap.
 - **Impact:** The user-facing facade does not run the full supported analyzer pipeline.
 - **Reproduction:** Compare report `Executed Analyzers` with `analyzer_global_integration_tests.cppm:270-281`, which expects 34 registered builtin analyzers and checks that each executes.
-- **Root cause:** The per-session registry is populated with one analyzer and has no runtime analyzer composition factory.
-- **Recommended fix:** Introduce a runtime analyzer profile/factory and register all supported analyzers, or mark the facade profile explicitly partial.
+- **Root cause:** The session previously never invoked the aggregate analyzer registration unit.
+- **Recommended fix:** Continue adapting legacy mutation artifacts into domain events while preserving full-profile execution.
 - **Regression risks:** Full registration requires deterministic dependency ordering and mutation-conflict handling.
 - **Regression validation:** Assert analyzer IDs and known fixture entity counts.
 
@@ -113,5 +113,5 @@
 
 ## Follow-Up
 
-- [ ] Fix `HIGH-001`, `HIGH-002`, and `HIGH-003` after the integration report baseline is updated.
+- [x] Fix `HIGH-001` and `HIGH-002`; [ ] continue `HIGH-003`.
 - [ ] Repeat the full review after remediation.

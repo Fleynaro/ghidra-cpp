@@ -428,13 +428,16 @@ export [[nodiscard]] std::expected<std::string, std::string> generate_report(con
                                                                              const ReportLimits& limits) {
     if (!input.query)
         return std::unexpected("Cannot generate report without an in-memory project query");
-    const bool partial_profile = input.analyzed.analyzers.size() < 2U;
+    const bool reduced_analyzer_profile = input.analyzed.analyzers.size() < 2U;
+    const bool missing_reference_data_profile = input.query->data_objects().empty() && input.sqlite.references.empty();
     const bool failed_decompilation = std::ranges::any_of(input.decompilations, [](const auto& item) {
         return item.result.status != core::DecompilationStatus::complete;
     });
     std::ostringstream output;
     output << "# ReCode Integration Report\n\n"
-           << "- **Status:** " << (partial_profile || failed_decompilation ? "PARTIAL" : "PASS") << "\n"
+           << "- **Status:** "
+           << (reduced_analyzer_profile || missing_reference_data_profile || failed_decompilation ? "PARTIAL" : "PASS")
+           << "\n"
            << "- **Test:** `" << input.test_name << "`\n"
            << "- **Fixture:** `" << input.fixture_label << "`\n"
            << "- **SQLite projection:** `" << input.database_label << "`\n"
@@ -444,8 +447,10 @@ export [[nodiscard]] std::expected<std::string, std::string> generate_report(con
            << ", text_chars=" << limits.max_text_chars << "\n"
            << "- **Load revision:** " << input.loaded.revision.value << "\n"
            << "- **Analysis revision:** " << input.analyzed.committed_revision.value << "\n"
-           << "- **Analyzer profile:** " << (partial_profile ? "reduced" : "full") << " ("
+           << "- **Analyzer profile:** " << (reduced_analyzer_profile ? "reduced" : "full") << " ("
            << input.analyzed.analyzers.size() << " registered)\n"
+           << "- **Entity profile:** " << (missing_reference_data_profile ? "missing references/data" : "complete")
+           << "\n"
            << "- **SQLite checkpoint:** " << input.sqlite.checkpoint << "\n\n";
 
     output << "## Pipeline\n\n"
