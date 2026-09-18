@@ -430,7 +430,13 @@ export [[nodiscard]] std::expected<std::string, std::string> generate_report(con
         return std::unexpected("Cannot generate report without an in-memory project query");
     std::ostringstream output;
     output << "# ReCode Integration Report\n\n"
-           << "- **Status:** PASS\n"
+           << "- **Status:** "
+           << (std::ranges::any_of(
+                   input.decompilations,
+                   [](const auto& item) { return item.result.status != core::DecompilationStatus::complete; })
+                   ? "PARTIAL"
+                   : "PASS")
+           << "\n"
            << "- **Test:** `" << input.test_name << "`\n"
            << "- **Fixture:** `" << input.fixture_label << "`\n"
            << "- **SQLite projection:** `" << input.database_label << "`\n"
@@ -696,6 +702,18 @@ run_full_pipeline_report(const std::filesystem::path& root, const std::filesyste
     const auto sqlite = read_projection(database, config.id);
     if (!sqlite)
         return std::unexpected("SQLite projection read failed: " + sqlite.error());
+    if (sqlite->checkpoint != query->current_revision().value)
+        return std::unexpected("SQLite checkpoint does not match the in-memory query revision");
+    if (sqlite->functions.size() != functions.size())
+        return std::unexpected("SQLite function count does not match the in-memory projection");
+    if (sqlite->instructions.size() != query->instructions().size())
+        return std::unexpected("SQLite instruction count does not match the in-memory projection");
+    if (sqlite->memory_regions.size() != query->memory_regions().size())
+        return std::unexpected("SQLite memory-region count does not match the in-memory projection");
+    if (sqlite->symbols.size() != query->symbols().size())
+        return std::unexpected("SQLite symbol count does not match the in-memory projection");
+    if (sqlite->data_objects.size() != query->data_objects().size())
+        return std::unexpected("SQLite data-object count does not match the in-memory projection");
     if (sqlite->functions.empty() || sqlite->instructions.empty() || sqlite->memory_regions.empty() ||
         sqlite->symbols.empty() || sqlite->analysis_runs.empty())
         return std::unexpected("SQLite projection is missing required durable entities");

@@ -148,9 +148,8 @@ public:
             if (body_end->end.offset == std::numeric_limits<std::uint64_t>::max())
                 return std::unexpected(core::Error::make(core::DiagnosticCode::invalid_argument,
                                                          "Function body is too close to the address-space limit"));
-            // The native FunctionDescription range is exclusive. Extending it beyond the
-            // decoded body makes the frontend read unrelated bytes and can turn a valid
-            // bounded function into an apparent provider failure.
+            // The native FunctionDescription range is exclusive and is bounded
+            // to the decoded function body so neighboring exports are not read.
             const auto native_end = body_end->end.offset + 1U;
             const auto result = native.decompile(recode::decompiler::FunctionDescription{
                 request.function.name, request.function.key.entry.offset, native_end});
