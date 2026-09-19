@@ -1,0 +1,7 @@
+corpus.exe
+corpus.pdb
+corpus.lib
+corpus.exp
+*.obj
+__pycache__/
+corpus.exe_ghidra/
